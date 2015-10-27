@@ -12,23 +12,23 @@ object classifiers {
   val parameters = new SparseAveragedPerceptron.Parameters()
   parameters.modelDir = "model"
 
-  object orgClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel,parameters) {
+  object orgClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel, parameters) {
     def label: Property[ConllRawToken] = entityType is "Org"
     override def feature = using(word)
   }
 
-  object PersonClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel,parameters) {
+  object PersonClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel, parameters) {
     def label: Property[ConllRawToken] = entityType is "Peop"
   }
 
-  object LocClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel,parameters) {
+  object LocClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel, parameters) {
     def label: Property[ConllRawToken] = entityType is "Loc"
   }
 
-  object workForClassifier extends Learnable[ConllRelation](entityRelationBasicDataModel,parameters) {
+  object workForClassifier extends Learnable[ConllRelation](entityRelationBasicDataModel, parameters) {
     override def label: Property[ConllRelation] = relationType is "Work_For"
   }
-  object LivesInClassifier extends Learnable[ConllRelation](entityRelationBasicDataModel,parameters) {
+  object LivesInClassifier extends Learnable[ConllRelation](entityRelationBasicDataModel, parameters) {
     override def label: Property[ConllRelation] = relationType is "Live_In"
   }
 }

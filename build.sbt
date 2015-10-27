@@ -14,7 +14,8 @@ lazy val commonSettings = Seq(
     "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.0",
     "com.gurobi" % "gurobi" % "6.0",
     "org.apache.commons" % "commons-math3" % "3.0",
-    "org.scalatest" % "scalatest_2.11" % "2.2.4"
+    "org.scalatest" % "scalatest_2.11" % "2.2.4",
+    "edu.illinois.cs.cogcomp" % "illinois-sl"  % "1.3.1"
   )
 )
 
