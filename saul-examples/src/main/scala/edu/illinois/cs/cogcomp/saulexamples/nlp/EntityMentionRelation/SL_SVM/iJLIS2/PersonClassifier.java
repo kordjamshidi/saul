@@ -4,25 +4,17 @@
 
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
-/*import Classifier;
-import SparseAveragedPerceptron;
-import util.ClassUtils;
-import util.ExceptionlessInputStream;
-import util.ExceptionlessOutputStream;*/
+import edu.illinois.cs.cogcomp.lbjava.classify.*;
+import edu.illinois.cs.cogcomp.lbjava.learn.SparseAveragedPerceptron;
 
-//import LBJ.SparseAveragedPerceptron;
-//
-//import LBJ.LBJ2.SparseAveragedPerceptron;
 
-import LBJ2.classify.*;
-import LBJ2.learn.*;
-import LBJ2.parse.ArrayFileParser;
-import LBJ2.parse.Parser;
-import LBJ2.util.ClassUtils;
-import LBJ2.util.ExceptionlessInputStream;
-import LBJ2.util.ExceptionlessOutputStream;
-import ml.wolfe.examples.parisa.ConllRawToken;
-
+import edu.illinois.cs.cogcomp.lbjava.learn.*;
+import edu.illinois.cs.cogcomp.lbjava.parse.ArrayFileParser;
+import edu.illinois.cs.cogcomp.lbjava.parse.Parser;
+import edu.illinois.cs.cogcomp.lbjava.util.ClassUtils;
+import edu.illinois.cs.cogcomp.lbjava.util.ExceptionlessInputStream;
+import edu.illinois.cs.cogcomp.lbjava.util.ExceptionlessOutputStream;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRawToken;
 
 public class PersonClassifier extends SparseAveragedPerceptron
 {
@@ -57,7 +49,7 @@ public class PersonClassifier extends SparseAveragedPerceptron
     }
   }
 
-  public static Parser getParser() { return new  ArrayFileParser("PersonClassifier.ex"); }
+  public static Parser getParser() { return new ArrayFileParser("PersonClassifier.ex"); }
   public static Parser getTestParser() { return new ArrayFileParser("PersonClassifier.test.ex"); }
   public static boolean isTraining;
   public static PersonClassifier instance;
@@ -638,7 +630,7 @@ public class PersonClassifier extends SparseAveragedPerceptron
     return super.shouldDemote(a0, a1, a2, a3);
   }
 
-  public  ScoreSet scores(int[] a0, double[] a1)
+  public ScoreSet scores(int[] a0, double[] a1)
   {
     if (isClone)
     {

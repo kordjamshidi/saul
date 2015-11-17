@@ -1,4 +1,4 @@
-// Modifying this comment will cause the next execution of LBJava to overwrite this file.
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava;// Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000D4D814A02C030154FA234659086F20677D590E244A71886FB25C1662E42544A4EEE64712EAEF2ED7EDB96EC71341CAEE8037B1272F9DA4906955E01FC06F38A03F92E374DB348A40AE7B4B2DC752F5A38491F590D1E1B44ECBFB98A168891EB9F439B01AD3B9F71312FFD448D1552076CF309F19AF60EBF78FC019000000
 
 import edu.illinois.cs.cogcomp.core.io.LineIO;
@@ -7,6 +7,8 @@ import edu.illinois.cs.cogcomp.lbjava.infer.*;
 import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
 import edu.illinois.cs.cogcomp.lbjava.learn.*;
 import edu.illinois.cs.cogcomp.lbjava.parse.*;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRawToken;
+
 import java.util.List;
 
 

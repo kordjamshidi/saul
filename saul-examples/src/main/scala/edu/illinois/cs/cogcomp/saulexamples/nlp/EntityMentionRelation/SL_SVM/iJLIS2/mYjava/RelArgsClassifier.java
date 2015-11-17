@@ -1,4 +1,4 @@
-// Modifying this comment will cause the next execution of LBJava to overwrite this file.
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava;// Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // discrete RelArgsClassifier(ConllRelation r) <- JointER(work_forClassifier)
 
 import edu.illinois.cs.cogcomp.core.io.LineIO;
@@ -7,6 +7,10 @@ import edu.illinois.cs.cogcomp.lbjava.infer.*;
 import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
 import edu.illinois.cs.cogcomp.lbjava.learn.*;
 import edu.illinois.cs.cogcomp.lbjava.parse.*;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.JointER;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.work_forClassifier;
+
 import java.util.List;
 
 

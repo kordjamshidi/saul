@@ -7,15 +7,15 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJ
 //import util.ExceptionlessOutputStream;
 
 //import LBJ.learn.SparseAveragedPerceptron;
+import edu.illinois.cs.cogcomp.lbjava.classify.*;
+import edu.illinois.cs.cogcomp.lbjava.learn.*;
+import edu.illinois.cs.cogcomp.lbjava.parse.ArrayFileParser;
+import edu.illinois.cs.cogcomp.lbjava.parse.Parser;
+import edu.illinois.cs.cogcomp.lbjava.util.ClassUtils;
+import edu.illinois.cs.cogcomp.lbjava.util.ExceptionlessInputStream;
+import edu.illinois.cs.cogcomp.lbjava.util.ExceptionlessOutputStream;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRawToken;
 
-import LBJ2.classify.*;
-import LBJ2.learn.*;
-import LBJ2.parse.ArrayFileParser;
-import LBJ2.parse.Parser;
-import LBJ2.util.ClassUtils;
-import LBJ2.util.ExceptionlessInputStream;
-import LBJ2.util.ExceptionlessOutputStream;
-import ml.wolfe.examples.parisa.ConllRawToken;
 //import learn.*;
 public class OrganizationClassifier extends SparseAveragedPerceptron
 {

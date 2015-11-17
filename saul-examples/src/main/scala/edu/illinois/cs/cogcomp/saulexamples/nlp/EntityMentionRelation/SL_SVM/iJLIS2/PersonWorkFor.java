@@ -2,10 +2,9 @@
 // F1B88000000000000000B4ECFCB2E292A4CCCCB2158084D2A2ECFCB0FCF2AC67BCF22D07ECFCBC9C90A4DC94C29CCCFC35821D458A658270A45C7A5E71937E426171766A566A6196005CDACA41A4A8A43551C6DE0A6202B4BE5AA12C5585B24D20001EE1FFCBE6000000
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
-import LBJ2.classify.FeatureVector;
-import LBJ2.infer.*;
-import ml.wolfe.examples.parisa.ConllRelation;
-
+import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
+import edu.illinois.cs.cogcomp.lbjava.infer.*;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
 
 public class PersonWorkFor extends ParameterizedConstraint
 {

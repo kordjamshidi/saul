@@ -1,4 +1,4 @@
-// Modifying this comment will cause the next execution of LBJava to overwrite this file.
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava;// Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000B49CC2E4E2A4D294555507DCB29CC29A47B4D4C292D2A4D26D07ECFCBC9C90A4C2F09CFCE4DC35821D450B1D558A6582E4DCB2E455821DB00FF0650B258292A2D45B658A5000617B321944000000
 
 import edu.illinois.cs.cogcomp.core.io.LineIO;

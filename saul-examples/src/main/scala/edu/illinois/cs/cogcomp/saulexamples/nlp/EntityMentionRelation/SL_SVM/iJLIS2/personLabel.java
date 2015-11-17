@@ -10,11 +10,12 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJ
 //import LBJ2.classify.Feature;
 //import LBJ2.classify.FeatureVector;
 
-import LBJ2.classify.Classifier;
-import LBJ2.classify.DiscretePrimitiveStringFeature;
-import LBJ2.classify.Feature;
-import LBJ2.classify.FeatureVector;
-import ml.wolfe.examples.parisa.ConllRawToken;
+
+import edu.illinois.cs.cogcomp.lbjava.classify.Classifier;
+import edu.illinois.cs.cogcomp.lbjava.classify.DiscretePrimitiveStringFeature;
+import edu.illinois.cs.cogcomp.lbjava.classify.Feature;
+import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRawToken;
 
 public class personLabel extends Classifier
 {

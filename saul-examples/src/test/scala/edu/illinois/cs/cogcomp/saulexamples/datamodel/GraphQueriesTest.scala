@@ -113,8 +113,8 @@ class GraphQueriesTest extends FlatSpec with Matchers {
     query3.counts("a") should be(3)
     query3.counts("e") should be(1)
 
-    "finding the nodes in a window in the neighbohood" should "find the neighbors in a window" in { 
-       firstNames.getWithWindow(firstNames.getAllInstances.head, -2, 2).toSet should be(Set(None, Some("Dave"), Some("John"), Some("Mark"))) 
-      lastNames.getWithWindow(lastNames.getAllInstances.head, -2, 2).toSet should be(Set(None, Some("Dave"), Some("John"), Some("Mark")))  }
+  //  "finding the nodes in a window in the neighbohood" should "find the neighbors in a window" in { 
+  //     firstNames.getWithWindow(firstNames.getAllInstances.head, -2, 2).toSet should be(Set(None, Some("Dave"), Some("John"), Some("Mark"))) 
+  //    lastNames.getWithWindow(lastNames.getAllInstances.head, -2, 2).toSet should be(Set(None, Some("Dave"), Some("John"), Some("Mark")))  }
   }
 }

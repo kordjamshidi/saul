@@ -61,7 +61,7 @@ public class JointER$subjectto extends ParameterizedConstraint
   public int hashCode() { return "JointER$subjectto".hashCode(); }
   public boolean equals(Object o) { return o instanceof JointER$subjectto; }
 
-  public Constraint makeConstraint(Object __example)
+  public FirstOrderConstraint makeConstraint(Object __example)
   {
     if (!(__example instanceof ConllRelation))
     {

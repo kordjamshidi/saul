@@ -1,4 +1,4 @@
-// Modifying this comment will cause the next execution of LBJava to overwrite this file.
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava;// Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000DA09BCE43C04C054F75CACA8E2842C3ABA2D50A24755904167C6A239172912391F8C6780212EFD915BAEF10BDBA3EBA37DECB6B24640B0BC87CE85671055D77E94EA67C13486820A97E806B2878B6804821F40F10F3820CCAE36F07186F4863B092472C3144A50E4D15FDF1F244348E275715D0C315532B8BF4C9AA30780E317AAE90D0BA6FC7356BC29A851CAB601E93A3585CBD00F690549E1FB840B727FA42D25231E8F3767BCA3D06ED3B58ABCB9D08D0EBD1329A6E0EEAC5F60E71C84D6FFF8E7948E9FBD40B5382C97D1FDD7A2278CD7E748EBCC696638BDAB60A8EEF01CF3394BE6100000
 
 import edu.illinois.cs.cogcomp.core.io.LineIO;
@@ -7,6 +7,9 @@ import edu.illinois.cs.cogcomp.lbjava.infer.*;
 import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
 import edu.illinois.cs.cogcomp.lbjava.learn.*;
 import edu.illinois.cs.cogcomp.lbjava.parse.*;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.workLabel;
+
 import java.util.List;
 
 
@@ -169,7 +172,7 @@ public class work_forClassifier extends SparseAveragedPerceptron
   {
     if (isClone)
     {
-      if (!(__example instanceof ConllRelation || __example instanceof Object[]))
+      if (!(__example instanceof Object[]))
       {
         String type = __example == null ? "null" : __example.getClass().getName();
         System.err.println("Classifier 'work_forClassifier(ConllRelation)' defined on line 95 of LALModel.lbj received '" + type + "' as input.");

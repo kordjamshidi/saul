@@ -1,4 +1,4 @@
-// Modifying this comment will cause the next execution of LBJava to overwrite this file.
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava;// Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000B49CC2E4E2A4D294DA652FF2A4752D1505AC301D5BA09F549EE398949A93A1EC9F97939314985E129F9D9A97A052A9A063ABA05DA09996A0A152A79A97521259509AA79A585A98935CE99E979F549AEC985C9AA1063C435318A0186679615E920454CA51A6512537A83519522F0E235B00A5116788D8000000
 
 import edu.illinois.cs.cogcomp.core.io.LineIO;
@@ -7,6 +7,8 @@ import edu.illinois.cs.cogcomp.lbjava.infer.*;
 import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
 import edu.illinois.cs.cogcomp.lbjava.learn.*;
 import edu.illinois.cs.cogcomp.lbjava.parse.*;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRawToken;
+
 import java.util.List;
 
 
@@ -39,15 +41,12 @@ public class orgLabel extends Classifier
 
   public String discreteValue(Object __example)
   {
-    if (!(__example instanceof ConllRawToken))
-    {
       String type = __example == null ? "null" : __example.getClass().getName();
       System.err.println("Classifier 'orgLabel(ConllRawToken)' defined on line 64 of LALModel.lbj received '" + type + "' as input.");
       new Exception().printStackTrace();
       System.exit(1);
-    }
 
-    String __cachedValue = _discreteValue(__example);
+      String __cachedValue = _discreteValue(__example);
 
     if (valueIndexOf(__cachedValue) == -1)
     {

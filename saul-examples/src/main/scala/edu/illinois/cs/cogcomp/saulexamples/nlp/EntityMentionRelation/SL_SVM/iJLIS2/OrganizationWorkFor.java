@@ -5,11 +5,9 @@ import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
 import edu.illinois.cs.cogcomp.lbjava.infer.*;
 
 
-
-
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.OrganizationClassifier;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.work_forClassifier;
-import ml.wolfe.examples.parisa.ConllRelation;
 
 public class OrganizationWorkFor extends ParameterizedConstraint
 {
