@@ -1,12 +1,14 @@
 // Modifying this comment will cause the next execution of LBJ2 to overwrite this file.
 // F1B88000000000000000B4ECFCB2E292A4CCCCB2150FF2A4F4CCBCCAA4C29CCCFCB0FCF2AC67BCF22D07ECFCBC9C90A4DC10B0A24986A245B249305A2E3D2FB8C93721B8B8333D2335B843082E6565A052545A9AA06B67826E02B22DB45328BA3B658A500087F6B885A7000000
-
-import edu.illinois.cs.cogcomp.lbjava.infer.ParameterizedConstraint;
-
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
+import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
+import edu.illinois.cs.cogcomp.lbjava.infer.*;
 
-import LBJ2.classify.FeatureVector;
-import LBJ2.infer.*;
+
+
+
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.OrganizationClassifier;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.work_forClassifier;
 import ml.wolfe.examples.parisa.ConllRelation;
 
 public class OrganizationWorkFor extends ParameterizedConstraint

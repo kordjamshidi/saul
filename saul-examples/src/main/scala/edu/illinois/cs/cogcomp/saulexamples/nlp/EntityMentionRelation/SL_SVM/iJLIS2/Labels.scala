@@ -4,11 +4,11 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJ
  * Created by parisakordjamshidi on 23/09/14.
  */
 class Labels {
-  var E1Label:java.lang.String="";
-  var E2Label:java.lang.String="";
-  var RelLabel:java.lang.String="";
+  var E1Label:String="";
+  var E2Label:String="";
+  var RelLabel:String="";
  // val labels: util.ArrayList[String]=new  util.ArrayList[String]
-def set(x:java.lang.String,y:java.lang.String,z:java.lang.String) {
+def set(x:String,y:String,z:String) {
    E1Label=x;
    E2Label=y;
    RelLabel=z;

@@ -1,5 +1,4 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS;
-
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.RunnerPL;
 import edu.illinois.cs.cogcomp.sl.util.IFeatureVector;
 import org.apache.commons.lang3.ArrayUtils;

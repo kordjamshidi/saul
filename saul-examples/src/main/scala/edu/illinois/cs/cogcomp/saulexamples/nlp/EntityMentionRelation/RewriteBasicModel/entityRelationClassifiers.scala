@@ -10,14 +10,13 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.RewriteBas
 object entityRelationClassifiers {
 
   val parameters = new SparseAveragedPerceptron.Parameters()
-  parameters.modelDir = "model"
+  //parameters.modelDir = "model"
 
   object orgClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel, parameters) {
     def label: Property[ConllRawToken] = entityType is "Org"
     override def feature = using(word)
   }
 
-<<<<<<< HEAD:saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityMentionRelation/RewriteBasicModel/Classifiers.scala
   object PersonClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel, parameters) {
     def label: Property[ConllRawToken] = entityType is "Peop"
   }
@@ -30,7 +29,8 @@ object entityRelationClassifiers {
     override def label: Property[ConllRelation] = relationType is "Work_For"
   }
   object LivesInClassifier extends Learnable[ConllRelation](entityRelationBasicDataModel, parameters) {
-=======
+    override def label: Property[ConllRelation] = relationType is "Work_For"}
+
   object personClassifier extends Learnable[ConllRawToken](entityRelationBasicDataModel) {
     def label: Property[ConllRawToken] = entityType is "Peop"
   }
@@ -43,8 +43,7 @@ object entityRelationClassifiers {
     override def label: Property[ConllRelation] = relationType is "Work_For"
   }
   object livesInClassifier extends Learnable[ConllRelation](entityRelationBasicDataModel) {
->>>>>>> cd5ea66a9de3dac0b85e15b0cad3ba0540a0b3f6:saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityMentionRelation/RewriteBasicModel/entityRelationClassifiers.scala
-    override def label: Property[ConllRelation] = relationType is "Live_In"
+   override def label: Property[ConllRelation] = relationType is "Live_In"
   }
 }
 

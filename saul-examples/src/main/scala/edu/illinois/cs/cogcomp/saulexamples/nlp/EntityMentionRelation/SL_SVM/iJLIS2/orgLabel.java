@@ -7,10 +7,10 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJ
 
 //import LBJ.LBJ2.Classifier;
 
-import LBJ2.classify.Classifier;
-import LBJ2.classify.DiscretePrimitiveStringFeature;
-import LBJ2.classify.Feature;
-import LBJ2.classify.FeatureVector;
+
+import edu.illinois.cs.cogcomp.lbjava.classify.Classifier;
+import edu.illinois.cs.cogcomp.lbjava.classify.DiscretePrimitiveStringFeature;
+import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
 import ml.wolfe.examples.parisa.ConllRawToken;
 
 
@@ -30,7 +30,7 @@ public class orgLabel extends Classifier
     public String[] allowableValues() { return __allowableValues; }
 
 
-    public  FeatureVector classify(Object __example)
+    public FeatureVector classify(Object __example)
     {
         return new  FeatureVector(featureValue(__example));
     }

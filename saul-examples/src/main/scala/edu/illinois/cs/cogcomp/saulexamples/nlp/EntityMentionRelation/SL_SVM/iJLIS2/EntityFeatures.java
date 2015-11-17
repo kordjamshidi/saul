@@ -4,10 +4,11 @@
 
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
-import LBJ2.classify.Classifier;
-import LBJ2.classify.DiscretePrimitiveStringFeature;
-import LBJ2.classify.FeatureVector;
-import ml.wolfe.examples.parisa.ConllRawToken;
+
+import edu.illinois.cs.cogcomp.lbjava.classify.Classifier;
+import edu.illinois.cs.cogcomp.lbjava.classify.DiscretePrimitiveStringFeature;
+import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRawToken;
 
 public class EntityFeatures extends Classifier
 {

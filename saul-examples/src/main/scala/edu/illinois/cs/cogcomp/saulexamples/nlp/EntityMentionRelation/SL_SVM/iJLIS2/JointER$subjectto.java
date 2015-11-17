@@ -3,18 +3,16 @@
 
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
-import LBJ2.classify.FeatureVector;
-import LBJ2.infer.FirstOrderConjunction;
-import LBJ2.infer.FirstOrderConstant;
-import LBJ2.infer.FirstOrderConstraint;
-import LBJ2.infer.ParameterizedConstraint;
-import ml.wolfe.examples.parisa.ConllRelation;
+
+import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
+import edu.illinois.cs.cogcomp.lbjava.infer.*;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
 
 
 public class JointER$subjectto extends ParameterizedConstraint
 {
-  private static final ml.wolfe.examples.parisa.iJLIS2.PersonWorkFor __PersonWorkFor = new ml.wolfe.examples.parisa.iJLIS2.PersonWorkFor();
-  private static final ml.wolfe.examples.parisa.iJLIS2.OrganizationWorkFor __OrganizationWorkFor = new ml.wolfe.examples.parisa.iJLIS2.OrganizationWorkFor();
+  private static final PersonWorkFor __PersonWorkFor = new PersonWorkFor();
+  private static final OrganizationWorkFor __OrganizationWorkFor = new OrganizationWorkFor();
 
   public JointER$subjectto() { super("ml.wolfe.examples.parisa.iJLIS2.JointER$subjectto"); }
 
@@ -63,7 +61,7 @@ public class JointER$subjectto extends ParameterizedConstraint
   public int hashCode() { return "JointER$subjectto".hashCode(); }
   public boolean equals(Object o) { return o instanceof JointER$subjectto; }
 
-  public FirstOrderConstraint makeConstraint(Object __example)
+  public Constraint makeConstraint(Object __example)
   {
     if (!(__example instanceof ConllRelation))
     {

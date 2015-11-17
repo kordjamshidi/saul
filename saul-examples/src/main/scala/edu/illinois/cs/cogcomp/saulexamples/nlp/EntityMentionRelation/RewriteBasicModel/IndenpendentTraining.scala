@@ -27,20 +27,20 @@ object indenpendentTraining extends App {
   personClassifier.test(tokens.getAllInstances)
   orgClassifier.learn(it)
   orgClassifier.test(tokens.getAllInstances)
-<<<<<<< HEAD
+
   LocClassifier.learn(it)
   LocClassifier.test(tokens.getAllInstances)
   workForClassifier.learn(it)
   workForClassifier.test(pairs.getAllInstances)
   LivesInClassifier.learn(it)
   LivesInClassifier.test(pairs.getAllInstances)
-=======
+
   locationClassifier.learn(it)
   locationClassifier.test(tokens.getAllInstances)
   //  workForClassifier.learn(it)
   //  workForClassifier.test()
   //  LivesInClassifier.learn(it)
   //  LivesInClassifier.test()
->>>>>>> cd5ea66a9de3dac0b85e15b0cad3ba0540a0b3f6
+
 
 }

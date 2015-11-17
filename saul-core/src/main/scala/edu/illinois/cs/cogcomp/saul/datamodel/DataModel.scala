@@ -5,11 +5,9 @@ import edu.illinois.cs.cogcomp.saul.datamodel.node.{ JoinNode, Node }
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.discrete._
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.real._
 import edu.illinois.cs.cogcomp.saul.datamodel.property.{ EvaluatedProperty, Property }
-<<<<<<< HEAD
-=======
+
 import edu.illinois.cs.cogcomp.saul.datamodel.node.{ JoinNode, Node }
 import edu.illinois.cs.cogcomp.saul.datamodel.edge.{ SymmetricEdge, AsymmetricEdge, Edge, Link }
->>>>>>> cd5ea66a9de3dac0b85e15b0cad3ba0540a0b3f6
 
 import scala.collection.mutable.{ ListBuffer, Map => MutableMap }
 import scala.reflect.ClassTag

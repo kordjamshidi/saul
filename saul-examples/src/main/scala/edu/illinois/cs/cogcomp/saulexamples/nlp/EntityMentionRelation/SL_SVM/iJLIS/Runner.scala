@@ -11,14 +11,7 @@ import edu.illinois.cs.cogcomp.sl.util.{Lexiconer, WeightVector}
 
 
 object Runner {
-  /**
-   * This modifies the two lists given two it. They are initialized.
-   *
-  // * @param sclist
-  // * @param outlist
-  // * @param fname
-   * @throws java.io.FileNotFoundException
-   */
+
 var lexm: Lexiconer = new Lexiconer()
   /*def readX(cr:Conll04_InstanceReader):List[IInstance]={
     var i: Int = 0
@@ -57,9 +50,6 @@ var lexm: Lexiconer = new Lexiconer()
 */
 
   def trainSSVM(modelname: String): String = {
-
-
-
     var cr = new Conll04_ReaderNew("/Users/parisakordjamshidi/wolfe-0.1.0/LBJ/data/conll04.corp","Pair")
     var sclist: List[IInstance]= new ArrayList[IInstance]//=readX(cr)
     var outlist: List[IStructure] = new ArrayList[IStructure]//readY(cr)
@@ -76,7 +66,7 @@ var lexm: Lexiconer = new Lexiconer()
     val si: iERinference = new iERinference
     val model: SLModel = new SLModel
     model.infSolver= si
-    model.featureGenerator= ERFeatureGenerator
+  //  model.featureGenerator= ERFeatureGenerator
     model.lm = lexm
     model.saveModel(modelname);
     model.config = new util.HashMap();

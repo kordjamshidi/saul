@@ -5,13 +5,15 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJ
 //import LBJ.infer.GurobiHook;
 //import LBJ.infer.ILPInference;
 
-import LBJ2.infer.GurobiHook;
-import LBJ2.learn.Learner;
-import LBJ2.learn.Normalizer;
-import LBJ2.learn.Softmax;
-import ml.wolfe.examples.parisa.ConllRelation;
 
-public class JointER extends LBJ2.infer.ILPInference
+import edu.illinois.cs.cogcomp.lbjava.infer.GurobiHook;
+import edu.illinois.cs.cogcomp.lbjava.infer.ILPInference;
+import edu.illinois.cs.cogcomp.lbjava.learn.Learner;
+import edu.illinois.cs.cogcomp.lbjava.learn.Normalizer;
+import edu.illinois.cs.cogcomp.lbjava.learn.Softmax;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
+
+public class JointER extends ILPInference
 {
   public static ConllRelation findHead(ConllRelation t)
   {
@@ -23,7 +25,7 @@ public class JointER extends LBJ2.infer.ILPInference
   public JointER(ConllRelation head)
   {
     super(head, new GurobiHook());
-    constraint = new ml.wolfe.examples.parisa.iJLIS2.JointER$subjectto().makeConstraint(head);
+    constraint = new JointER$subjectto().makeConstraint(head);
   }
 
   public String getHeadType() { return "ml.wolfe.examples.parisa.ConllRelation"; }

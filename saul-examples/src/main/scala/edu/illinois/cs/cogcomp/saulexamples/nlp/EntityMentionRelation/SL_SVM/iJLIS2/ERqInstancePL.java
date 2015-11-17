@@ -1,8 +1,10 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
+import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS.SUtils;
 import edu.illinois.cs.cogcomp.sl.core.IInstance;
+import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
 import edu.illinois.cs.cogcomp.sl.util.IFeatureVector;
 
 import java.util.ArrayList;
@@ -17,9 +19,9 @@ public class ERqInstancePL implements IInstance {
     ConllRelation pair;
    // List<String> nodeNames; // order matters!
 
-    IFeatureVector E1fv;
-    IFeatureVector E2fv;
-    IFeatureVector Rfv;
+    FeatureVectorBuffer E1fv;
+    FeatureVectorBuffer E2fv;
+    FeatureVectorBuffer Rfv;
 
     public ERqInstancePL(ConllRelation pair) {
         this.pair=pair;
@@ -36,10 +38,10 @@ public class ERqInstancePL implements IInstance {
        //System.out.println(RunnerPL.lexm().totalNumofFeature());
 
       // do something with node names to make features
-        this.E1fv = SUtils.makeFeatures(E1feats);
+        this.E1fv = (FeatureVectorBuffer) SUtils.makeFeatures(E1feats);
 
-        this.E2fv = SUtils.makeFeatures(E2feats);
-        this.Rfv= SUtils.makeFeatures(Rfeats);
+        this.E2fv = (FeatureVectorBuffer) SUtils.makeFeatures(E2feats);
+        this.Rfv= (FeatureVectorBuffer) SUtils.makeFeatures(Rfeats);
       }
 
 

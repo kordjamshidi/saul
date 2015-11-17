@@ -1,45 +1,36 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
-/**
- * Created by parisakordjamshidi on 22/09/14.
- */
-
-
-import LBJ2.infer.GurobiHook;
-import LBJ2.infer.InferenceManager;
-import edu.illinois.cs.cogcomp.core.datastructures.Pair;
-import edu.illinois.cs.cogcomp.indsup.inference.AbstractLossSensitiveStructureFinder;
-import edu.illinois.cs.cogcomp.indsup.inference.IInstance;
-import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
-import edu.illinois.cs.cogcomp.indsup.learning.WeightVector;
+import edu.illinois.cs.cogcomp.lbjava.infer.GurobiHook;
+import edu.illinois.cs.cogcomp.lbjava.infer.InferenceManager;
+import edu.illinois.cs.cogcomp.lbjava.learn.Learner;
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS.ERiStructure;
+import edu.illinois.cs.cogcomp.sl.core.AbstractInferenceSolver;
+import edu.illinois.cs.cogcomp.sl.core.IInstance;
+import edu.illinois.cs.cogcomp.sl.core.IStructure;
+import edu.illinois.cs.cogcomp.sl.util.IFeatureVector;
+import edu.illinois.cs.cogcomp.sl.util.WeightVector;
 import gurobi.*;
-import ml.wolfe.examples.parisa.ConllRelation;
+import javafx.util.Pair;
 
 import java.util.Arrays;
-//import edu.illinois.cs.cogcomp.jlistutorial.SUtils.NodeLabel;
 
-public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
+public class iERjavaInferencePL extends AbstractInferenceSolver {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * This is for training
-     */
-    @Override
 
     public Pair<IStructure, Double> getLossSensitiveBestStructure(WeightVector wv, IInstance input, IStructure gold) throws Exception {
-////
-        int blockSize= RunnerPL.lexm().totalNumofFeature();
-        double[] globalWeight=wv.getWeightArray();
-        double[]  WeightPer= Arrays.copyOfRange(globalWeight, 0,blockSize-1);
-        double[]  WeightOrg=Arrays.copyOfRange(globalWeight,blockSize,2*blockSize-1);
-        double[]  WeightWF=Arrays.copyOfRange(globalWeight,2*blockSize,3*blockSize-1);
-        WeightVector wvPer=new WeightVector(WeightPer,1);
-        WeightVector wvOrg=new WeightVector(WeightOrg,1);
-        WeightVector wvWF=new WeightVector(WeightWF,1);
-       // ERqInstancePL qi = (ERqInstancePL) input;
-        ml.wolfe.examples.parisa.iJLIS2.Labels temp=new ml.wolfe.examples.parisa.iJLIS2.Labels();
-        /////
+
+        int blockSize= RunnerPL.lexm().getNumOfFeature();
+        float[] globalWeight=wv.getWeightArray();
+        float[]  WeightPer= Arrays.copyOfRange(globalWeight, 0,blockSize-1);
+        float[]  WeightOrg=Arrays.copyOfRange(globalWeight,blockSize,2*blockSize-1);
+        float[]  WeightWF=Arrays.copyOfRange(globalWeight,2*blockSize,3*blockSize-1);
+
+        WeightVector wvPer=new WeightVector(new WeightVector(WeightPer),1);
+        WeightVector wvOrg=new WeightVector(new WeightVector(WeightOrg),1);
+        WeightVector wvWF=new WeightVector(new WeightVector(WeightWF),1);
         ERiStructurePL goldStruct = (ERiStructurePL) gold;
 
         Integer goldL = (((ERiStructurePL) gold).Rlables.E1Label().toLowerCase().contains("peop")) ? 1 : 0;
@@ -52,13 +43,14 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
         Double coefLosorg2= Double.valueOf((1-2*(goldL)));
         goldL= (((ERiStructurePL) gold).Rlables.RelLabel().toLowerCase().contains("work")) ? 1 : 0;
         Double coefLosWF= Double.valueOf((1-2*(goldL)));
-//        double loss;
+        Labels temp=new Labels();
+
         ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
-        Double  coefper1=wvPer.dotProduct(((ERqInstancePL) input).E1fv)+coefLosper1;
-        Double  coefper2=wvPer.dotProduct(((ERqInstancePL) input).E2fv)+coefLosper2;
-        Double  coeforg1=wvOrg.dotProduct(((ERqInstancePL) input).E1fv)+coefLosorg1;
-        Double  coeforg2=wvOrg.dotProduct(((ERqInstancePL) input).E2fv)+coefLosorg2;
-        Double  coefWF=wvWF.dotProduct(((ERqInstancePL) input).Rfv)+coefLosWF;
+        Double  coefper1=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv)+coefLosper1;
+        Double  coefper2=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv)+coefLosper2;
+        Double  coeforg1=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv)+coefLosorg1;
+        Double  coeforg2=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv)+coefLosorg2;
+        Double  coefWF=wvWF.dotProduct((IFeatureVector) ((ERqInstancePL) input).Rfv)+coefLosWF;
 
      try{
          GRBEnv    env   = new GRBEnv("mip1.log");
@@ -131,40 +123,21 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
                     e.getMessage());
         }
        // Return structure with highest score+loss, and loss of this structure
-        return new Pair<IStructure, Double>(maxC, getHammingLoss(maxC, goldStruct));
+        return new Pair<IStructure, Double>(maxC, ((double) getLoss(((IInstance) maxC.qi), maxC, goldStruct)));
     }
 
-    public double getlocalLoss(String hyp, String gold) {
-        double loss = 0;
-        //double E2loss=0;
-        //double Rloss=0;
-        if (hyp.equals(gold))
-            loss = 0;
-        else
-            loss = 1;
+    @Override
+    public float getLoss(IInstance iInstance, IStructure iStructure, IStructure iStructure1) {
 
-        //if (hyp.Rlables.E2Label().equals(gold.Rlables.E2Label()))
-        //  E2loss=0;
-        //else
-        //  E2loss=1;
-
-
-        /*if (hyp.nodeValues==gold.nodeValues)
-            loss=0;
-        else
-            loss=1;
-       */ //return ((E1loss+E2loss)/2);
-    return loss;
-    }
-
-    public double getHammingLoss(ERiStructurePL hyp, ERiStructurePL gold){
-        double E1loss = 0;
-        double E2loss=0;
-        double Rloss=0;
+        float E1loss = 0;
+        float E2loss=0;
+        float Rloss=0;
+        ERiStructurePL hyp= ((ERiStructurePL) iStructure);
+        ERiStructurePL gold=((ERiStructurePL) iStructure1);
         if (hyp.Rlables.E1Label().equals(gold.Rlables.E1Label()))
-                E1loss=0;
+            E1loss=0;
         else
-                E1loss=1;
+            E1loss=1;
 
         if (hyp.Rlables.E2Label().equals(gold.Rlables.E2Label()))
             E2loss=0;
@@ -176,24 +149,21 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
             Rloss=0;
         else
             Rloss=1;
-
-        /*if (hyp.nodeValues==gold.nodeValues)
-            loss=0;
-        else
-            loss=1;
-       */ return ((E1loss+E2loss+Rloss)/3);
-    }
-
-    /**
+        return ((E1loss+E2loss+Rloss)/3);
+  }
+  /**
      * This is for prediction.
      */
-   // @Override
-    public IStructure getBestStructureGurobiHook(WeightVector wv, IInstance input) throws Exception { //using GurobiHook
-        int blockSize=RunnerPL.lexm().totalNumofFeature();
-        double[] globalWeight=wv.getWeightArray();
-        double[]  WeightPer= Arrays.copyOfRange(globalWeight, 0,blockSize-1);
-        double[]  WeightOrg=Arrays.copyOfRange(globalWeight,blockSize,2*blockSize-1);
-        double[]  WeightWF=Arrays.copyOfRange(globalWeight,2*blockSize,3*blockSize-1);
+
+
+  @Override
+  public IStructure getLossAugmentedBestStructure(WeightVector wv, IInstance input, IStructure iStructure) throws Exception {
+
+       int blockSize=RunnerPL.lexm().getNumOfFeature();
+        WeightVector globalWeight=new WeightVector(wv.getWeightArray());
+        WeightVector  WeightPer= new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(), 0,blockSize-1));
+        WeightVector WeightOrg=new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(),blockSize,2*blockSize-1));
+        WeightVector WeightWF=new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(),2*blockSize,3*blockSize-1));
         WeightVector wvPer=new WeightVector(WeightPer,1);
         WeightVector wvOrg=new WeightVector(WeightOrg,1);
         WeightVector wvWF=new WeightVector(WeightWF,1);
@@ -202,15 +172,15 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
 
         //  double max = Double.NEGATIVE_INFINITY;
         //double score;
-        ml.wolfe.examples.parisa.iJLIS2.Labels temp=new Labels();
+        Labels temp=new Labels();
         ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
 
 
-        double  coefper1=wvPer.dotProduct(((ERqInstancePL) input).E1fv);
-        double  coefper2=wvPer.dotProduct(((ERqInstancePL) input).E2fv);
-        double  coeforg1=wvOrg.dotProduct(((ERqInstancePL) input).E1fv);
-        double  coeforg2=wvOrg.dotProduct(((ERqInstancePL) input).E2fv);
-        double  coefWF=wvWF.dotProduct(((ERqInstancePL) input).Rfv);
+        double  coefper1=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
+        double  coefper2=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv);
+        double  coeforg1=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
+        double  coeforg2=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv);
+        double  coefWF=wvWF.dotProduct((IFeatureVector) ((ERqInstancePL) input).Rfv);
         //try
         {
             GurobiHook myGurobi=new GurobiHook();
@@ -326,11 +296,11 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
 
 
     public IStructure getBestStructureDirectGurobi(WeightVector wv, IInstance input) throws Exception {
-        int blockSize=RunnerPL.lexm().totalNumofFeature();
-        double[] globalWeight=wv.getWeightArray();
-        double[]  WeightPer= Arrays.copyOfRange(globalWeight, 0,blockSize-1);
-        double[]  WeightOrg=Arrays.copyOfRange(globalWeight,blockSize,2*blockSize-1);
-        double[]  WeightWF=Arrays.copyOfRange(globalWeight,2*blockSize,3*blockSize-1);
+        int blockSize=RunnerPL.lexm().getNumOfFeature();
+        WeightVector globalWeight=new WeightVector(wv.getWeightArray());
+        WeightVector  WeightPer= new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(), 0,blockSize-1));
+        WeightVector  WeightOrg=new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(),blockSize,2*blockSize-1));
+        WeightVector WeightWF=new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(), 2 * blockSize, 3 * blockSize - 1));
         WeightVector wvPer=new WeightVector(WeightPer,1);
         WeightVector wvOrg=new WeightVector(WeightOrg,1);
         WeightVector wvWF=new WeightVector(WeightWF,1);
@@ -339,15 +309,15 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
 
       //  double max = Double.NEGATIVE_INFINITY;
         //double score;
-        ml.wolfe.examples.parisa.iJLIS2.Labels temp=new Labels();
+        Labels temp=new Labels();
         ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
 
 
-        Double  coefper1=wvPer.dotProduct(((ERqInstancePL) input).E1fv);
-        Double  coefper2=wvPer.dotProduct(((ERqInstancePL) input).E2fv);
-        Double  coeforg1=wvOrg.dotProduct(((ERqInstancePL) input).E1fv);
-        Double  coeforg2=wvOrg.dotProduct(((ERqInstancePL) input).E2fv);
-        Double  coefWF=wvWF.dotProduct(((ERqInstancePL) input).Rfv);
+        float  coefper1=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
+        float  coefper2=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv);
+        float  coeforg1=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
+        float  coeforg2=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv);
+        float  coefWF=wvWF.dotProduct((IFeatureVector) ((ERqInstancePL) input).Rfv);
          try{
            GRBEnv    env   = new GRBEnv("mip1.log");
            GRBModel  model = new GRBModel(env);
@@ -422,28 +392,28 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
     }
     @Override
     public IStructure getBestStructure(WeightVector wv, IInstance input) throws Exception { //using GurobiHook
-        int blockSize=RunnerPL.lexm().totalNumofFeature();
-        double[] globalWeight=wv.getWeightArray();
-        double[]  WeightPer= Arrays.copyOfRange(globalWeight, 0,blockSize-1);
-        double[]  WeightOrg=Arrays.copyOfRange(globalWeight,blockSize,2*blockSize-1);
-        double[]  WeightWF=Arrays.copyOfRange(globalWeight,2*blockSize,3*blockSize-1);
-        WeightVector wvPer=new WeightVector(WeightPer,1);
-        WeightVector wvOrg=new WeightVector(WeightOrg,1);
-        WeightVector wvWF=new WeightVector(WeightWF,1);
-        ml.wolfe.examples.parisa.iJLIS2.JointER JE=new JointER(((ERqInstancePL) input).pair);
-        ConllRelation head = ml.wolfe.examples.parisa.iJLIS2.JointER.findHead((ConllRelation) ((ERqInstancePL) input).pair);
-        ml.wolfe.examples.parisa.iJLIS2.JointER inference = (JointER) InferenceManager.get("ml.wolfe.examples.parisa.iJLIS2.JointER", head);
+        int blockSize=RunnerPL.lexm().getNumOfFeature();
+        WeightVector globalWeight= new WeightVector(wv.getWeightArray());
+        WeightVector WeightPer= new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(), 0,blockSize-1));
+        WeightVector WeightOrg= new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(),blockSize,2*blockSize-1));
+        WeightVector WeightWF= new WeightVector(Arrays.copyOfRange(globalWeight.getWeightArray(),2*blockSize,3*blockSize-1));
+        WeightVector wvPer= new WeightVector(WeightPer,1);
+        WeightVector wvOrg= new WeightVector(WeightOrg,1);
+        WeightVector wvWF= new WeightVector(WeightWF,1);
+        JointER JE= new JointER(((ERqInstancePL) input).pair);
+        ConllRelation head = JointER.findHead((ConllRelation) ((ERqInstancePL) input).pair);
+        JointER inference = (JointER) InferenceManager.get("ml.wolfe.examples.parisa.iJLIS2.JointER", head);
 
         if (inference == null)
         {
-            inference = new ml.wolfe.examples.parisa.iJLIS2.JointER(head);
+            inference = new JointER(head);
             InferenceManager.put(inference);
         }
 
         String result = null;
-        ml.wolfe.examples.parisa.iJLIS2.work_forClassifier __work_forClassifier = new ml.wolfe.examples.parisa.iJLIS2.work_forClassifier();
+        work_forClassifier __work_forClassifier = new work_forClassifier();
         try {
-            result = inference.valueOf(__work_forClassifier, ((ERqInstancePL) input).pair);
+            result = inference.valueOf((__work_forClassifier), ((ERqInstancePL) input).pair);
         }
         catch (Exception e)
         {
@@ -461,16 +431,16 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
 
         //  double max = Double.NEGATIVE_INFINITY;
         //double score;
-        ml.wolfe.examples.parisa.iJLIS2.Labels temp=new Labels();
+        Labels temp=new Labels();
         ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
 ///////
 
 
-        double  coefper1=wvPer.dotProduct(((ERqInstancePL) input).E1fv);
-        double  coefper2=wvPer.dotProduct(((ERqInstancePL) input).E2fv);
-        double  coeforg1=wvOrg.dotProduct(((ERqInstancePL) input).E1fv);
-        double  coeforg2=wvOrg.dotProduct(((ERqInstancePL) input).E2fv);
-        double  coefWF=wvWF.dotProduct(((ERqInstancePL) input).Rfv);
+        double  coefper1=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
+        double  coefper2=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv);
+        double  coeforg1=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
+        double  coeforg2=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv);
+        double  coefWF=wvWF.dotProduct((IFeatureVector) ((ERqInstancePL) input).Rfv);
         //try
         {
             GurobiHook myGurobi=new GurobiHook();
@@ -579,6 +549,9 @@ public class iERjavaInferencePL extends AbstractLossSensitiveStructureFinder {
         //  }
         return maxC;
     }
+
+
+
     /*public FirstOrderConstraint makeConstraint(Object __example)
     {
         if (!(__example instanceof ConllRelation))
