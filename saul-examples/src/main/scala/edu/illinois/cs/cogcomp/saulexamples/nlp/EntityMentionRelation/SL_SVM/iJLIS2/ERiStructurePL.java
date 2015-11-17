@@ -19,7 +19,7 @@ public class ERiStructurePL implements IStructure {
         public FeatureVectorBuffer fvO=new FeatureVectorBuffer(new int[0] , new double[0]);
         public FeatureVectorBuffer fvWorkFor=new FeatureVectorBuffer(new int[0] , new double[0]);
         public FeatureVectorBuffer fvLivesIn=new FeatureVectorBuffer(new int[0] , new double[0]);
-        public FeatureVectorBuffer fv;
+        public FeatureVectorBuffer fv=new FeatureVectorBuffer();
 
         public ERiStructurePL(ERqInstancePL qi, Labels Rlables) {
        // List<String> feats = new ArrayList<String>();

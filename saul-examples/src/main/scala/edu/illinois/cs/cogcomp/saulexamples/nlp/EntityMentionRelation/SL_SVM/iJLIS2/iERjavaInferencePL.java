@@ -578,14 +578,7 @@ public class iERjavaInferencePL extends AbstractInferenceSolver {
         return __result;
     }
 */
-    /**
-     * Given this QueryInstance, what are the options for responses?
-     * This simple method just enumerates all possibilities. (in this
-     * contrived example there are 8 total)
-     *
-     * @param qi
-     * @return
-     */
-
-
+    public iERjavaInferencePL clone()  {
+        return new iERjavaInferencePL();
+    }
 }

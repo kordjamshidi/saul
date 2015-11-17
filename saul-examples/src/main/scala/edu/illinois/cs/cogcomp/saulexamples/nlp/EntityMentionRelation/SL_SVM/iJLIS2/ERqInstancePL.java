@@ -40,9 +40,9 @@ public class ERqInstancePL implements IInstance {
        //System.out.println(RunnerPL.lexm().totalNumofFeature());
 
       // do something with node names to make features
-      //  this.E1fv =  SUtils.makeFeatures(E1feats);
-      //  this.E2fv = (FeatureVectorBuffer) SUtils.makeFeatures(E2feats);
-      //  this.Rfv= (FeatureVectorBuffer) SUtils.makeFeatures(Rfeats);
+        this.E1fv =  SUtils.makeFeatures(E1feats);
+        this.E2fv =  SUtils.makeFeatures(E2feats);
+        this.Rfv=    SUtils.makeFeatures(Rfeats);
       }
 
 

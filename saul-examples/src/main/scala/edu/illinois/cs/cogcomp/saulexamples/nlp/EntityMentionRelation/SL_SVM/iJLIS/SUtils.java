@@ -1,5 +1,6 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS;
 
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.RunnerPL;
 import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
 import edu.illinois.cs.cogcomp.sl.util.Lexiconer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -22,19 +23,19 @@ public class SUtils {
 
 		for (String feat : feats) {
 
-			if (!Runner.lexm().containFeature(feat)) {
-                System.out.println("Flag of preview: "+ Runner.lexm().getNumOfFeature());
-                System.out.print("before Flag of feature set: "+ Runner.lexm().isAllowNewFeatures()+"\n");
-                if(Runner.lexm().isAllowNewFeatures())
+			if (!RunnerPL.lexm().containFeature(feat)) {
+                System.out.println("Flag of preview: "+ RunnerPL.lexm().getNumOfFeature());
+                System.out.print("before Flag of feature set: "+ RunnerPL.lexm().isAllowNewFeatures()+"\n");
+                if(RunnerPL.lexm().isAllowNewFeatures())
 				 //Todo see the error of the following line
-				    //   RunnerPL.lexm().previewFeature(feat);
-                System.out.print("After preview flag: "+Runner.lexm().getNumOfFeature());
-                System.out.print("Flag of  after feature set: "+ Runner.lexm().isAllowNewFeatures()+"\n");
-                Runner.lexm().addFeature(feat);
+				    //   RunnerPLPL.lexm().previewFeature(feat);
+                System.out.print("After preview flag: "+RunnerPL.lexm().getNumOfFeature());
+                System.out.print("Flag of  after feature set: "+ RunnerPL.lexm().isAllowNewFeatures()+"\n");
+                RunnerPL.lexm().addFeature(feat);
             }
-            if (Runner.lexm().containFeature(feat)) {
+            if (RunnerPL.lexm().containFeature(feat)) {
 
-                int fid = Runner.lexm().getFeatureId(feat);
+                int fid = RunnerPL.lexm().getFeatureId(feat);
                 idxList.add(fid);
                 valList.add(1.);
             }

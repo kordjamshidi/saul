@@ -12,7 +12,7 @@ object RunnerPL {
   /**
    * This modifies the two lists given two it. They are initialized.
    */
-  var lexm:Lexiconer=null
+  var lexm:Lexiconer = new Lexiconer()
 
 
 def readXY(cr:Conll04_ReaderNew, outlist: =>List[IStructure], sclist: => List[IInstance], l:Int,u:Int){
