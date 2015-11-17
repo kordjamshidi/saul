@@ -12,7 +12,9 @@ object RunnerPL {
   /**
    * This modifies the two lists given two it. They are initialized.
    */
-var lexm: Lexiconer = new Lexiconer()
+  var lexm:Lexiconer=null
+
+
 def readXY(cr:Conll04_ReaderNew, outlist: =>List[IStructure], sclist: => List[IInstance], l:Int,u:Int){
     var i= l
     while (i < u){//cr.instances.size){
@@ -30,40 +32,40 @@ def readXY(cr:Conll04_ReaderNew, outlist: =>List[IStructure], sclist: => List[II
   }
 
 
-  def trainSSVM(modelname: String, cr:Conll04_ReaderNew): String = {
+  def trainSSVM(modelname: String, cr:Conll04_ReaderNew): Unit = {
 
-    var sclist: List[IInstance]= new util.ArrayList[IInstance]//=readX(cr)
-    var outlist: List[IStructure] = new util.ArrayList[IStructure]//readY(cr)
+    var sclist: List[IInstance]= new util.ArrayList[IInstance]     //=readX(cr)
+    var outlist: List[IStructure] = new util.ArrayList[IStructure] //readY(cr)
     readXY(cr,outlist,sclist,0,10)
-    //cr=null
-  //  val fname: String = "/Users/parisakordjamshidi/wolfe-0.1.0/wolfe-examples/src/main/scala/ml/wolfe/examples/parisa/iJLIS/namedata-train"
-    lexm.setAllowNewFeatures(false)
+
+    val model: SLModel = new SLModel
+    model.lm= new Lexiconer()
+    model.lm.setAllowNewFeatures(false)
+   lexm=model.lm
+
     val sp: SLProblem = new SLProblem
     sp.instanceList = sclist
     sp.goldStructureList = outlist
+
     val para: SLParameters = new SLParameters
-    para.TOTAL_NUMBER_FEATURE = 3*lexm.getNumOfFeature
+    para.TOTAL_NUMBER_FEATURE = 3*model.lm.getNumOfFeature
     para.C_FOR_STRUCTURE = 1
     para.CHECK_INFERENCE_OPT = false
-    val si: iERjavaInferencePL = new iERjavaInferencePL
-    val model: SLModel = new SLModel
 
     model.infSolver= new iERjavaInferencePL
-    model.lm = lexm
-    model.saveModel(modelname);
+
     model.config = new util.HashMap();
     model.para=para
     model.featureGenerator= new ERFeatureGenerator
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
    // val learned_wv: WeightVector = learner.trainStructuredSVM(si, sp, para)
     model.wv = learner.train(sp)
-    return modelname
-  }
+    model.saveModel(modelname);
+ }
 
   def testSequenceSSVM(model_name: String,cr:Conll04_ReaderNew) {
    // val iom: JLISModelIOManager = new JLISModelIOManager
     val model: SLModel = SLModel.loadModel(model_name)
-    RunnerPL.lexm = model.lm
     val learned_wv: WeightVector = model.wv
     val inference_proc: iERjavaInferencePL = model.infSolver.asInstanceOf[iERjavaInferencePL]
    // var cr = new Conll04_RelationReader("/Users/parisakordjamshidi/wolfe-0.1.0/LBJ/data/conll04.corp")
@@ -143,7 +145,7 @@ def readXY(cr:Conll04_ReaderNew, outlist: =>List[IStructure], sclist: => List[II
   }
 
   def main(args: Array[String]) {
-    var cr = new Conll04_ReaderNew("/Users/parisakordjamshidi/wolfe-0.1.0/wolfe-examples/src/main/scala/ml/wolfe/examples/parisa/conll04.corp","Pair")
+    var cr = new Conll04_ReaderNew("./data/EntityMentionRelation/conll04.corp","Pair")
     val modelname: String = "mytest1.ssvm.model"
     trainSSVM(modelname,cr)
     System.out.println("\n=== NOW TESTING ===")

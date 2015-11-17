@@ -14,15 +14,16 @@ public class ERqInstance implements IInstance {
     ConllRawToken q;
     List<String> nodeNames; // order matters!
     IFeatureVector fv;
-
+    List<String> feats;
     public ERqInstance(ConllRawToken tok) {
         q=tok;
-        List<String> feats = new ArrayList<String>();
+        feats = new ArrayList<String>();
         feats.add("Ph:"+tok.phrase);
         feats.add("POS:"+tok.POS);
         this.nodeNames = feats;
         // do something with node names to make features
-        this.fv = SUtils.makeFeatures(feats);
+        this.fv = SUtils.makeFeatures(feats).toFeatureVector();
+
     }
 
 }

@@ -9,11 +9,7 @@ import edu.illinois.cs.cogcomp.sl.util.WeightVector
 /**
  * Created by parisakordjamshidi on 20/09/14.
  */
-//class iERinference {
 
-  //object iERinference {
-   // private final val serialVersionUID: Long = 1L
-  //}
 class iERinference extends AbstractInferenceSolver {
     /**
      * This is for training
@@ -84,14 +80,7 @@ return maxC
 
       //return a
     }
-    /**
-     * Given this QueryInstance, what are the options for responses?
-     * This simple method just enumerates all possibilities. (in this
-     * contrived example there are 8 total)
-     *
-   //  * @param qi
-    // * @return
-     */
+
     def getOptions(qi: ERqInstance): List[ERiStructure] = {
       val options: List[ERiStructure] = new ArrayList[ERiStructure]
       //for (i <- NodeLabel.values) {
@@ -109,6 +98,9 @@ return maxC
 
       return options
     }
+  override  def clone():iERinference  ={
+    return new iERinference();
+  }
 
 
 
