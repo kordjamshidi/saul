@@ -1,17 +1,10 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava;// Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000B4ECFCB2E292A4CCCCB2150FAC7029EA14A25C5A94959A9C52529FA1EC9F979393149A939852999F97A052A9A05DA0E0109A545C9F971E9F549DE69F54A10413DF815070FF2A4F4CCBCCA20BA348495B24D200172979CDF5000000
 
-import edu.illinois.cs.cogcomp.core.io.LineIO;
 import edu.illinois.cs.cogcomp.lbjava.classify.*;
 import edu.illinois.cs.cogcomp.lbjava.infer.*;
-import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
-import edu.illinois.cs.cogcomp.lbjava.learn.*;
-import edu.illinois.cs.cogcomp.lbjava.parse.*;
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.PersonWorkFor;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava.OrganizationWorkFor;
-
-import java.util.List;
 
 
 public class JointER$subjectto extends ParameterizedConstraint

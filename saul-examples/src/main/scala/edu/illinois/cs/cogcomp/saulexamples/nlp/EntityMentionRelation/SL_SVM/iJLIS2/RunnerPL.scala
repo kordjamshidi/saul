@@ -108,7 +108,7 @@ object RunnerPL {
     val modelname: String = "mytest1.ssvm.model"
     trainSSVM(modelname,cr)
     System.out.println("\n=== NOW TESTING ===")
-    //testSequenceSSVM(modelname,cr)
+    testSequenceSSVM(modelname,cr)
   }
 
 }
