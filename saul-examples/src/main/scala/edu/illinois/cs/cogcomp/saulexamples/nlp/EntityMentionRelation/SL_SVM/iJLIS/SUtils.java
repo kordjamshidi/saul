@@ -25,12 +25,12 @@ public class SUtils {
 
 			if (!RunnerPL.lexm().containFeature(feat)) {
                 System.out.println("Flag of preview: "+ RunnerPL.lexm().getNumOfFeature());
-                System.out.print("before Flag of feature set: "+ RunnerPL.lexm().isAllowNewFeatures()+"\n");
+                System.out.println("before Flag of feature set: "+ RunnerPL.lexm().isAllowNewFeatures()+"\n");
                 if(RunnerPL.lexm().isAllowNewFeatures())
 				 //Todo see the error of the following line
 				    //   RunnerPLPL.lexm().previewFeature(feat);
-                System.out.print("After preview flag: "+RunnerPL.lexm().getNumOfFeature());
-                System.out.print("Flag of  after feature set: "+ RunnerPL.lexm().isAllowNewFeatures()+"\n");
+                System.out.println("After preview flag: "+RunnerPL.lexm().getNumOfFeature());
+                System.out.println("Flag of  after feature set: "+ RunnerPL.lexm().isAllowNewFeatures()+"\n");
                 RunnerPL.lexm().addFeature(feat);
             }
             if (RunnerPL.lexm().containFeature(feat)) {

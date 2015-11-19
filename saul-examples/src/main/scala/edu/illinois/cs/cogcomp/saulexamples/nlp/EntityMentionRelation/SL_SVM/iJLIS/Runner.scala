@@ -121,5 +121,4 @@ object Runner {
     System.out.println("\n=== NOW TESTING ===")
     testSequenceSSVM(modelname)
   }
-
 }

@@ -174,11 +174,11 @@ public class iERjavaInferencePL extends AbstractInferenceSolver {
         ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
 
 
-        double  coefper1=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
-        double  coefper2=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv);
-        double  coeforg1=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
-        double  coeforg2=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv);
-        double  coefWF=wvWF.dotProduct((IFeatureVector) ((ERqInstancePL) input).Rfv);
+        double  coefper1=wvPer.dotProduct(((ERqInstancePL) input).E1fv.toFeatureVector());
+        double  coefper2=wvPer.dotProduct(((ERqInstancePL) input).E2fv.toFeatureVector());
+        double  coeforg1=wvOrg.dotProduct(((ERqInstancePL) input).E1fv.toFeatureVector());
+        double  coeforg2=wvOrg.dotProduct(((ERqInstancePL) input).E2fv.toFeatureVector());
+        double  coefWF=wvWF.dotProduct(((ERqInstancePL) input).Rfv.toFeatureVector());
         //try
         {
             GurobiHook myGurobi=new GurobiHook();
