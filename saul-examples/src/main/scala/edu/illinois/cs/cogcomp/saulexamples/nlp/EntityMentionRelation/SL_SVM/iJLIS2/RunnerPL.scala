@@ -24,6 +24,7 @@ object RunnerPL {
     model.config = new util.HashMap();
     model.para = para
     model.featureGenerator = new ERFeatureGenerator(lexm)
+    model.lm=lexm
     model.lm.setAllowNewFeatures(true)
     para.TOTAL_NUMBER_FEATURE = 3*model.lm.getNumOfFeature
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);

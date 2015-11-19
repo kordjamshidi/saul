@@ -51,7 +51,7 @@
         public  FeatureVectorBuffer makeFeatures(List<String> feats) {
             ArrayList<Object> idxList = new ArrayList();
             ArrayList<Object> valList = new ArrayList();
-
+            FeatureVectorBuffer temp= new FeatureVectorBuffer();
 
             for (String feat : feats) {
 
@@ -68,13 +68,15 @@
                     int fid = this.lm.getFeatureId(feat);
                     idxList.add(fid);
                     valList.add(1.);
+                    temp.addFeature(fid,1.);
                 }
             }
 
-            int[] idx = ArrayUtils.toPrimitive(idxList.toArray(new Integer[0]));
-            double[] val = ArrayUtils.toPrimitive(valList.toArray(new Double[0]));
+         //   int[] idx = ArrayUtils.toPrimitive(idxList.toArray(new Integer[0]));
+         //   double[] val = ArrayUtils.toPrimitive(valList.toArray(new Double[0]));
             //Todo check waht is going on in the next two lines
-            return new FeatureVectorBuffer(idx, val);
+           // return new FeatureVectorBuffer(idx, val);
+            return temp;
         }
 
     }
