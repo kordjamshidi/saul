@@ -37,13 +37,7 @@ public class ERqInstancePL implements IInstance {
         if (pair.wordId1<pair.wordId2)
         Rfeats.add("before");
 
-       //System.out.println(RunnerPL.lexm().totalNumofFeature());
-
-      // do something with node names to make features
-        this.E1fv =  SUtils.makeFeatures(E1feats);
-        this.E2fv =  SUtils.makeFeatures(E2feats);
-        this.Rfv=    SUtils.makeFeatures(Rfeats);
-      }
+        }
 
 
 

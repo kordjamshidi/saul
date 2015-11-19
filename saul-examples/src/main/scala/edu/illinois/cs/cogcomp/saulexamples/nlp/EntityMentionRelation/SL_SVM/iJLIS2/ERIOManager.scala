@@ -15,7 +15,7 @@
         a.E1Label = pair.s.sentTokens.elementAt(pair.wordId1).entType.toLowerCase
         a.E2Label = pair.s.sentTokens.elementAt(pair.wordId2).entType.toLowerCase
         a.RelLabel = pair.relType.toLowerCase
-        val cs: ERiStructurePL = new ERiStructurePL(newqi, a)
+        val cs: ERiStructurePL = new ERiStructurePL( a)
         i = i + 1
         sp.addExample(newqi,cs)
       }
