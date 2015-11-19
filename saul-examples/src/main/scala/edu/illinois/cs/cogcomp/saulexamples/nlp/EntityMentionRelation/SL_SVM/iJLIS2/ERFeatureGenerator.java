@@ -1,6 +1,5 @@
     package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
-    import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS.SUtils;
     import edu.illinois.cs.cogcomp.sl.core.AbstractFeatureGenerator;
     import edu.illinois.cs.cogcomp.sl.core.IInstance;
     import edu.illinois.cs.cogcomp.sl.core.IStructure;
@@ -15,9 +14,7 @@
     public class ERFeatureGenerator extends AbstractFeatureGenerator {
          private static final long serialVersionUID = 1L;
          private Lexiconer lm;
-            public ERFeatureGenerator(){
 
-            }
             public ERFeatureGenerator(Lexiconer lm) {
             this.lm = lm;
         }

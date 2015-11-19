@@ -43,7 +43,7 @@ public class iERjavaInferencePL extends AbstractInferenceSolver {
         Double coefLosWF= Double.valueOf((1-2*(goldL)));
         Labels temp=new Labels();
 
-        ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
+        ERiStructurePL maxC = new ERiStructurePL(temp);
         Double  coefper1=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv)+coefLosper1;
         Double  coefper2=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E2fv)+coefLosper2;
         Double  coeforg1=wvOrg.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv)+coefLosorg1;
@@ -121,7 +121,7 @@ public class iERjavaInferencePL extends AbstractInferenceSolver {
                     e.getMessage());
         }
        // Return structure with highest score+loss, and loss of this structure
-        return new Pair<IStructure, Double>(maxC, ((double) getLoss(((IInstance) maxC.qi), maxC, goldStruct)));
+        return new Pair<IStructure, Double>(maxC, ((double) getLoss( input, maxC, goldStruct)));
     }
 
     @Override
@@ -171,7 +171,7 @@ public class iERjavaInferencePL extends AbstractInferenceSolver {
         //  double max = Double.NEGATIVE_INFINITY;
         //double score;
         Labels temp=new Labels();
-        ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
+        ERiStructurePL maxC = new ERiStructurePL(temp);
 
 
         double  coefper1=wvPer.dotProduct(((ERqInstancePL) input).E1fv.toFeatureVector());
@@ -308,7 +308,7 @@ public class iERjavaInferencePL extends AbstractInferenceSolver {
       //  double max = Double.NEGATIVE_INFINITY;
         //double score;
         Labels temp=new Labels();
-        ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
+        ERiStructurePL maxC = new ERiStructurePL(temp);
 
 
         float  coefper1=wvPer.dotProduct((IFeatureVector) ((ERqInstancePL) input).E1fv);
@@ -430,7 +430,7 @@ public class iERjavaInferencePL extends AbstractInferenceSolver {
         //  double max = Double.NEGATIVE_INFINITY;
         //double score;
         Labels temp=new Labels();
-        ERiStructurePL maxC = new ERiStructurePL((ERqInstancePL)input,temp);
+        ERiStructurePL maxC = new ERiStructurePL(temp);
 ///////
 
 

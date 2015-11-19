@@ -10,10 +10,7 @@ import edu.illinois.cs.cogcomp.sl.util.{Lexiconer, WeightVector}
 
 object RunnerPL {
 
- var lexm:Lexiconer = new Lexiconer()
-
-
-
+  var lexm=new Lexiconer()
   def trainSSVM(modelname: String, cr:Conll04_ReaderNew): Unit = {
 
     val model = new SLModel
@@ -26,14 +23,11 @@ object RunnerPL {
 
     model.config = new util.HashMap();
     model.para = para
-    model.featureGenerator = new ERFeatureGenerator
-    model.lm = new Lexiconer()
+    model.featureGenerator = new ERFeatureGenerator(lexm)
     model.lm.setAllowNewFeatures(true)
-    lexm=model.lm
     para.TOTAL_NUMBER_FEATURE = 3*model.lm.getNumOfFeature
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
-   // val learned_wv: WeightVector = learner.trainStructuredSVM(si, sp, para)
-    println("num?:"+RunnerPL.lexm.getNumOfFeature)
+    println("num?:"+(model.featureGenerator).asInstanceOf[ERFeatureGenerator].getlexicon().getNumOfFeature)
     println("num?:"+model.lm.getNumOfFeature)
 
     model.wv = learner.train(sp)
