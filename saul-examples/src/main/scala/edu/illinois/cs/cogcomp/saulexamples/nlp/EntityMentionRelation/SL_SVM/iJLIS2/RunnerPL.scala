@@ -17,7 +17,6 @@ object RunnerPL {
     val sp = ERIOManager.readXY(cr,0,10)
     model.infSolver = new iERjavaInferencePL
     val para = new SLParameters
-
     para.C_FOR_STRUCTURE = 1
     para.CHECK_INFERENCE_OPT = false
 
@@ -28,6 +27,7 @@ object RunnerPL {
     model.lm.setAllowNewFeatures(true)
     para.TOTAL_NUMBER_FEATURE = 3*model.lm.getNumOfFeature
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
+
     println("num?:"+(model.featureGenerator).asInstanceOf[ERFeatureGenerator].getlexicon().getNumOfFeature)
     println("num?:"+model.lm.getNumOfFeature)
 
@@ -105,6 +105,7 @@ object RunnerPL {
 
   def main(args: Array[String]) {
     var cr = new Conll04_ReaderNew("./data/EntityMentionRelation/conll04.corp","Pair")
+
     val modelname: String = "mytest1.ssvm.model"
     trainSSVM(modelname,cr)
     System.out.println("\n=== NOW TESTING ===")

@@ -1,12 +1,12 @@
     package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
+    import edu.illinois.cs.cogcomp.saul.classifier.Learnable;
     import edu.illinois.cs.cogcomp.sl.core.AbstractFeatureGenerator;
     import edu.illinois.cs.cogcomp.sl.core.IInstance;
     import edu.illinois.cs.cogcomp.sl.core.IStructure;
     import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
     import edu.illinois.cs.cogcomp.sl.util.IFeatureVector;
     import edu.illinois.cs.cogcomp.sl.util.Lexiconer;
-    import org.apache.commons.lang3.ArrayUtils;
 
     import java.util.ArrayList;
     import java.util.List;
@@ -14,14 +14,16 @@
     public class ERFeatureGenerator extends AbstractFeatureGenerator {
          private static final long serialVersionUID = 1L;
          private Lexiconer lm;
+      //   public List<Learnable> c;
 
-            public ERFeatureGenerator(Lexiconer lm) {
+
+         public ERFeatureGenerator(Lexiconer lm) {
             this.lm = lm;
         }
          public Lexiconer getlexicon(){
              return this.lm;
          }
-            public IFeatureVector getFeatureVector (IInstance x, IStructure y){
+         public IFeatureVector getFeatureVector (IInstance x, IStructure y){
 
                 FeatureVectorBuffer fv = new FeatureVectorBuffer();
                 ERqInstancePL mx = (ERqInstancePL) x;
@@ -52,7 +54,7 @@
             ArrayList<Object> idxList = new ArrayList();
             ArrayList<Object> valList = new ArrayList();
             FeatureVectorBuffer temp= new FeatureVectorBuffer();
-
+            //c.get(0).featureExtractor();
             for (String feat : feats) {
 
                 if (!this.lm.containFeature(feat)) {
