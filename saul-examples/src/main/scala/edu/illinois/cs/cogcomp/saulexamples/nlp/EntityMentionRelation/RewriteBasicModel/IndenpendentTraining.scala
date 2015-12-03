@@ -23,24 +23,19 @@ object indenpendentTraining extends App {
   populate_ER_graph
   val it = 2
   println("Indepent Training with iteration " + it)
-  personClassifier.learn(it)
-  personClassifier.test(tokens.getAllInstances)
-  orgClassifier.learn(it)
-  orgClassifier.test(tokens.getAllInstances)
+  PersonClassifier.learn(it)
+  PersonClassifier.test(tokens.getAllInstances)
+  OrgClassifier.learn(it)
+  OrgClassifier.test(tokens.getAllInstances)
 
-  LocClassifier.learn(it)
-  LocClassifier.test(tokens.getAllInstances)
-  workForClassifier.learn(it)
-  workForClassifier.test(pairs.getAllInstances)
+  LocationClassifier.learn(it)
+  LocationClassifier.test(tokens.getAllInstances)
+  WorkForClassifier.learn(it)
+  WorkForClassifier.test(pairs.getAllInstances)
   LivesInClassifier.learn(it)
   LivesInClassifier.test(pairs.getAllInstances)
 
-  locationClassifier.learn(it)
-  locationClassifier.test(tokens.getAllInstances)
-  //  workForClassifier.learn(it)
-  //  workForClassifier.test()
-  //  LivesInClassifier.learn(it)
-  //  LivesInClassifier.test()
-
+  LocationClassifier.learn(it)
+  LocationClassifier.test(tokens.getAllInstances)
 
 }

@@ -1,39 +1,41 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.RewriteBasicModel
 
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ ConllRelation, ConllRawToken }
-import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.RewriteBasicModel.entityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.entityRelationConstraints._
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.RewriteBasicModel.entityRelationClassifiers._
 
 object entityRelationConstraints {
 
-  object orgConstraintClassifier extends ConstrainedClassifier[ConllRawToken, ConllRelation](entityRelationBasicDataModel, orgClassifier) {
-    def subjectTo = Per_Org
-    override val pathToHead = Some('containE2)
-    override def filter(t: ConllRawToken, h: ConllRelation): Boolean = t.wordId == h.wordId1
+  val Per_Org = ConstrainedClassifier.constraintOf[ConllRelation] {
+    x: ConllRelation =>
+    {
+      (((WorkForClassifier on x) isTrue) ==>
+        (((OrgClassifier on x.e2) isTrue) &&&
+          ((PersonClassifier on x.e1) isTrue))) &&& (
+        ((LivesInClassifier on x) isTrue) ==> (
+          ((PersonClassifier on x.e1) isTrue)
+            &&& ((LocationClassifier on x.e2) isTrue)
+          )
+        ) &&& ((WorkForClassifier on x isTrue) ==> (LivesInClassifier on x isNotTrue)) &&& ((LivesInClassifier on x isTrue) ==> (WorkForClassifier on x isNotTrue))
+    }
   }
 
-  object PerConstraintClassifier extends ConstrainedClassifier[ConllRawToken, ConllRelation](entityRelationBasicDataModel, personClassifier) {
-
-    def subjectTo = Per_Org
-    //    override val pathToHead = Some(entityRelationBasicDataModel.RelationToPer)
-    override def filter(t: ConllRawToken, h: ConllRelation): Boolean = t.wordId == h.wordId2
+  val LiveInConstrint = ConstrainedClassifier.constraintOf[ConllRelation] {
+    x: ConllRelation =>
+    {
+      ((LivesInClassifier on x) isTrue) ==> (
+        ((PersonClassifier on x.e1) isTrue)
+          &&& ((LocationClassifier on x.e2) isTrue)
+        )
+    }
   }
 
-  object LocConstraintClassifier extends ConstrainedClassifier[ConllRawToken, ConllRelation](entityRelationBasicDataModel, locationClassifier) {
-
-    def subjectTo = Per_Org
-    override val pathToHead = Some('containE2)
-    //TODO add test unit for this filter
-    //    override def filter(t: ConllRawToken,h:ConllRelation): Boolean = t.wordId==h.wordId2
-  }
-
-  object P_O_relationClassifier extends ConstrainedClassifier[ConllRelation, ConllRelation](entityRelationBasicDataModel, worksForClassifier) {
-    def subjectTo = Per_Org
-  }
-
-  object LiveIn_P_O_relationClassifier extends ConstrainedClassifier[ConllRelation, ConllRelation](entityRelationBasicDataModel, livesInClassifier) {
-    def subjectTo = Per_Org
+  val PersonWorkFor = ConstrainedClassifier.constraintOf[ConllRelation] {
+    x: ConllRelation =>
+    {
+      ((WorkForClassifier on x) isTrue) ==>
+        ((PersonClassifier on x.e1) isTrue)
+    }
   }
 }

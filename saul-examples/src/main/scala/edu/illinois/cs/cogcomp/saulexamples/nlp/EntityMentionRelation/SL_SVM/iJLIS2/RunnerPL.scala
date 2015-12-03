@@ -26,6 +26,7 @@ object RunnerPL {
     model.lm=lexm
     model.lm.setAllowNewFeatures(true)
     para.TOTAL_NUMBER_FEATURE = 3*model.lm.getNumOfFeature
+    para.loadConfigFile("./config/DCD.config")
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
 
     println("num?:"+(model.featureGenerator).asInstanceOf[ERFeatureGenerator].getlexicon().getNumOfFeature)
