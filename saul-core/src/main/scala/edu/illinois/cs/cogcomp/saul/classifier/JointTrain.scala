@@ -78,7 +78,7 @@ object JointTrain {
             cls.foreach {
               case c: ConstrainedClassifier[_, HEAD] => {
 
-                type C = c.LEFT
+                //type C = c.LEFT
                 //              println("-=-=-=-=-")
                 //              println(c.tType)
                 //              println(c.headType)

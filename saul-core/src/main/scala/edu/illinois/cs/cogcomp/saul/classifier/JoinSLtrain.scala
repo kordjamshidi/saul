@@ -1,5 +1,6 @@
 package edu.illinois.cs.cogcomp.saul.classifier
 
+import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.sl.core.{SLModel, SLParameters}
 import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
@@ -24,6 +25,9 @@ object JoinSLtrain {
   def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]]): Unit = {
 
     val model = new SLModel
+    val allHeads = dm.getNodeWithType[HEAD].getTrainingInstances
+    val sp= SL_IOManager.makeSLProblem(dm,cls)
+
 //    val sp = ERIOManager.readXY(cr,0,10)
 //    model.infSolver = new iERjavaInferencePL
     val para = new SLParameters
@@ -44,5 +48,67 @@ object JoinSLtrain {
 
 //    model.wv = learner.train(sp)
 //    model.saveModel(modelname);
+
+
+
+
+      allHeads foreach {
+        h =>
+        {
+          cls.foreach {
+            case c: ConstrainedClassifier[_, HEAD] => {
+
+              type C = c.LEFT
+
+
+              val typedC = c.asInstanceOf[ConstrainedClassifier[_, HEAD]]
+
+              val oracle = typedC.onClassifier.getLabeler
+
+              typedC.getCandidates(h) foreach {
+                x =>
+                {
+
+                  def trainOnce() = {
+
+                    val result = typedC.classifier.discreteValue(x)
+                    val trueLabel = oracle.discreteValue(x)
+
+                    if (result.equals("true") && trueLabel.equals("false")) {
+                      val a = typedC.onClassifier.getExampleArray(x)
+                      val a0 = a(0).asInstanceOf[Array[Int]]
+                      val a1 = a(1).asInstanceOf[Array[Double]]
+
+                      typedC.onClassifier.asInstanceOf[LinearThresholdUnit].promote(a0, a1, 0.1)
+                    } else {
+
+                      if (result.equals("false") && trueLabel.equals("true")) {
+                        val a = typedC.onClassifier.getExampleArray(x)
+                        val a0 = a(0).asInstanceOf[Array[Int]]
+                        val a1 = a(1).asInstanceOf[Array[Double]]
+                        typedC.onClassifier.asInstanceOf[LinearThresholdUnit].demote(a0, a1, 0.1)
+                        } else {
+                      }
+                    }
+
+                  }
+
+                   trainOnce()
+                  }
+              }
+            }
+          }
+        }
+      }
+      train(dm, cls, it - 1)
+
+
+
+
+
+
+
+
+
   }
 }
