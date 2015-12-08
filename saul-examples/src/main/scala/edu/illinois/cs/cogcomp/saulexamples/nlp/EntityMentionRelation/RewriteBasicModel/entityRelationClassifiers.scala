@@ -29,6 +29,7 @@ object entityRelationClassifiers {
     override def label: Property[ConllRelation] = relationType is "Work_For"
   }
   object LivesInClassifier extends Learnable[ConllRelation](entityRelationBasicDataModel, parameters) {
-    override def label: Property[ConllRelation] = relationType is "Work_For"}
+    override def label: Property[ConllRelation] = relationType is "Work_For"
+  }
 }
 
