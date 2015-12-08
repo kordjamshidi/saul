@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.sl.core.{AbstractInferenceSolver, IInstance, IStructure}
+import edu.illinois.cs.cogcomp.sl.core.{ AbstractInferenceSolver, IInstance, IStructure }
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
 /** Created by Parisa on 12/8/15.

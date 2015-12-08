@@ -3,7 +3,7 @@ package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.sl.core.{SLModel, SLParameters}
+import edu.illinois.cs.cogcomp.sl.core.{ SLModel, SLParameters }
 import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
 
 import scala.reflect.ClassTag
