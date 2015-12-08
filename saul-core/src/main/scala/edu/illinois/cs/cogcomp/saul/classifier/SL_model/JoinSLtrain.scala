@@ -21,7 +21,7 @@ object JoinSLtrain {
     trainSSVM[HEAD](dm, cls)
   }
 
-  def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]]): Unit = {
+  def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit t:ClassTag[HEAD]): Unit = {
 
     val model = new SLModel
     val allHeads = dm.getNodeWithType[HEAD].getTrainingInstances

@@ -10,12 +10,12 @@ import java.util.List;
 /**
  * Created by Parisa on 12/4/15.
  */
-public class Saul_SL_Instance<_> implements IInstance {
+public class Saul_SL_Instance<_, HEAD> implements IInstance {
 
     List<Object[]> inputFeatures;
     List<ConstrainedClassifier> factorClassifiers;
 
-    public Saul_SL_Instance(ArrayList<ConstrainedClassifier<_, _>> l, _ x ){
+    public Saul_SL_Instance(ArrayList<ConstrainedClassifier<_, HEAD>> l, _ x ){
         {
             for (ConstrainedClassifier c :  l)
             {
@@ -29,7 +29,7 @@ public class Saul_SL_Instance<_> implements IInstance {
                     factorClassifiers.add(c);
                     }
                     ;
-                    
+
 //                    val a0 = a(0).asInstanceOf[Array[Int]]
 //                    val a1 = a(1).asInstanceOf[Array[Double]]
                 }

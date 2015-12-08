@@ -5,10 +5,11 @@ import edu.illinois.cs.cogcomp.sl.util.{ FeatureVectorBuffer, IFeatureVector }
 
 /** Created by Parisa on 12/8/15.
   */
-class SL_FeatureGenerator extends AbstractFeatureGenerator {
+class SL_FeatureGenerator[_,HEAD] extends AbstractFeatureGenerator {
   override def getFeatureVector(x: IInstance, y: IStructure): IFeatureVector = {
-    val myX = x.asInstanceOf[Saul_SL_Instance]
-    val myY = x.asInstanceOf[Saul_SL_Label_Structure]
+
+    val myX = x.asInstanceOf[Saul_SL_Instance[HEAD,_]]
+    val myY = x.asInstanceOf[Saul_SL_Label_Structure[HEAD,_]]
     var fv = new FeatureVectorBuffer()
 
     for (i <- 0 until myX.factorClassifiers.size()) {

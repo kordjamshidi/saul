@@ -10,11 +10,11 @@ import java.util.List;
 /**
  * Created by Parisa on 12/8/15.
  */
-public class Saul_SL_Label_Structure <_> implements IStructure {
+public class Saul_SL_Label_Structure <_,HEAD> implements IStructure {
 
     ArrayList<String> labels;
 
-    public Saul_SL_Label_Structure(ArrayList<ConstrainedClassifier<_, _>> l, _ x ){
+    public Saul_SL_Label_Structure(ArrayList<ConstrainedClassifier<_, HEAD>> l, _ x ){
 
         for (ConstrainedClassifier c : l){
             labels.add(c.onClassifier().discreteValue(x));
