@@ -42,7 +42,7 @@
                 fv.addFeature(my.fvPeop);
                 fv.addFeature(my.fvOrg);
 
-                if(my.Rlables.RelLabel().toLowerCase().contains("work"))
+                if (my.Rlables.RelLabel().toLowerCase().contains("work"))
                     my.fvWorkFor=mx.Rfv;
                 fv.addFeature(my.fvWorkFor);
 
