@@ -2,7 +2,6 @@ package edu.illinois.cs.cogcomp.saul.classifier;
 
 import edu.illinois.cs.cogcomp.lbjava.classify.Classifier;
 import edu.illinois.cs.cogcomp.sl.core.IInstance;
-import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +12,8 @@ import java.util.List;
 public class Saul_SL_Instance<_> implements IInstance {
 
     List<Object[]> inputFeatures;
+    List<ConstrainedClassifier> factorClassifiers;
+
     public Saul_SL_Instance(ArrayList<ConstrainedClassifier<_, _>> l, _ x ){
         {
             for (ConstrainedClassifier c :  l)
@@ -24,7 +25,10 @@ public class Saul_SL_Instance<_> implements IInstance {
                     oracle.discreteValue(ci) ; // true lable
                      ;  // return a Feature values and indexs
                     inputFeatures.add(c.onClassifier().getExampleArray(ci));
-
+                    factorClassifiers.add(c);
+                    }
+                    ;
+                    
 //                    val a0 = a(0).asInstanceOf[Array[Int]]
 //                    val a1 = a(1).asInstanceOf[Array[Double]]
                 }
@@ -32,4 +36,4 @@ public class Saul_SL_Instance<_> implements IInstance {
 
         }
     }
-}
+

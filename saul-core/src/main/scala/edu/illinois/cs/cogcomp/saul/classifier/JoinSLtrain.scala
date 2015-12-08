@@ -27,8 +27,6 @@ object JoinSLtrain {
     val model = new SLModel
     val allHeads = dm.getNodeWithType[HEAD].getTrainingInstances
     val sp= SL_IOManager.makeSLProblem(dm,cls)
-
-//    val sp = ERIOManager.readXY(cr,0,10)
 //    model.infSolver = new iERjavaInferencePL
     val para = new SLParameters
     para.C_FOR_STRUCTURE = 1
