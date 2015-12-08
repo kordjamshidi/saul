@@ -1,6 +1,6 @@
-package edu.illinois.cs.cogcomp.saul.classifier
+package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.sl.core.{ IStructure, IInstance, AbstractInferenceSolver }
+import edu.illinois.cs.cogcomp.sl.core.{AbstractInferenceSolver, IInstance, IStructure}
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
 /** Created by Parisa on 12/8/15.
@@ -34,6 +34,7 @@ class Saul_SL_Inference extends AbstractInferenceSolver {
     for (i <- 0 until myIns.factorClassifiers.size()) {
 
       myStruct.labels.add(myIns.factorClassifiers.get(i).onClassifier.discreteValue(myIns.inputFeatures.get(i)))
+
     }
     myStruct
   }

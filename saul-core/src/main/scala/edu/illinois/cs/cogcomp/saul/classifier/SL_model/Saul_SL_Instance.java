@@ -1,6 +1,7 @@
-package edu.illinois.cs.cogcomp.saul.classifier;
+package edu.illinois.cs.cogcomp.saul.classifier.SL_model;
 
 import edu.illinois.cs.cogcomp.lbjava.classify.Classifier;
+import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier;
 import edu.illinois.cs.cogcomp.sl.core.IInstance;
 
 import java.util.ArrayList;

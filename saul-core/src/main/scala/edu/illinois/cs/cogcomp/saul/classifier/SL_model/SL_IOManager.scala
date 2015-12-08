@@ -1,7 +1,9 @@
-package edu.illinois.cs.cogcomp.saul.classifier
+package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
+import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.sl.core.SLProblem
+
 /** Created by Parisa on 12/4/15.
   */
 object SL_IOManager {
