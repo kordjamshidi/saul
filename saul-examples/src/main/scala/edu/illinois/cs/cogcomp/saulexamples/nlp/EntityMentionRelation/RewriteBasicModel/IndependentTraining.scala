@@ -6,7 +6,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.RewriteBas
 
 import scala.collection.JavaConversions._
 
-object indenpendentTraining extends App {
+object IndependentTraining extends App {
 
   def populate_ER_graph = {
     val reader = new Conll04_ReaderNew("./data/EntityMentionRelation/conll04.corp", "Token")
