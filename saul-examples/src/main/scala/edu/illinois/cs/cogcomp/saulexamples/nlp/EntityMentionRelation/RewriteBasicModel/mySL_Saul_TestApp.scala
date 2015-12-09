@@ -6,9 +6,8 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.RewriteBas
 /**
  * Created by Parisa on 12/8/15.
  */
-object mySL_Saul_TestApp {
-  def main() {
+object mySL_Saul_TestApp extends App {
   populate_ER_graph
   JoinSLtrain(entityRelationBasicDataModel,List(PerConstraintClassifier))
-  }
+
 }
