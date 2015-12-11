@@ -10,18 +10,18 @@ import java.util.List;
 /**
  * Created by Parisa on 12/4/15.
  */
-public class Saul_SL_Instance<_, HEAD> implements IInstance {
+public class Saul_SL_java_Instance<_, HEAD> implements IInstance {
 
     List<Object[]> inputFeatures;
     List<ConstrainedClassifier> factorClassifiers;
 
-    public Saul_SL_Instance(ArrayList<ConstrainedClassifier<_, HEAD>> l, _ x ){
+    public Saul_SL_java_Instance(ArrayList<ConstrainedClassifier<_, HEAD>> l, _ x){
         {
             for (ConstrainedClassifier c :  l)
             {
                 Classifier oracle = c.onClassifier().getLabeler();
-                ArrayList<_> cands= (ArrayList<_>) c.getCandidates(x);
-                for (_ ci: cands){
+                ArrayList<HEAD> cands= (ArrayList<HEAD>) c.getCandidates(x);
+                for (HEAD ci: cands){
                     c.classifier().discreteValue(ci) ; //prediction result
                     oracle.discreteValue(ci) ; // true lable
                      ;  // return a Feature values and indexs

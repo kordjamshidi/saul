@@ -8,8 +8,8 @@ import edu.illinois.cs.cogcomp.sl.util.{ FeatureVectorBuffer, IFeatureVector }
 class SL_FeatureGenerator[_,HEAD] extends AbstractFeatureGenerator {
   override def getFeatureVector(x: IInstance, y: IStructure): IFeatureVector = {
 
-    val myX = x.asInstanceOf[Saul_SL_Instance[HEAD,_]]
-    val myY = x.asInstanceOf[Saul_SL_Label_Structure[HEAD,_]]
+    val myX = x.asInstanceOf[Saul_SL_java_Instance[HEAD,_]]
+    val myY = x.asInstanceOf[Saul_SL_Label_java_Structure[HEAD,_]]
     var fv = new FeatureVectorBuffer()
 
     for (i <- 0 until myX.factorClassifiers.size()) {
