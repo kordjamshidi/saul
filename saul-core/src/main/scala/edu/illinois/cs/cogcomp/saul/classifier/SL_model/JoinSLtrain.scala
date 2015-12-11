@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.sl.core.{SLModel, SLParameters}
+import edu.illinois.cs.cogcomp.sl.core.{ SLModel, SLParameters }
 import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
 
 import scala.reflect.ClassTag
@@ -21,7 +21,7 @@ object JoinSLtrain {
     trainSSVM[HEAD](dm, cls)
   }
 
-  def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit t:ClassTag[HEAD]): Unit = {
+  def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit t: ClassTag[HEAD]): Unit = {
 
     val model = new SLModel
     val allHeads = dm.getNodeWithType[HEAD].getTrainingInstances
@@ -36,7 +36,7 @@ object JoinSLtrain {
     model.featureGenerator = new SL_FeatureGenerator
     //    model.lm=lexm
     model.lm.setAllowNewFeatures(true)
-  //  para.TOTAL_NUMBER_FEATURE = 3 * model.lm.getNumOfFeature
+    //  para.TOTAL_NUMBER_FEATURE = 3 * model.lm.getNumOfFeature
     para.loadConfigFile("./config/DCD.config")
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
 

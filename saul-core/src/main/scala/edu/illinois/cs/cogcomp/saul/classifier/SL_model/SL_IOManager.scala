@@ -13,7 +13,7 @@ object SL_IOManager {
     var sp: SLProblem = new SLProblem()
     val allHeads = dm.getNodeWithType[HEAD].getAllInstances
     allHeads.foreach(x => {
-      val ins = new Saul_SL_java_Instance(list.asInstanceOf[ConstrainedClassifier[_,HEAD]], x)
+      val ins = new Saul_SL_java_Instance(list.asInstanceOf, x)
       val outs = new Saul_SL_Label_java_Structure(list.asInstanceOf, x)
       sp.addExample(ins, outs)
     })
