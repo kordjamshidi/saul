@@ -34,29 +34,18 @@ a task in natural language processing consisting of the detection of the semanti
 
 ## Conceptual Structure
 
-<<<<<<< HEAD
-Each Saul program is a general purpose Scala program in which Saul DSL provides a number of high level constructs to design application programs at a high level and declaratively.
-The provided constructs are designed to enable programing for the following conceptual components of each application that uses learning and inference.
-=======
 Each Saul program is a general purpose Scala program in which Saul DSL provides a number of high level 
 constructs to design application programs at a high level. high level and declaratively. 
 The provided constructs are design to enable programing for the following conceptual 
 components of each application that uses learning and inference.
->>>>>>> cd5ea66a9de3dac0b85e15b0cad3ba0540a0b3f6
 
 ### Data Model: 
 The data model in Saul conceptually is represented with a graph containing nodes, edges, 
-and their properties.
+and their properties. Defining entities with the following constructs:
 
-<<<<<<< HEAD
-  -`Node`: The graph contains different types of nodes to represent various data elements i.e. objects. For example nodes can represent documents, sound files, pictures, text documents, etc.
-  -`Edge`: The `Node`s in the graph are connected to each other via `Edge`s.
-  -`Property`: The nodes can have properties, for example a node of type `Document` can have properties
-=======
   - `Node`: The different types of objects, for example documents, sound files, pictures, text documents, etc.
   - `Edge`: In a graph with nodes of type `Node`, their connections can be defined with `Edge`s. 
   - `Property`: The attributes of a node, for example a node of type `Document` can have properties 
->>>>>>> cd5ea66a9de3dac0b85e15b0cad3ba0540a0b3f6
   such as `Title`, `Subject`, `Author`, `Body`, etc.  
   
 #### Defining nodes
@@ -68,11 +57,7 @@ val tokens = node[ConllRawToken]
 val relations = node[ConllRawRelation]
 ```
 
-<<<<<<< HEAD
-This line of code defines a node of type `ConllRawToken` and names it as 'tokens' and defines a 'primary key' for it based on the original variables in the original ConllRawToken class.
-=======
 This line of code defines an entity of type `ConllRawToken` and names it as `tokens`.
->>>>>>> cd5ea66a9de3dac0b85e15b0cad3ba0540a0b3f6
 
 #### Defining properties
 This is done via the `property` function, 
@@ -97,10 +82,31 @@ This is done via several constructs depending on the type of the relationships. 
 val tokenSentenceEdge = edge(tokens, relations)
 ```
 
-This definition creates edges between the two `Node`s we defined previously. 
+This definition creates edges between the two `Node`s we defined previously.
+
+#### Sensors
+   ##### Sensors for properties
+
+   As mentioned above in the body of property definition an arbitrary sensor can be called.
+   `(t: ConllRawToken) => t.POS`
+   This will return a primitive data type i.e. String, real, etc.
+
+   ##### Sensors for edges
+
+   Defining the sensors on edges is a very important step to make the whole graph and the necessary connections.
+   Conceptually there are two types of sensors:
+   1) Generators : They get nodes of type `T` and generated nodes of type `U`, and during the generation establish an automatic connection between the instances of type `T` to the instances of type `U`.
+    See this example which adds a generating sensor to an edge:
+    `e2.addSensor((s: String) => s.toUpperCase)`
+
+   2) Matching : They get nodes of type `T` and type `U` and evaluate a boolean expression over every pair, if the expression is true a connection will be established.
+   See this example which adds a matching sensor to an edge:
+
+   `e1.addSensor(_.charAt(0) == _.charAt(0))`
+
 
 ### Instantiation Data Model 
-TODO 
+TODO
 
 ### Graph Queries 
 TODO

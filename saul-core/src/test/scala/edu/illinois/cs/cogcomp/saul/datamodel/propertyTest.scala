@@ -1,5 +1,6 @@
 package edu.illinois.cs.cogcomp.saul.datamodel
 
+import edu.illinois.cs.cogcomp.saul.datamodel.property.PairwiseConjunction
 import org.scalatest._
 
 /** testing techniques for properties */
@@ -28,58 +29,90 @@ class propertyTest extends FlatSpec with Matchers {
     intProperty(new toyClass) should be(2.0)
     listIntPropertyArray(new toyClass) should be(List(1.0, 3.0))
     listIntPropertyGenerator(new toyClass) should be(List(1.0, 3.0))
+
+    // Test cached properties (calling them multiple times)
+    stringPropertyWithCache(new toyClass).mkString should be("cachedValue")
+    stringPropertyWithCache(new toyClass).mkString should be("cachedValue")
+
+    conjunctionProperty(new toyClass).mkString(",") should be("string_value_funnyRange_ranged")
+    conjunctionProperty1(new toyClass).size should be(3)
+    conjunctionProperty1(new toyClass).mkString(",") should be("string_value_funnyRange_ranged,string_value_boolean_true,funnyRange_ranged_boolean_true")
+  }
+
+  "properties" should "use reasonable default names if not specified" in {
+    object testModel extends DataModel {
+      val n = node[String]
+
+      val p1 = property(n) { s: String => s.length }
+      val p2 = property(n) { s: String => s.length == 2 }
+      val p3 = property(n) { s: String => s.take(1) }
+
+      Set(p1.name, p2.name, p3.name).size should be(3)
+    }
   }
 }
 
 object toyDataModel extends DataModel {
 
+  val toys = node[toyClass]
+
   // boolean
-  val booleanProperty = property[toyClass]("boolean") {
+  val booleanProperty = property(toys, "boolean") {
     x: toyClass => true
   }
 
   // List[Int]
-  val listIntPropertyArray = property[toyClass]("listInt") {
+  val listIntPropertyArray = property(toys, "listInt") {
     x: toyClass => List(1, 3)
   }
-  val listIntPropertyGenerator = property[toyClass]("listInt", ordered = true) {
+  val listIntPropertyGenerator = property(toys, "listInt", cache = false, ordered = true) {
     x: toyClass => List(1, 3)
   }
 
   // Int
-  val intProperty = property[toyClass]("int") {
+  val intProperty = property(toys, "int") {
     x: toyClass => 2
   }
 
   // List[Double]
-  val listDoublePropertyArray = property[toyClass]("listDouble") {
+  val listDoublePropertyArray = property(toys, "listDouble") {
     x: toyClass => List(1.0, 2.0)
   }
-  val listDoublePropertyGenerator = property[toyClass]("listDouble", ordered = true) {
+  val listDoublePropertyGenerator = property(toys, "listDouble", cache = false, ordered = true) {
     x: toyClass => List(1.0, 2.0)
   }
 
   // Double
-  val doubleProperty = property[toyClass]("double") {
+  val doubleProperty = property(toys, "double") {
     x: toyClass => 1.0
   }
 
   // List[String]
-  val listStringPropertyArray = property[toyClass]("listString") {
+  val listStringPropertyArray = property(toys, "listString") {
     x: toyClass => List("listValue")
   }
-  val listStringPropertyGenerator = property[toyClass]("listString", ordered = true) {
+  val listStringPropertyGenerator = property(toys, "listString", cache = false, ordered = true) {
     x: toyClass => List("listValue")
   }
 
   // String
-  val stringProperty = property[toyClass]("string") {
+  val stringProperty = property(toys, "string") {
     x: toyClass => "value"
   }
 
+  val stringPropertyWithCache = property(toys, "string", cache = true) {
+    x: toyClass => "cachedValue"
+  }
+
   // ranged property
-  val rangedProperty = property[toyClass]("funnyRange")("string") {
+  val rangedProperty = property(toys, "funnyRange")("string") {
     x: toyClass => "ranged"
+  }
+  val conjunctionProperty = property(toys) {
+    x: toyClass => PairwiseConjunction(List(stringProperty, rangedProperty), x)
+  }
+  val conjunctionProperty1 = property(toys) {
+    x: toyClass => PairwiseConjunction(List(stringProperty, rangedProperty, booleanProperty), x)
   }
 }
 

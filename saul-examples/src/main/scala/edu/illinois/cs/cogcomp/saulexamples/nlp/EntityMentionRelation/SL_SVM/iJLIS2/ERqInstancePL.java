@@ -1,15 +1,9 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
-
-import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS.SUtils;
 import edu.illinois.cs.cogcomp.sl.core.IInstance;
 import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
-import edu.illinois.cs.cogcomp.sl.util.IFeatureVector;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Created by parisakordjamshidi on 19/09/14.
@@ -38,8 +32,4 @@ public class ERqInstancePL implements IInstance {
         Rfeats.add("before");
 
         }
-
-
-
-
 }

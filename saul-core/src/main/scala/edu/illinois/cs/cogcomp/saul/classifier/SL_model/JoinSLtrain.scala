@@ -2,10 +2,10 @@ package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.sl.core.{ SLModel, SLParameters }
-import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
+import edu.illinois.cs.cogcomp.sl.core._
+import edu.illinois.cs.cogcomp.sl.learner._
 
-import scala.reflect.ClassTag
+import scala.reflect._
 
 /** Created by Parisa on 12/3/15.
   */

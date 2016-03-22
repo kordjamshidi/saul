@@ -12,3 +12,6 @@ target/
 .projectFilesBackup
 *.class
 annotation-cache/
+/config
+*/*.swp 
+*.swp

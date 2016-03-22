@@ -1,3 +1,6 @@
+val cogcompNLPVersion = "3.0.18"
+val cogcompPipelineVersion = "0.1.15"
+
 lazy val root = (project in file(".")).
   aggregate(saulCore, saulExamples)
 
@@ -10,13 +13,17 @@ lazy val commonSettings = Seq(
     Resolver.mavenLocal,
     "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
   ),
+  javaOptions ++= List("-Xmx6g"),
   libraryDependencies ++= Seq(
-    "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.0",
+    "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.8",
+    "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % cogcompNLPVersion withSources,
     "com.gurobi" % "gurobi" % "6.0",
     "org.apache.commons" % "commons-math3" % "3.0",
     "org.scalatest" % "scalatest_2.11" % "2.2.4",
-    "edu.illinois.cs.cogcomp" % "illinois-sl"  % "1.3.1" withSources()
-  )
+    "edu.illinois.cs.cogcomp" % "illinois-sl"  % "1.3.6" withSources()
+  ),
+  fork := true,
+  publishTo := Some(Resolver.sftp("CogcompSoftwareRepo", "bilbo.cs.illinois.edu", "/mounts/bilbo/disks/0/www/cogcomp/html/m2repo/"))
 )
 
 lazy val saulCore = (project in file("saul-core")).
@@ -24,7 +31,7 @@ lazy val saulCore = (project in file("saul-core")).
   settings(
     name := "saul",
     libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "LBJava" % "1.1.1"
+      "com.typesafe.play" % "play_2.11" % "2.4.3" exclude("ch.qos.logback", "logback-classic")
     )
   )
 
@@ -32,12 +39,29 @@ lazy val saulExamples = (project in file("saul-examples")).
   settings(commonSettings: _*).
   settings(
     name := "saul-examples",
-    javaOptions += "-Xmx6g",
     libraryDependencies ++= Seq(
-      // slf4j is required by both annotators (Curator, Pipeline)
-      "org.slf4j" % "slf4j-simple" % "1.7.7",
-      "edu.illinois.cs.cogcomp" % "illinois-nlp-pipeline" % "0.1.9",
-      "edu.illinois.cs.cogcomp" % "illinois-curator" % "3.0.0",
-      "edu.illinois.cs.cogcomp" % "edison" % "3.0.0"
+      "edu.illinois.cs.cogcomp" % "illinois-nlp-pipeline" % cogcompPipelineVersion,
+      "edu.illinois.cs.cogcomp" % "illinois-curator" % "1.0.0",
+      "edu.illinois.cs.cogcomp" % "illinois-edison" % cogcompNLPVersion,
+      "edu.illinois.cs.cogcomp" % "illinois-nlp-readers" % "0.0.2-SNAPSHOT", 
+      "edu.illinois.cs.cogcomp" % "saul-pos-tagger-models" % "1.0"
     )
   ).dependsOn(saulCore).aggregate(saulCore)
+
+lazy val saulWebapp = (project in file("saul-webapp")).
+  enablePlugins(PlayScala).
+  settings(commonSettings: _*).
+  settings(
+    name := "saul-webapp",
+    libraryDependencies ++= Seq(
+      "org.webjars" %% "webjars-play" % "2.4.0-1",
+      "org.webjars" % "bootstrap" % "3.1.1-2",
+      jdbc,
+      cache,
+      ws,
+      specs2 % Test
+    ),
+    resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
+    routesGenerator := InjectedRoutesGenerator
+  ).dependsOn(saulCore).aggregate(saulCore)
+

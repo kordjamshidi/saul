@@ -9,7 +9,7 @@ import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
 
 public class ERiStructurePL implements IStructure {
 
-    public Labels Rlables;
+   public Labels Rlables;
    // public ERqInstancePL qi;
    public FeatureVectorBuffer fvPeop =new FeatureVectorBuffer(new int[0] , new double[0]);
    public FeatureVectorBuffer fvOrg=new FeatureVectorBuffer(new int[0] , new double[0]);

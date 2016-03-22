@@ -1,22 +1,23 @@
 package edu.illinois.cs.cogcomp.saul.datamodel
 
-import edu.illinois.cs.cogcomp.saul.datamodel.edge.{ Edge, Link }
-import edu.illinois.cs.cogcomp.saul.datamodel.node.{ JoinNode, Node }
+import edu.illinois.cs.cogcomp.lbjava.util.{ ExceptionlessInputStream, ExceptionlessOutputStream }
+import edu.illinois.cs.cogcomp.saul.datamodel.edge.{ AsymmetricEdge, Edge, Link, SymmetricEdge }
+import edu.illinois.cs.cogcomp.saul.datamodel.node.{ NodeProperty, JoinNode, Node }
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.discrete._
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.real._
 import edu.illinois.cs.cogcomp.saul.datamodel.property.{ EvaluatedProperty, Property }
-
 import edu.illinois.cs.cogcomp.saul.datamodel.node.{ JoinNode, Node }
 import edu.illinois.cs.cogcomp.saul.datamodel.edge.{ SymmetricEdge, AsymmetricEdge, Edge, Link }
+import org.scalatest.fixture
 
-import scala.collection.mutable.{ ListBuffer, Map => MutableMap }
+import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
 trait DataModel {
   val PID = 'PID
 
   final val NODES = new ListBuffer[Node[_]]
-  final val PROPERTIES = new ListBuffer[Property[_]]
+  final val PROPERTIES = new ListBuffer[NodeProperty[_]]
   final val EDGES = new ListBuffer[Edge[_, _]]
 
   // TODO: Implement this function.
@@ -30,23 +31,24 @@ trait DataModel {
     }).toList
   }
 
-  // TODO: keep one of the following three functions
-  def getAllPropertiesOf[T <: AnyRef](implicit tag: ClassTag[T]): Seq[Property[T]] = {
-    // TODO: implement this
-    getAllFeatures[T]
+  def clearInstances = {
+    NODES.foreach(_.clear)
+    EDGES.foreach(_.clear)
   }
 
-  def getAllFeatures[T](implicit tag: ClassTag[T]): Seq[Property[T]] = {
-    this.PROPERTIES.filter(_.tag.equals(tag)).map(_.asInstanceOf[Property[T]])
+  def addFromModel[T <: DataModel](dataModel: T): Unit = {
+    assert(this.NODES.size == dataModel.NODES.size)
+    for ((n1, n2) <- NODES.zip(dataModel.NODES)) {
+      n1.populateFrom(n2)
+    }
+    assert(this.EDGES.size == dataModel.EDGES.size)
+    for ((e1, e2) <- EDGES.zip(dataModel.EDGES)) {
+      e1.populateFrom(e2)
+    }
   }
 
-  // TODO: create lbj feature classifier.
-  def getFeaturesOf[T](implicit tag: ClassTag[T]): Seq[Property[T]] = {
-    this.getAllFeatures[T]
-  }
-
-  /** Functions for internal usages. */
-  def getAllPropertyOf[T <: AnyRef](implicit tag: ClassTag[T]): List[Property[T]] = {
+  @deprecated("Use node.properties to get the properties for a specific node")
+  def getPropertiesForType[T <: AnyRef](implicit tag: ClassTag[T]): List[Property[T]] = {
     this.PROPERTIES.filter(a => a.tag.equals(tag)).map(_.asInstanceOf[Property[T]]).toList
   }
 
@@ -117,8 +119,10 @@ trait DataModel {
   }
 
   /** node definitions */
-  def node[T <: AnyRef](implicit tag: ClassTag[T]): Node[T] = {
-    val n = new Node[T](tag)
+  def node[T <: AnyRef](implicit tag: ClassTag[T]): Node[T] = node((x: T) => x)
+
+  def node[T <: AnyRef](keyFunc: T => Any)(implicit tag: ClassTag[T]): Node[T] = {
+    val n = new Node[T](keyFunc, tag)
     NODES += n
     n
   }
@@ -160,33 +164,50 @@ trait DataModel {
 
   case class PropertyDefinition(ty: PropertyType, name: Symbol)
 
-  class PropertyApply[T <: AnyRef] private[DataModel] (name: String, ordered: Boolean) {
+  /** list of hashmaps used inside properties for caching sensor values */
+  final val propertyCacheList = new ListBuffer[collection.mutable.HashMap[_, Any]]()
 
-    def this(name: String) {
-      this(name, false)
-    }
+  class PropertyApply[T <: AnyRef] private[DataModel] (val node: Node[T], name: String, cache: Boolean, ordered: Boolean) { papply =>
+
+    // TODO: make the hashmaps immutable
+    val propertyCacheMap = collection.mutable.HashMap[T, Any]()
+    propertyCacheList += propertyCacheMap
+
+    def getOrUpdate(input: T, f: (T) => Any): Any = { propertyCacheMap.getOrElseUpdate(input, f(input)) }
 
     def apply(f: T => Boolean)(implicit tag: ClassTag[T]): BooleanProperty[T] = {
-      val a = new BooleanProperty[T](name, f)
+      def cachedF = if (cache) { x: T => getOrUpdate(x, f).asInstanceOf[Boolean] } else f
+      val a = new BooleanProperty[T](name, cachedF) with NodeProperty[T] { override def node: Node[T] = papply.node }
+      papply.node.properties += a
       PROPERTIES += a
       a
     }
 
     def apply(f: T => List[Int])(implicit tag: ClassTag[T], d: DummyImplicit): RealPropertyCollection[T] = {
-      val newf: T => List[Double] = { t => f(t).map(_.toDouble) }
+      def cachedF = if (cache) { x: T => getOrUpdate(x, f).asInstanceOf[List[Int]] } else f
+      val newf: T => List[Double] = { t => cachedF(t).map(_.toDouble) }
       val a = if (ordered) {
-        new RealArrayProperty[T](name, newf)
+        new RealArrayProperty[T](name, newf) with NodeProperty[T] {
+          override def node: Node[T] = papply.node
+        }
       } else {
-        new RealGenProperty[T](name, newf)
+        new RealGenProperty[T](name, newf) with NodeProperty[T] {
+          override def node: Node[T] = papply.node
+        }
       }
+      papply.node.properties += a
       PROPERTIES += a
       a
     }
 
     /** Discrete sensor feature with range, same as real name in lbjava */
     def apply(f: T => Int)(implicit tag: ClassTag[T], d1: DummyImplicit, d2: DummyImplicit): RealProperty[T] = {
-      val newf: T => Double = { t => f(t).toDouble }
-      val a = new RealProperty[T](name, newf)
+      def cachedF = if (cache) { x: T => getOrUpdate(x, f).asInstanceOf[Int] } else f
+      val newf: T => Double = { t => cachedF(t).toDouble }
+      val a = new RealProperty[T](name, newf) with NodeProperty[T] {
+        override def node: Node[T] = papply.node
+      }
+      papply.node.properties += a
       PROPERTIES += a
       a
     }
@@ -194,7 +215,11 @@ trait DataModel {
     /** Discrete sensor feature with range, same as real% and real[] in lbjava */
     def apply(f: T => List[Double])(implicit tag: ClassTag[T], d1: DummyImplicit, d2: DummyImplicit,
       d3: DummyImplicit): RealCollectionProperty[T] = {
-      val a = new RealCollectionProperty[T](name, f, ordered)
+      def cachedF = if (cache) { x: T => getOrUpdate(x, f).asInstanceOf[List[Double]] } else f
+      val a = new RealCollectionProperty[T](name, cachedF, ordered) with NodeProperty[T] {
+        override def node: Node[T] = papply.node
+      }
+      papply.node.properties += a
       PROPERTIES += a
       a
     }
@@ -202,7 +227,11 @@ trait DataModel {
     /** Discrete sensor feature with range, same as real name in lbjava */
     def apply(f: T => Double)(implicit tag: ClassTag[T], d1: DummyImplicit, d2: DummyImplicit, d3: DummyImplicit,
       d4: DummyImplicit): RealProperty[T] = {
-      val a = new RealProperty[T](name, f)
+      def cachedF = if (cache) { x: T => getOrUpdate(x, f).asInstanceOf[Double] } else f
+      val a = new RealProperty[T](name, cachedF) with NodeProperty[T] {
+        override def node: Node[T] = papply.node
+      }
+      papply.node.properties += a
       PROPERTIES += a
       a
     }
@@ -210,7 +239,11 @@ trait DataModel {
     /** Discrete feature without range, same as discrete SpamLabel in lbjava */
     def apply(f: T => String)(implicit tag: ClassTag[T], d1: DummyImplicit, d2: DummyImplicit, d3: DummyImplicit,
       d4: DummyImplicit, d5: DummyImplicit): DiscreteProperty[T] = {
-      val a = new DiscreteProperty[T](name, f, None)
+      def cachedF = if (cache) { x: T => getOrUpdate(x, f).asInstanceOf[String] } else f
+      val a = new DiscreteProperty[T](name, cachedF, None) with NodeProperty[T] {
+        override def node: Node[T] = papply.node
+      }
+      papply.node.properties += a
       PROPERTIES += a
       a
     }
@@ -218,11 +251,17 @@ trait DataModel {
     /** Discrete array feature with range, same as discrete[] and discrete% in lbjava */
     def apply(f: T => List[String])(implicit tag: ClassTag[T], d1: DummyImplicit, d2: DummyImplicit, d3: DummyImplicit,
       d4: DummyImplicit, d5: DummyImplicit, d6: DummyImplicit): DiscreteCollectionProperty[T] = {
+      def cachedF = if (cache) { x: T => getOrUpdate(x, f).asInstanceOf[List[String]] } else f
       val a = if (ordered) {
-        new DiscreteCollectionProperty[T](name, f, ordered = false)
+        new DiscreteCollectionProperty[T](name, cachedF, ordered = false) with NodeProperty[T] {
+          override def node: Node[T] = papply.node
+        }
       } else {
-        new DiscreteCollectionProperty[T](name, f, ordered = true)
+        new DiscreteCollectionProperty[T](name, cachedF, ordered = true) with NodeProperty[T] {
+          override def node: Node[T] = papply.node
+        }
       }
+      papply.node.properties += a
       PROPERTIES += a
       a
     }
@@ -231,14 +270,101 @@ trait DataModel {
     def apply(range: String*)(f: T => String)(implicit tag: ClassTag[T], d1: DummyImplicit, d2: DummyImplicit, d3: DummyImplicit,
       d4: DummyImplicit, d5: DummyImplicit, d6: DummyImplicit,
       d7: DummyImplicit): DiscreteProperty[T] = {
+      def cachedF = if (cache) { x: T => getOrUpdate(x, f).asInstanceOf[String] } else f
       val r = range.toList
-      val a = new DiscreteProperty[T](name, f, Some(r))
+      val a = new DiscreteProperty[T](name, cachedF, Some(r)) with NodeProperty[T] {
+        override def node: Node[T] = papply.node
+      }
+      papply.node.properties += a
       PROPERTIES += a
       a
     }
   }
 
-  def property[T <: AnyRef](name: String) = new PropertyApply[T](name)
-  def property[T <: AnyRef](name: String, ordered: Boolean) = new PropertyApply[T](name, ordered)
+  def property[T <: AnyRef](node: Node[T], name: String = "prop" + PROPERTIES.size, cache: Boolean = false, ordered: Boolean = false) =
+    new PropertyApply[T](node, name, cache, ordered)
+
+  def clearPropertyCache[T](): Unit = {
+    propertyCacheList.foreach(_.asInstanceOf[collection.mutable.HashMap[T, Any]].clear)
+  }
+
+  /** Methods for caching Data Model */
+  var hasDerivedInstances = false
+
+  def deriveInstances() = {
+    NODES.foreach { node =>
+      val relatedProperties = PROPERTIES.filter(property => property.tag.equals(node.tag)).toList
+      node.deriveInstances(relatedProperties)
+    }
+    EDGES.foreach { edge =>
+      edge.deriveIndexWithIds()
+    }
+    hasDerivedInstances = true
+  }
+
+  val defaultDIFilePath = "models/" + getClass.getCanonicalName + ".di"
+
+  def write(filePath: String = defaultDIFilePath) = {
+    val out = ExceptionlessOutputStream.openCompressedStream(filePath)
+
+    out.writeInt(NODES.size)
+    NODES.zipWithIndex.foreach {
+      case (node, nodeId) =>
+        out.writeInt(nodeId)
+        node.writeDerivedInstances(out)
+    }
+
+    out.writeInt(EDGES.size)
+    EDGES.zipWithIndex.foreach {
+      case (edge, edgeId) =>
+        out.writeInt(edgeId)
+        edge.writeIndexWithIds(out)
+    }
+
+    out.close()
+  }
+
+  def load(filePath: String = defaultDIFilePath) = {
+    val in = ExceptionlessInputStream.openCompressedStream(filePath)
+
+    val nodesSize = in.readInt()
+    (0 until nodesSize).foreach {
+      _ =>
+        val nodeId = in.readInt()
+        NODES(nodeId).loadDerivedInstances(in)
+    }
+
+    val edgesSize = in.readInt()
+    (0 until edgesSize).foreach {
+      _ =>
+        val edgeId = in.readInt()
+        EDGES(edgeId).loadIndexWithIds(in)
+    }
+
+    in.close()
+
+    hasDerivedInstances = true
+  }
 }
 
+object dataModelJsonInterface {
+  def getJson(dm: DataModel): String = {
+    val declaredFields = dm.getClass.getDeclaredFields
+
+    val nodes = declaredFields.filter(_.getType.getSimpleName == "Node")
+    val edges = declaredFields.filter(_.getType.getSimpleName == "Edge")
+    val properties = declaredFields.filter(_.getType.getSimpleName.contains("Property")).filterNot(_.getName.contains("$module"))
+
+    import play.api.libs.json._
+
+    val json: JsValue = JsObject(Seq(
+      "nodes" -> JsArray(nodes.map(node => JsString(node.getName))),
+      "edges" -> JsArray(edges.map(edge => JsString(edge.getName))),
+      "properties" -> JsArray(properties.map(prop => JsString(prop.getName)))
+    ))
+
+    println(json.toString())
+
+    json.toString()
+  }
+}

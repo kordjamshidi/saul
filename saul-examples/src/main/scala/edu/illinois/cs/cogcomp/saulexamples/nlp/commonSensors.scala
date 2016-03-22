@@ -10,7 +10,7 @@ import edu.illinois.cs.cogcomp.saulexamples.data.Document
 import scala.collection.JavaConversions._
 
 /** an object containing many popular sensors used in examples */
-object commonSensors {
+object CommonSensors {
 
   def textCollection(x: List[Document]) = {
     x.map(documentContent)
@@ -40,6 +40,10 @@ object commonSensors {
     x.getView(ViewNames.POS).getConstituents.toList
   }
 
+  def textAnnotationToTokens(ta: TextAnnotation): List[Constituent] = {
+    ta.getView(ViewNames.TOKENS).getConstituents.toList
+  }
+
   /** Annotation services */
   def processDocumentWith(annotatorService: AnnotatorService, cid: String, did: String, text: String, services: String*): TextAnnotation = {
     val ta = annotatorService.createBasicTextAnnotation(cid, did, text)
@@ -61,5 +65,6 @@ object commonSensors {
     val annotatorService = IllinoisPipelineFactory.buildPipeline()
     processDocumentWith(annotatorService, "corpus", id, content)
   }
+
 }
 

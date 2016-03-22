@@ -6,13 +6,13 @@ import edu.illinois.cs.cogcomp.sl.core.IInstance
 import scala.collection.JavaConversions._
 /** Created by Parisa on 12/10/15.
   */
-class Saul_SL_Instance[_, HEAD] extends IInstance {
+class Saul_SL_Instance[T<:AnyRef, HEAD<:AnyRef] extends IInstance {
 
-  var inputFeatures: List[Object[_]] = null
-  var factorClassifiers: List[ConstrainedClassifier[_, HEAD]] = null
+  val inputFeatures = List()
+  var factorClassifiers = List()
 
-  def apply(l: List[ConstrainedClassifier[_, HEAD]], x: HEAD) {
-    for (c: ConstrainedClassifier[_, HEAD] <- l) {
+  def apply(l: List[ConstrainedClassifier[T, HEAD]], x: HEAD) {
+    for (c: ConstrainedClassifier[T, HEAD] <- l) {
       val oracle: Classifier = c.onClassifier.getLabeler()
       val cands: Seq[_] = c.getCandidates(x)
       for (ci <- cands) {
