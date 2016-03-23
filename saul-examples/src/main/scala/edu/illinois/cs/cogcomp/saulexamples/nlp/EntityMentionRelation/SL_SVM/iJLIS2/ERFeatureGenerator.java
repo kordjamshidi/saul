@@ -1,6 +1,5 @@
     package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
 
-    import edu.illinois.cs.cogcomp.saul.classifier.Learnable;
     import edu.illinois.cs.cogcomp.sl.core.AbstractFeatureGenerator;
     import edu.illinois.cs.cogcomp.sl.core.IInstance;
     import edu.illinois.cs.cogcomp.sl.core.IStructure;

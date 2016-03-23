@@ -24,7 +24,6 @@ object JoinSLtrain {
   def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit t: ClassTag[HEAD]): Unit = {
 
     val model = new SLModel
-    val allHeads = dm.getNodeWithType[HEAD].getTrainingInstances
     val sp = SL_IOManager.makeSLProblem(dm, cls)
     model.infSolver = new Saul_SL_Inference
     val para = new SLParameters

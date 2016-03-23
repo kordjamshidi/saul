@@ -1,17 +1,11 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava;// Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000DA09DCA44C040148F55A9C9CD3894CF9D3DAE146DD50120A44F4E54A776A73913399E1ABB36411FDDD0EEB287D28AF8FAAC705724640D0BBD6445D07C04276B5E4136B83FB0F0490C650737E01905214467D0E1822C4A12570BB461CEB6F48639092C1587484433CF10AEBE7B784A689C15B48E71E6155FC325530B8F77C1BA6836C0993757F86859B357A47C29B851CAB601E9297589385F0FC91549EEE3840B32FF442E82B907AFE398D223D2E2B3E61AE2F26306D70734225D528BA27DB18F10325BDFF3AF561ADD7A90A3382C70D1E534E26909BB5E80D7C9C2F4607957D049CFF203A95FC0166100000
 
-import edu.illinois.cs.cogcomp.core.io.LineIO;
 import edu.illinois.cs.cogcomp.lbjava.classify.*;
-import edu.illinois.cs.cogcomp.lbjava.infer.*;
 import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
 import edu.illinois.cs.cogcomp.lbjava.learn.*;
 import edu.illinois.cs.cogcomp.lbjava.parse.*;
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRawToken;
-
-import java.util.List;
-
-
 
 
 public class LocClassifier extends SparseAveragedPerceptron

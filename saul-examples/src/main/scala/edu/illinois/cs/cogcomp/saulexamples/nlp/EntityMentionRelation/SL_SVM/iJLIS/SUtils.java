@@ -2,7 +2,6 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJ
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.RunnerPL;
 import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
-import edu.illinois.cs.cogcomp.sl.util.Lexiconer;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;

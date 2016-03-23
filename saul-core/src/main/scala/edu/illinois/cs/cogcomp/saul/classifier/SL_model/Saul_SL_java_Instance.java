@@ -15,12 +15,12 @@ public class Saul_SL_java_Instance<_, HEAD> implements IInstance {
     List<Object[]> inputFeatures;
     List<ConstrainedClassifier> factorClassifiers;
 
-    public Saul_SL_java_Instance(ArrayList<ConstrainedClassifier<_, HEAD>> l, _ x){
+    public Saul_SL_java_Instance(List<ConstrainedClassifier<_, HEAD>> l, _ x){
         {
             for (ConstrainedClassifier c :  l)
             {
                 Classifier oracle = c.onClassifier().getLabeler();
-                ArrayList<_> cands= (ArrayList<_>) c.getCandidates(x);
+                List<_> cands= (List<_>) c.getCandidates(x);
                 for (_ ci: cands){
                     c.classifier().discreteValue(ci) ; //prediction result
                     oracle.discreteValue(ci) ; // true lable

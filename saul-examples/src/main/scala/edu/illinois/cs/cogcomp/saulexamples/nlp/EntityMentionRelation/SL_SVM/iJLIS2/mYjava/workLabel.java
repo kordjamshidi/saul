@@ -1,15 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.mYjava;// Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000D4D81BA020130144F756945908EDF0867702806522C592157490E2BBAB9C12274EFDD0A6175DC0CB16ED525E3B1A062738ADD3BB50939F5BA4FA69BB8720BFE55897F0E8529A05904BE52D449EA4EB4760E3CBF18E0FC1327EDED44D0D7CC0FFD7C3E64DC580D6DDC23A909FFB82CA8A218336E8466CAE70B03EE714B9000000
 
-import edu.illinois.cs.cogcomp.core.io.LineIO;
 import edu.illinois.cs.cogcomp.lbjava.classify.*;
-import edu.illinois.cs.cogcomp.lbjava.infer.*;
-import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
-import edu.illinois.cs.cogcomp.lbjava.learn.*;
-import edu.illinois.cs.cogcomp.lbjava.parse.*;
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation;
-
-import java.util.List;
 
 
 public class workLabel extends Classifier
