@@ -37,12 +37,11 @@ object JoinTrainSparseNetwork {
 
     }*/
 
-  def apply[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])
-                           (implicit headTag: ClassTag[HEAD]) =
-  {
+  def apply[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit headTag: ClassTag[HEAD]) =
+    {
 
-    train[HEAD](dm, cls, 1)
-  }
+      train[HEAD](dm, cls, 1)
+    }
 
   def apply[HEAD <: AnyRef](
     dm: DataModel,

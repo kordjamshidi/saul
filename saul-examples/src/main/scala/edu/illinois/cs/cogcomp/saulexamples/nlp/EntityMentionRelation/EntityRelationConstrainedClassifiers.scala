@@ -5,7 +5,6 @@ import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ C
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.EntityRelationConstraints._
-
 object EntityRelationConstrainedClassifiers {
 
   object orgConstraintClassifier extends ConstrainedClassifier[ConllRawToken, ConllRelation](EntityRelationDataModel, orgClassifier) {

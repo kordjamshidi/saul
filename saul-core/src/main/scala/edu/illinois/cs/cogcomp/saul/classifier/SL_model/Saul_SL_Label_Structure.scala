@@ -6,7 +6,7 @@ import edu.illinois.cs.cogcomp.sl.core.IStructure
 import scala.collection.JavaConversions._
 /** Created by Parisa on 12/10/15.
   */
-class Saul_SL_Label_Structure[T<:AnyRef, HEAD<:AnyRef] extends IStructure {
+class Saul_SL_Label_Structure[T <: AnyRef, HEAD <: AnyRef] extends IStructure {
 
   var labels: List[String] = null
 
