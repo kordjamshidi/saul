@@ -11,7 +11,7 @@ class Saul_SL_Instance[T<:AnyRef, HEAD<:AnyRef] extends IInstance {
   val inputFeatures = List()
   var factorClassifiers = List()
 
-  def apply(l: List[ConstrainedClassifier[T, HEAD]], x: HEAD) {
+  def apply(l: List[ConstrainedClassifier[T, HEAD]], x: HEAD)={
     for (c: ConstrainedClassifier[T, HEAD] <- l) {
       val oracle: Classifier = c.onClassifier.getLabeler()
       val cands: Seq[_] = c.getCandidates(x)
