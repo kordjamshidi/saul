@@ -20,8 +20,8 @@ public class Saul_SL_java_Instance<_, HEAD> implements IInstance {
             for (ConstrainedClassifier c :  l)
             {
                 Classifier oracle = c.onClassifier().getLabeler();
-                ArrayList<HEAD> cands= (ArrayList<HEAD>) c.getCandidates(x);
-                for (HEAD ci: cands){
+                ArrayList<_> cands= (ArrayList<_>) c.getCandidates(x);
+                for (_ ci: cands){
                     c.classifier().discreteValue(ci) ; //prediction result
                     oracle.discreteValue(ci) ; // true lable
                      ;  // return a Feature values and indexs
