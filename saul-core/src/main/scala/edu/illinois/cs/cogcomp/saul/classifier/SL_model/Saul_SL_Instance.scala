@@ -5,17 +5,18 @@ import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.sl.core.IInstance
 
 import scala.collection.JavaConversions._
+import scala.reflect.ClassTag
 
 /** Created by Parisa on 12/10/15.
   */
-class Saul_SL_Instance[T <: AnyRef, HEAD <: AnyRef] extends IInstance {
+case class Saul_SL_Instance[T <: List[ConstrainedClassifier[_,HEAD]],HEAD<:AnyRef](l:T,x:HEAD) extends IInstance {
 
   val inputFeatures = List() // List<Object[]>
-  var factorClassifiers = List() //List<ConstrainedClassifier>
+  var factorClassifiers: List[ConstrainedClassifier[_,HEAD]] = List() //List<ConstrainedClassifier>
 
-  def apply(l: List[ConstrainedClassifier[T, HEAD]], x: HEAD) //(implicit headTag: ClassTag[_])
+  def apply(implicit headTag: ClassTag[HEAD])
   = {
-    for (c: ConstrainedClassifier[T, HEAD] <- l) {
+    for (c: ConstrainedClassifier[_,HEAD] <- l) {
       val oracle: Classifier = c.onClassifier.getLabeler()
       val cands: Seq[_] = c.getCandidates(x)
       for (ci <- cands) {
@@ -24,10 +25,9 @@ class Saul_SL_Instance[T <: AnyRef, HEAD <: AnyRef] extends IInstance {
         // return a Feature values and indexs
         inputFeatures.add(c.onClassifier.getExampleArray(ci))
         factorClassifiers.add(c)
-      }
+      }// yield inputFeatures
       //                    val a0 = a(0).asInstanceOf[Array[Int]]
       //                    val a1 = a(1).asInstanceOf[Array[Double]]
-    }
   }
-}
+}}
 

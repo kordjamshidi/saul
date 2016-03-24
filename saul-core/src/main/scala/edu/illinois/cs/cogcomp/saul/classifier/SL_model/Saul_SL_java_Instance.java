@@ -15,7 +15,7 @@ public class Saul_SL_java_Instance<_, HEAD> implements IInstance {
     List<Object[]> inputFeatures;
     List<ConstrainedClassifier> factorClassifiers;
 
-    public Saul_SL_java_Instance(List<ConstrainedClassifier<_, HEAD>> l, _ x){
+    public Saul_SL_java_Instance(List<ConstrainedClassifier<_, HEAD>> l, HEAD x){
         {
             for (ConstrainedClassifier c :  l)
             {
