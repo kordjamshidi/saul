@@ -9,7 +9,7 @@ class Saul_SL_Inference[HEAD <: AnyRef] extends AbstractInferenceSolver {
 
   override def getBestStructure(weight: WeightVector, ins: IInstance): IStructure = {
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]
-    var myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](myIns.factorClassifiers.toList,myIns.head)
+    var myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](myIns.factorClassifiers.toList, myIns.head)
     for (i <- 0 until myIns.factorClassifiers.size) {
       val c = myIns.factorClassifiers(i)
       val candis: Seq[_] = c.getCandidates(myIns.head)
@@ -32,7 +32,7 @@ class Saul_SL_Inference[HEAD <: AnyRef] extends AbstractInferenceSolver {
   override def getLossAugmentedBestStructure(weight: WeightVector, ins: IInstance, goldStructure: IStructure): IStructure = {
 
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]
-    var myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](myIns.factorClassifiers.toList,myIns.head)
+    var myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](myIns.factorClassifiers.toList, myIns.head)
     for (i <- 0 until myIns.factorClassifiers.size) {
       val c = myIns.factorClassifiers(i)
       val candis: Seq[_] = c.getCandidates(myIns.head)

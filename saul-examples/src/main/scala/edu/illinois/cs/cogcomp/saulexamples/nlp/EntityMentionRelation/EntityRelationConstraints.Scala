@@ -5,7 +5,6 @@ import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.EntityRelationClassifiers._
 
-
 object EntityRelationConstraints {
 
   val relationArgumentConstraints = ConstrainedClassifier.constraint[ConllRelation] {
@@ -18,7 +17,7 @@ object EntityRelationConstraints {
   val liveInConstraint = ConstrainedClassifier.constraint[ConllRelation] {
     x: ConllRelation =>
       {
-        (( livesInClassifier on x) isTrue) ==> (
+        ((livesInClassifier on x) isTrue) ==> (
           ((personClassifier on x.e1) isTrue)
           and ((locationClassifier on x.e2) isTrue)
         )
