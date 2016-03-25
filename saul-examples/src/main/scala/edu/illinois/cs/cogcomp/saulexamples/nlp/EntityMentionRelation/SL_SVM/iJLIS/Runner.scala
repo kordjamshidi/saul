@@ -33,12 +33,12 @@ object Runner {
 
     cr = null
 
-    lexm.setAllowNewFeatures(false)
+    lexm.setAllowNewFeatures(true)
     val sp: SLProblem = new SLProblem
     sp.instanceList = sclist
     sp.goldStructureList = outlist
     val para: SLParameters = new SLParameters
-    para.TOTAL_NUMBER_FEATURE = lexm.getNumOfFeature
+    // para.TOTAL_NUMBER_FEATURE = lexm.getNumOfFeature
     para.C_FOR_STRUCTURE = 1
     para.CHECK_INFERENCE_OPT = false
     val model: SLModel = new SLModel

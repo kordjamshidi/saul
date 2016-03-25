@@ -14,7 +14,7 @@ public class Saul_SL_Label_java_Structure<_,HEAD> implements IStructure {
 
     ArrayList<String> labels;
 
-    public Saul_SL_Label_java_Structure(ArrayList<ConstrainedClassifier<_, HEAD>> l, _ x){
+    public Saul_SL_Label_java_Structure(ArrayList<ConstrainedClassifier<_, HEAD>> l, HEAD x){
 
         for (ConstrainedClassifier c : l){
             labels.add(c.onClassifier().discreteValue(x));
