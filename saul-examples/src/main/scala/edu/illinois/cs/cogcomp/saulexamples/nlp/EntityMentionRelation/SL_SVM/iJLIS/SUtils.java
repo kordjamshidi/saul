@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS;
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.RunnerPL;
+//import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2.Runner;
 import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -22,19 +22,19 @@ public class SUtils {
 
 		for (String feat : feats) {
 
-			if (!RunnerPL.lexm().containFeature(feat)) {
-                System.out.println("Flag of preview: "+ RunnerPL.lexm().getNumOfFeature());
-                System.out.println("before Flag of feature set: "+ RunnerPL.lexm().isAllowNewFeatures()+"\n");
-                if(RunnerPL.lexm().isAllowNewFeatures())
+			if (!Runner.lexm().containFeature(feat)) {
+                System.out.println("Flag of preview: "+ Runner.lexm().getNumOfFeature());
+                System.out.println("before Flag of feature set: "+ Runner.lexm().isAllowNewFeatures()+"\n");
+                if(Runner.lexm().isAllowNewFeatures())
 				 //Todo see the error of the following line
-				    //   RunnerPLPL.lexm().previewFeature(feat);
-                System.out.println("After preview flag: "+RunnerPL.lexm().getNumOfFeature());
-                System.out.println("Flag of  after feature set: "+ RunnerPL.lexm().isAllowNewFeatures()+"\n");
-                RunnerPL.lexm().addFeature(feat);
+				    //   RunnerPL.lexm().previewFeature(feat);
+                System.out.println("After preview flag: "+Runner.lexm().getNumOfFeature());
+                System.out.println("Flag of  after feature set: "+ Runner.lexm().isAllowNewFeatures()+"\n");
+                Runner.lexm().addFeature(feat);
             }
-            if (RunnerPL.lexm().containFeature(feat)) {
+            if (Runner.lexm().containFeature(feat)) {
 
-                int fid = RunnerPL.lexm().getFeatureId(feat);
+                int fid = Runner.lexm().getFeatureId(feat);
                 idxList.add(fid);
                 valList.add(1.);
             }

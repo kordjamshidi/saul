@@ -112,7 +112,7 @@ object EntityRelationDataModel extends DataModel {
   }
 
   def populateWithConll() = {
-    val reader = new Conll04_ReaderNew("./data/EntityMentionRelation/conll04.corp", "Token")
+    val reader = new Conll04_ReaderNew("./data/EntityMentionRelation/conll04_small.corp", "Token")
     sentences.populate(reader.sentences)
     pairs.populate(reader.relations)
   }
