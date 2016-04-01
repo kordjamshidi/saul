@@ -23,9 +23,9 @@ object JoinSLtrain {
 
   def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit t: ClassTag[HEAD]): Unit = {
     //var lexm: Lexiconer = new Lexiconer()
-    val model = new SLModel
+    val model = new SaulSLModel(cls)
     val sp = SL_IOManager.makeSLProblem(dm, cls)
-    model.infSolver = new Saul_SL_Inference
+    model.infSolver = new Saul_SL_Inference(model.Factors)
     val para = new SLParameters
     para.C_FOR_STRUCTURE = 1
     para.CHECK_INFERENCE_OPT = false
@@ -40,9 +40,11 @@ object JoinSLtrain {
 
     //    println("num?:"+(model.featureGenerator).asInstanceOf[ERFeatureGenerator].getlexicon().getNumOfFeature)
     //println("num?:" + model.lm.getNumOfFeature)
-
+    InitializeSL(sp,model)
     model.wv = learner.train(sp)
-    model.saveModel("modelname.SAUL");
+
+//    model.saveModel("modelname.SAUL");
+
 
   }
 }

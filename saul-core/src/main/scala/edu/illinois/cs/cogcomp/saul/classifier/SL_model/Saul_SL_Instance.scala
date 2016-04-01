@@ -13,7 +13,8 @@ import scala.collection.mutable.ListBuffer
 case class Saul_SL_Instance[HEAD <: AnyRef](l: List[ConstrainedClassifier[_, HEAD]], x: HEAD) extends IInstance {
 
   // val inputFeatures:ListBuffer[Array[Object]]= ListBuffer() // List<Object[]>
-  var factorClassifiers: ListBuffer[ConstrainedClassifier[_, HEAD]] = ListBuffer()
+  var ConstraintFactors: ListBuffer[ConstrainedClassifier[_, HEAD]] =ListBuffer()
+
   //List<ConstrainedClassifier>
   var fv: IFeatureVector = null;
   val head: HEAD = x
@@ -35,7 +36,8 @@ case class Saul_SL_Instance[HEAD <: AnyRef](l: List[ConstrainedClassifier[_, HEA
 
         } // yield inputFeatures
         //                    val a0 = a(0).asInstanceOf[Array[Int]]
-        factorClassifiers += (c) //TODO probably we need to remove this, it seems to be redundant
+        ConstraintFactors += (c) //TODO probably we need to remove this, it seems to be redundant
+
       //                    val a1 = a(1).asInstanceOf[Array[Double]]
     }
   }

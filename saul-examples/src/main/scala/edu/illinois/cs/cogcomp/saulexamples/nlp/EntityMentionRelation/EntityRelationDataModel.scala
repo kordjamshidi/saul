@@ -23,7 +23,7 @@ object EntityRelationDataModel extends DataModel {
 
   sentenceToToken.addSensor(sentenceToTokens_GeneratingS _)
   sentencesToPairs.addSensor(sentenceToRelation_GeneratingS _)
-  pairTo1stArg.addSensor(relationToSecondArg_MatchingS _)
+  pairTo1stArg.addSensor(relationToFirstArg_MatchingS _)
   pairTo2ndArg.addSensor(relationToSecondArg_MatchingS _)
 
   /** Properties */

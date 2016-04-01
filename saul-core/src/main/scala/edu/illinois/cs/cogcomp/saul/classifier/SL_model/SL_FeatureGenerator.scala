@@ -12,8 +12,8 @@ class SL_FeatureGenerator[HEAD <: AnyRef] extends AbstractFeatureGenerator {
     val myY = y.asInstanceOf[Saul_SL_Label_Structure[HEAD]]
     val fv = new FeatureVectorBuffer()
     var labelCount = 0
-    for (i <- 0 until myX.factorClassifiers.size) {
-      val c = myX.factorClassifiers(i)
+    for (i <- 0 until myX.ConstraintFactors.size) {
+      val c = myX.ConstraintFactors(i)
       val candis: Seq[_] = c.getCandidates(myX.head)
       val fvLocal = new FeatureVectorBuffer()
       var previousSize = 0

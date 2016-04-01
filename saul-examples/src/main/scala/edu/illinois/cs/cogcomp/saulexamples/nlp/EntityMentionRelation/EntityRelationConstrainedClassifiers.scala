@@ -11,14 +11,14 @@ object EntityRelationConstrainedClassifiers {
   object orgConstraintClassifier extends ConstrainedClassifier[ConllRawToken, ConllRelation](EntityRelationDataModel, orgClassifier) {
     def subjectTo = relationArgumentConstraints
     override val pathToHead = Some(-EntityRelationDataModel.pairTo2ndArg)
-    override def filter(t: ConllRawToken, h: ConllRelation): Boolean = t.wordId == h.wordId1
+    //override def filter(t: ConllRawToken, h: ConllRelation): Boolean = t.wordId == h.wordId1
   }
 
   object perConstraintClassifier extends ConstrainedClassifier[ConllRawToken, ConllRelation](EntityRelationDataModel, personClassifier) {
 
     def subjectTo = relationArgumentConstraints
     override val pathToHead = Some(-EntityRelationDataModel.pairTo1stArg)
-    override def filter(t: ConllRawToken, h: ConllRelation): Boolean = t.wordId == h.wordId2
+   // override def filter(t: ConllRawToken, h: ConllRelation): Boolean = t.wordId == h.wordId2
   }
 
   object locConstraintClassifier extends ConstrainedClassifier[ConllRawToken, ConllRelation](EntityRelationDataModel, locationClassifier) {
@@ -26,7 +26,7 @@ object EntityRelationConstrainedClassifiers {
     def subjectTo = relationArgumentConstraints
     override val pathToHead = Some(-EntityRelationDataModel.pairTo2ndArg)
     //TODO add test unit for this filter
-    override def filter(t: ConllRawToken, h: ConllRelation): Boolean = t.wordId == h.wordId2
+  //  override def filter(t: ConllRawToken, h: ConllRelation): Boolean = t.wordId == h.wordId2
   }
 
   object work_P_O_relationClassifier extends ConstrainedClassifier[ConllRelation, ConllRelation](EntityRelationDataModel, worksForClassifier) {

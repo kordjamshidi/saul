@@ -92,31 +92,10 @@ object JoinTrainSparseNetwork {
                 typedC.getCandidates(h) foreach {
                   x =>
                     {
-                      //                  println(x)
-                      //                  typedC.onClassifier.learn(x)
-
                       def trainOnce() = {
 
                         val result = typedC.classifier.discreteValue(x)
-                        //                  val result =  typedC.classifier.discreteValue(x)
-                        //
-                        //                                      println(s"${typedC.onClassifier.scores(x).getScore("true")}")
-                        //                                      println(s"${typedC.onClassifier.scores(x).getScore("false")}")
-
                         val trueLabel = oracle.discreteValue(x)
-
-                        //                  val classifierToTrain = typedC.classifier
-
-                        //                    if(result.equals(trueLabel)){
-                        //                      print(Console.GREEN)
-                        //                    }else{
-                        //                      print(Console.RED)
-                        //                    }
-                        //                    print(result + "  ??? " + trueLabel)
-                        //                    println(Console.RESET)
-
-                        //
-                        //               if (result.equals("true") && !typedC.classifier.getLabeler.discreteValue(x).equals("true"))
                         val ilearner = typedC.onClassifier.asInstanceOf[Learner].asInstanceOf[SparseNetworkLBP]
                         val lLexicon = typedC.onClassifier.getLabelLexicon
                         var LTU_actual: Int = 0

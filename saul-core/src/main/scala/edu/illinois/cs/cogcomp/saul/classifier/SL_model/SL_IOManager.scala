@@ -11,10 +11,20 @@ import scala.reflect.ClassTag
   */
 object SL_IOManager {
   val lexm: Lexiconer = new Lexiconer()
-  def makeSLProblem[HEAD <: AnyRef](dm: DataModel, list: List[ConstrainedClassifier[_, HEAD]])(implicit t: ClassTag[HEAD]): SLProblem = {
+  def makeSLProblem[HEAD <: AnyRef](dm: DataModel, list: List[ConstrainedClassifier[_, HEAD]],testing:Boolean=false)(implicit t: ClassTag[HEAD]): SLProblem = {
     var sp: SLProblem = new SLProblem()
-    val allHeads = dm.getNodeWithType[HEAD].getAllInstances
-    allHeads.foreach(x => {
+    var allHeads : Iterable[HEAD]= Iterable[HEAD]()
+    if (testing)
+    {
+      allHeads = dm.getNodeWithType[HEAD].getTestingInstances
+    }
+    else
+    {
+      allHeads = dm.getNodeWithType[HEAD].getAllInstances
+    }
+
+    allHeads.foreach(x =>
+    {
       // val l: java.util.List[ConstrainedClassifier[_,HEAD]] =list.asJava
       val ins = new Saul_SL_Instance(list, x)
       ins.apply
