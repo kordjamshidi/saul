@@ -1,14 +1,19 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
+import edu.illinois.cs.cogcomp.lbjava.infer.GurobiHook
 import edu.illinois.cs.cogcomp.lbjava.learn.{LinearThresholdUnit, SparseWeightVector}
 import edu.illinois.cs.cogcomp.saul.classifier.{ConstrainedClassifier, SparseNetworkLBP}
+import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.sl.core.{AbstractInferenceSolver, IInstance, IStructure}
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
+
+import scala.reflect.ClassTag
+
 /** Created by Parisa on 12/8/15.
   */
-class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HEAD]]) extends AbstractInferenceSolver {
+class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HEAD]], dm:DataModel) (implicit t:ClassTag[HEAD]) extends AbstractInferenceSolver {
   val a=factors
-
+  val dataM=dm
   override def getBestStructure(weight: WeightVector, ins: IInstance): IStructure = {
 
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]
@@ -50,6 +55,18 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HE
 
         }
   }
+
+ // val newFactors=List[ConstrainedClassifier[_,HEAD]]
+  a.foreach{
+    x=>
+
+      x.buildWithConstraint(x.subjectTo.createInferenceCondition[x.LEFT](dm,new GurobiHook()),new lossAugmentedClassifier[x.LEFT](x.onClassifier))
+    //  x.buildWithConstraint(x.subjectTo.createInferenceCondition[_](dm, x.getSolverInstance()).convertToType[_], new lossAugmentedClassifier[_](x.onClassifier))
+
+      //x.buildWithConstraint(x.subjectTo.createInferenceCondition(dm,))
+    //  val a = new ConstrainedClassifier[_,HEAD](dm,new lossAugmentedClassifier[_](x.onClassifier)){ def subjectTo = null} //EntityRelationConstraints.relationArgumentConstraints} {}
+  }
+
   a.foreach {
     cf=>
        cf.getCandidates(myIns.head).foreach {

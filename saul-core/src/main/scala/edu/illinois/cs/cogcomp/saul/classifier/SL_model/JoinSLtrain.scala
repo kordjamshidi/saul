@@ -25,7 +25,7 @@ object JoinSLtrain {
     //var lexm: Lexiconer = new Lexiconer()
     val model = new SaulSLModel(cls)
     val sp = SL_IOManager.makeSLProblem(dm, cls)
-    model.infSolver = new Saul_SL_Inference(model.Factors)
+    model.infSolver = new Saul_SL_Inference(model.Factors, dm)
     val para = new SLParameters
     para.C_FOR_STRUCTURE = 1
     para.CHECK_INFERENCE_OPT = false
