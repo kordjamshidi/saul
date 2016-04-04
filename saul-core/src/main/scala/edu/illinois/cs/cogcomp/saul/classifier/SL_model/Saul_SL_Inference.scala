@@ -1,6 +1,5 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.lbjava.infer.GurobiHook
 import edu.illinois.cs.cogcomp.lbjava.learn.{LinearThresholdUnit, SparseWeightVector}
 import edu.illinois.cs.cogcomp.saul.classifier.{ConstrainedClassifier, SparseNetworkLBP}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
@@ -57,14 +56,19 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HE
   }
 
  // val newFactors=List[ConstrainedClassifier[_,HEAD]]
-  a.foreach{
-    x=>
+  a.foreach {
+    cf =>
+      val tempclassifier = new lossAugmentedClassifier[cf.LEFT](cf.onClassifier)
+      cf.getCandidates(myIns.head).foreach {
+        example=>
 
-      x.buildWithConstraint(x.subjectTo.createInferenceCondition[x.LEFT](dm,new GurobiHook()),new lossAugmentedClassifier[x.LEFT](x.onClassifier))
+        tempclassifier.scores(example.asInstanceOf[AnyRef])
+     //cf.buildWithConstraint(cf.subjectTo.createInferenceCondition[](dm,new GurobiHook()),new lossAugmentedClassifier[cf.LEFT](cf.onClassifier))
     //  x.buildWithConstraint(x.subjectTo.createInferenceCondition[_](dm, x.getSolverInstance()).convertToType[_], new lossAugmentedClassifier[_](x.onClassifier))
 
-      //x.buildWithConstraint(x.subjectTo.createInferenceCondition(dm,))
+    //x.buildWithConstraint(x.subjectTo.createInferenceCondition(dm,))
     //  val a = new ConstrainedClassifier[_,HEAD](dm,new lossAugmentedClassifier[_](x.onClassifier)){ def subjectTo = null} //EntityRelationConstraints.relationArgumentConstraints} {}
+  }
   }
 
   a.foreach {
