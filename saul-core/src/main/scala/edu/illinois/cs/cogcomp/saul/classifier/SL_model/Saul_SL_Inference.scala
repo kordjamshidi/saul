@@ -63,7 +63,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HE
         example=>
 
         tempclassifier.scores(example.asInstanceOf[AnyRef])
-      //  cf.buildWithConstraint(cf.subjectTo.createInferenceCondition[cf.LEFT](dm,new GurobiHook()),new lossAugmentedClassifier[cf.LEFT](cf.onClassifier))
+      //    cf.buildWithConstraint(cf.subjectTo.createInferenceCondition[AnyRef](dm,new GurobiHook()),new lossAugmentedClassifier[cf.LEFT](cf.onClassifier))
     //  x.buildWithConstraint(x.subjectTo.createInferenceCondition[_](dm, x.getSolverInstance()).convertToType[_], new lossAugmentedClassifier[_](x.onClassifier))
 
     //x.buildWithConstraint(x.subjectTo.createInferenceCondition(dm,))

@@ -31,7 +31,7 @@ object JoinSLtrain {
     para.CHECK_INFERENCE_OPT = false
     //    model.config = new util.HashMap();
     model.para = para
-    model.featureGenerator = new SL_FeatureGenerator
+    model.featureGenerator = new SL_FeatureGenerator(model.Factors)
     // model.lm=lexm
     // model.lm.setAllowNewFeatures(false)
     //  para.TOTAL_NUMBER_FEATURE = 3 * model.lm.getNumOfFeature
