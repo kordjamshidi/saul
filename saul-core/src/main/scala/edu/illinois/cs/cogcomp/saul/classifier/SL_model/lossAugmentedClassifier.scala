@@ -8,7 +8,7 @@ import edu.illinois.cs.cogcomp.saul.classifier.SparseNetworkLBP
 /**
  * Created by Parisa on 4/1/16.
  */
-class lossAugmentedClassifier[T](c:Learner, cand_num: Int=1) extends Learner("lossAugmentedClassifier") {
+class lossAugmentedClassifier[T<:AnyRef](c:Learner, cand_num: Int=1) extends Learner("lossAugmentedClassifier") {
     override def getInputType: String = { "dummy"}
 
     override def allowableValues: Array[String] = c.allowableValues()//{ Array[String]("false", "true") }

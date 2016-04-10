@@ -12,7 +12,7 @@ import scala.reflect._
 object JoinSLtrain {
   def apply[HEAD <: AnyRef](
     dm: DataModel,
-    cls: List[ConstrainedClassifier[_, HEAD]]
+    cls: List[ConstrainedClassifier[_<:AnyRef, HEAD]]
   )(
     implicit
     headTag: ClassTag[HEAD]
@@ -21,17 +21,17 @@ object JoinSLtrain {
     trainSSVM[HEAD](dm, cls)
   }
 
-  def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit t: ClassTag[HEAD]): Unit = {
+  def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_<:AnyRef, HEAD]])(implicit t: ClassTag[HEAD]): Unit = {
     //var lexm: Lexiconer = new Lexiconer()
-    val model = new SaulSLModel(cls)
     val sp = SL_IOManager.makeSLProblem(dm, cls)
+    val model = InitializeSL(sp, new SaulSLModel(cls))
     model.infSolver = new Saul_SL_Inference(model.Factors, dm)
     val para = new SLParameters
     para.C_FOR_STRUCTURE = 1
     para.CHECK_INFERENCE_OPT = false
     //    model.config = new util.HashMap();
     model.para = para
-    model.featureGenerator = new SL_FeatureGenerator(model.Factors)
+    model.featureGenerator = new SL_FeatureGenerator(model)
     // model.lm=lexm
     // model.lm.setAllowNewFeatures(false)
     //  para.TOTAL_NUMBER_FEATURE = 3 * model.lm.getNumOfFeature
@@ -40,7 +40,6 @@ object JoinSLtrain {
 
     //    println("num?:"+(model.featureGenerator).asInstanceOf[ERFeatureGenerator].getlexicon().getNumOfFeature)
     //println("num?:" + model.lm.getNumOfFeature)
-    InitializeSL(sp,model)
     model.wv = learner.train(sp)
 
 //    model.saveModel("modelname.SAUL");

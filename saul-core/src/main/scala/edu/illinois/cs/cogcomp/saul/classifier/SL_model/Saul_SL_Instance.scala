@@ -22,19 +22,19 @@ case class Saul_SL_Instance[HEAD <: AnyRef](l: List[ConstrainedClassifier[_, HEA
     l.foreach {
       (c: ConstrainedClassifier[_, HEAD]) =>
         //val oracle: Classifier = c.onClassifier.getLabeler()
-        val cands: Seq[_] = c.getCandidates(x)
-        for (ci <- cands) {
-          // c.classifier.discreteValue(ci) //prediction result
-          // oracle.discreteValue(ci) // true lable
-          // return a Feature values and indexs
-          val t = c.onClassifier.getExampleArray(ci, true)
-          //   val l: java.util.List[String]= c.onClassifier.getCurrentLexicon.getMap.keys.map(x=> x.toString).toList
-          // inputFeatures.add(t)
-
-          //  print("")
-          // fv = SUtils.makeFeatures(l).toFeatureVector();
-
-        } // yield inputFeatures
+//        val cands: Seq[_] = c.getCandidates(x)
+//        for (ci <- cands) {
+//          // c.classifier.discreteValue(ci) //prediction result
+//          // oracle.discreteValue(ci) // true lable
+//          // return a Feature values and indexs
+//          val t = c.onClassifier.getExampleArray(ci, true)
+//          //   val l: java.util.List[String]= c.onClassifier.getCurrentLexicon.getMap.keys.map(x=> x.toString).toList
+//          // inputFeatures.add(t)
+//
+//          //  print("")
+//          // fv = SUtils.makeFeatures(l).toFeatureVector();
+//
+//        } // yield inputFeatures
         //                    val a0 = a(0).asInstanceOf[Array[Int]]
         ConstraintFactors += (c) //TODO probably we need to remove this, it seems to be redundant
 
