@@ -28,6 +28,4 @@ object SaulSLTest {
     evaluate(a,sp.goldStructureList.toList, model)
   }
 
-
-
 }

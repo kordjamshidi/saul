@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.SL_SVM.iJLIS2;
 
 /**
  * Created by parisakordjamshidi on 19/09/14.

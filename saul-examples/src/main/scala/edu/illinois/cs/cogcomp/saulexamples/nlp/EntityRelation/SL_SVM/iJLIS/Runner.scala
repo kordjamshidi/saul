@@ -1,9 +1,8 @@
-package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.SL_SVM.iJLIS
 
 import java.util
 import java.util.{ ArrayList, List }
-
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.Conll04_ReaderNew
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.Conll04_Reader
 import edu.illinois.cs.cogcomp.sl.core._
 import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
 import edu.illinois.cs.cogcomp.sl.util.{ Lexiconer, WeightVector }
@@ -12,7 +11,7 @@ object Runner {
 
   var lexm: Lexiconer = new Lexiconer()
 
-  def readXY(cr: Conll04_ReaderNew, outlist: => List[IStructure], sclist: => List[IInstance], l: Int, u: Int) {
+  def readXY(cr: Conll04_Reader, outlist: => List[IStructure], sclist: => List[IInstance], l: Int, u: Int) {
     var i: Int = l
     while (i < u) { //cr.instances.size){
       val newqi: ERqInstance = new ERqInstance(cr.instances.elementAt(i))
@@ -26,7 +25,7 @@ object Runner {
   }
 
   def trainSSVM(modelname: String): Unit = {
-    var cr = new Conll04_ReaderNew("./data/EntityMentionRelation/conll04.corp", "Pair")
+    var cr = new Conll04_Reader("./data/EntityMentionRelation/conll04.corp", "Pair")
     var sclist: List[IInstance] = new ArrayList[IInstance] //=readX(cr)
     var outlist: List[IStructure] = new ArrayList[IStructure] //readY(cr)
     readXY(cr, outlist, sclist, 1, 100)
@@ -59,7 +58,7 @@ object Runner {
     Runner.lexm = model.lm
     val learned_wv: WeightVector = model.wv
     val inference_proc: iERinference = model.infSolver.asInstanceOf[iERinference]
-    var cr = new Conll04_ReaderNew("./data/EntityMentionRelation/conll04.corp", "Pair")
+    var cr = new Conll04_Reader("./data/EntityMentionRelation/conll04.corp", "Pair")
     var sclist: List[IInstance] = new ArrayList[IInstance] //=readX(cr)
     var outlist: List[IStructure] = new ArrayList[IStructure] //readY(cr)
     readXY(cr, outlist, sclist, 101, 200)

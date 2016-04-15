@@ -1,11 +1,11 @@
-package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.SL_SVM.iJLIS2
 
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.Conll04_ReaderNew
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.{Conll04_Reader}
 import edu.illinois.cs.cogcomp.sl.core.SLProblem
 
 object ERIOManager {
 
-  def readXY(cr: Conll04_ReaderNew, l: Int, u: Int): SLProblem = {
+  def readXY(cr: Conll04_Reader, l: Int, u: Int): SLProblem = {
     var sp: SLProblem = new SLProblem()
     var i = l
     while (i < u) {

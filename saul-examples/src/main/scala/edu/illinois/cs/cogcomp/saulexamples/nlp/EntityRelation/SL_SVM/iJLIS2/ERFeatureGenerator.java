@@ -1,4 +1,4 @@
-    package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityMentionRelation.SL_SVM.iJLIS2;
+    package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.SL_SVM.iJLIS2;
 
     import edu.illinois.cs.cogcomp.sl.core.AbstractFeatureGenerator;
     import edu.illinois.cs.cogcomp.sl.core.IInstance;

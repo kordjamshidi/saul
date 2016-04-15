@@ -5,10 +5,12 @@ import edu.illinois.cs.cogcomp.lbjava.classify.{FeatureVector, ScoreSet}
 import edu.illinois.cs.cogcomp.lbjava.learn.Learner
 import edu.illinois.cs.cogcomp.saul.classifier.SparseNetworkLBP
 
+import scala.reflect.ClassTag
+
 /**
  * Created by Parisa on 4/1/16.
  */
-class lossAugmentedClassifier[T<:AnyRef](c:Learner, cand_num: Int=1) extends Learner("lossAugmentedClassifier") {
+class lossAugmentedClassifier[T<:AnyRef](c:Learner, cand_num: Int=1)(implicit t:ClassTag[T] ) extends Learner("lossAugmentedClassifier") {
     override def getInputType: String = { "dummy"}
 
     override def allowableValues: Array[String] = c.allowableValues()//{ Array[String]("false", "true") }

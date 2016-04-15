@@ -12,8 +12,9 @@ import scala.reflect.ClassTag
 
 /** Created by Parisa on 12/8/15.
   */
-class Saul_SL_Inference[_<:AnyRef,HEAD <: AnyRef](factors: List[ConstrainedClassifier[_<:AnyRef,HEAD]], dm:DataModel) (implicit t:ClassTag[HEAD]) extends AbstractInferenceSolver {
+class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_<:AnyRef,HEAD]], dm:DataModel) (implicit t:ClassTag[HEAD]) extends AbstractInferenceSolver {
   val a=factors
+  a.head.tType
   val dataM=dm
   override def getBestStructure(weight: WeightVector, ins: IInstance): IStructure = {
 
@@ -45,13 +46,7 @@ class Saul_SL_Inference[_<:AnyRef,HEAD <: AnyRef](factors: List[ConstrainedClass
             count=count+1
              }
         TotalLoss=TotalLoss+localLoss/candidates.size
-
-//        for (i <- 0 until myGold.labels.size) {
-//          if (myGold.labels(i)!=(myPred.labels(i)))
-//            TotalLoss = TotalLoss+1
-//        }
-//
-    }
+   }
     TotalLoss=TotalLoss/factors.size
 
     TotalLoss
@@ -77,18 +72,31 @@ class Saul_SL_Inference[_<:AnyRef,HEAD <: AnyRef](factors: List[ConstrainedClass
 /// val newFactors=List[ConstrainedClassifier[_,HEAD]]
   a.foreach {
     cf =>
-      val tempclassifier = new lossAugmentedClassifier[cf.LEFT](cf.onClassifier, cf.getCandidates(myIns.head).size*FactorsNum)
-      cf.getCandidates(myIns.head).foreach {
-        example=>
+      val tempclassifier = new lossAugmentedClassifier(cf.onClassifier, cf.getCandidates(myIns.head).size*FactorsNum)
+      cf.getCandidates(myIns.head.asInstanceOf[HEAD]).foreach {
+        (example )=>
 
-        tempclassifier.scores(example.asInstanceOf[AnyRef])
-         myStruct.labels +=  cf.buildWithConstraint(cf.subjectTo.createInferenceCondition[cf.LEFT](dm, new GurobiHook()), new lossAugmentedClassifier[cf.LEFT](cf.onClassifier))(example.asInstanceOf[cf.LEFT])
-      //    cf.buildWithConstraint(cf.subjectTo.createInferenceCondition[AnyRef](dm,new GurobiHook()),new lossAugmentedClassifier[cf.LEFT](cf.onClassifier))
-    //  x.buildWithConstraint(x.subjectTo.createInferenceCondition[_](dm, x.getSolverInstance()).convertToType[_], new lossAugmentedClassifier[_](x.onClassifier))
+      //  val  tic=example.asInstanceOf[cf.LEFT]
+        val  g1= tempclassifier.scores(example)
 
+         // type t= cf.LEFT
+         // type h = HEAD
+          val temp1=  t.runtimeClass
+
+         // val b= example.asInstanceOf[cf.LEFT]
+          val g2=  cf.onClassifier.scores(example)
+
+         // cf.subjectTo.createInferenceCondition[cf.LEFT](dm, new GurobiHook())
+         // cf(example)//.onClassifier.
+         //cf.buildWithConstraint(cf.subjectTo.createInferenceCondition(dm, new GurobiHook()))
+        //  x: T => buildWithConstraint(subjectTo.createInferenceCondition[T](this.dm, getSolverInstance()).convertToType[T], onClassifier)(x)
+      myStruct.labels +=
+      cf.buildWithConstraint(cf.subjectTo.createInferenceCondition(dm, new GurobiHook()), tempclassifier)(example.asInstanceOf[cf.LEFT])
+         // cf.buildWithConstraint(cf.subjectTo.createInferenceCondition[AnyRef](dm,new GurobiHook()),new lossAugmentedClassifier[cf.LEFT](cf.onClassifier))
+//      x.buildWithConstraint(x.subjectTo.createInferenceCondition[_](dm, x.getSolverInstance()).convertToType[_], new lossAugmentedClassifier[_](x.onClassifier))
     //x.buildWithConstraint(x.subjectTo.createInferenceCondition(dm,))
     //  val a = new ConstrainedClassifier[_,HEAD](dm,new lossAugmentedClassifier[_](x.onClassifier)){ def subjectTo = null} //EntityRelationConstraints.relationArgumentConstraints} {}
-  }
+   }
   }
 
   a.foreach {

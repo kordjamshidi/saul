@@ -6,8 +6,8 @@ import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.{ Conll
 import scala.collection.JavaConverters._
 
 object EntityRelationSensors {
-  val path = "../data/"
-  val resourcePath = "../saul-examples/src/main/resources/EntityMentionRelation/"
+  val path = "./data/"
+  val resourcePath = "./saul-examples/src/main/resources/EntityMentionRelation/"
 
   def readConllData(dir: String): (List[ConllRawSentence], List[ConllRelation], List[ConllRawToken]) = {
     val reader = new Conll04_Reader(dir, "Token")
@@ -17,7 +17,7 @@ object EntityRelationSensors {
   }
 
   lazy val (sentencesAll, relationsAll, entitiesAll) = readConllData(path + "EntityMentionRelation/conll04.corp")
-  lazy val (sentencesTrain, relationsTrain, entitiesTrain) = readConllData(path + "EntityMentionRelation/conll04_train.corp")
+  lazy val (sentencesTrain, relationsTrain, entitiesTrain) = readConllData(path + "EntityMentionRelation/conll04_small.corp")
   lazy val (sentencesTest, relationsTest, entitiesTest) = readConllData(path + "EntityMentionRelation/conll04_test.corp")
   lazy val (sentencesSmallSet, testRelationsSmallSet, entitiesSmallSet) = readConllData(resourcePath + "conll04-smallDocument.txt")
 
