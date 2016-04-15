@@ -4,6 +4,7 @@ import edu.illinois.cs.cogcomp.lbjava.classify.TestDiscrete
 import edu.illinois.cs.cogcomp.lbjava.infer._
 import edu.illinois.cs.cogcomp.lbjava.learn.Learner
 import edu.illinois.cs.cogcomp.lbjava.parse.Parser
+import edu.illinois.cs.cogcomp.saul.classifier.SL_model.lossAugmentedClassifier
 import edu.illinois.cs.cogcomp.saul.classifier.infer.InferenceCondition
 import edu.illinois.cs.cogcomp.saul.constraint.LfsConstraint
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
@@ -11,6 +12,7 @@ import edu.illinois.cs.cogcomp.saul.datamodel.edge.Edge
 import edu.illinois.cs.cogcomp.saul.lbjrelated.LBJClassifierEquivalent
 import edu.illinois.cs.cogcomp.saul.parser.LBJIteratorParserScala
 
+import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
 abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val dm: DataModel, val onClassifier: Learner)(
@@ -138,6 +140,17 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val dm: DataMo
         //        "false"
         cls.discreteValue(t)
     }
+  }
+  def refineScorer(h:HEAD,normalizer: Int): ListBuffer[String] ={
+
+    val tempclassifier = new lossAugmentedClassifier(onClassifier, normalizer) //cf.getCandidates(myIns.head).size*FactorsNum)
+    var v= ListBuffer[String]()
+    getCandidates(h).foreach {
+      (example) =>
+        val g1 = tempclassifier.scores(example)
+        v+= buildWithConstraint(subjectTo.createInferenceCondition[T](this.dm, getSolverInstance()).convertToType[T], tempclassifier)(example)
+    }
+    v
   }
 
   def buildWithConstraint(inferenceCondition: InferenceCondition[T, HEAD])(t: T): String = {
