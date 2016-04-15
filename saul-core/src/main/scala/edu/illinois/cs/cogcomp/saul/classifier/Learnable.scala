@@ -5,14 +5,14 @@ import java.net.URL
 import java.time
 
 import edu.illinois.cs.cogcomp.core.io.IOUtils
-import edu.illinois.cs.cogcomp.lbjava.classify.{ FeatureVector, TestDiscrete }
+import edu.illinois.cs.cogcomp.lbjava.classify.{FeatureVector, TestDiscrete}
 import edu.illinois.cs.cogcomp.lbjava.learn.Learner.Parameters
 import edu.illinois.cs.cogcomp.lbjava.learn._
 import edu.illinois.cs.cogcomp.lbjava.parse.Parser
 import edu.illinois.cs.cogcomp.lbjava.util.ExceptionlessOutputStream
 import edu.illinois.cs.cogcomp.saul.TestContinuous
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.saul.datamodel.property.{ CombinedDiscreteProperty, Property, PropertyWithWindow, RelationalFeature }
+import edu.illinois.cs.cogcomp.saul.datamodel.property.{CombinedDiscreteProperty, Property, PropertyWithWindow, RelationalFeature}
 import edu.illinois.cs.cogcomp.saul.lbjrelated.LBJLearnerEquivalent
 import edu.illinois.cs.cogcomp.saul.parser.LBJIteratorParserScala
 
@@ -21,6 +21,8 @@ import scala.reflect.ClassTag
 abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: Parameters = new Learner.Parameters)(implicit tag: ClassTag[T]) extends LBJLearnerEquivalent {
   /** Whether to use caching */
   val useCache = false
+
+  var scorerFlag= false
 
   val loggging = false
 
@@ -54,6 +56,10 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
   IOUtils.mkdir(modelDir)
   classifier.setModelLocation(lcFilePath())
   classifier.setLexiconLocation(lexFilePath())
+  def setSorer(): Unit =
+  {
+    scorerFlag = true
+  }
 
   // create .lex file if it does not exist
   if (!IOUtils.exists(lexFilePath().getPath)) {
@@ -79,6 +85,24 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
       println("Warning: no features found! ")
     }
   }
+
+//  override def scores(example: AnyRef): ScoreSet = {
+//    val cand_num=1
+////    if (cand_num==0)
+////      print("There is no relevant component of this type in the head to be classified.")
+//    val cf= classifier.asInstanceOf[SparseNetworkLBP]
+//    val gold = cf.getLabeler.discreteValue(example)
+//    val lLexicon = cf.getLabelLexicon
+//    val resultS: ScoreSet = classifier.scores(example)//new ScoreSet
+//    for (i <- 0 until lLexicon.size()) {
+//      if (lLexicon.lookupKey(i).valueEquals(gold))
+//        resultS.put(lLexicon.lookupKey(i).getStringValue, resultS.getScore(lLexicon.lookupKey(i).getStringValue).score - (1/(cand_num)) )
+//      else
+//        resultS.put(lLexicon.lookupKey(i).getStringValue, resultS.getScore(lLexicon.lookupKey(i).getStringValue).score + (1/(cand_num)) )
+//    }
+//    resultS
+//  }
+
 
   def setLabeler(): Unit = {
     if (label != null) {

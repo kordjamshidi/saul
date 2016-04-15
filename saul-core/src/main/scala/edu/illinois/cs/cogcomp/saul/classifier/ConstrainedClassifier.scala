@@ -93,14 +93,17 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val dm: DataMo
     }
   }
 
-  def buildWithConstraint(infer: InferenceCondition[T, HEAD], cls: Learner)(t: T): String = {
+  def buildWithConstraint(infer: InferenceCondition[T, HEAD], cls: Learner, lexFlag: Boolean=true)(t: T): String = {
 
     val lex = cls.getLabelLexicon
     var flag = false
+    if (lexFlag)
     for (i <- 0 until lex.size()) {
       if (lex.lookupKey(i).valueEquals(cls.getLabeler().discreteValue(t)))
         flag = true
     }
+    else
+       flag=true
 
     findHead(t) match {
       case Some(head) =>
@@ -141,14 +144,17 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val dm: DataMo
         cls.discreteValue(t)
     }
   }
+
+
   def refineScorer(h:HEAD,normalizer: Int): ListBuffer[String] ={
+    onClassifier
 
     val tempclassifier = new lossAugmentedClassifier(onClassifier, normalizer) //cf.getCandidates(myIns.head).size*FactorsNum)
     var v= ListBuffer[String]()
     getCandidates(h).foreach {
       (example) =>
         val g1 = tempclassifier.scores(example)
-        v+= buildWithConstraint(subjectTo.createInferenceCondition[T](this.dm, getSolverInstance()).convertToType[T], tempclassifier)(example)
+        v+= buildWithConstraint(subjectTo.createInferenceCondition[T](this.dm, getSolverInstance()).convertToType[T], tempclassifier,false)(example)
     }
     v
   }
