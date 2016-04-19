@@ -10,7 +10,7 @@ import scala.collection.mutable.ListBuffer
 /**
  * Created by Parisa on 4/1/16.
  */
-object InitializeSL{
+object Initialize{
 
 
   def apply[HEAD<:AnyRef](sp:SLProblem , model:SaulSLModel[HEAD]): SaulSLModel[HEAD] =  {

@@ -36,6 +36,7 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
 
   def feature: List[Property[T]] = datamodel.getPropertiesForType[T]
 
+
   /** filter out the label from the features */
   def combinedProperties = if (label != null) new CombinedDiscreteProperty[T](this.feature.filterNot(_.name == label.name))
   else new CombinedDiscreteProperty[T](this.feature)
@@ -86,24 +87,7 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
     }
   }
 
-//  override def scores(example: AnyRef): ScoreSet = {
-//    val cand_num=1
-////    if (cand_num==0)
-////      print("There is no relevant component of this type in the head to be classified.")
-//    val cf= classifier.asInstanceOf[SparseNetworkLBP]
-//    val gold = cf.getLabeler.discreteValue(example)
-//    val lLexicon = cf.getLabelLexicon
-//    val resultS: ScoreSet = classifier.scores(example)//new ScoreSet
-//    for (i <- 0 until lLexicon.size()) {
-//      if (lLexicon.lookupKey(i).valueEquals(gold))
-//        resultS.put(lLexicon.lookupKey(i).getStringValue, resultS.getScore(lLexicon.lookupKey(i).getStringValue).score - (1/(cand_num)) )
-//      else
-//        resultS.put(lLexicon.lookupKey(i).getStringValue, resultS.getScore(lLexicon.lookupKey(i).getStringValue).score + (1/(cand_num)) )
-//    }
-//    resultS
-//  }
-
-
+  
   def setLabeler(): Unit = {
     if (label != null) {
       val oracle = Property.entitiesToLBJFeature(label)

@@ -4,7 +4,7 @@ import edu.illinois.cs.cogcomp.lbjava.classify.TestDiscrete
 import edu.illinois.cs.cogcomp.lbjava.infer._
 import edu.illinois.cs.cogcomp.lbjava.learn.Learner
 import edu.illinois.cs.cogcomp.lbjava.parse.Parser
-import edu.illinois.cs.cogcomp.saul.classifier.SL_model.lossAugmentedClassifier
+import edu.illinois.cs.cogcomp.saul.classifier.SL_model.LossAugmentedNormalizer
 import edu.illinois.cs.cogcomp.saul.classifier.infer.InferenceCondition
 import edu.illinois.cs.cogcomp.saul.constraint.LfsConstraint
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
@@ -147,14 +147,13 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val dm: DataMo
 
 
   def refineScorer(h:HEAD,normalizer: Int): ListBuffer[String] ={
-    onClassifier
-
-    val tempclassifier = new lossAugmentedClassifier(onClassifier, normalizer) //cf.getCandidates(myIns.head).size*FactorsNum)
+     val tempclassifier = onClassifier
+    //val tempclassifier = new lossAugmentedClassifier(onClassifier, normalizer) //cf.getCandidates(myIns.head).size*FactorsNum)
     var v= ListBuffer[String]()
     getCandidates(h).foreach {
       (example) =>
         val g1 = tempclassifier.scores(example)
-        v+= buildWithConstraint(subjectTo.createInferenceCondition[T](this.dm, getSolverInstance()).convertToType[T], tempclassifier,false)(example)
+        v+= buildWithConstraint(subjectTo.createInferenceCondition[T](this.dm, getSolverInstance(),new LossAugmentedNormalizer(normalizer,onClassifier,example)).convertToType[T], tempclassifier,false)(example)
     }
     v
   }

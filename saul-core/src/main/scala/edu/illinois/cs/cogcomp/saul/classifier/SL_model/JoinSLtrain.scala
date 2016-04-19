@@ -23,7 +23,7 @@ object JoinSLtrain {
 
   def trainSSVM[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_<:AnyRef, HEAD]])(implicit t: ClassTag[HEAD]): Unit = {
     val sp = SL_IOManager.makeSLProblem(dm, cls)
-    val model = InitializeSL(sp, new SaulSLModel(cls))
+    val model = Initialize(sp, new SaulSLModel(cls))
     model.infSolver = new Saul_SL_Inference[HEAD](model.Factors, dm)
     val para = new SLParameters
     para.C_FOR_STRUCTURE = 1
