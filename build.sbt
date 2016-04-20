@@ -1,3 +1,5 @@
+
+
 val cogcompNLPVersion = "3.0.18"
 val cogcompPipelineVersion = "0.1.15"
 
@@ -10,12 +12,12 @@ lazy val commonSettings = Seq(
   version := "0.1",
   scalaVersion := "2.11.7",
   resolvers ++= Seq(
-    Resolver.mavenLocal,
+    "Local Maven Repository" at "file://"+"/Users/Parisa/"+"/.m2/repository",
     "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
   ),
   javaOptions ++= List("-Xmx6g"),
   libraryDependencies ++= Seq(
-    "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.8" withSources,
+    "edu.illinois.cs.cogcomp" % "LBJava" % "2.1.18-SNAPSHOT" withSources(),
     "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % cogcompNLPVersion withSources,
     "com.gurobi" % "gurobi" % "6.0",
     "org.apache.commons" % "commons-math3" % "3.0",

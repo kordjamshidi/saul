@@ -146,14 +146,12 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val dm: DataMo
   }
 
 
-  def refineScorer(h:HEAD,normalizer: Int): ListBuffer[String] ={
-     val tempclassifier = onClassifier
-    //val tempclassifier = new lossAugmentedClassifier(onClassifier, normalizer) //cf.getCandidates(myIns.head).size*FactorsNum)
+  def lossAugmentedInfer(h:HEAD,offset: Int): ListBuffer[String] ={
     var v= ListBuffer[String]()
     getCandidates(h).foreach {
       (example) =>
-        val g1 = tempclassifier.scores(example)
-        v+= buildWithConstraint(subjectTo.createInferenceCondition[T](this.dm, getSolverInstance(),new LossAugmentedNormalizer(normalizer,onClassifier,example)).convertToType[T], tempclassifier,false)(example)
+       // val g1 = onClassifier.scores(example)
+        v+= buildWithConstraint(subjectTo.createInferenceCondition[T](this.dm, getSolverInstance(),new LossAugmentedNormalizer(offset,onClassifier,example)).convertToType[T], onClassifier)(example)
     }
     v
   }

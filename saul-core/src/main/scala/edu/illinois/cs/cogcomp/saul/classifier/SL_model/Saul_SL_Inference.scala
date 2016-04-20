@@ -56,6 +56,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_<:A
 
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]
     val myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](myIns.ConstraintFactors.toList, myIns.head)
+    val FactorsNum=a.size
 
   a.foreach {
     cf=>
@@ -65,25 +66,27 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_<:A
           val w1= cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
           val myFactorJoinlyTrainedWeight= weight.getWeightArray.slice(i,w1.size())
           cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector= new SparseWeightVector(Utils.converFarrayToD(myFactorJoinlyTrainedWeight))
-
         }
+      cf.onClassifier.setLossFlag()
+      cf.onClassifier.setCandidates(cf.getCandidates(myIns.head).size* FactorsNum)
   }
-  val FactorsNum=a.size
+
 /// val newFactors=List[ConstrainedClassifier[_,HEAD]]
-  a.foreach {
-    cf =>
-
-       myStruct.labels ++= cf.refineScorer(myIns.head.asInstanceOf[HEAD],cf.getCandidates(myIns.head).size*FactorsNum)
-  }
-
 //  a.foreach {
-//    cf=>
-//       cf.getCandidates(myIns.head).foreach {
-//       x =>
-//       myStruct.labels += cf.classifier.discreteValue(x)
-//    }
+//    cf =>
+//
+//       myStruct.labels ++= cf.lossAugmentedInfer(myIns.head.asInstanceOf[HEAD],cf.getCandidates(myIns.head).size*FactorsNum)
 //  }
+
+  a.foreach {
+    cf=>
+       cf.getCandidates(myIns.head).foreach {
+       x =>
+       myStruct.labels += cf.classifier.discreteValue(x)
+    }
+  }
     myStruct
   }
+  a.map (x=> x.onClassifier.unsetLossFlag())
   //Todo add loss to the objective before calling inference
 }

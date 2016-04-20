@@ -26,6 +26,8 @@ object JoinSLtrain {
     val model = Initialize(sp, new SaulSLModel(cls))
     model.infSolver = new Saul_SL_Inference[HEAD](model.Factors, dm)
     val para = new SLParameters
+    para.STOP_CONDITION = 0.0001f
+    para.INNER_STOP_CONDITION= 0.0001f
     para.C_FOR_STRUCTURE = 1
     para.CHECK_INFERENCE_OPT = false
     model.para = para
@@ -33,5 +35,26 @@ object JoinSLtrain {
     para.loadConfigFile("./config/DCD.config")
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
     model.wv = learner.train(sp)
+    model.saveModel("SL_ER_Model.txt")
+  }
+  def TestSSVM [HEAD <: AnyRef](dm: DataModel,cls: List[ConstrainedClassifier[_<:AnyRef,HEAD]], modelPath:String ): Unit = {
+    val myModel = SLModel.loadModel(modelPath).asInstanceOf[SaulSLModel[HEAD]]
+    val sp: SLProblem = SL_IOManager.makeSLProblem(dm, cls,testing=true)
+
+   // val sp.instanceList.toList.map(x=> myModel.infSolver.getBestStructure(myModel.wv,x.asInstanceOf[Saul_SL_Instance].head.asInstanceOf[Saul_SL_Instance]))
+//    def apply {
+//
+//      l.foreach { (c: ConstrainedClassifier[_, HEAD]) =>
+//      {
+//        val oracle: Classifier = c.onClassifier.getLabeler()
+//        val candis: Seq[_] = c.getCandidates(x)
+//        candis.foreach {
+//          ci =>
+//            labels.add(oracle.discreteValue(ci))
+//        }
+//      }
+//      }
+//    }
+
   }
 }

@@ -5,14 +5,14 @@ import java.net.URL
 import java.time
 
 import edu.illinois.cs.cogcomp.core.io.IOUtils
-import edu.illinois.cs.cogcomp.lbjava.classify.{FeatureVector, TestDiscrete}
+import edu.illinois.cs.cogcomp.lbjava.classify.{ FeatureVector, TestDiscrete }
 import edu.illinois.cs.cogcomp.lbjava.learn.Learner.Parameters
 import edu.illinois.cs.cogcomp.lbjava.learn._
 import edu.illinois.cs.cogcomp.lbjava.parse.Parser
 import edu.illinois.cs.cogcomp.lbjava.util.ExceptionlessOutputStream
 import edu.illinois.cs.cogcomp.saul.TestContinuous
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.saul.datamodel.property.{CombinedDiscreteProperty, Property, PropertyWithWindow, RelationalFeature}
+import edu.illinois.cs.cogcomp.saul.datamodel.property.{ CombinedDiscreteProperty, Property, PropertyWithWindow, RelationalFeature }
 import edu.illinois.cs.cogcomp.saul.lbjrelated.LBJLearnerEquivalent
 import edu.illinois.cs.cogcomp.saul.parser.LBJIteratorParserScala
 
@@ -22,7 +22,7 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
   /** Whether to use caching */
   val useCache = false
 
-  var scorerFlag= false
+//  var scorerFlag= false
 
   val loggging = false
 
@@ -35,7 +35,6 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
   def getClassNameForClassifier = this.getClass.getCanonicalName
 
   def feature: List[Property[T]] = datamodel.getPropertiesForType[T]
-
 
   /** filter out the label from the features */
   def combinedProperties = if (label != null) new CombinedDiscreteProperty[T](this.feature.filterNot(_.name == label.name))
@@ -57,10 +56,10 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
   IOUtils.mkdir(modelDir)
   classifier.setModelLocation(lcFilePath())
   classifier.setLexiconLocation(lexFilePath())
-  def setSorer(): Unit =
-  {
-    scorerFlag = true
-  }
+//  def setSorer(): Unit =
+//  {
+//    scorerFlag = true
+//  }
 
   // create .lex file if it does not exist
   if (!IOUtils.exists(lexFilePath().getPath)) {
@@ -87,7 +86,6 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
     }
   }
 
-  
   def setLabeler(): Unit = {
     if (label != null) {
       val oracle = Property.entitiesToLBJFeature(label)

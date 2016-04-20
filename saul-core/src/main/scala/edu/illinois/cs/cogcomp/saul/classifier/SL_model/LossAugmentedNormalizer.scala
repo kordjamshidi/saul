@@ -21,7 +21,7 @@ class LossAugmentedNormalizer(cand_num:Int, c:Learner, example: AnyRef) extends 
       val gold = cf.getLabeler.discreteValue(example)
       val lLexicon = cf.getLabelLexicon
 
-      val resultS: ScoreSet = scores//c.scores(example)//new ScoreSet
+      val resultS: ScoreSet = cf.scores(example)//new ScoreSet
       for (i <- 0 until lLexicon.size()) {
         if (lLexicon.lookupKey(i).valueEquals(gold))
           resultS.put(lLexicon.lookupKey(i).getStringValue, resultS.getScore(lLexicon.lookupKey(i).getStringValue).score - (1/(cand_num)) )
