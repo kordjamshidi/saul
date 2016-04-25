@@ -20,16 +20,14 @@ object SL_IOManager {
     }
     else
     {
-      allHeads = dm.getNodeWithType[HEAD].getAllInstances
+      allHeads = dm.getNodeWithType[HEAD].getTrainingInstances
     }
 
     allHeads.foreach(x =>
     {
       // val l: java.util.List[ConstrainedClassifier[_,HEAD]] =list.asJava
-      val ins = new Saul_SL_Instance(list, x)
-      ins.apply
+      val ins = new Saul_SL_Instance(x)
       val outs = new Saul_SL_Label_Structure(list, x)
-      outs.apply
       sp.addExample(ins, outs)
     })
     sp

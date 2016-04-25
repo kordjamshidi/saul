@@ -3,6 +3,7 @@ package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.sl.core.IStructure
+
 import scala.collection.JavaConversions._
 import scala.reflect.ClassTag
 

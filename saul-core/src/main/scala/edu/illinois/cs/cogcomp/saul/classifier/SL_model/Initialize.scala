@@ -9,6 +9,8 @@ import scala.collection.mutable.ListBuffer
 
 /**
  * Created by Parisa on 4/1/16.
+ *  Here we only make the lbjava lexicons for each onClassifier
+ * (i.e. the base classifier of each constraint classifier) based on the features of IInstances
  */
 object Initialize{
 
@@ -38,12 +40,16 @@ object Initialize{
                   var ltu: LinearThresholdUnit = ilearner.getbaseLTU
                   ltu.initialize(ilearner.getnumExamples, ilearner.getnumFeatures);
                   ilearner.net.set(label, ltu);
+                 print( "weight vector size:"+ilearner.net.get(0).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.size())
+                 println("lexicon size:"+ilearner.getLexicon.size())
+
                   N = label + 1;
                 }
             } // for each candidate
           } // for each constraintFactor
         }//end case
     }//for each example
+
     var wvLength=0
     var lt: ListBuffer[Array[Float]] = ListBuffer()
     model.Factors.foreach(
@@ -59,9 +65,11 @@ object Initialize{
         }
         println(sparseNet.getLexicon.size(), "*",sparseNet.getLabelLexicon.size())
       })
+
     val myWeight = Array.fill[Float](wvLength)(0)
     val wv= new WeightVector(myWeight)
-    val m= new SaulSLModel[HEAD](model.Factors,lt)
+    val m= new SaulSLModel[HEAD](model.Factors.toList,lt)
+    m.wv=wv
     m
   }//end f apply
 }// end of object

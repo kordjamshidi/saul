@@ -5,8 +5,8 @@ import edu.illinois.cs.cogcomp.sl.core.{AbstractFeatureGenerator, IInstance, ISt
 import edu.illinois.cs.cogcomp.sl.util.{FeatureVectorBuffer, IFeatureVector}
 
 /** Created by Parisa on 12/8/15.
-  */
-class SL_FeatureGenerator[HEAD <: AnyRef](model:SaulSLModel[HEAD]) extends AbstractFeatureGenerator {
+    */
+class SL_FeatureGenerator[HEAD<:AnyRef](model:SaulSLModel[HEAD]) extends AbstractFeatureGenerator {
   override def getFeatureVector(x: IInstance, y: IStructure): IFeatureVector = {
 
     val myX = x.asInstanceOf[Saul_SL_Instance[HEAD]]

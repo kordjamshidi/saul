@@ -7,6 +7,15 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDat
 /** Created by Parisa on 12/8/15.
   */
 object mySL_Saul_TestApp extends App {
-  EntityRelationDataModel.populateWithConll()
+
+  EntityRelationDataModel.populateWithConllSmallSet()
   JoinSLtrain(EntityRelationDataModel, List(PerConstrainedClassifier,OrgConstrainedClassifier, LocConstrainedClassifier,LivesIn_PerOrg_relationConstrainedClassifier,WorksFor_PerOrg_ConstrainedClassifier))
+
+  /* Test SL_ER */
+
+  PerConstrainedClassifier.test()
+  OrgConstrainedClassifier.test()
+  LocConstrainedClassifier.test()
+  LivesIn_PerOrg_relationConstrainedClassifier.test()
+  WorksFor_PerOrg_ConstrainedClassifier.test()
 }

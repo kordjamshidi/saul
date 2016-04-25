@@ -7,23 +7,23 @@ import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.sl.core.{AbstractInferenceSolver, IInstance, IStructure}
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
+import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
 /** Created by Parisa on 12/8/15.
   */
-class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_<:AnyRef,HEAD]], dm:DataModel) (implicit t:ClassTag[HEAD]) extends AbstractInferenceSolver {
+class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HEAD]], ltuTemplates: ListBuffer[Array[Float]], dm:DataModel) (implicit t:ClassTag[HEAD]) extends AbstractInferenceSolver {
   val a=factors
-  a.head.tType
   val dataM=dm
   override def getBestStructure(weight: WeightVector, ins: IInstance): IStructure = {
 
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]
-    var myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](myIns.ConstraintFactors.toList, myIns.head)
-    for (i <- 0 until myIns.ConstraintFactors.size) {
-      val c = myIns.ConstraintFactors(i)
+    var myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](factors.toList, myIns.head)
+    for (i <- 0 until factors.size) {
+      val c = factors(i)
       val candis: Seq[_] = c.getCandidates(myIns.head)
       candis.foreach(x =>
-        myStruct.labels += myIns.ConstraintFactors(i).classifier.discreteValue(x))
+        myStruct.labels += factors(i).classifier.discreteValue(x))
     }
     myStruct
   }
@@ -55,20 +55,21 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_<:A
   override def getLossAugmentedBestStructure(weight: WeightVector, ins: IInstance, goldStructure: IStructure): IStructure = {
 
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]
-    val myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](myIns.ConstraintFactors.toList, myIns.head)
+    val myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](factors.toList, myIns.head)
     val FactorsNum=a.size
-
+    var ltu_count = 0
   a.foreach {
     cf=>
-
         for (i <- 0 until cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.size())
         {
-          val w1= cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
-          val myFactorJoinlyTrainedWeight= weight.getWeightArray.slice(i,w1.size())
+          val w1= ltuTemplates(ltu_count)//cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
+          print("w1 size\t", w1.size)
+          val myFactorJoinlyTrainedWeight= weight.getWeightArray.slice(i,w1.size)
           cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector= new SparseWeightVector(Utils.converFarrayToD(myFactorJoinlyTrainedWeight))
         }
       cf.onClassifier.setLossFlag()
       cf.onClassifier.setCandidates(cf.getCandidates(myIns.head).size* FactorsNum)
+  println()
   }
 
 /// val newFactors=List[ConstrainedClassifier[_,HEAD]]
@@ -85,8 +86,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_<:A
        myStruct.labels += cf.classifier.discreteValue(x)
     }
   }
+    a.map (x=> x.onClassifier.unsetLossFlag())
     myStruct
   }
-  a.map (x=> x.onClassifier.unsetLossFlag())
-  //Todo add loss to the objective before calling inference
-}
+    }
