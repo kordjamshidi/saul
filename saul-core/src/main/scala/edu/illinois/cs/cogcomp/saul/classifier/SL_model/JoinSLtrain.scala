@@ -24,7 +24,7 @@ object JoinSLtrain {
   def trainSSVM[HEAD<:AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit t: ClassTag[HEAD]): Unit = {
     val sp = SL_IOManager.makeSLProblem(dm, cls)
     val model = Initialize(sp, new SaulSLModel(cls))
-    model.infSolver = new Saul_SL_Inference[HEAD](model.Factors.toList, model,dm)
+    model.infSolver = new Saul_SL_Inference[HEAD](model.Factors.toList, model.LtuTemplates,dm)
     val para = new SLParameters
     para.STOP_CONDITION = 0.0001f
     para.INNER_STOP_CONDITION= 0.0001f

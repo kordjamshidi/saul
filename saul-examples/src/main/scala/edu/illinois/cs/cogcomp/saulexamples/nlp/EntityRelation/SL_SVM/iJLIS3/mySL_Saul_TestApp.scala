@@ -13,9 +13,9 @@ object mySL_Saul_TestApp extends App {
 
   /* Test SL_ER */
 
-  PerConstrainedClassifier.test()
-  OrgConstrainedClassifier.test()
-  LocConstrainedClassifier.test()
-  LivesIn_PerOrg_relationConstrainedClassifier.test()
-  WorksFor_PerOrg_ConstrainedClassifier.test()
+  PerConstrainedClassifier.test(EntityRelationDataModel.tokens.getTestingInstances,outputGranularity = 10)
+  OrgConstrainedClassifier.test(EntityRelationDataModel.tokens.getTestingInstances,outputGranularity = 10)
+  LocConstrainedClassifier.test(EntityRelationDataModel.tokens.getTestingInstances,outputGranularity = 10)
+  LivesIn_PerOrg_relationConstrainedClassifier.test(EntityRelationDataModel.pairs.getTestingInstances,outputGranularity = 10)
+  WorksFor_PerOrg_ConstrainedClassifier.test(EntityRelationDataModel.pairs.getTestingInstances,outputGranularity = 10)
 }
