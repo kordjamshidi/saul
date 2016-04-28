@@ -24,18 +24,17 @@ object JoinSLtrain {
   def trainSSVM[HEAD<:AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]])(implicit t: ClassTag[HEAD]): Unit = {
     val sp = SL_IOManager.makeSLProblem(dm, cls)
     val model = Initialize(sp, new SaulSLModel(cls))
-    model.infSolver = new Saul_SL_Inference[HEAD](model.Factors.toList, model.LtuTemplates,dm)
+    model.infSolver = new Saul_SL_Inference[HEAD](model.Factors.toList, model.LtuTemplates, dm)
     val para = new SLParameters
-    para.STOP_CONDITION = 0.0001f
-    para.INNER_STOP_CONDITION= 0.0001f
-    para.C_FOR_STRUCTURE = 1
-    para.CHECK_INFERENCE_OPT = false
+//    para.STOP_CONDITION = 0.0001f
+//    para.INNER_STOP_CONDITION= 0.0001f
+//    para.C_FOR_STRUCTURE = 1
+//    para.CHECK_INFERENCE_OPT = false
     model.para = para
     model.featureGenerator = new SL_FeatureGenerator(model)
     para.loadConfigFile("./config/DCD.config")
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
-
-    model.wv = learner.train(sp)
+    model.wv = learner.train(sp,model.wv)
     model.saveModel("SL_ER_Model.txt")
   }
   def TestSSVM [HEAD<:AnyRef](dm: DataModel,cls: List[ConstrainedClassifier[_,HEAD]], modelPath:String )(implicit t: ClassTag[HEAD]): Unit = {

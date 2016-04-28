@@ -1,6 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.SL_SVM.iJLIS3
 
+import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.JoinSLtrain
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationConstrainedClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDataModel
 
@@ -12,7 +14,10 @@ object mySL_Saul_TestApp extends App {
   JoinSLtrain(EntityRelationDataModel, List(PerConstrainedClassifier,OrgConstrainedClassifier, LocConstrainedClassifier,LivesIn_PerOrg_relationConstrainedClassifier,WorksFor_PerOrg_ConstrainedClassifier))
 
   /* Test SL_ER */
-
+ println("Independent Classifiers:")
+  ClassifierUtils.TrainClassifiers(10,PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
+  ClassifierUtils.TestClassifiers(PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
+ println("SL Classifiers:")
   PerConstrainedClassifier.test(EntityRelationDataModel.tokens.getTestingInstances,outputGranularity = 10)
   OrgConstrainedClassifier.test(EntityRelationDataModel.tokens.getTestingInstances,outputGranularity = 10)
   LocConstrainedClassifier.test(EntityRelationDataModel.tokens.getTestingInstances,outputGranularity = 10)

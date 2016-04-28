@@ -1,6 +1,5 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.lbjava.classify.Classifier
 import edu.illinois.cs.cogcomp.lbjava.learn.{LinearThresholdUnit, SparseWeightVector}
 import edu.illinois.cs.cogcomp.saul.classifier.{ConstrainedClassifier, SparseNetworkLBP}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
@@ -33,10 +32,11 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HE
     val myGold = gold.asInstanceOf[Saul_SL_Label_Structure[HEAD]]
     val myPred = pred.asInstanceOf[Saul_SL_Label_Structure[HEAD]]
     var count = 0
+    println(ins.asInstanceOf[Saul_SL_Instance[HEAD]].head)
     a.foreach {
       x=>
         var localLoss=0
-        val oracle: Classifier = x.onClassifier.getLabeler()
+       // val oracle: Classifier = x.onClassifier.getLabeler()
         val candidates= x.getCandidates(ins.asInstanceOf[Saul_SL_Instance[HEAD]].head)
         candidates.foreach{
           ci =>
@@ -48,7 +48,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HE
          TotalLoss=TotalLoss+localLoss/candidates.size
    }
     TotalLoss=TotalLoss/factors.size
-
+    println("Loss="+TotalLoss)
     TotalLoss
   }
 
@@ -58,35 +58,35 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HE
     val myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](factors.toList, myIns.head)
     val FactorsNum=a.size
     var ltu_count = 0
-  a.foreach {
+    var offset = 0
+    a.foreach {
     cf=>
         for (i <- 0 until cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.size())
         {
           val w1= ltuTemplates(ltu_count)//cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
           print("w1 size\t", w1.size)
-          val myFactorJoinlyTrainedWeight= weight.getWeightArray.slice(i,w1.size)
+          val myFactorJoinlyTrainedWeight= weight.getWeightArray.slice(offset,offset+w1.size)
           cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector= new SparseWeightVector(Utils.converFarrayToD(myFactorJoinlyTrainedWeight))
+          offset = offset + ltuTemplates(ltu_count).length
+          ltu_count= ltu_count + 1
         }
       cf.onClassifier.setLossFlag()
       cf.onClassifier.setCandidates(cf.getCandidates(myIns.head).size* FactorsNum)
-  println()
   }
 
-/// val newFactors=List[ConstrainedClassifier[_,HEAD]]
-//  a.foreach {
-//    cf =>
-//
-//       myStruct.labels ++= cf.lossAugmentedInfer(myIns.head.asInstanceOf[HEAD],cf.getCandidates(myIns.head).size*FactorsNum)
-//  }
-
+ var labelCount=0
   a.foreach {
     cf=>
        cf.getCandidates(myIns.head).foreach {
        x =>
-       myStruct.labels += cf.classifier.discreteValue(x)
+        print(cf.classifier.name.substring(80)+"\t")
+       print("gt:"+cf.onClassifier.getLabeler.discreteValue(x))
+       myStruct.labels(labelCount)= cf.classifier.discreteValue(x)
+       println("\tmvc:"+myStruct.labels(labelCount))
+       labelCount= labelCount+1
     }
   }
     a.map (x=> x.onClassifier.unsetLossFlag())
     myStruct
   }
-    }
+ }
