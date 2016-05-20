@@ -26,6 +26,7 @@ class SL_FeatureGenerator[HEAD<:AnyRef](model:SaulSLModel[HEAD]) extends Abstrac
             val a = sparseNet.getExampleArray(ci,false)
             var a0 = a(0).asInstanceOf[Array[Int]]
             var a1 = a(1).asInstanceOf[Array[Double]]
+            val fvTemp = new FeatureVectorBuffer(a0,a1)
             val lab = myY.labels(indC)
             for (netI<-0 until sparseNet.net.size()){
               if (netI!=0)
@@ -35,8 +36,10 @@ class SL_FeatureGenerator[HEAD<:AnyRef](model:SaulSLModel[HEAD]) extends Abstrac
               {
                 a1 = Array()
                 a0 = Array()
+                fvLocal.addFeature(new FeatureVectorBuffer(a0,a1),localOffset)
               }
-              fvLocal.addFeature(new FeatureVectorBuffer(a0,a1),localOffset)
+              else
+                fvLocal.addFeature(fvTemp,localOffset)
             }
            }
         ltuNum=ltuNum+sparseNet.net.size()

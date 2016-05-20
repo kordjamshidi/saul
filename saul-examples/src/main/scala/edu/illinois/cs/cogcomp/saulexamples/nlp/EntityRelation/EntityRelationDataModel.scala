@@ -16,7 +16,7 @@ object EntityRelationDataModel extends DataModel {
   val sentencesToPairs = edge(sentences, pairs)
   val pairTo1stArg = edge(pairs, tokens)
   val pairTo2ndArg = edge(pairs, tokens)
-  val tokenToPair = edge(tokens, pairs)
+ // val tokenToPair = edge(tokens, pairs)
 
   sentenceToToken.addSensor(sentenceToTokens_GeneratingSensor _)
   sentencesToPairs.addSensor(sentenceToRelation_GeneratingSensor _)
@@ -116,6 +116,6 @@ object EntityRelationDataModel extends DataModel {
 
   def populateWithConllSmallSet() = {
     sentences.populate(EntityRelationSensors.sentencesSmallSet)
-    sentences.populate(EntityRelationSensors.sentencesSmallSet2, train = false)
+    //sentences.populate(EntityRelationSensors.sentencesSmallSet2, train = false)
   }
 }
