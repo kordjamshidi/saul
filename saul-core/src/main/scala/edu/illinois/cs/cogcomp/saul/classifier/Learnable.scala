@@ -22,7 +22,7 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
   /** Whether to use caching */
   val useCache = false
 
-//  var scorerFlag= false
+  //  var scorerFlag= false
 
   val loggging = false
 
@@ -58,10 +58,10 @@ abstract class Learnable[T <: AnyRef](val datamodel: DataModel, val parameters: 
   IOUtils.mkdir(modelDir)
   classifier.setModelLocation(lcFilePath())
   classifier.setLexiconLocation(lexFilePath())
-//  def setSorer(): Unit =
-//  {
-//    scorerFlag = true
-//  }
+  //  def setSorer(): Unit =
+  //  {
+  //    scorerFlag = true
+  //  }
 
   // create .lex file if it does not exist
   if (!IOUtils.exists(lexFilePath().getPath)) {

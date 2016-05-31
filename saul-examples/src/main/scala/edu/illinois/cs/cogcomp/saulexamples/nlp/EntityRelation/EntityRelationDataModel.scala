@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ConllRawSentence, ConllRawToken, ConllRelation}
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ ConllRawSentence, ConllRawToken, ConllRelation }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationSensors._
 
@@ -16,7 +16,7 @@ object EntityRelationDataModel extends DataModel {
   val sentencesToPairs = edge(sentences, pairs)
   val pairTo1stArg = edge(pairs, tokens)
   val pairTo2ndArg = edge(pairs, tokens)
- // val tokenToPair = edge(tokens, pairs)
+  // val tokenToPair = edge(tokens, pairs)
 
   sentenceToToken.addSensor(sentenceToTokens_GeneratingSensor _)
   sentencesToPairs.addSensor(sentenceToRelation_GeneratingSensor _)

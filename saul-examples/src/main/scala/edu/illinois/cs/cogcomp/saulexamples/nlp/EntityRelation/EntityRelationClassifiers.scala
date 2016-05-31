@@ -1,8 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
-import edu.illinois.cs.cogcomp.saul.classifier.{Learnable, SparseNetworkLBP}
+import edu.illinois.cs.cogcomp.saul.classifier.{ Learnable, SparseNetworkLBP }
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ConllRawSentence, ConllRawToken, ConllRelation}
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ ConllRawSentence, ConllRawToken, ConllRelation }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDataModel._
 
 object EntityRelationClassifiers {

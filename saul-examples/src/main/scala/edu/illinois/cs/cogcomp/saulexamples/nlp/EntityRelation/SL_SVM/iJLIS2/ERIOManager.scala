@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.SL_SVM.iJLIS2
 
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.{Conll04_Reader}
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.{ Conll04_Reader }
 import edu.illinois.cs.cogcomp.sl.core.SLProblem
 
 object ERIOManager {

@@ -14,12 +14,12 @@ class Saul_SL_Label_Structure[HEAD <: AnyRef](l: List[ConstrainedClassifier[_, H
   var labels: ListBuffer[String] = ListBuffer()
 
   l.foreach { (c: ConstrainedClassifier[_, HEAD]) =>
-      {
-        val oracle: Classifier = c.onClassifier.getLabeler()
-        val candis: Seq[_] = c.getCandidates(x)
-        candis.foreach {
-          ci =>
-            labels.add(oracle.discreteValue(ci))
+    {
+      val oracle: Classifier = c.onClassifier.getLabeler()
+      val candis: Seq[_] = c.getCandidates(x)
+      candis.foreach {
+        ci =>
+          labels.add(oracle.discreteValue(ci))
 
       }
     }

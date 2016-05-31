@@ -7,20 +7,18 @@ import edu.illinois.cs.cogcomp.sl.util.WeightVector
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
-/**
- * Created by Parisa on 4/1/16.
- *  Here we only make the lbjava lexicons for each onClassifier
- * (i.e. the base classifier of each constraint classifier) based on the features of IInstances
- */
-object Initialize{
+/** Created by Parisa on 4/1/16.
+  * Here we only make the lbjava lexicons for each onClassifier
+  * (i.e. the base classifier of each constraint classifier) based on the features of IInstances
+  */
+object Initialize {
 
+  def apply[HEAD <: AnyRef](sp: SLProblem, model: SaulSLModel[HEAD]): SaulSLModel[HEAD] = {
 
-  def apply[HEAD<:AnyRef](sp:SLProblem , model:SaulSLModel[HEAD]): SaulSLModel[HEAD] =  {
-
-    model.Factors.foreach{
+    model.Factors.foreach {
       cf =>
         sp.instanceList.toList.zipWithIndex.foreach {
-          case (myIns,ind) => {
+          case (myIns, ind) => {
             val ins = myIns.asInstanceOf[Saul_SL_Instance[HEAD]]
             //for (i <- 0 until ins.ConstraintFactors.size) {
             val candis: Seq[_] = cf.getCandidates(ins.head)
@@ -30,8 +28,8 @@ object Initialize{
               x =>
                 val a = cf.onClassifier.getExampleArray(x)
                 val a0 = a(0).asInstanceOf[Array[Int]] //exampleFeatures
-              val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
-              val exampleLabels = a(2).asInstanceOf[Array[Int]]
+                val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
+                val exampleLabels = a(2).asInstanceOf[Array[Int]]
                 val labelValues = a(3).asInstanceOf[Array[Double]]
                 val label = exampleLabels(0)
                 var N = ilearner.net.size();
@@ -40,36 +38,37 @@ object Initialize{
                   var ltu: LinearThresholdUnit = ilearner.getbaseLTU
                   ltu.initialize(ilearner.getnumExamples, ilearner.getnumFeatures);
                   ilearner.net.set(label, ltu);
-                 print( "weight vector size:"+ilearner.net.get(0).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.size())
-                 println("lexicon size:"+ilearner.getLexicon.size())
+                  print("weight vector size:" + ilearner.net.get(0).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.size())
+                  println("lexicon size:" + ilearner.getLexicon.size())
 
                   N = label + 1;
                 }
             } // for each candidate
           } // for each constraintFactor
-        }//end case
-    }//for each example
+        } //end case
+    } //for each example
 
-    var wvLength=0
+    var wvLength = 0
     var lt: ListBuffer[Array[Float]] = ListBuffer()
     model.Factors.foreach(
       x => {
 
-        val sparseNet= x.onClassifier.asInstanceOf[SparseNetworkLBP]
-        val temp= (sparseNet.getLexicon.size())
+        val sparseNet = x.onClassifier.asInstanceOf[SparseNetworkLBP]
+        val temp = (sparseNet.getLexicon.size())
 
         for (i <- 0 until sparseNet.net.size()) {
-          val t=  Array.fill[Float](temp)(0)
-          lt= lt:+ t
+          val t = Array.fill[Float](temp)(0)
+          lt = lt :+ t
           wvLength = wvLength + temp
         }
-        println(sparseNet.getLexicon.size(), "*",sparseNet.getLabelLexicon.size())
-      })
+        println(sparseNet.getLexicon.size(), "*", sparseNet.getLabelLexicon.size())
+      }
+    )
 
     val myWeight = Array.fill[Float](wvLength)(0)
-    val wv= new WeightVector(myWeight)
-    val m= new SaulSLModel[HEAD](model.Factors.toList,lt)
-    m.wv=wv
+    val wv = new WeightVector(myWeight)
+    val m = new SaulSLModel[HEAD](model.Factors.toList, lt)
+    m.wv = wv
     m
-  }//end f apply
-}// end of object
+  } //end f apply
+} // end of object

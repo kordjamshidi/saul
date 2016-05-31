@@ -3,7 +3,7 @@ package edu.illinois.cs.cogcomp.saul.classifier.infer
 import edu.illinois.cs.cogcomp.lbjava.infer.{ ILPSolver, ParameterizedConstraint, ILPInference }
 import edu.illinois.cs.cogcomp.lbjava.learn.{ IdentityNormalizer, Normalizer, Learner }
 
-abstract class JointTemplate[T](head: T, solver: ILPSolver, norm: Normalizer= new IdentityNormalizer) extends ILPInference(head, solver) {
+abstract class JointTemplate[T](head: T, solver: ILPSolver, norm: Normalizer = new IdentityNormalizer) extends ILPInference(head, solver) {
   constraint = this.getSubjectToInstance.makeConstraint(head)
 
   override def getHeadType: String = {
@@ -15,7 +15,7 @@ abstract class JointTemplate[T](head: T, solver: ILPSolver, norm: Normalizer= ne
   }
 
   override def getNormalizer(c: Learner): Normalizer //= {
- //   new IdentityNormalizer
+  //   new IdentityNormalizer
   //}
 
   def getSubjectToInstance: ParameterizedConstraint

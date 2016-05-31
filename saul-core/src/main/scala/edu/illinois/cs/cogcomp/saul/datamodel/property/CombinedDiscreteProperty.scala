@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saul.datamodel.property
 
 import java.util
 
-import edu.illinois.cs.cogcomp.lbjava.classify.{Classifier, FeatureVector}
+import edu.illinois.cs.cogcomp.lbjava.classify.{ Classifier, FeatureVector }
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.ClassifierContainsInLBP
 
 import scala.reflect.ClassTag
@@ -52,8 +52,6 @@ case class CombinedDiscreteProperty[T <: AnyRef](
     //    }
     //    resultS
     //  }
-
-
 
     override def getCompositeChildren: util.LinkedList[_] = {
       val result: util.LinkedList[Classifier] = new util.LinkedList[Classifier]()
