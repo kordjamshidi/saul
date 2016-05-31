@@ -1,11 +1,12 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.lbjava.learn.{LinearThresholdUnit, SparseWeightVector}
+import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
 import edu.illinois.cs.cogcomp.saul.classifier.{ConstrainedClassifier, SparseNetworkLBP}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.sl.core.{AbstractInferenceSolver, IInstance, IStructure}
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
+import scala.Array._
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
@@ -53,7 +54,6 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HE
   }
 
   override def getLossAugmentedBestStructure(weight: WeightVector, ins: IInstance, goldStructure: IStructure): IStructure = {
-
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]
     val myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](factors.toList, myIns.head)
     val FactorsNum=a.size
@@ -64,12 +64,19 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_,HE
         for (i <- 0 until cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.size())
         {
           val w1= ltuTemplates(ltu_count)//cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
-          print("w1 size\t", w1.size)
+          print("w",ltu_count," size:\t", w1.size)
           val myFactorJoinlyTrainedWeight= weight.getWeightArray.slice(offset,offset+w1.size)
-          val p= cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters
-          cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector= new SparseWeightVector(Utils.converFarrayToD(myFactorJoinlyTrainedWeight))
 
-          cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector= new SparseWeightVector(Array[Double](0.1,0.2))
+          val exampleFeatureIndexes = ofDim[Int](myFactorJoinlyTrainedWeight.length)
+          for (featureIndex <- 0 until myFactorJoinlyTrainedWeight.length) {
+            exampleFeatureIndexes(featureIndex) = featureIndex;
+          }
+
+
+         val p= cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters]
+         p.weightVector.clear()
+         p.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.scaledAdd(exampleFeatureIndexes,Utils.converFarrayToD(myFactorJoinlyTrainedWeight),0.0)
+         cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].setParameters(p)
 
           offset = offset + ltuTemplates(ltu_count).length
           ltu_count= ltu_count + 1

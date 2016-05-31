@@ -40,6 +40,8 @@ class SL_FeatureGenerator[HEAD<:AnyRef](model:SaulSLModel[HEAD]) extends Abstrac
               }
               else
                 fvLocal.addFeature(fvTemp,localOffset)
+                val p=fvLocal.toFeatureVector
+
             }
            }
         ltuNum=ltuNum+sparseNet.net.size()

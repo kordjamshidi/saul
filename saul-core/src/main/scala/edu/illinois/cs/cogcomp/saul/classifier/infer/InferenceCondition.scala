@@ -20,7 +20,7 @@ abstract class InferenceCondition[INPUT <: AnyRef, HEAD <: AnyRef](val dm: DataM
       override def getSubjectToInstance: ParameterizedConstraint = {
         subjectTo.transfer
       }
-      verbosity = 2
+      verbosity = 1
       // TODO: override other functions that needed here
       override def getNormalizer(c:Learner): Normalizer ={
         normalize
