@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.saul.classifier
 
-import edu.illinois.cs.cogcomp.lbjava.classify.{Classifier, FeatureVector, TestDiscrete}
+import edu.illinois.cs.cogcomp.lbjava.classify.{ Classifier, FeatureVector, TestDiscrete }
 import edu.illinois.cs.cogcomp.lbjava.infer._
 import edu.illinois.cs.cogcomp.lbjava.learn.Learner
 import edu.illinois.cs.cogcomp.saul.TestWithStorage
@@ -8,7 +8,7 @@ import edu.illinois.cs.cogcomp.saul.classifier.SL_model.LossAugmentedNormalizer
 import edu.illinois.cs.cogcomp.saul.classifier.infer.InferenceCondition
 import edu.illinois.cs.cogcomp.saul.constraint.LfsConstraint
 import edu.illinois.cs.cogcomp.saul.datamodel.edge.Edge
-import edu.illinois.cs.cogcomp.saul.lbjrelated.{LBJClassifierEquivalent, LBJLearnerEquivalent}
+import edu.illinois.cs.cogcomp.saul.lbjrelated.{ LBJClassifierEquivalent, LBJLearnerEquivalent }
 import edu.illinois.cs.cogcomp.saul.parser.LBJIteratorParserScala
 
 import scala.collection.mutable.ListBuffer

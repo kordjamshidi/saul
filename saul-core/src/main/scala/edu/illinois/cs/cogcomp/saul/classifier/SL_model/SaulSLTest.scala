@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
-import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
+import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
 import edu.illinois.cs.cogcomp.sl.core.IStructure
 
 import scala.collection.JavaConversions._
@@ -19,8 +19,8 @@ object SaulSLTest {
         }
     }
   }
-  def apply[HEAD <: AnyRef](dm: DataModel, cls: List[ConstrainedClassifier[_, HEAD]], model: SaulSLModel[HEAD], inference: Saul_SL_Inference[HEAD])(implicit t: ClassTag[HEAD]): Unit = {
-    val sp = SL_IOManager.makeSLProblem(dm, cls, true)
+  def apply[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], model: SaulSLModel[HEAD], inference: Saul_SL_Inference[HEAD])(implicit t: ClassTag[HEAD]): Unit = {
+    val sp = SL_IOManager.makeSLProblem(node, cls, true)
     var a: List[IStructure] = List[IStructure]()
     sp.instanceList.toList.foreach {
       ins =>

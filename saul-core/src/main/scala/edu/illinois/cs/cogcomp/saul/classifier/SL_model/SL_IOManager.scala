@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
-import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
+import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
 import edu.illinois.cs.cogcomp.sl.core.SLProblem
 import edu.illinois.cs.cogcomp.sl.util.Lexiconer
 
@@ -11,13 +11,13 @@ import scala.reflect.ClassTag
   */
 object SL_IOManager {
   val lexm: Lexiconer = new Lexiconer()
-  def makeSLProblem[HEAD <: AnyRef](dm: DataModel, list: List[ConstrainedClassifier[_, HEAD]], testing: Boolean = false)(implicit t: ClassTag[HEAD]): SLProblem = {
+  def makeSLProblem[HEAD <: AnyRef](node: Node[HEAD], list: List[ConstrainedClassifier[_, HEAD]], testing: Boolean = false)(implicit t: ClassTag[HEAD]): SLProblem = {
     var sp: SLProblem = new SLProblem()
     var allHeads: Iterable[HEAD] = Iterable[HEAD]()
     if (testing) {
-      allHeads = dm.getNodeWithType[HEAD].getTestingInstances
+      allHeads = node.getTestingInstances
     } else {
-      allHeads = dm.getNodeWithType[HEAD].getTrainingInstances
+      allHeads = node.getTrainingInstances
     }
 
     allHeads.foreach(x =>

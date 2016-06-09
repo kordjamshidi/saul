@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
 import edu.illinois.cs.cogcomp.saul.classifier.{ ConstrainedClassifier, SparseNetworkLBP }
-import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
+import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
 import edu.illinois.cs.cogcomp.sl.core.{ AbstractInferenceSolver, IInstance, IStructure }
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
@@ -12,9 +12,9 @@ import scala.reflect.ClassTag
 
 /** Created by Parisa on 12/8/15.
   */
-class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, HEAD]], ltuTemplates: ListBuffer[Array[Float]], dm: DataModel)(implicit t: ClassTag[HEAD]) extends AbstractInferenceSolver {
+class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, HEAD]], ltuTemplates: ListBuffer[Array[Float]], node: Node[HEAD])(implicit t: ClassTag[HEAD]) extends AbstractInferenceSolver {
   val a = factors
-  val dataM = dm
+  val dataM = node
   override def getBestStructure(weight: WeightVector, ins: IInstance): IStructure = {
 
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]

@@ -40,10 +40,10 @@ object EntityRelationSensors {
   }
 
   def relationToFirstArg_MatchingSensor(r: ConllRelation, t: ConllRawToken): Boolean = {
-    r.sentId.equals(t.sentId) && r.e1.wordId == t.wordId
+    r.sentId.equals(t.sentId) && r.e1.wordId == t.wordId && r.e1.hashCode() == t.hashCode()
   }
 
   def relationToSecondArg_MatchingSensor(r: ConllRelation, t: ConllRawToken): Boolean = {
-    r.sentId.equals(t.sentId) && r.e2.wordId == t.wordId
+    r.sentId.equals(t.sentId) && r.e2.wordId == t.wordId && r.e2.hashCode() == t.hashCode()
   }
 }

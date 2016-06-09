@@ -35,7 +35,7 @@ abstract class LfsConstraint[T <: AnyRef](implicit val tag: ClassTag[T]) {
   val lc = this
 
   def createInferenceCondition[C <: AnyRef](solver: ILPSolver, normalizer: Normalizer = new IdentityNormalizer)(implicit cTag: ClassTag[C]): InferenceCondition[C, T] = {
-    new InferenceCondition[C, T](solver,normalizer) {
+    new InferenceCondition[C, T](solver, normalizer) {
       override def subjectTo: LfsConstraint[T] = lc
     }
   }

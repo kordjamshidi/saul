@@ -18,7 +18,7 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
 
       case (cf, indF) =>
         val candis: Seq[_] = cf.getCandidates(myX.head)
-        val sparseNet = cf.onClassifier.asInstanceOf[SparseNetworkLBP]
+        val sparseNet = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
         val fvLocal = new FeatureVectorBuffer()
         var localOffset = 0
         candis.zipWithIndex.foreach {
@@ -30,7 +30,7 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
             val lab = myY.labels(indC)
             for (netI <- 0 until sparseNet.net.size()) {
               if (netI != 0)
-                localOffset = localOffset + model.LtuTemplates(ltuNum + netI - 1).length
+                localOffset = localOffset + model.LTUWeightTemplates(ltuNum + netI - 1).length
               else localOffset = 0
               if (!sparseNet.getLabelLexicon.lookupKey(netI).valueEquals(lab)) {
                 a1 = Array()
