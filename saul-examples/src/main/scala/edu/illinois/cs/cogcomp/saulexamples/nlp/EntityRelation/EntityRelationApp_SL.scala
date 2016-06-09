@@ -1,14 +1,13 @@
-package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.SL_SVM.iJLIS3
+package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.JoinSLtrain
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationConstrainedClassifiers._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDataModel
 
 /** Created by Parisa on 12/8/15.
   */
-object mySL_Saul_TestApp extends App {
+object EntityRelationApp_SL extends App {
 
   EntityRelationDataModel.populateWithConllSmallSet()
   JoinSLtrain(EntityRelationDataModel, List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier, LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier))

@@ -22,11 +22,11 @@ object Initialize {
             val ins = myIns.asInstanceOf[Saul_SL_Instance[HEAD]]
             //for (i <- 0 until ins.ConstraintFactors.size) {
             val candis: Seq[_] = cf.getCandidates(ins.head)
-            val ilearner = cf.onClassifier.asInstanceOf[SparseNetworkLBP]
-            val lLexicon = cf.onClassifier.getLabelLexicon
+            val ilearner = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
+            val lLexicon = cf.onClassifier.classifier.getLabelLexicon
             candis.foreach {
               x =>
-                val a = cf.onClassifier.getExampleArray(x)
+                val a = cf.onClassifier.classifier.getExampleArray(x)
                 val a0 = a(0).asInstanceOf[Array[Int]] //exampleFeatures
                 val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
                 val exampleLabels = a(2).asInstanceOf[Array[Int]]
@@ -53,7 +53,7 @@ object Initialize {
     model.Factors.foreach(
       x => {
 
-        val sparseNet = x.onClassifier.asInstanceOf[SparseNetworkLBP]
+        val sparseNet = x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
         val temp = (sparseNet.getLexicon.size())
 
         for (i <- 0 until sparseNet.net.size()) {
