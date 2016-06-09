@@ -45,7 +45,7 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
         ltuNum = ltuNum + sparseNet.net.size()
 
         if (indF > 0)
-          factorOffset = factorOffset + model.Factors(indF - 1).onClassifier.getLexicon.size() * model.Factors(indF - 1).onClassifier.getLabelLexicon.size()
+          factorOffset = factorOffset + model.Factors(indF - 1).onClassifier.classifier.getLexicon.size() * model.Factors(indF - 1).onClassifier.getLabelLexicon.size()
 
         fv.addFeature(fvLocal, factorOffset)
     }

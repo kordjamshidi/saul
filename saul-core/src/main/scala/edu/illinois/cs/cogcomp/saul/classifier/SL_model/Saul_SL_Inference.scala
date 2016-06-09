@@ -79,8 +79,8 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
           offset = offset + ltuTemplates(ltu_count).length
           ltu_count = ltu_count + 1
         }
-        cf.onClassifier.setLossFlag()
-        cf.onClassifier.setCandidates(cf.getCandidates(myIns.head).size * FactorsNum)
+        cf.onClassifier.classifier.setLossFlag()
+        cf.onClassifier.classifier.setCandidates(cf.getCandidates(myIns.head).size * FactorsNum)
     }
 
     var labelCount = 0
@@ -95,7 +95,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
             labelCount = labelCount + 1
         }
     }
-    a.map(x => x.onClassifier.unsetLossFlag())
+    a.map(x => x.onClassifier.classifier.unsetLossFlag())
     myStruct
   }
 }

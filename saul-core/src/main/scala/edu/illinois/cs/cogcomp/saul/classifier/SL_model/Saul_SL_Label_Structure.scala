@@ -15,7 +15,7 @@ class Saul_SL_Label_Structure[HEAD <: AnyRef](l: List[ConstrainedClassifier[_, H
 
   l.foreach { (c: ConstrainedClassifier[_, HEAD]) =>
     {
-      val oracle: Classifier = c.onClassifier.getLabeler()
+      val oracle: Classifier = c.onClassifier.classifier.getLabeler()
       val candis: Seq[_] = c.getCandidates(x)
       candis.foreach {
         ci =>
