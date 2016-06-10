@@ -12,7 +12,7 @@ import scala.collection.mutable.ListBuffer
 class Saul_SL_Label_Structure[HEAD <: AnyRef](l: List[ConstrainedClassifier[_, HEAD]], x: HEAD) extends IStructure {
 
   var labels: ListBuffer[String] = ListBuffer()
-
+  val head = x
   l.foreach { (c: ConstrainedClassifier[_, HEAD]) =>
     {
       val oracle: Classifier = c.onClassifier.classifier.getLabeler()
@@ -23,5 +23,8 @@ class Saul_SL_Label_Structure[HEAD <: AnyRef](l: List[ConstrainedClassifier[_, H
 
       }
     }
+  }
+  def equals(a: Saul_SL_Label_Structure[HEAD]): Boolean = {
+    a.labels.equals(labels)
   }
 }
