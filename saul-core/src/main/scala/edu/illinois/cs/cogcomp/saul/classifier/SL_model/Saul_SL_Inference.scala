@@ -15,6 +15,7 @@ import scala.reflect.ClassTag
 class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, HEAD]], ltuTemplates: ListBuffer[Array[Float]], node: Node[HEAD])(implicit t: ClassTag[HEAD]) extends AbstractInferenceSolver {
   val a = factors
   val dataM = node
+
   override def getBestStructure(weight: WeightVector, ins: IInstance): IStructure = {
 
     //updates the weights of all factors in a
@@ -66,7 +67,8 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
     }
     // Now make the predictions using the loss augmented inference
     val myStruct = makePredictions(ins)
-    //take the classifier to use its normal inference without considering loss in the future calls
+
+    //make the classifier to use its normal inference without considering loss in the future calls
     a.map(x => x.onClassifier.classifier.unsetLossFlag())
     myStruct
   }
