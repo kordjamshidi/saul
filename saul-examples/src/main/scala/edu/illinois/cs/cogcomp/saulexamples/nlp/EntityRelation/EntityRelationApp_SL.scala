@@ -2,11 +2,8 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationConstrainedClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDataModel._
-import edu.illinois.cs.cogcomp.sl.core.SLParameters
-import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
 import org.slf4j.helpers.NOPLogger
 import org.slf4j.{ Logger, LoggerFactory }
 /** Created by Parisa on 12/8/15.
@@ -16,28 +13,24 @@ object EntityRelationApp_SL extends App {
   val logger: Logger = if (logging) LoggerFactory.getLogger(this.getClass) else NOPLogger.NOP_LOGGER;
 
   EntityRelationDataModel.populateWithConllSmallSet()
-  val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier, LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)
+  //  val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier, LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)
 
   val testRels = pairs.getTestingInstances.toSet.toList
   val testTokens = tokens.getTestingInstances.toSet.toList
 
-  val SLProblem = SL_IOManager.makeSLProblem(pairs, cls)
-  val model = Initialize(SLProblem, new SaulSLModel(cls))
-  model.featureGenerator = new SL_FeatureGenerator(model)
-  val para = new SLParameters
-  para.loadConfigFile("./config/DCD.config")
-  model.infSolver = new Saul_SL_Inference[ConllRelation](model.Factors.toList, model.LTUWeightTemplates, node)
+  //  val SLProblem = SL_IOManager.makeSLProblem(pairs, cls)
+  //  val model = Initialize(SLProblem, new SaulSLModel(cls))
+  //  model.featureGenerator = new SL_FeatureGenerator(model)
+  //  val para = new SLParameters
+  //  para.loadConfigFile("./config/DCD.config")
+  //  model.infSolver = new Saul_SL_Inference[ConllRelation](model.Factors.toList, model.LTUWeightTemplates, node)
+  //
+  //  model.para = para
+  //  val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para)
 
-  model.para = para
-  val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para)
+  //   model.wv = learner.train(SLProblem, model.wv)
 
-  model.wv = learner.train(SLProblem, model.wv)
-
-  val best = model.infSolver.getBestStructure(model.wv, SLProblem.instanceList.get(0))
-  val bestMVC = model.infSolver.getLossAugmentedBestStructure(model.wv, SLProblem.instanceList.get(0), SLProblem.goldStructureList.get(0))
-  val loss = model.infSolver.getLoss(SLProblem.instanceList.get(0), SLProblem.goldStructureList.get(0), best)
-
-  //val m = JoinSLtrain(pairs, List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier, LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier))
+  val m = JoinSLtrain(pairs, List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier, LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier))
 
   //  /* Test SL_ER */
   //  println("Independent Classifiers:")
