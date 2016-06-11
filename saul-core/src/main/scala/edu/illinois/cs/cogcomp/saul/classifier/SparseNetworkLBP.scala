@@ -8,7 +8,7 @@ class SparseNetworkLBP extends SparseNetworkLearner {
 
   var net = network
   var iConjuctiveLables = conjunctiveLabels
-  def getLTU(i: Int): LinearThresholdUnit = {
+  override def getLTU(i: Int): LinearThresholdUnit = {
     var a: LinearThresholdUnit = net.get(i).asInstanceOf[LinearThresholdUnit]
     a
   }
