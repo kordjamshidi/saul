@@ -5,11 +5,12 @@ import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
 import edu.illinois.cs.cogcomp.sl.core._
 import edu.illinois.cs.cogcomp.sl.learner._
 
+import scala.collection.JavaConversions._
 import scala.reflect._
 
 /** Created by Parisa on 12/3/15.
   */
-object JoinSLtrain {
+object StructuredLearning {
   def apply[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]])(implicit headTag: ClassTag[HEAD]) =
     {
       trainSSVM[HEAD](node, cls)
@@ -32,24 +33,17 @@ object JoinSLtrain {
     model.saveModel("SL_ER_Model.txt")
     return model
   }
-  def TestSSVM[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], modelPath: String)(implicit t: ClassTag[HEAD]): Unit = {
+  def Evaluate[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], modelPath: String)(implicit t: ClassTag[HEAD]): Unit = {
     val myModel = SLModel.loadModel(modelPath).asInstanceOf[SaulSLModel[HEAD]]
     val sp: SLProblem = SL_IOManager.makeSLProblem[HEAD](node, cls, testing = true)
+    myModel.asInstanceOf[Saul_SL_Inference].updateWeights(myModel.wv)
+    val il = for {
+      cf <- myModel.Factors.toList
+      testExamples = for (candList <- sp.instanceList) yield cf.getCandidates(candList.asInstanceOf[Saul_SL_Instance[HEAD]].head).flatten.distinct
+    } yield (testExamples, cf)
 
-    // val sp.instanceList.toList.map(x=> myModel.infSolver.getBestStructure(myModel.wv,x.asInstanceOf[Saul_SL_Instance].head.asInstanceOf[Saul_SL_Instance]))
-    //    def apply {
-    //
-    //      l.foreach { (c: ConstrainedClassifier[_, HEAD]) =>
-    //      {
-    //        val oracle: Classifier = c.onClassifier.getLabeler()
-    //        val candis: Seq[_] = c.getCandidates(x)
-    //        candis.foreach {
-    //          ci =>
-    //            labels.add(oracle.discreteValue(ci))
-    //        }
-    //      }
-    //      }
-    //    }
+    // ClassifierUtils.TestClassifiers(il.toSeq)
 
   }
 }
+

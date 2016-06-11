@@ -102,7 +102,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
       }
     }
 
-  // Uses the current statu of the factors and makes the necessary predictions
+  // Uses the current status of the factors and makes the necessary predictions
   def makePredictions(ins: IInstance): Saul_SL_Label_Structure[HEAD] = {
     val myIns = ins.asInstanceOf[Saul_SL_Instance[HEAD]]
     val myStruct: Saul_SL_Label_Structure[HEAD] = new Saul_SL_Label_Structure[HEAD](factors.toList, myIns.head)
