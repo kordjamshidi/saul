@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
+import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, ConstrainedClassifier}
 import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
 import edu.illinois.cs.cogcomp.sl.core._
 import edu.illinois.cs.cogcomp.sl.learner._
@@ -34,15 +34,17 @@ object StructuredLearning {
     return model
   }
   def Evaluate[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], modelPath: String)(implicit t: ClassTag[HEAD]): Unit = {
+
     val myModel = SLModel.loadModel(modelPath).asInstanceOf[SaulSLModel[HEAD]]
     val sp: SLProblem = SL_IOManager.makeSLProblem[HEAD](node, cls, testing = true)
     myModel.asInstanceOf[Saul_SL_Inference].updateWeights(myModel.wv)
     val il = for {
       cf <- myModel.Factors.toList
-      testExamples = for (candList <- sp.instanceList) yield cf.getCandidates(candList.asInstanceOf[Saul_SL_Instance[HEAD]].head).flatten.distinct
-    } yield (testExamples, cf)
+      testExamples = for (candList <- sp.instanceList) yield
+      cf.getCandidates(candList.asInstanceOf[Saul_SL_Instance[HEAD]].head).flatten.distinct
+      } yield (testExamples, cf)
 
-    // ClassifierUtils.TestClassifiers(il.toSeq)
+     ClassifierUtils.TestClassifiers(il.toSeq)
 
   }
 }

@@ -108,6 +108,18 @@ object ClassifierUtils {
       println(evalSeparator)
       testResults
     }
+
+    def apply[HEAD <: AnyRef](instanceClassifierPairs: (Iterable[_], ConstrainedClassifier[_, HEAD])*)(implicit d1: DummyImplicit, d2: DummyImplicit, d3: DummyImplicit, d4: DummyImplicit): Seq[List[(String, (Double, Double, Double))]] = {
+      val testResults = instanceClassifierPairs.map {
+        case (testInstances, learner) =>
+          learner.onClassifier.classifier.asInstanceOf[Learnable]
+          println(evalSeparator)
+          println("Evaluating " + learner.getClassSimpleNameForClassifier)
+          learner.test(testInstances)
+      }
+      println(evalSeparator)
+      testResults
+    }
   }
 
   object ForgetAll {
