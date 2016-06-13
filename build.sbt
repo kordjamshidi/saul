@@ -13,7 +13,7 @@ lazy val commonSettings = Seq(
     "Local Maven Repository" at "file://"+"/Users/Parisa/"+"/.m2/repository",
     "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
   ),
-  javaOptions ++= List("-Xmx6g"),
+  javaOptions ++= List("-Xmx11g"),
   libraryDependencies ++= Seq(
     "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.20" withSources(),
     "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % cogcompNLPVersion withSources,
@@ -46,7 +46,8 @@ lazy val saulExamples = (project in file("saul-examples")).
       "edu.illinois.cs.cogcomp" % "illinois-edison" % cogcompNLPVersion,
       "edu.illinois.cs.cogcomp" % "illinois-nlp-readers" % "0.0.2-SNAPSHOT",
       "edu.illinois.cs.cogcomp" % "saul-pos-tagger-models" % "1.0",
-      "edu.illinois.cs.cogcomp" % "saul-er-models" % "1.3"
+      "edu.illinois.cs.cogcomp" % "saul-er-models" % "1.3",
+      "edu.illinois.cs.cogcomp" % "saul-srl-models" % "1.1"
     )
   ).dependsOn(saulCore).aggregate(saulCore)
 
