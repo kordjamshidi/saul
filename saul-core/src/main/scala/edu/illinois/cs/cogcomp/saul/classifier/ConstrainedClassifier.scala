@@ -8,10 +8,8 @@ import edu.illinois.cs.cogcomp.saul.classifier.SL_model.LossAugmentedNormalizer
 import edu.illinois.cs.cogcomp.saul.classifier.infer.InferenceCondition
 import edu.illinois.cs.cogcomp.saul.constraint.LfsConstraint
 import edu.illinois.cs.cogcomp.saul.datamodel.edge.Edge
-import edu.illinois.cs.cogcomp.saul.lbjrelated.{ LBJLearnerEquivalent, LBJClassifierEquivalent }
-import edu.illinois.cs.cogcomp.saul.parser.IterableToLBJavaParser
 import edu.illinois.cs.cogcomp.saul.lbjrelated.{ LBJClassifierEquivalent, LBJLearnerEquivalent }
-import edu.illinois.cs.cogcomp.saul.parser.LBJIteratorParserScala
+import edu.illinois.cs.cogcomp.saul.parser.IterableToLBJavaParser
 
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag

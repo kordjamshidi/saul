@@ -25,7 +25,7 @@ object EntityRelationSensors {
   lazy val (sentencesTrain, relationsTrain, entitiesTrain) = readConllData(path + "EntityMentionRelation/conll04_train.corp")
   lazy val (sentencesTest, relationsTest, entitiesTest) = readConllData(path + "EntityMentionRelation/conll04_test.corp")
   lazy val (sentencesSmallSet, testRelationsSmallSet, entitiesSmallSet) = readConllData(resourcePath + "conll04-smallDocument.txt")
-  lazy val (sentencesSmallSet2, trainRelationsSmallSet, trainEntitiesSmallSet) = readConllData(path + "EntityMentionRelation/conll04_small.corp")
+  lazy val (sentencesSmallSetTest, testRelationsSmallSetTest, entitiesSmallSetTest) = readConllData(path + "EntityMentionRelation/conll04_small.corp")
 
   def sentenceToRelation_GeneratingSensor(s: ConllRawSentence): List[ConllRelation] = {
     s.relations.asScala.toList

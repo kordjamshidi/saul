@@ -128,7 +128,7 @@ object ClassifierUtils {
       testResults
     }
 
-    def apply1[T <: AnyRef, H <: AnyRef](insts: Iterable[T], cls: ConstrainedClassifier[T, H]): List[(String, (Double, Double, Double))] = {
+    def apply1[T <: AnyRef, H <: AnyRef](insts: Iterable[T], cls: ConstrainedClassifier[T, H]): Results = {
       println(evalSeparator)
       println("Evaluating " + cls.getClassSimpleNameForClassifier)
       cls.test(insts)
