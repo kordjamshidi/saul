@@ -36,7 +36,7 @@ object StructuredLearning {
 
   def Eval1[T <: AnyRef, H <: AnyRef](cf: ConstrainedClassifier[T, H], sp: SLProblem) = {
 
-    val testExamples : Seq[T] = sp.instanceList.map(x => cf.getCandidates(x.asInstanceOf[Saul_SL_Instance[H]].head)).flatten.distinct
+    val testExamples: Seq[T] = sp.instanceList.map(x => cf.getCandidates(x.asInstanceOf[Saul_SL_Instance[H]].head)).flatten.distinct
     //val testExamples: Seq[T] = cf.getCandidates(sp.instanceList.map(_.asInstanceOf[Saul_SL_Instance[H]].head)).asInstanceOf[Seq[cf.LEFT]]
     ClassifierUtils.TestClassifiers.apply1(testExamples, cf)
   }

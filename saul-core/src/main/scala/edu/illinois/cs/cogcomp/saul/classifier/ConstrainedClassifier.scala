@@ -81,9 +81,9 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
     }
   }
 
-//  def getMultiCandidates(head: Seq[HEAD]): Seq[LEFT] = {
-//    head.flatMap(h => getCandidates(h)).distinct
-//  }
+  //  def getMultiCandidates(head: Seq[HEAD]): Seq[LEFT] = {
+  //    head.flatMap(h => getCandidates(h)).distinct
+  //  }
 
   def getCandidates(head: HEAD): Seq[LEFT] = {
     if (tType.equals(headType) || pathToHead.isEmpty) {
