@@ -26,7 +26,7 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
   implicit val headType: ClassTag[HEAD]
 ) extends LBJClassifierEquivalent {
 
-  type LEFT = T
+  final type LEFT = T
   type RIGHT = HEAD
 
   def className: String = this.getClass.getName
@@ -81,7 +81,11 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
     }
   }
 
-  def getCandidates(head: HEAD): Seq[T] = {
+//  def getMultiCandidates(head: Seq[HEAD]): Seq[LEFT] = {
+//    head.flatMap(h => getCandidates(h)).distinct
+//  }
+
+  def getCandidates(head: HEAD): Seq[LEFT] = {
     if (tType.equals(headType) || pathToHead.isEmpty) {
       head.asInstanceOf[T] :: Nil
     } else {

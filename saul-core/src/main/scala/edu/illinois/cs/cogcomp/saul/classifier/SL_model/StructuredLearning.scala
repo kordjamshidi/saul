@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, ConstrainedClassifier}
+import edu.illinois.cs.cogcomp.saul.classifier.{ ClassifierUtils, ConstrainedClassifier }
 import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
 import edu.illinois.cs.cogcomp.sl.core._
 import edu.illinois.cs.cogcomp.sl.learner._
@@ -33,19 +33,24 @@ object StructuredLearning {
     model.saveModel("SL_ER_Model.txt")
     return model
   }
-  def Evaluate[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], modelPath: String)(implicit t: ClassTag[HEAD]): Unit = {
 
-    val myModel = SLModel.loadModel(modelPath).asInstanceOf[SaulSLModel[HEAD]]
+  def Eval1[T <: AnyRef, H <: AnyRef](cf: ConstrainedClassifier[T, H], sp: SLProblem) = {
+
+    val testExamples : Seq[T] = sp.instanceList.map(x => cf.getCandidates(x.asInstanceOf[Saul_SL_Instance[H]].head)).flatten.distinct
+    //val testExamples: Seq[T] = cf.getCandidates(sp.instanceList.map(_.asInstanceOf[Saul_SL_Instance[H]].head)).asInstanceOf[Seq[cf.LEFT]]
+    ClassifierUtils.TestClassifiers.apply1(testExamples, cf)
+  }
+
+  ////
+  def Evaluate[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_ <: AnyRef, HEAD]], myModel: SaulSLModel[HEAD], modelPath: String)(implicit t: ClassTag[HEAD]): Unit = {
+
+    //val myModel = SLModel.loadModel(modelPath).asInstanceOf[SaulSLModel[HEAD]]
     val sp: SLProblem = SL_IOManager.makeSLProblem[HEAD](node, cls, testing = true)
-    myModel.asInstanceOf[Saul_SL_Inference].updateWeights(myModel.wv)
-    val il = for {
-      cf <- myModel.Factors.toList
-      testExamples = for (candList <- sp.instanceList) yield
-      cf.getCandidates(candList.asInstanceOf[Saul_SL_Instance[HEAD]].head).flatten.distinct
-      } yield (testExamples, cf)
-
-     ClassifierUtils.TestClassifiers(il.toSeq)
-
+    myModel.infSolver.asInstanceOf[Saul_SL_Inference[HEAD]].updateWeights(myModel.wv)
+    val results = for (cf <- myModel.Factors.toList.asInstanceOf[List[ConstrainedClassifier[_ <: AnyRef, HEAD]]]) yield {
+      Eval1(cf, sp)
+    }
+    //ClassifierUtils.TestClassifiers.aggregate(results)
   }
 }
 

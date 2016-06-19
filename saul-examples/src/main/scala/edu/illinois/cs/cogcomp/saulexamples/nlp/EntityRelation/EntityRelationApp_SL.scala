@@ -12,7 +12,7 @@ object EntityRelationApp_SL extends App {
   val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier,
     LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)
 
-  StructuredLearning(pairs, cls)
-  StructuredLearning.Evaluate(pairs, cls, "")
+  val m = StructuredLearning(pairs, cls)
+  StructuredLearning.Evaluate(pairs, cls, m, "")
 }
 
