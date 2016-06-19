@@ -13,7 +13,7 @@ class EntityRelationTests extends FlatSpec with Matchers {
   val minScore = 0.3
   populateWithConllSmallSet()
 
-   "entity classifier " should " work. " in {
+  "entity classifier " should " work. " in {
     sentences.populate(EntityRelationSensors.sentencesSmallSetTest, train = false)
     ClassifierUtils.LoadClassifier(
       EntityRelationApp.jarModelPath,
@@ -48,7 +48,7 @@ class EntityRelationTests extends FlatSpec with Matchers {
     scores.foreach { case score => (score.overall.f1 > minScore) should be(true) }
   }
 
-    "L+I entity-relation classifiers " should " work. " in {
+  "L+I entity-relation classifiers " should " work. " in {
     sentences.populate(EntityRelationSensors.sentencesSmallSetTest, train = false)
     ClassifierUtils.LoadClassifier(
       EntityRelationApp.jarModelPath,
