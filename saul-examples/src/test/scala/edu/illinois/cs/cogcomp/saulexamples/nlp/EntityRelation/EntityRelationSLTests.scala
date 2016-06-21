@@ -41,7 +41,7 @@ class EntityRelationSLTests extends FlatSpec with Matchers {
   val para = new SLParameters
   para.loadConfigFile("./config/DCD.config")
   model.para = para
-  model.infSolver = new Saul_SL_Inference[ConllRelation](model.Factors.toList, model.LTUWeightTemplates, node)
+  model.infSolver = new Saul_SL_Inference[ConllRelation](model.Factors.toList, model.LTUWeightTemplates)
   val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para)
 
   "Structured output learning's loss" should " be calculate correctly." in {

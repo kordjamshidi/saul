@@ -14,6 +14,9 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
     val fv = new FeatureVectorBuffer()
     var ltuNum = 0
     var factorOffset = 0
+
+    //The features vectors are generated per classifier with local indexes and then the indexes are adjusted globally
+
     model.Factors.zipWithIndex.foreach {
 
       case (cf, indF) =>
@@ -28,7 +31,8 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
             var a1 = a(1).asInstanceOf[Array[Double]]
             val fvTemp = new FeatureVectorBuffer(a0, a1)
             val lab = myY.labels(indC)
-            for (netI <- 0 until sparseNet.net.size()) {
+            //keep the features for the on label (at netI index) and repeat a zero feature vector for the off labels
+            for (netI <- 0 until sparseNet.getNetwork.size()) {
               if (netI != 0)
                 localOffset = localOffset + model.LTUWeightTemplates(ltuNum + netI - 1).length
               else localOffset = 0
@@ -42,7 +46,7 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
 
             }
         }
-        ltuNum = ltuNum + sparseNet.net.size()
+        ltuNum = ltuNum + sparseNet.getNetwork.size()
 
         if (indF > 0)
           factorOffset = factorOffset + model.Factors(indF - 1).onClassifier.classifier.getLexicon.size() * model.Factors(indF - 1).onClassifier.getLabelLexicon.size()

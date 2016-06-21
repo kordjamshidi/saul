@@ -19,7 +19,7 @@ abstract class InferenceCondition[INPUT <: AnyRef, HEAD <: AnyRef](solver: ILPSo
       override def getSubjectToInstance: ParameterizedConstraint = {
         subjectTo.transfer
       }
-      verbosity = 1
+      //verbosity = 1
       // TODO: override other functions that needed here
       override def getNormalizer(c: Learner): Normalizer = {
         normalize

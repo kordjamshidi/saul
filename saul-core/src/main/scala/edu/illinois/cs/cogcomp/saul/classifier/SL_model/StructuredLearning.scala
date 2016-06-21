@@ -11,15 +11,15 @@ import scala.reflect._
 /** Created by Parisa on 12/3/15.
   */
 object StructuredLearning {
-  def apply[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]])(implicit headTag: ClassTag[HEAD]) =
+  def apply[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], initialize: Boolean = false)(implicit headTag: ClassTag[HEAD]) =
     {
-      trainSSVM[HEAD](node, cls)
+      trainSSVM[HEAD](node, cls, initialize)
     }
 
-  def trainSSVM[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]])(implicit t: ClassTag[HEAD]): SaulSLModel[HEAD] = {
+  def trainSSVM[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], initialize: Boolean)(implicit t: ClassTag[HEAD]): SaulSLModel[HEAD] = {
     val sp = SL_IOManager.makeSLProblem(node, cls)
-    val model = Initialize(sp, new SaulSLModel(cls))
-    model.infSolver = new Saul_SL_Inference[HEAD](model.Factors.toList, model.LTUWeightTemplates, node)
+    val model = Initialize(sp, new SaulSLModel(cls), initialize)
+    model.infSolver = new Saul_SL_Inference[HEAD](model.Factors.toList, model.LTUWeightTemplates)
     val para = new SLParameters
     //    para.STOP_CONDITION = 0.0001f
     //    para.INNER_STOP_CONDITION= 0.0001f
