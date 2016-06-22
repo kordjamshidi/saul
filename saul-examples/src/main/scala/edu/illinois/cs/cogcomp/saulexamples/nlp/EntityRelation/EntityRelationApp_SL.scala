@@ -9,7 +9,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDat
   */
 object EntityRelationApp_SL extends App {
 
-  EntityRelationDataModel.populateWithConll()
+  EntityRelationDataModel.populateWithConllSmallSet()
 
   ClassifierUtils.LoadClassifier(EntityRelationApp.jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
 
