@@ -32,8 +32,8 @@ object Initialize {
                 x =>
                   val a = cf.onClassifier.classifier.getExampleArray(x)
                   val a0 = a(0).asInstanceOf[Array[Int]] //exampleFeatures
-                val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
-                val exampleLabels = a(2).asInstanceOf[Array[Int]]
+                  val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
+                  val exampleLabels = a(2).asInstanceOf[Array[Int]]
                   val labelValues = a(3).asInstanceOf[Array[Double]]
                   val label = exampleLabels(0)
                   var N = ilearner.getNetwork.size();
@@ -62,11 +62,10 @@ object Initialize {
           val t = Array.fill[Float](temp)(0)
           if (initialize) {
             val getTheWeight = x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
-            for (j<- 0 until temp)
-            {
+            for (j <- 0 until temp) {
 
-              t(j)=  getTheWeight.getWeight(j).asInstanceOf[Float]
-             // if (t(j)==0) {print(j," zero/")}
+              t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
+              // if (t(j)==0) {print(j," zero/")}
             }
           }
 
