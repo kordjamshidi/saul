@@ -22,12 +22,13 @@ object Initialize {
       model.Factors.foreach {
         cf =>
           cf.onClassifier.classifier.forget()
+          val ilearner = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
+          val lLexicon = cf.onClassifier.classifier.getLabelLexicon
           sp.instanceList.toList.zipWithIndex.foreach {
+
             case (myIns, ind) => {
               val ins = myIns.asInstanceOf[Saul_SL_Instance[HEAD]]
               val candis: Seq[_] = cf.getCandidates(ins.head)
-              val ilearner = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
-              val lLexicon = cf.onClassifier.classifier.getLabelLexicon
               candis.foreach {
                 x =>
                   val a = cf.onClassifier.classifier.getExampleArray(x)
@@ -42,14 +43,14 @@ object Initialize {
                     var ltu: LinearThresholdUnit = ilearner.getbaseLTU
                     ltu.initialize(ilearner.getnumExamples, ilearner.getnumFeatures);
                     ilearner.getNetwork.set(label, ltu);
-                    print("weight vector size:" + ilearner.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.size())
-                    println("lexicon size:" + ilearner.getLexicon.size())
-
                     N = label + 1;
                   }
               } // for each candidate
             } // for each constraintFactor
           } // for each example
+       //   print("weight vector size:" + ilearner.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.size())
+       //   println("lexicon size:" + ilearner.getLexicon.size())
+
       } //for each factor
 
     model.Factors.foreach(
@@ -73,7 +74,7 @@ object Initialize {
           wvLength = wvLength + temp
         }
 
-        println(sparseNet.getLexicon.size(), "*", sparseNet.getLabelLexicon.size())
+        println("lexicon size: "+ sparseNet.getLexicon.size(), "* label lexicon size:", sparseNet.getLabelLexicon.size())
       }
     )
     val myWeight = Array(lt.flatten: _*)

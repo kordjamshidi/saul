@@ -104,7 +104,8 @@ class weightTest extends FlatSpec with Matchers
     // THIS DOESN'T WORK
     val lex = TestConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon
     print(lex.size())
-
+    val words = List("this", "is", "a", "candidate")
+    tokens.populate(words)
     val cls = List(TestConstraintClassifier, TestBiConstraintClassifier)
     // This should combine the weights
     val m = StructuredLearning(tokens, cls, initialize = false)
