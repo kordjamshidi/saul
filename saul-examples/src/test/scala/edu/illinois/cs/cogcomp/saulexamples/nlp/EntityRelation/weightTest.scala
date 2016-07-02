@@ -107,7 +107,7 @@ class weightTest extends FlatSpec with Matchers
     val words_train = List("this", "is", "a", "candidate")
     val words_test = List("this" , "was", "not", "true")
     tokens.populate(words_train)
-    tokens.populate(words_test, test= true)
+    tokens.populate(words_test, train = false)
 
     val cls = List(TestConstraintClassifier, TestBiConstraintClassifier)
     val cls_base = List(TestClassifier,TestBiClassifier)
