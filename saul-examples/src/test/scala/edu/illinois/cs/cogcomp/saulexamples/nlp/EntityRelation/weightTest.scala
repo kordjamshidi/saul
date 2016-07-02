@@ -114,8 +114,11 @@ class weightTest extends FlatSpec with Matchers
 
     ClassifierUtils.TrainClassifiers(5, cls_base:_*)
 
+    ClassifierUtils.TestClassifiers(cls_base :_*)
+
     // This should combine the weights
     val m = StructuredLearning(tokens, cls, initialize = true)
+
 
     m.Factors.size should be (2)
 
@@ -123,6 +126,8 @@ class weightTest extends FlatSpec with Matchers
 
    // This should distribute the weights
     m.infSolver.asInstanceOf[Saul_SL_Inference[String]].updateWeights(m.wv)
+
+    ClassifierUtils.TestClassifiers(cls_base:_*)
 //
   }
 
