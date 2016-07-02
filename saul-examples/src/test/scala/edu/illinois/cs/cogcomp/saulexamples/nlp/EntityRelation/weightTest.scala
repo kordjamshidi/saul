@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.lbjava.infer.OJalgoHook
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.{Saul_SL_Inference, StructuredLearning}
-import edu.illinois.cs.cogcomp.saul.classifier.{ConstrainedClassifier, Learnable, SparseNetworkLBP}
+import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, ConstrainedClassifier, Learnable, SparseNetworkLBP}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
@@ -104,11 +104,18 @@ class weightTest extends FlatSpec with Matchers
     // THIS DOESN'T WORK
     val lex = TestConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon
     print(lex.size())
-    val words = List("this", "is", "a", "candidate")
-    tokens.populate(words)
+    val words_train = List("this", "is", "a", "candidate")
+    val words_test = List("this" , "was", "not", "true")
+    tokens.populate(words_train)
+    tokens.populate(words_test, test= true)
+
     val cls = List(TestConstraintClassifier, TestBiConstraintClassifier)
+    val cls_base = List(TestClassifier,TestBiClassifier)
+
+    ClassifierUtils.TrainClassifiers(5, cls_base:_*)
+
     // This should combine the weights
-    val m = StructuredLearning(tokens, cls, initialize = false)
+    val m = StructuredLearning(tokens, cls, initialize = true)
 
     m.Factors.size should be (2)
 
