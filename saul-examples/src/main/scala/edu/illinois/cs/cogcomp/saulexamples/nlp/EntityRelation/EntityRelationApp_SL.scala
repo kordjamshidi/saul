@@ -20,7 +20,6 @@ object EntityRelationApp_SL extends App {
 
   val m = StructuredLearning(pairs, cls, initialize = false)
   println("Structured evaluation.\n")
-
   StructuredLearning.Evaluate(pairs, cls, m, "")
   //ClassifierUtils.TestClassifiers(cls:_*)
 }

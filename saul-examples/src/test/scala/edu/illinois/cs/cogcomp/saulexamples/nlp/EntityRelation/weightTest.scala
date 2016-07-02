@@ -1,8 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
-
 import edu.illinois.cs.cogcomp.lbjava.infer.OJalgoHook
+import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.{Saul_SL_Inference, StructuredLearning}
-import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, ConstrainedClassifier, Learnable, SparseNetworkLBP}
+import edu.illinois.cs.cogcomp.saul.classifier.{ConstrainedClassifier, Learnable, SparseNetworkLBP}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
@@ -10,11 +10,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable.ListBuffer
 
-/**
- * Created by Parisa on 6/30/16.
- */
-class weightTest extends FlatSpec with Matchers
-{
+class weightTest extends FlatSpec with Matchers {
 
   "weights initializer" should "join multiple weight vectors" in {
     var lt: ListBuffer[Array[Float]] = ListBuffer()
@@ -101,34 +97,37 @@ class weightTest extends FlatSpec with Matchers
       override val solver = new OJalgoHook
     }
 
-    // THIS DOESN'T WORK
-    val lex = TestConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon
-    print(lex.size())
-    val words_train = List("this", "is", "a", "candidate")
-    val words_test = List("this" , "was", "not", "true")
-    tokens.populate(words_train)
-    tokens.populate(words_test, train = false)
+    val words = List("this", "is", "a", "test")
+    tokens.populate(words)
 
     val cls = List(TestConstraintClassifier, TestBiConstraintClassifier)
-    val cls_base = List(TestClassifier,TestBiClassifier)
-
-    ClassifierUtils.TrainClassifiers(5, cls_base:_*)
-
-    ClassifierUtils.TestClassifiers(cls_base :_*)
-
     // This should combine the weights
-    val m = StructuredLearning(tokens, cls, initialize = true)
+    val m = StructuredLearning(tokens, cls, initialize = false)
 
+
+    val clNet1 = TestConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
+    val clNet2 = TestBiConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
+    val wv1 = clNet1.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+    val wv2 = clNet2.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector
 
     m.Factors.size should be (2)
 
-    m.wv.getLength should be (24)
+    wv1.size() should be (4)
+    wv2.size() should be (8)
+    // Combined size should be 12
+    m.wv.getLength should be (12)
 
-   // This should distribute the weights
+    // This should distribute the weights
     m.infSolver.asInstanceOf[Saul_SL_Inference[String]].updateWeights(m.wv)
 
-    ClassifierUtils.TestClassifiers(cls_base:_*)
-//
+    val wv1After = clNet1.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+    val wv2After = clNet2.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+
+    //Everything should be the same
+    wv1After.size() should be (4)
+    wv2After.size() should be (8)
+    // Combined size should be 12
+    m.wv.getLength should be (12)
   }
 
   object testModel extends DataModel {
