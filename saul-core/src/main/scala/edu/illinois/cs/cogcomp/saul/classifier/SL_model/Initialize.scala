@@ -67,7 +67,7 @@ object Initialize {
             for (j <- 0 until temp) {
 
               t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
-              println ("t:", t(j),"weight", getTheWeight.getWeight(j))
+            //  println ("t:", t(j),"weight", getTheWeight.getWeight(j))
               // if (t(j)==0) {print(j," zero/")}
             }
           }

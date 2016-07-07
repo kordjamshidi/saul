@@ -13,14 +13,20 @@ object EntityRelationApp_SL extends App {
 
   ClassifierUtils.LoadClassifier(EntityRelationApp.jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
 
+ val cls_base=  List(PersonClassifier, OrganizationClassifier, LocationClassifier,
+   LivesInClassifier, WorksForClassifier)
+
+  ClassifierUtils.TestClassifiers(cls_base:_*)
+
   val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier,
     LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)
 
-  ClassifierUtils.TestClassifiers(cls: _*)
+  //ClassifierUtils.TestClassifiers(cls: _*)
 
-  val m = StructuredLearning(pairs, cls, initialize = false)
+  val m = StructuredLearning(pairs, cls, initialize = true)
   println("Structured evaluation.\n")
+
   StructuredLearning.Evaluate(pairs, cls, m, "")
-  //ClassifierUtils.TestClassifiers(cls:_*)
+  //ClassifierUtils.TestClassifiers(cls_base:_*)
 }
 

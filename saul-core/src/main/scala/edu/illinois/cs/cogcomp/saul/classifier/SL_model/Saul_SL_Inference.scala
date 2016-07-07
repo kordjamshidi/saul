@@ -1,8 +1,8 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
-import edu.illinois.cs.cogcomp.saul.classifier.{ ConstrainedClassifier, SparseNetworkLBP }
-import edu.illinois.cs.cogcomp.sl.core.{ AbstractInferenceSolver, IInstance, IStructure }
+import edu.illinois.cs.cogcomp.saul.classifier.{ConstrainedClassifier, SparseNetworkLBP}
+import edu.illinois.cs.cogcomp.sl.core.{AbstractInferenceSolver, IInstance, IStructure}
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
 import scala.Array._
@@ -82,16 +82,30 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
           for (i <- 0 until cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.size()) {
             val w1 = ltuTemplates(ltu_count) //cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
             print("w", ltu_count, " size:\t", w1.size)
-            val myFactorJoinlyTrainedWeight = weight.getWeightArray.slice(offset, offset + w1.size)
-
-            val exampleFeatureIndexes = ofDim[Int](myFactorJoinlyTrainedWeight.length)
-            for (featureIndex <- 0 until myFactorJoinlyTrainedWeight.length) {
-              exampleFeatureIndexes(featureIndex) = featureIndex;
+            val per1 = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector
+           // val originalWeightSize = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size()
+            var myFactorJointlyTrainedWeight = weight.getWeightArray.slice(offset, offset + w1.size)
+            var count = 0
+            for(k<-0 until per1.size()){
+              if(per1.getWeight(k)!= myFactorJointlyTrainedWeight(k)){
+                println("different!",per1.getWeight(k)," and ", myFactorJointlyTrainedWeight(k))
+              count = count +1
+              }
             }
+            // for (count <- cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size() until w1.size)
+            //   myFactorJointlyTrainedWeight = myFactorJointlyTrainedWeight :+ 0.asInstanceOf[Float]
+            // if (cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size()!= w1.size) {
+            //    println("size mismatch!", cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size(), ",", w1.size)
+            //              }
+          // val exampleFeatureIndexes = ofDim[Int](myFactorJointlyTrainedWeight.length)
+          val  exampleFeatureIndexes = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon.getMap.values.toArray.map(_.asInstanceOf[Int])//.toArray//.toArray().asInstanceOf[Array[Int]]
+//           for (featureIndex <- 0 until myFactorJointlyTrainedWeight.length) {
+//              exampleFeatureIndexes(featureIndex) = featureIndex //cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon.;
+//            }
 
             val p = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters]
             p.weightVector.clear()
-            p.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.scaledAdd(exampleFeatureIndexes, Utils.converFarrayToD(myFactorJoinlyTrainedWeight), 0.0)
+            p.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.scaledAdd(exampleFeatureIndexes, Utils.converFarrayToD(myFactorJointlyTrainedWeight), 1.0)
             cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].setParameters(p)
 
             offset = offset + ltuTemplates(ltu_count).length

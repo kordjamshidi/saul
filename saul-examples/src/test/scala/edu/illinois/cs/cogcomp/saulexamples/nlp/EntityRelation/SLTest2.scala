@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 import edu.illinois.cs.cogcomp.lbjava.infer.OJalgoHook
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
-import edu.illinois.cs.cogcomp.saul.classifier.{ConstrainedClassifier, Learnable, SparseNetworkLBP}
+import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, ConstrainedClassifier, Learnable, SparseNetworkLBP}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
@@ -76,7 +76,7 @@ class SLTest2 extends FlatSpec with Matchers {
     }
 
     val model = Initialize(SLProblem, new SaulSLModel(cls))
-    "Structured output learning (SL) initialization" should "work." in {
+    "Structured output learning (SL) initialization with zero" should "work." in {
       model.Factors.size should be(2)
       model.LTUWeightTemplates.size should be(4)
       model.wv.getLength should be(24)
@@ -91,7 +91,27 @@ class SLTest2 extends FlatSpec with Matchers {
       model.featureGenerator.getFeatureVector(xGold, yGold).getValues.sum should be(3.0)
     }
 
-    val para = new SLParameters
+  ClassifierUtils.TrainClassifiers(5, cls_base :_*)
+  val InitializedModel = Initialize(SLProblem, new SaulSLModel(cls), initialize = true)
+  "Structured output learning (SL) initialization with trained models" should "work." in {
+    println("Factors:",InitializedModel.Factors.size)
+    println("LTUs:",InitializedModel.LTUWeightTemplates.size)
+    println("modellength:",InitializedModel.wv.getLength)
+    println("weightArray:",InitializedModel.wv.getWeightArray)
+    InitializedModel.Factors.size should be(2)
+    InitializedModel.LTUWeightTemplates.size should be(4)
+    InitializedModel.wv.getLength should be(24)
+
+    InitializedModel.Factors.foreach(
+    x=> {
+      x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector.eq(cls_base(0).classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector) should be(true)
+      x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(1).getWeightVector.eq(cls_base(1).classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector) should be(true)
+    })
+    //InitializedModel.wv.getWeightArray.filter(p => (p > 0.00)).isEmpty should be(true)
+
+  }
+
+  val para = new SLParameters
     para.loadConfigFile("./config/DCD.config")
     model.para = para
     model.infSolver = new Saul_SL_Inference[String](model.Factors.toList, model.LTUWeightTemplates)
