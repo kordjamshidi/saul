@@ -29,7 +29,7 @@ object StructuredLearning {
     model.featureGenerator = new SL_FeatureGenerator(model)
     para.loadConfigFile("./config/DCD.config")
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
-   model.wv = learner.train(sp, model.wv)
+  // model.wv = learner.train(sp, model.wv)
     model.saveModel("SL_ER_Model.txt")
     return model
   }

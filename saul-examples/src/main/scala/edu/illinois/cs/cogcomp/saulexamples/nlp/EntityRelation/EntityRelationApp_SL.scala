@@ -27,6 +27,6 @@ object EntityRelationApp_SL extends App {
   println("Structured evaluation.\n")
 
   StructuredLearning.Evaluate(pairs, cls, m, "")
-  //ClassifierUtils.TestClassifiers(cls_base:_*)
+  ClassifierUtils.TestClassifiers(cls_base:_*)
 }
 
