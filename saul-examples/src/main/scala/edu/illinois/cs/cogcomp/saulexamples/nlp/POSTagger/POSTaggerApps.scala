@@ -4,13 +4,12 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
 import edu.illinois.cs.cogcomp.core.utilities.configuration.{ Property, ResourceManager, Configurator }
 import edu.illinois.cs.cogcomp.lbj.pos.POSLabeledUnknownWordParser
 import edu.illinois.cs.cogcomp.lbjava.classify.TestDiscrete
-import edu.illinois.cs.cogcomp.nlp.corpusreaders.PennTreebankPOSReader
 import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
 import edu.illinois.cs.cogcomp.saul.parser.IterableToLBJavaParser
 import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.CommonSensors
-
+import edu.illinois.cs.cogcomp.nlp.corpusreaders._
 import scala.collection.JavaConversions._
 
 object POSConfigurator extends Configurator {

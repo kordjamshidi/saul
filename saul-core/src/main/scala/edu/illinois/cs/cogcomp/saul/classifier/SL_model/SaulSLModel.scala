@@ -3,7 +3,7 @@ package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 import java.io.{ BufferedOutputStream, FileOutputStream, ObjectOutputStream }
 
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
-import edu.illinois.cs.cogcomp.sl.core.{ SLModel, SLParameters }
+import edu.illinois.cs.cogcomp.sl.core.{SLModel, SLParameters}
 
 import scala.collection.mutable.ListBuffer
 

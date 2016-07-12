@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.saul.classifier.{SparseNetworkLBP, ClassifierUtils, ConstrainedClassifier}
+import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, ConstrainedClassifier}
 import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
 import edu.illinois.cs.cogcomp.sl.core._
 import edu.illinois.cs.cogcomp.sl.learner._
@@ -29,7 +29,7 @@ object StructuredLearning {
     model.featureGenerator = new SL_FeatureGenerator(model)
     para.loadConfigFile("./config/DCD.config")
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
-  // model.wv = learner.train(sp, model.wv)
+    model.wv = learner.train(sp, model.wv)
     model.saveModel("SL_ER_Model.txt")
     return model
   }
@@ -37,37 +37,20 @@ object StructuredLearning {
   def Eval1[T <: AnyRef, H <: AnyRef](cf: ConstrainedClassifier[T, H], sp: SLProblem) = {
 
     val testExamples: Seq[T] = sp.instanceList.map(x => cf.getCandidates(x.asInstanceOf[Saul_SL_Instance[H]].head)).flatten.distinct
-    //val testExamples: Seq[T] = cf.getCandidates(sp.instanceList.map(_.asInstanceOf[Saul_SL_Instance[H]].head)).asInstanceOf[Seq[cf.LEFT]]
     ClassifierUtils.TestClassifiers.apply1(testExamples, cf)
   }
-
-  ////
   def Evaluate[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_ <: AnyRef, HEAD]], myModel: SaulSLModel[HEAD], modelPath: String)(implicit t: ClassTag[HEAD]): Unit = {
 
-    //val myModel = SLModel.loadModel(modelPath).asInstanceOf[SaulSLModel[HEAD]]
     val sp: SLProblem = SL_IOManager.makeSLProblem[HEAD](node, cls, testing = true)
     println("Before weight update:")
     val results1 = for (cf <- myModel.Factors.toList.asInstanceOf[List[ConstrainedClassifier[_ <: AnyRef, HEAD]]]) yield {
       Eval1(cf, sp)
     }
-    val per1 = myModel.Factors.toList.get(0).onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector
-    val per2 = myModel.Factors.toList.get(0).onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(1).getWeightVector
-
     println("after weight update:")
-    myModel.Factors.toList.asInstanceOf[List[ConstrainedClassifier[_ <: AnyRef, HEAD]]]
     myModel.infSolver.asInstanceOf[Saul_SL_Inference[HEAD]].updateWeights(myModel.wv)
     val results = for (cf <- myModel.Factors.toList.asInstanceOf[List[ConstrainedClassifier[_ <: AnyRef, HEAD]]]) yield {
       Eval1(cf, sp)
     }
-
-    val per3 = myModel.Factors.toList.get(0).onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector
-    val per4 = myModel.Factors.toList.get(0).onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(1).getWeightVector
-    for (k<- 0 until per3.size())
-    {
-     if( per3.getWeight(k)!= per1.getWeight(k))
-      print("different", k,"\t")
-    }
-    //ClassifierUtils.TestClassifiers.aggregate(results)
   }
 }
 

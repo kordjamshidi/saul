@@ -1,4 +1,5 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
+
 import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
 import edu.illinois.cs.cogcomp.saul.classifier.SparseNetworkLBP
 import edu.illinois.cs.cogcomp.sl.core.SLProblem
@@ -60,19 +61,18 @@ object Initialize {
         val temp = (sparseNet.getLexicon.size())
 
         for (i <- 0 until sparseNet.getNetwork.size()) {
+
+          val getTheWeight = x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
           val t = Array.fill[Float](temp)(0)
+
           if (initialize) {
-            val getTheWeight = x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
 
-            for (j <- 0 until temp) {
+            for (j <- 0 until temp)
+                t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
 
-              t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
-            //  println ("t:", t(j),"weight", getTheWeight.getWeight(j))
-              // if (t(j)==0) {print(j," zero/")}
-            }
           }
+         lt = lt :+ t
 
-          lt = lt :+ t
           wvLength = wvLength + temp
         }
 

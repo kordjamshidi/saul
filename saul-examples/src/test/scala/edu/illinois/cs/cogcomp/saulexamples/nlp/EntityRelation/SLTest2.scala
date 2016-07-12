@@ -1,5 +1,5 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
-import edu.illinois.cs.cogcomp.lbjava.infer.OJalgoHook
+import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
 import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, ConstrainedClassifier, Learnable, SparseNetworkLBP}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
