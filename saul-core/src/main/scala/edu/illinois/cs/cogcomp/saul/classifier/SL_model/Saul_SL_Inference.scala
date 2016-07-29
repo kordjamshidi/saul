@@ -79,26 +79,26 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
       a.foreach {
         cf =>
           for (i <- 0 until cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.size()) {
-            val w1 = ltuTemplates(ltu_count) //cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
-          //  print("w", ltu_count, " size:\t", w1.size)
-            val myFactorJointlyTrainedWeight = weight.getWeightArray.slice(offset, offset + w1.size)
+            val ltuSize = ltuTemplates(ltu_count).size //cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
+          //  print("w", ltu_count, " size:\t", ltuSize.size)
+            val myLTUJointlyTrainedWeight = weight.getWeightArray.slice(offset, offset + ltuSize)
            // var count = 0
-            // for (count <- cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size() until w1.size)
-            //   myFactorJointlyTrainedWeight = myFactorJointlyTrainedWeight :+ 0.asInstanceOf[Float]
-            // if (cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size()!= w1.size) {
-            //    println("size mismatch!", cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size(), ",", w1.size)
+            // for (count <- cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size() until ltuSize.size)
+            //   myLTUJointlyTrainedWeight = myLTUJointlyTrainedWeight :+ 0.asInstanceOf[Float]
+            // if (cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size()!= ltuSize.size) {
+            //    println("size mismatch!", cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size(), ",", ltuSize.size)
             //              }
-           val exampleFeatureIndexes = ofDim[Int](myFactorJointlyTrainedWeight.length)
+           val exampleFeatureIndexes = ofDim[Int](myLTUJointlyTrainedWeight.length)
             cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(i).getWeightVector.clear()
          // val  exampleFeatureIndexes = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon.getMap.values.toArray.map(_.asInstanceOf[Int])//.toArray//.toArray().asInstanceOf[Array[Int]]
-           for (featureIndex <- 0 until myFactorJointlyTrainedWeight.length) {
+           for (featureIndex <- 0 until myLTUJointlyTrainedWeight.length) {
               exampleFeatureIndexes(featureIndex) = featureIndex
-              cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(i).getWeightVector.setWeight(featureIndex,myFactorJointlyTrainedWeight(featureIndex))
+              cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(i).getWeightVector.setWeight(featureIndex,myLTUJointlyTrainedWeight(featureIndex))
              //cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon.;
             }
 
            //.getParameters.asInstanceOf[LinearThresholdUnit.Parameters]
-           // cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(i).getWeightVector.scaledAdd(exampleFeatureIndexes, Utils.converFarrayToD(myFactorJointlyTrainedWeight), 1.0)
+           // cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(i).getWeightVector.scaledAdd(exampleFeatureIndexes, Utils.converFarrayToD(myLTUJointlyTrainedWeight), 1.0)
             offset = offset + ltuTemplates(ltu_count).length
             ltu_count = ltu_count + 1
           }
@@ -117,7 +117,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
           x =>
             //print(cf.onClassifier.classifier.name.substring(80) + "\t")
             //print("gt:" + cf.onClassifier.classifier.getLabeler.discreteValue(x))
-            myStruct.labels(labelCount) = cf.onClassifier.classifier.discreteValue(x)
+            myStruct.labels(labelCount) = cf.classifier.discreteValue(x)//.onClassifier.classifier.discreteValue(x)
             //println("\tmvc:" + myStruct.labels(labelCount))
             labelCount = labelCount + 1
         }

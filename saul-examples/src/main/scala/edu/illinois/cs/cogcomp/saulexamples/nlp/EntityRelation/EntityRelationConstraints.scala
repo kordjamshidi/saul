@@ -1,11 +1,17 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
+import edu.illinois.cs.cogcomp.lbjava.infer.{FirstOrderConstant, FirstOrderConstraint}
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ ConllRawSentence, ConllRelation }
-import EntityRelationClassifiers._
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
+import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 
 object EntityRelationConstraints {
+
+  val dummyConst = ConstrainedClassifier.constraint[ConllRelation] {
+    x => val a: FirstOrderConstraint = new FirstOrderConstant(true)
+      a
+  }
 
   // if x is works-for relation, it shouldn't be lives-in relation.
   val relationArgumentConstraints = ConstrainedClassifier.constraint[ConllRelation] { x: ConllRelation =>

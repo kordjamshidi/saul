@@ -39,7 +39,7 @@ object PopulateSRLDataModel {
       case false =>
         val nonDefaultProps = new Properties()
         if (parseViewName.equals(ViewNames.PARSE_GOLD))
-          nonDefaultProps.setProperty(PipelineConfigurator.USE_POS.key, Configurator.FALSE)
+        nonDefaultProps.setProperty(PipelineConfigurator.USE_POS.key, Configurator.FALSE)
         nonDefaultProps.setProperty(PipelineConfigurator.USE_NER_CONLL.key, Configurator.FALSE)
         nonDefaultProps.setProperty(PipelineConfigurator.USE_NER_ONTONOTES.key, Configurator.FALSE)
         nonDefaultProps.setProperty(PipelineConfigurator.USE_SRL_VERB.key, Configurator.FALSE)

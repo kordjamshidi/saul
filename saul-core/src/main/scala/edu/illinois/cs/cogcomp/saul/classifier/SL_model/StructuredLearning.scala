@@ -25,9 +25,10 @@ object StructuredLearning {
     //    para.INNER_STOP_CONDITION= 0.0001f
     //    para.C_FOR_STRUCTURE = 1
     //    para.CHECK_INFERENCE_OPT = false
-    model.para = para
+
     model.featureGenerator = new SL_FeatureGenerator(model)
     para.loadConfigFile("./config/DCD.config")
+    model.para = para
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
     model.wv = learner.train(sp, model.wv)
     model.saveModel("SL_ER_Model.txt")
