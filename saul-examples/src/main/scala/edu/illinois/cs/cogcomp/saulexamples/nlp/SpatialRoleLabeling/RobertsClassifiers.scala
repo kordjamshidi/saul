@@ -6,8 +6,8 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 
-import edu.illinois.cs.cogcomp.lbjava.learn.SupportVectorMachine
-import edu.illinois.cs.cogcomp.saul.classifier.{ Learnable, SparseNetworkLBP }
+import edu.illinois.cs.cogcomp.lbjava.learn.SparseNetworkLearner
+import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 
 /** Created by taher on 8/16/16.
@@ -20,7 +20,7 @@ object RobertsClassifiers {
 
   object robertsSupervised2Classifier extends Learnable[RobertsRelation](relations) {
 
-    override lazy val classifier = new SupportVectorMachine()
+    override lazy val classifier = new SparseNetworkLearner()
 
     def label: Property[RobertsRelation] = relationLabel
 
