@@ -1,34 +1,39 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SemanticRoleLabeling
 
 import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SemanticRoleLabeling.SRLClassifiers._
 import org.scalatest.{ FlatSpec, Matchers }
 
-/** Created by Parisa on 6/6/16.
-  */
-
 class ModelsTest extends FlatSpec with Matchers {
 
   "argument type classifier (aTr)" should "work." in {
     ClassifierUtils.LoadClassifier(SRLConfigurator.SRL_JAR_MODEL_PATH.value + "/models_aTr/", argumentTypeLearner)
     val results = argumentTypeLearner.test(exclude = "candidate")
-    results.perLabel.foreach {
-      case result =>
-        result.label match {
-          case "A0" => (result.f1 >= 0.9) should be(true)
-          case "A1" => (result.f1 >= 0.9) should be(true)
-          case "A2" => (result.f1 >= 0.6) should be(true)
-          case _ => (result.f1 >= 0.0) should be(true)
-        }
-    }
+    results.perLabel
+      .filter(!_.f1.isNaN)
+      .foreach {
+        result =>
+          result.label match {
+            case "A0" => result.f1 should be(0.95 +- 0.05)
+            case "A1" => result.f1 should be(0.95 +- 0.05)
+            case "A2" => result.f1 should be(0.8 +- 0.03)
+            case _ => (result.f1 >= 0.0) should be(true)
+          }
+      }
   }
 
   "predicate identifier (dTr)" should "perform higher than 0.98." in {
     ClassifierUtils.LoadClassifier(SRLConfigurator.SRL_JAR_MODEL_PATH.value + "/models_dTr/", predicateClassifier)
     val results = predicateClassifier.test()
     results.perLabel.foreach {
-      case result =>
-        result.label match { case "true" => (result.f1 >= 0.98) should be(true) }
+      result =>
+        result.label match { case "true" => result.f1 should be(0.99 +- 0.01) }
     }
   }
 
@@ -52,7 +57,7 @@ class ModelsTest extends FlatSpec with Matchers {
     ClassifierUtils.LoadClassifier(SRLConfigurator.SRL_JAR_MODEL_PATH.value + "/models_bTr/", argumentXuIdentifierGivenApredicate)
     val results = argumentXuIdentifierGivenApredicate.test()
     results.perLabel.foreach {
-      case result =>
+      result =>
         result.label match { case "true" => (result.f1 >= 0.95) should be(true) }
     }
   }
@@ -61,11 +66,11 @@ class ModelsTest extends FlatSpec with Matchers {
     ClassifierUtils.LoadClassifier(SRLConfigurator.SRL_JAR_MODEL_PATH.value + "/models_cTr/", argumentTypeLearner)
     val results = argumentTypeLearner.test()
     results.perLabel.foreach {
-      case result =>
+      result =>
         result.label match {
-          case "A0" => (result.f1 >= 0.9) should be(true)
-          case "A1" => (result.f1 >= 0.9) should be(true)
-          case "A2" => (result.f1 >= 0.6) should be(true)
+          case "A0" => result.f1 should be(0.95 +- 0.05)
+          case "A1" => result.f1 should be(0.95 +- 0.05)
+          case "A2" => result.f1 should be(0.8 +- 0.03)
           case _ => ""
         }
     }
@@ -75,11 +80,11 @@ class ModelsTest extends FlatSpec with Matchers {
     ClassifierUtils.LoadClassifier(SRLConfigurator.SRL_JAR_MODEL_PATH.value + "/models_fTr/", argumentTypeLearner)
     val results = argumentTypeLearner.test(exclude = "candidate")
     results.perLabel.foreach {
-      case result =>
+      result =>
         result.label match {
-          case "A0" => (result.f1 >= 0.9) should be(true)
-          case "A1" => (result.f1 >= 0.9) should be(true)
-          case "A2" => (result.f1 >= 0.6) should be(true)
+          case "A0" => result.f1 should be(0.95 +- 0.05)
+          case "A1" => result.f1 should be(0.95 +- 0.05)
+          case "A2" => result.f1 should be(0.8 +- 0.03)
           case _ => ""
         }
     }

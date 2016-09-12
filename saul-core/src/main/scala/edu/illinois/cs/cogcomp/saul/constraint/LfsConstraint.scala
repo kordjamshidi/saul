@@ -1,14 +1,17 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saul.constraint
 
-import edu.illinois.cs.cogcomp.lbjava.infer.{ ParameterizedConstraint, FirstOrderConstraint }
-import edu.illinois.cs.cogcomp.lbjava.learn.{ IdentityNormalizer, Normalizer }
+import edu.illinois.cs.cogcomp.lbjava.infer.{ FirstOrderConstraint, ParameterizedConstraint }
 import edu.illinois.cs.cogcomp.saul.classifier.infer.InferenceCondition
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver
-import scala.reflect.ClassTag
+import edu.illinois.cs.cogcomp.lbjava.learn.{ IdentityNormalizer, Normalizer }
 
-
-abstract class LfsConstraint[T <: AnyRef](implicit val tag: ClassTag[T]) {
-
+abstract class LfsConstraint[T <: AnyRef] {
   def makeConstrainDef(x: T): FirstOrderConstraint
 
   def evalDiscreteValue(t: T): String = {
@@ -35,7 +38,7 @@ abstract class LfsConstraint[T <: AnyRef](implicit val tag: ClassTag[T]) {
 
   val lc = this
 
-  def createInferenceCondition[C <: AnyRef](solver: ILPSolver, normalizer: Normalizer = new IdentityNormalizer)(implicit cTag: ClassTag[C]): InferenceCondition[C, T] = {
+  def createInferenceCondition[C <: AnyRef](solver: ILPSolver, normalizer: Normalizer = new IdentityNormalizer): InferenceCondition[C, T] = {
     new InferenceCondition[C, T](solver, normalizer) {
       override def subjectTo: LfsConstraint[T] = lc
     }

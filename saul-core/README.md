@@ -19,13 +19,18 @@ Visit each link for its content
  3. [Conceptual structure of a Saul program](doc/CONCEPTUALSTRUCTURE.md)
  2. [Data modeling and feature extraction](doc/DATAMODELING.md)
  3. [Learners and constraints](doc/SAULLANGUAGE.md)
- 4. [Model configurations](doc/Models.md)
+ 4. [Model configurations](doc/MODELS.md)
  5. [Saul library](doc/LBJLIBRARY.md)
 
+The api docs are included [here](http://cogcomp.cs.illinois.edu/software/doc/saul/). 
 
 ## Credits 
-_This project has been started by [Parisa Kordjamshidi](mailto:kordjam@illinois.edu) and the development has been done in collaboration with [Hao Wu](mailto:haowu4@illinois.edu), [Sameer Singh](mailto:sameer@cs.washington.edu), [Daniel Khashabi](mailto:khashab2@illinois.edu), [Christos Christodoulopoulos](mailto:christod@illinois.edu). 
+This project has been started by [Parisa Kordjamshidi](mailto:kordjam@illinois.edu) and the development has been done in collaboration with [Hao Wu](mailto:haowu4@illinois.edu), [Sameer Singh](mailto:sameer@cs.washington.edu), [Daniel Khashabi](mailto:khashab2@illinois.edu), [Christos Christodoulopoulos](mailto:christod@illinois.edu). 
 
+If you use this tool, please cite the following paper: 
+
+[1] Parisa Kordjamshidi, Dan Roth, and Hao Wu. "Saul: Towards declarative learning based programming." 
+Proceedings of the International Joint Conferences on Artificial Intelligence (IJCAI), 2015.
 
 ## Licensing
 _To see the full license for this software, see the LICENSE (in `doc` directory) or visit the download page 

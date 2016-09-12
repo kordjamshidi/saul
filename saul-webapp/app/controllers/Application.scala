@@ -1,3 +1,9 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package controllers
 
 import controllers.Event._
@@ -21,7 +27,7 @@ object Application {
     "scala.tools.nsc.Interpreter",
     "scala.AnyVal",
     "edu.illinois.cs.cogcomp.saulexamples.nlp.EmailSpam.SpamApp",
-    "edu.illinois.cs.cogcomp.saulexamples.bioInformatics.regressionModel.MyApp",
+    "edu.illinois.cs.cogcomp.saulexamples.DrugResponse.myApp",
     "edu.illinois.cs.cogcomp.saul.datamodel.DataModel",
     "edu.illinois.cs.cogcomp.lbjava.parse.Parser",
     "edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation",

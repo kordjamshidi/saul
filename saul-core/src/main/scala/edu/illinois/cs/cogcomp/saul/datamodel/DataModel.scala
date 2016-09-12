@@ -1,16 +1,26 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saul.datamodel
 
-import edu.illinois.cs.cogcomp.core.datastructures.vectors.{ExceptionlessInputStream, ExceptionlessOutputStream }
+import edu.illinois.cs.cogcomp.core.datastructures.vectors.{ ExceptionlessInputStream, ExceptionlessOutputStream }
 import edu.illinois.cs.cogcomp.saul.datamodel.edge.{ AsymmetricEdge, Edge, Link, SymmetricEdge }
 import edu.illinois.cs.cogcomp.saul.datamodel.node.{ JoinNode, Node, NodeProperty }
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.discrete._
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.real._
 import edu.illinois.cs.cogcomp.saul.datamodel.property.{ EvaluatedProperty, Property }
+import edu.illinois.cs.cogcomp.saul.util.Logging
 
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
-trait DataModel {
+/** Represents the data model that stores the data object graph. Extend this trait to define nodes and edges for
+  * representing data for a learning problem.
+  */
+trait DataModel extends Logging {
   val PID = 'PID
 
   final val nodes = new ListBuffer[Node[_]]
@@ -28,9 +38,9 @@ trait DataModel {
     }).toList
   }
 
-  def clearInstances = {
-    nodes.foreach(_.clear)
-    edges.foreach(_.clear)
+  def clearInstances(): Unit = {
+    nodes.foreach(_.clear())
+    edges.foreach(_.clear())
   }
 
   def addFromModel[T <: DataModel](dataModel: T): Unit = {
@@ -110,11 +120,6 @@ trait DataModel {
       this.edges.filter(r => r.to.tag.equals(fromTag) && r.from.tag.equals(toTag)).map(_.backward.asInstanceOf[Link[T, U]])
   }
 
-  def testWith[T <: AnyRef](coll: Seq[T])(implicit tag: ClassTag[T]) = {
-    println("Adding for type" + tag.toString)
-    //getNodeWithType[T].addToTest(coll)
-  }
-
   /** node definitions */
   def node[T <: AnyRef](implicit tag: ClassTag[T]): Node[T] = node((x: T) => x)
 
@@ -151,19 +156,10 @@ trait DataModel {
     e
   }
 
-  /** property definitions */
-  object PropertyType extends Enumeration {
-    val Real, Discrete = Value
-    type PropertyType = Value
-  }
+  class PropertyApply[T <: AnyRef] private[DataModel] (val node: Node[T], name: String, cache: Boolean, ordered: Boolean) {
+    papply =>
 
-  import PropertyType._
-
-  case class PropertyDefinition(ty: PropertyType, name: Symbol)
-
-  class PropertyApply[T <: AnyRef] private[DataModel] (val node: Node[T], name: String, cache: Boolean, ordered: Boolean) { papply =>
-
-    // TODO: make the hashmaps immutable
+    // TODO(danielk): make the hashmaps immutable
     lazy val propertyCacheMap = {
       val map = collection.mutable.HashMap[T, Any]()
       node.propertyCacheList += map

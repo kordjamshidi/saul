@@ -1,8 +1,13 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
-import edu.illinois.cs.cogcomp.lbj.pos.POSBaselineLearner
-import edu.illinois.cs.cogcomp.lbjava.learn.{SparseAveragedPerceptron, SparseNetworkLearner}
+import edu.illinois.cs.cogcomp.lbjava.learn.{ SparseAveragedPerceptron, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSDataModel._
 
@@ -29,7 +34,6 @@ object POSClassifiers {
       p.thickness = 2
       baseLTU = new SparseAveragedPerceptron(p)
     }
-    override val logging = true
   }
 
   object POSTaggerUnknown extends Learnable[Constituent](tokens) {
@@ -42,20 +46,17 @@ object POSClassifiers {
       p.thickness = 4
       baseLTU = new SparseAveragedPerceptron(p)
     }
-    override val logging = true
   }
 
   object BaselineClassifier extends Learnable[Constituent](tokens) {
     def label = POSLabel
     override def feature = using(wordForm)
-    override lazy val classifier = new POSBaselineLearner()
-    override val logging = true
+    override lazy val classifier = new POSCountBaseline()
   }
 
   object MikheevClassifier extends Learnable[Constituent](tokens) {
     def label = POSLabel
     override def feature = using(wordForm)
     override lazy val classifier = new MikheevLearner
-    override val logging = true
   }
 }
