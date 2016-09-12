@@ -1,3 +1,9 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
@@ -13,13 +19,13 @@ object EntityRelationApp_SL extends App {
 
   //ClassifierUtils.LoadClassifier(EntityRelationApp.jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
 
- val cls_base=  List(PersonClassifier, OrganizationClassifier, LocationClassifier, LivesInClassifier, WorksForClassifier)
+  val cls_base = List(PersonClassifier, OrganizationClassifier, LocationClassifier, LivesInClassifier, WorksForClassifier)
 
   ClassifierUtils.TrainClassifiers(10, cls_base)
- // ClassifierUtils.TestClassifiers(cls_base:_*)
+  // ClassifierUtils.TestClassifiers(cls_base:_*)
 
   val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier,
-  LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)
+    LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)
 
   ClassifierUtils.TestClassifiers(cls: _*)
 
@@ -28,6 +34,6 @@ object EntityRelationApp_SL extends App {
   println("Structured evaluation.\n")
 
   StructuredLearning.Evaluate(pairs, cls, m, "")
- // ClassifierUtils.TestClassifiers(cls_base:_*)
+  // ClassifierUtils.TestClassifiers(cls_base:_*)
 }
 

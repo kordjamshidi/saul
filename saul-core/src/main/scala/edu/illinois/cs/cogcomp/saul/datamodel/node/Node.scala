@@ -1,13 +1,23 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saul.datamodel.node
 
-import edu.illinois.cs.cogcomp.core.datastructures.vectors.{ExceptionlessInputStream, ExceptionlessOutputStream}
+import edu.illinois.cs.cogcomp.core.datastructures.vectors.{ ExceptionlessInputStream, ExceptionlessOutputStream }
 import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector
 import edu.illinois.cs.cogcomp.saul.datamodel.edge.Edge
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.discrete.DiscreteProperty
+import edu.illinois.cs.cogcomp.saul.util.Logging
+
+import java.util.concurrent.atomic.AtomicInteger
 
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, HashMap => MutableHashMap, LinkedHashSet => MutableSet, ListBuffer, Map => MutableMap}
+import scala.collection.mutable.{ ArrayBuffer, ListBuffer, HashMap => MutableHashMap, LinkedHashSet => MutableSet, Map => MutableMap }
+
 import scala.reflect.ClassTag
 
 trait NodeProperty[T <: AnyRef] extends Property[T] {
@@ -19,10 +29,7 @@ trait NodeProperty[T <: AnyRef] extends Property[T] {
   * @param keyFunc key function used to extract the key
   * @tparam T base type of the instances
   */
-class NodeInstance[T](
-  val t: T,
-  val keyFunc: T => Any
-) {
+class NodeInstance[T](t: T, keyFunc: T => Any) {
   val key: Any = keyFunc(t)
   def apply = t
 
@@ -33,11 +40,13 @@ class NodeInstance[T](
   }
 }
 
-/** A Node E is an instances of base types T */
-class Node[T <: AnyRef](
-  val keyFunc: T => Any = (x: T) => x,
-  val tag: ClassTag[T]
-) {
+/** Represents an node in the data model graph.
+  *
+  * @param keyFunc Key function to distinguish between different objects in the collection.
+  * @param tag ClassTag
+  * @tparam T Type of the data represented in the node.
+  */
+class Node[T <: AnyRef](val keyFunc: T => Any = (x: T) => x, val tag: ClassTag[T]) extends Logging {
 
   type NT = NodeInstance[T]
 
@@ -71,27 +80,15 @@ class Node[T <: AnyRef](
     node
   }
 
-  def clear() = {
-    collection.clear()
-    trainingSet.clear()
-    testingSet.clear()
+  def clear(): Unit = {
+    collection.clear
+    trainingSet.clear
+    testingSet.clear
     for (e <- incoming) e.clear
     for (e <- outgoing) e.clear
   }
 
-  var count = 0
-
-  def incrementCount(): Int = this.synchronized {
-    val ret = count
-    count = count + 1
-    ret
-  }
-
-  def decreaseCount(): Int = this.synchronized {
-    val ret = count
-    count = count - 1
-    ret
-  }
+  private var count: AtomicInteger = new AtomicInteger()
 
   def contains(t: T): Boolean = collection.contains(toNT(t))
 
@@ -99,23 +96,39 @@ class Node[T <: AnyRef](
 
   private def containsNT(nt: NT): Boolean = collection.contains(nt)
 
-  def containsUntyped(t: Any): Boolean = if (t.isInstanceOf[T]) {
-    contains(t.asInstanceOf[T])
-  } else false
+  /** Adds an instance to the the [[Node]].
+    *
+    * @param instance Node instance.
+    * @param train If the instance is a training instance.
+    * @param populateEdge If populating edges from the current Node.
+    */
+  def addInstance(instance: T, train: Boolean = true, populateEdge: Boolean = true): Unit = {
+    val nodeInstance = toNT(instance)
 
-  def addInstance(t: T, train: Boolean = true, populateEdge: Boolean = true) = {
-    val nt = toNT(t)
-    if (!containsNT(nt)) {
-      val order = incrementCount()
-      if (train) this.trainingSet += nt else this.testingSet += nt
-      this.collection += nt
-      this.orderingMap += (order -> nt)
-      this.reverseOrderingMap += (nt -> order)
-      if (populateEdge) {
-        outgoing.foreach(_.populateUsingFrom(t, train))
-        incoming.foreach(_.populateUsingTo(t, train))
+    if (containsNT(nodeInstance)) {
+      logger.trace(s"The instance $instance is duplicate and it will be ignored! " +
+        s"This might be because you add the same instance to both train and test set. ")
+    } else {
+
+      val order = count.incrementAndGet()
+
+      if (train) {
+        this.trainingSet.add(nodeInstance)
+      } else {
+        this.testingSet.add(nodeInstance)
       }
-      joinNodes.foreach(_.addFromChild(this, t, train, populateEdge))
+
+      this.collection.add(nodeInstance)
+      this.orderingMap.put(order, nodeInstance)
+      this.reverseOrderingMap.put(nodeInstance, order)
+
+      if (populateEdge) {
+        outgoing.foreach(_.populateUsingFrom(instance, train))
+        incoming.foreach(_.populateUsingTo(instance, train))
+      }
+
+      // TODO: Populating join nodes takes significant amount of time on large graphs. Investigate.
+      joinNodes.foreach(_.addFromChild(this, instance, train, populateEdge))
     }
   }
 
@@ -261,7 +274,7 @@ class Node[T <: AnyRef](
   }
 
   def writeDerivedInstances(out: ExceptionlessOutputStream) = {
-    out.writeInt(count)
+    out.writeInt(count.get())
     out.writeInt(derivedInstances.size)
     derivedInstances.foreach {
       case (id, featureVector) =>
@@ -271,7 +284,7 @@ class Node[T <: AnyRef](
   }
 
   def loadDerivedInstances(in: ExceptionlessInputStream) = {
-    count = in.readInt()
+    count = new AtomicInteger(in.readInt())
     val instanceCount = in.readInt()
     (0 until instanceCount).foreach {
       lineIndex =>
@@ -285,43 +298,10 @@ class Node[T <: AnyRef](
   /** list of hashmaps used inside properties for caching sensor values */
   final val propertyCacheList = new ListBuffer[MutableHashMap[_, Any]]()
 
-  def clearPropertyCache[T](): Unit = {
-    println("clean property cache: cleaning " + propertyCacheList.size + " maps")
-    propertyCacheList.foreach(_.asInstanceOf[MutableHashMap[T, Any]].clear)
-  }
-}
-
-class JoinNode[A <: AnyRef, B <: AnyRef](val na: Node[A], val nb: Node[B], matcher: (A, B) => Boolean, tag: ClassTag[(A, B)]) extends Node[(A, B)](p => na.keyFunc(p._1) -> nb.keyFunc(p._2), tag) {
-
-  def addFromChild[T <: AnyRef](node: Node[T], t: T, train: Boolean = true, populateEdge: Boolean = true) = {
-    node match {
-      case this.na => matchAndAddChildrenA(t.asInstanceOf[A], train, populateEdge)
-      case this.nb => matchAndAddChildrenB(t.asInstanceOf[B], train, populateEdge)
-    }
-  }
-
-  private def matchAndAddChildrenA(a: A, train: Boolean = true, populateEdge: Boolean = true): Unit = {
-    val instances = if (train) nb.getTrainingInstances else nb.getTestingInstances
-    for ((a, b) <- instances.filter(matcher(a, _)).map(a -> _)) {
-      if (!contains(a -> b))
-        this addInstance (a -> b, train, populateEdge)
-    }
-  }
-
-  private def matchAndAddChildrenB(b: B, train: Boolean = true, populateEdge: Boolean = true): Unit = {
-    val instances = if (train) na.getTrainingInstances else na.getTestingInstances
-    for ((a, b) <- instances.filter(matcher(_, b)).map(_ -> b)) {
-      if (!contains(a -> b))
-        this addInstance (a -> b, train, populateEdge)
-    }
-  }
-
-  override def addInstance(t: (A, B), train: Boolean, populateEdge: Boolean = true): Unit = {
-    assert(matcher(t._1, t._2))
-    if (!contains(t)) {
-      super.addInstance(t, train, populateEdge)
-      na.addInstance(t._1, train, populateEdge)
-      nb.addInstance(t._2, train, populateEdge)
+  def clearPropertyCache(): Unit = {
+    if (propertyCacheList.nonEmpty) {
+      logger.info("clean property cache: cleaning " + propertyCacheList.size + " maps")
+      propertyCacheList.foreach(_.clear)
     }
   }
 }

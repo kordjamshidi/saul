@@ -1,3 +1,9 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.saul.classifier.SparseNetworkLBP
@@ -25,7 +31,6 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
         val sparseNet = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
         val fvLocal = new FeatureVectorBuffer()
 
-
         candis.foreach {
           (ci) =>
             var localOffset = 0
@@ -34,12 +39,12 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
             var a1 = a(1).asInstanceOf[Array[Double]]
             val fvTemp = new FeatureVectorBuffer(a0, a1)
             val lab = myY.labels(labelCount)
-            labelCount = labelCount +1
+            labelCount = labelCount + 1
             //keep the features for the on label (at netI index) and repeat a zero feature vector for the off labels
             for (netI <- 0 until sparseNet.getNetwork.size()) {
-             if (netI != 0)
+              if (netI != 0)
                 localOffset = localOffset + model.LTUWeightTemplates(ltuNum + netI - 1).length
-            // else localOffset = 0
+              // else localOffset = 0
               if (!sparseNet.getLabelLexicon.lookupKey(netI).valueEquals(lab)) {
                 a1 = Array()
                 a0 = Array()

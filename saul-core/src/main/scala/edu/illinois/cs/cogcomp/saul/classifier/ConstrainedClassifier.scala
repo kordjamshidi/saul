@@ -1,18 +1,25 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saul.classifier
 
-import edu.illinois.cs.cogcomp.infer.ilp.{GurobiHook, ILPSolver, OJalgoHook}
-import edu.illinois.cs.cogcomp.lbjava.classify.{Classifier, FeatureVector, TestDiscrete}
-import edu.illinois.cs.cogcomp.lbjava.infer.{FirstOrderConstraint, InferenceManager}
+import edu.illinois.cs.cogcomp.lbjava.classify.{ Classifier, FeatureVector, TestDiscrete }
+import edu.illinois.cs.cogcomp.infer.ilp.{ GurobiHook, ILPSolver, OJalgoHook }
+import edu.illinois.cs.cogcomp.lbjava.infer.{ BalasHook, FirstOrderConstraint, InferenceManager }
 import edu.illinois.cs.cogcomp.lbjava.learn.Learner
-import edu.illinois.cs.cogcomp.saul.TestWithStorage
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.LossAugmentedNormalizer
 import edu.illinois.cs.cogcomp.saul.classifier.infer.InferenceCondition
 import edu.illinois.cs.cogcomp.saul.constraint.LfsConstraint
 import edu.illinois.cs.cogcomp.saul.datamodel.edge.Edge
-import edu.illinois.cs.cogcomp.saul.lbjrelated.{LBJClassifierEquivalent, LBJLearnerEquivalent}
+import edu.illinois.cs.cogcomp.saul.lbjrelated.{ LBJClassifierEquivalent, LBJLearnerEquivalent }
 import edu.illinois.cs.cogcomp.saul.parser.IterableToLBJavaParser
+import edu.illinois.cs.cogcomp.saul.test.TestWithStorage
+import edu.illinois.cs.cogcomp.saul.util.Logging
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 import scala.reflect.ClassTag
 
 /** The input to a ConstrainedClassifier is of type `T`. However given an input, the inference is based upon the
@@ -25,7 +32,7 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
   implicit
   val tType: ClassTag[T],
   implicit val headType: ClassTag[HEAD]
-) extends LBJClassifierEquivalent {
+) extends LBJClassifierEquivalent with Logging {
 
   final type LEFT = T
   type RIGHT = HEAD
@@ -50,8 +57,6 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
     */
   def filter(t: T, head: HEAD): Boolean = true
 
-  val logger = false
-
   /** The `pathToHead` returns only one object of type HEAD, if there are many of them i.e. `Iterable[HEAD]` then it
     * simply returns the `head` of the `Iterable`
     */
@@ -67,16 +72,13 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
       val l = pathToHead.get.forward.neighborsOf(x).toSet.toList
 
       if (l.isEmpty) {
-        if (logger)
-          println("Warning: Failed to find head")
+        logger.error("Warning: Failed to find head")
         None
       } else if (l.size != 1) {
-        if (logger)
-          println("Find too many heads")
+        logger.warn("Find too many heads")
         Some(l.head)
       } else {
-        if (logger)
-          println(s"Found head ${l.head} for child $x")
+        logger.info(s"Found head ${l.head} for child $x")
         Some(l.head)
       }
     }
@@ -93,8 +95,7 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
       val l = pathToHead.get.backward.neighborsOf(head)
 
       if (l.isEmpty) {
-        if (logger)
-          println("Failed to find part")
+        logger.error("Failed to find part")
         Seq.empty[T]
       } else {
         l.filter(filter(_, head)).toSeq
@@ -109,8 +110,7 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
         var inference = InferenceManager.get(name, head)
         if (inference == null) {
           inference = infer(head)
-          if (logger)
-            println("Inference is NULL " + name)
+          logger.warn(s"Inference ${name} has not been cached; running inference . . . ")
           InferenceManager.put(name, inference)
         }
         inference.valueOf(cls, t)
@@ -120,8 +120,8 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
     }
   }
 
-  def lossAugmentedInfer(h: HEAD, offset: Int): ListBuffer[String] = {
-    var v = ListBuffer[String]()
+  def lossAugmentedInfer(h: HEAD, offset: Int): mutable.ListBuffer[String] = {
+    var v = mutable.ListBuffer[String]()
     getCandidates(h).foreach {
       (example) =>
         // val g1 = onClassifier.scores(example)
@@ -137,6 +137,7 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
   private def getSolverInstance = solver match {
     case _: OJalgoHook => () => new OJalgoHook()
     case _: GurobiHook => () => new GurobiHook()
+    case _: BalasHook => () => new BalasHook()
   }
 
   override val classifier = new Classifier() {
@@ -148,25 +149,28 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
       )(o.asInstanceOf[T])
   }
 
-  /** Test with given data, use internally
+  /** Derives test instances from the data model
     *
-    * @return List of (label, (f1, precision, recall))
+    * @return Iterable of test instances for this classifier
+    */
+  private def deriveTestInstances: Iterable[T] = {
+    pathToHead.map(edge => edge.from)
+      .orElse({
+        onClassifier match {
+          case clf: Learnable[T] => Some(clf.node)
+          case _ => logger.error("pathToHead is not provided and the onClassifier is not a Learnable!"); None
+        }
+      })
+      .map(node => node.getTestingInstances)
+      .getOrElse(Iterable.empty)
+  }
+
+  /** Test Constrained Classifier with automatically derived test instances.
+    *
+    * @return List of (label, (f1,precision,recall))
     */
   def test(): Results = {
-    val allHeads: Iterable[HEAD] = {
-      if (pathToHead.isEmpty) {
-        onClassifier match {
-          case clf: Learnable[T] => clf.node.getTestingInstances.asInstanceOf[Iterable[HEAD]]
-          case _ => println("ERROR: pathToHead is not provided and the onClassifier is not a Learnable!"); Nil
-        }
-      } else {
-        pathToHead.get.to.getTestingInstances
-      }
-    }
-
-    val data: List[T] = allHeads.flatMap(getCandidates).toList.distinct
-
-    test(data)
+    test(deriveTestInstances)
   }
 
   /** Test with given data, use internally
@@ -176,17 +180,12 @@ abstract class ConstrainedClassifier[T <: AnyRef, HEAD <: AnyRef](val onClassifi
     * @param outFile The file to write the predictions (can be `null`)
     * @return List of (label, (f1,precision,recall))
     */
-
   def test(testData: Iterable[T] = null, outFile: String = null, outputGranularity: Int = 0, exclude: String = ""): Results = {
     println()
-    val testReader = new IterableToLBJavaParser[T](if (testData == null)
-      onClassifier match {
-      case clf: Learnable[T] => clf.node.getTestingInstances.asInstanceOf[Iterable[T]]
-      case _ => println("ERROR: pathToHead is not provided and the onClassifier is not a Learnable!"); Nil
 
-    }
-    else testData)
+    val testReader = new IterableToLBJavaParser[T](if (testData == null) deriveTestInstances else testData)
     testReader.reset()
+
     val tester: TestDiscrete = new TestDiscrete()
     TestWithStorage.test(tester, classifier, onClassifier.getLabeler, testReader, outFile, outputGranularity, exclude)
     val perLabelResults = tester.getLabels.map {

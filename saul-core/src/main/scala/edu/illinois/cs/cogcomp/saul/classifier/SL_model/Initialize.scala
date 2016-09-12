@@ -1,3 +1,9 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
@@ -49,8 +55,8 @@ object Initialize {
               } // for each candidate
             } // for each constraintFactor
           } // for each example
-       //   print("weight vector size:" + ilearner.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.size())
-       //   println("lexicon size:" + ilearner.getLexicon.size())
+        //   print("weight vector size:" + ilearner.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.size())
+        //   println("lexicon size:" + ilearner.getLexicon.size())
 
       } //for each factor
 
@@ -68,15 +74,15 @@ object Initialize {
           if (initialize) {
 
             for (j <- 0 until temp)
-                t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
+              t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
 
           }
-         lt = lt :+ t
+          lt = lt :+ t
 
           wvLength = wvLength + temp
         }
 
-        println("lexicon size: "+ sparseNet.getLexicon.size(), "* label lexicon size:", sparseNet.getLabelLexicon.size())
+        println("lexicon size: " + sparseNet.getLexicon.size(), "* label lexicon size:", sparseNet.getLabelLexicon.size())
       }
     )
     val myWeight = Array(lt.flatten: _*)
