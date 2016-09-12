@@ -1,3 +1,9 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SemanticRoleLabeling
 
 import java.util.Properties
@@ -12,7 +18,8 @@ import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.nlp.pipeline.IllinoisPipelineFactory
 import edu.illinois.cs.cogcomp.nlp.utilities.ParseUtils
-import edu.illinois.cs.cogcomp.saulexamples.data.{ SRLFrameManager, SRLDataReader }
+import edu.illinois.cs.cogcomp.saul.util.Logging
+import edu.illinois.cs.cogcomp.saulexamples.data.{ SRLDataReader, SRLFrameManager }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SemanticRoleLabeling.SRLSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.CommonSensors._
 import org.slf4j.{ Logger, LoggerFactory }
@@ -21,13 +28,11 @@ import scala.collection.JavaConversions._
 
 /** Created by Parisa on 1/17/16.
   */
-object PopulateSRLDataModel {
+object PopulateSRLDataModel extends Logging {
 
   def apply[T <: AnyRef](testOnly: Boolean = false, useGoldPredicate: Boolean = false, useGoldArgBoundaries: Boolean = false, rm: ResourceManager = new SRLConfigurator().getDefaultConfig): SRLMultiGraphDataModel = {
 
-    val logger: Logger = LoggerFactory.getLogger(this.getClass)
     val frameManager: SRLFrameManager = new SRLFrameManager(rm.getString(SRLConfigurator.PROPBANK_HOME.key))
-
     val useCurator = rm.getBoolean(SRLConfigurator.USE_CURATOR)
     val parseViewName = rm.getString(SRLConfigurator.SRL_PARSE_VIEW)
     val graphs: SRLMultiGraphDataModel = new SRLMultiGraphDataModel(parseViewName, frameManager)
@@ -35,7 +40,9 @@ object PopulateSRLDataModel {
       case true =>
         val nonDefaultProps = new Properties()
         nonDefaultProps.setProperty(CuratorConfigurator.RESPECT_TOKENIZATION.key, Configurator.TRUE)
-        CuratorFactory.buildCuratorClient(new CuratorConfigurator().getConfig(new ResourceManager(nonDefaultProps)))
+        CuratorFactory.buildCuratorClient(
+          new CuratorConfigurator().getConfig(new ResourceManager(nonDefaultProps))
+        )
       case false =>
         val nonDefaultProps = new Properties()
         if (parseViewName.equals(ViewNames.PARSE_GOLD))
@@ -47,7 +54,9 @@ object PopulateSRLDataModel {
         nonDefaultProps.setProperty(PipelineConfigurator.USE_STANFORD_DEP.key, Configurator.FALSE)
         if (parseViewName.equals(ViewNames.PARSE_GOLD))
           nonDefaultProps.setProperty(PipelineConfigurator.USE_STANFORD_PARSE.key, Configurator.FALSE)
-        IllinoisPipelineFactory.buildPipeline(new CuratorConfigurator().getConfig(new ResourceManager(nonDefaultProps)))
+        IllinoisPipelineFactory.buildPipeline(
+          new CuratorConfigurator().getConfig(new ResourceManager(nonDefaultProps))
+        )
     }
     val clauseViewGenerator = parseViewName match {
       case ViewNames.PARSE_GOLD => new ClauseViewGenerator(parseViewName, "CLAUSES_GOLD")
@@ -67,7 +76,7 @@ object PopulateSRLDataModel {
           clauseViewGenerator.addView(ta)
         } catch {
           case e: AnnotatorException =>
-            logger.warn("Annotation failed for sentence {}; removing it from the list.", ta.getId)
+            logger.warn(s"Annotation failed for sentence ${ta.getId}; removing it from the list.")
             tAll.remove(ta)
         }
         // Clean up the trees
@@ -83,22 +92,22 @@ object PopulateSRLDataModel {
     def printNumbers(reader: SRLDataReader, readerType: String) = {
       val numPredicates = reader.textAnnotations.map(ta => ta.getView(ViewNames.SRL_VERB).getConstituents.count(c => c.getLabel == "Predicate")).sum
       val numArguments = reader.textAnnotations.map(ta => ta.getView(ViewNames.SRL_VERB).getConstituents.count(c => c.getLabel != "Predicate")).sum
-      logger.debug("Number of {} data predicates: {}", readerType, numPredicates)
-      logger.debug("Number of {} data arguments: {}", readerType, numArguments)
+      logger.debug(s"Number of ${readerType} data predicates: ${numPredicates}")
+      logger.debug(s"Number of ${readerType} data arguments: ${numArguments}")
     }
 
     val trainingFromSection = 2
     val trainingToSection = 2
     var gr: SRLMultiGraphDataModel = null
     if (!testOnly) {
-      logger.info("Reading training data from sections {} to {}", trainingFromSection, trainingToSection)
+      logger.info(s"Reading training data from sections ${trainingFromSection} to ${trainingToSection}")
       val trainReader = new SRLDataReader(
         rm.getString(SRLConfigurator.TREEBANK_HOME.key),
         rm.getString(SRLConfigurator.PROPBANK_HOME.key),
         trainingFromSection, trainingToSection
       )
       trainReader.readData()
-      logger.info("Annotating {} training sentences", trainReader.textAnnotations.size)
+      logger.info(s"Annotating ${trainReader.textAnnotations.size} training sentences")
       val filteredTa = addViewAndFilter(trainReader.textAnnotations.toList) //.slice(0, 10)
       printNumbers(trainReader, "training")
       logger.info("Populating SRLDataModel with training data.")
@@ -131,10 +140,10 @@ object PopulateSRLDataModel {
       rm.getString(SRLConfigurator.PROPBANK_HOME.key),
       testSection, testSection
     )
-    logger.info("Reading test data from section {}", testSection)
+    logger.info(s"Reading test data from section ${testSection}")
     testReader.readData()
 
-    logger.info("Annotating {} test sentences", testReader.textAnnotations.size)
+    logger.info(s"Annotating ${testReader.textAnnotations.size} test sentences")
     val filteredTest = addViewAndFilter(testReader.textAnnotations.toList) //.slice(0, 20)
 
     printNumbers(testReader, "test")

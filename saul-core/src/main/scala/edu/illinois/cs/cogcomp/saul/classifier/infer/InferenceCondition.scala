@@ -1,3 +1,9 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saul.classifier.infer
 
 import edu.illinois.cs.cogcomp.lbjava.infer.{ ParameterizedConstraint }
@@ -10,7 +16,7 @@ abstract class InferenceCondition[INPUT <: AnyRef, HEAD <: AnyRef](solver: ILPSo
   implicit
   val inputTag: ClassTag[INPUT],
   val headTag: ClassTag[HEAD]
-) {
+  ) {
   def subjectTo: LfsConstraint[HEAD]
 
   def transfer(t: HEAD): JointTemplate[HEAD] = {

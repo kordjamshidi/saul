@@ -76,6 +76,8 @@ val mathchWord = (param: String) => property(token) {
 
 Note that there is no limitation on the number/types of the extra parameters passed to properties. 
 
+**Caution:** never define a property with keyword `def`, and instead define it as `val` (as shown in the examples above).  
+
 ### Defining edges
 
 This is done via several constructs depending on the type of the relationships. Here is an example definition,
@@ -215,3 +217,39 @@ object exampleApp {
   }
 }
 ```
+
+
+### Logging 
+We have logging inside Saul core to keep track of its states. We use the
+following standard logging levels: 
+
+ - off: no logging. 
+ - error: runtime errors or unexpected conditions. 
+ - warn: suspicious behavior. 
+ - info: important run-time behavior. 
+ - trace: most detailed information.
+ - debug: detailed information on the flow through the system.  
+
+If you would like to set change the logging level for a specific class, 
+use the following pattern:
+
+```scala 
+loggerConfig.Logger("PACKAGE-NAME").setLevel(LEVEL-NAME)
+```
+
+For example: 
+
+```scala 
+loggerConfig.Logger("edu.illinois.cs.cogcomp.saul.classifier.Learnable").setLevel(Level.ERROR)
+```
+
+To keep the default behavior less verbose, the default logging level is `info`. 
+If you want to keep track of the changes and settings in your program, 
+ you can use the logging provided in Saul. For that, you can just extend 
+ your class or object with the `Logging` trait, and make calls to its 
+ `logger` object.
+ For example 
+ ```scala 
+ logger.debug("This is a log") 
+ ```
+ 
