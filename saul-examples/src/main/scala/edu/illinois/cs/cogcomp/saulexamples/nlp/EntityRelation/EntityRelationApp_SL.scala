@@ -22,7 +22,7 @@ object EntityRelationApp_SL extends App {
   val cls_base = List(PersonClassifier, OrganizationClassifier, LocationClassifier, LivesInClassifier, WorksForClassifier)
 
   ClassifierUtils.TrainClassifiers(10, cls_base)
-  // ClassifierUtils.TestClassifiers(cls_base:_*)
+  ClassifierUtils.TestClassifiers(cls_base: _*)
 
   val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier,
     LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)

@@ -6,9 +6,9 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
-import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
+import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.{ Saul_SL_Inference, StructuredLearning }
-import edu.illinois.cs.cogcomp.saul.classifier.{ ConstrainedClassifier, Learnable, SparseNetworkLBP }
+import edu.illinois.cs.cogcomp.saul.classifier.{ ConstrainedClassifier, Learnable }
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
@@ -83,12 +83,12 @@ class weightTest extends FlatSpec with Matchers {
     object TestClassifier extends Learnable(tokens) {
       def label: Property[String] = testLabel
       override def feature = using(word)
-      override lazy val classifier = new SparseNetworkLBP
+      override lazy val classifier = new SparseNetworkLearner()
     }
     object TestBiClassifier extends Learnable(tokens) {
       def label: Property[String] = testLabel
       override def feature = using(word, biWord)
-      override lazy val classifier = new SparseNetworkLBP
+      override lazy val classifier = new SparseNetworkLearner()
     }
     object TestConstraintClassifier extends ConstrainedClassifier[String, String](TestClassifier) {
       def subjectTo = null
@@ -110,8 +110,8 @@ class weightTest extends FlatSpec with Matchers {
     // This should combine the weights
     val m = StructuredLearning(tokens, cls, initialize = false)
 
-    val clNet1 = TestConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
-    val clNet2 = TestBiConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
+    val clNet1 = TestConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
+    val clNet2 = TestBiConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
     val wv1 = clNet1.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector
     val wv2 = clNet2.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector
 
