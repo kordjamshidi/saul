@@ -12,8 +12,8 @@ import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.{ Conll
 import scala.collection.JavaConverters._
 
 object EntityRelationSensors {
-  val path = "./data/"
-  val resourcePath = "./saul-examples/src/test/resources/EntityMentionRelation/"
+  val path = "../data/"
+  val resourcePath = "../saul-examples/src/test/resources/EntityMentionRelation/"
 
   // Create single instances of Gazeteers and cache then with the object.
   lazy val cityGazetSensor = new GazeteerReader("gazeteer/known_city.lst", "Gaz:City", true, true)
@@ -31,7 +31,7 @@ object EntityRelationSensors {
   lazy val (sentencesTrain, relationsTrain, entitiesTrain) = readConllData(path + "EntityMentionRelation/conll04_train.corp")
   lazy val (sentencesTest, relationsTest, entitiesTest) = readConllData(path + "EntityMentionRelation/conll04_test.corp")
   lazy val (sentencesSmallSet, testRelationsSmallSet, entitiesSmallSet) = readConllData(resourcePath + "conll04-smallDocument.txt")
-  lazy val (sentencesSmallSetTest, testRelationsSmallSetTest, entitiesSmallSetTest) = readConllData(path + "EntityMentionRelation/conll04_small.corp")
+  lazy val (sentencesSmallSetTest, testRelationsSmallSetTest, entitiesSmallSetTest) = readConllData(resourcePath + "conll04_small.corp")
   //readConllData(resourcePath + "conll04-smallDocument.txt")
 
   def sentenceToRelation_GeneratingSensor(s: ConllRawSentence): List[ConllRelation] = {

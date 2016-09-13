@@ -33,7 +33,7 @@ object StructuredLearning {
     //    para.CHECK_INFERENCE_OPT = false
 
     model.featureGenerator = new SL_FeatureGenerator(model)
-    para.loadConfigFile("./config/DCD.config")
+    para.loadConfigFile("../config/DCD.config")
     model.para = para
     val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para);
     model.wv = learner.train(sp, model.wv)
