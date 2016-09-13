@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
-import edu.illinois.cs.cogcomp.lbjava.infer.{FirstOrderConstant, FirstOrderConstraint}
+import edu.illinois.cs.cogcomp.lbjava.infer.{ FirstOrderConstant, FirstOrderConstraint }
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
@@ -15,7 +15,8 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationCla
 object EntityRelationConstraints {
 
   val dummyConst = ConstrainedClassifier.constraint[ConllRelation] {
-    x => val a: FirstOrderConstraint = new FirstOrderConstant(true)
+    x =>
+      val a: FirstOrderConstraint = new FirstOrderConstant(true)
       a
   }
 

@@ -16,7 +16,6 @@ import edu.illinois.cs.cogcomp.saul.parser.IterableToLBJavaParser
 import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.CommonSensors
-
 import scala.collection.JavaConversions._
 
 object POSConfigurator extends Configurator {

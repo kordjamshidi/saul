@@ -30,7 +30,12 @@ import scala.collection.JavaConversions._
   */
 object PopulateSRLDataModel extends Logging {
 
-  def apply[T <: AnyRef](testOnly: Boolean = false, useGoldPredicate: Boolean = false, useGoldArgBoundaries: Boolean = false, rm: ResourceManager = new SRLConfigurator().getDefaultConfig): SRLMultiGraphDataModel = {
+  def apply[T <: AnyRef](
+    testOnly: Boolean = false,
+    useGoldPredicate: Boolean = false,
+    useGoldArgBoundaries: Boolean = false,
+    rm: ResourceManager = new SRLConfigurator().getDefaultConfig
+  ): SRLMultiGraphDataModel = {
 
     val frameManager: SRLFrameManager = new SRLFrameManager(rm.getString(SRLConfigurator.PROPBANK_HOME.key))
     val useCurator = rm.getBoolean(SRLConfigurator.USE_CURATOR)
@@ -46,7 +51,7 @@ object PopulateSRLDataModel extends Logging {
       case false =>
         val nonDefaultProps = new Properties()
         if (parseViewName.equals(ViewNames.PARSE_GOLD))
-        nonDefaultProps.setProperty(PipelineConfigurator.USE_POS.key, Configurator.FALSE)
+          nonDefaultProps.setProperty(PipelineConfigurator.USE_POS.key, Configurator.FALSE)
         nonDefaultProps.setProperty(PipelineConfigurator.USE_NER_CONLL.key, Configurator.FALSE)
         nonDefaultProps.setProperty(PipelineConfigurator.USE_NER_ONTONOTES.key, Configurator.FALSE)
         nonDefaultProps.setProperty(PipelineConfigurator.USE_SRL_VERB.key, Configurator.FALSE)
