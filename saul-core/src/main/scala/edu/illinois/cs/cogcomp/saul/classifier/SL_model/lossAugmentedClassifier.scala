@@ -8,8 +8,7 @@ package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 import java.io.PrintStream
 
 import edu.illinois.cs.cogcomp.lbjava.classify.{ FeatureVector, ScoreSet }
-import edu.illinois.cs.cogcomp.lbjava.learn.Learner
-import edu.illinois.cs.cogcomp.saul.classifier.SparseNetworkLBP
+import edu.illinois.cs.cogcomp.lbjava.learn.{ Learner, SparseNetworkLearner }
 
 /** Created by Parisa on 4/1/16.
   */
@@ -26,7 +25,7 @@ class lossAugmentedClassifier[T <: AnyRef](c: Learner, cand_num: Int = 1) extend
   override def scores(example: AnyRef): ScoreSet = {
     if (cand_num == 0)
       print("There is no relevant component of this type in the head to be classified.")
-    val cf = c.asInstanceOf[SparseNetworkLBP]
+    val cf = c.asInstanceOf[SparseNetworkLearner]
     val gold = cf.getLabeler.discreteValue(example)
     val lLexicon = cf.getLabelLexicon
     val resultS: ScoreSet = c.scores(example) //new ScoreSet

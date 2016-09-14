@@ -7,8 +7,7 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.lbjava.classify.ScoreSet
-import edu.illinois.cs.cogcomp.lbjava.learn.{ Learner, Normalizer }
-import edu.illinois.cs.cogcomp.saul.classifier.SparseNetworkLBP
+import edu.illinois.cs.cogcomp.lbjava.learn.{ Learner, Normalizer, SparseNetworkLearner }
 
 /** Created by Parisa on 4/18/16.
   */
@@ -21,7 +20,7 @@ class LossAugmentedNormalizer(cand_num: Int, c: Learner, example: AnyRef) extend
   def normalize(scores: ScoreSet): ScoreSet = {
     if (cand_num == 0)
       print("There is no relevant component of this type in the head to be classified.")
-    val cf = c.asInstanceOf[SparseNetworkLBP]
+    val cf = c.asInstanceOf[SparseNetworkLearner]
     val gold = cf.getLabeler.discreteValue(example)
     val lLexicon = cf.getLabelLexicon
 

@@ -6,8 +6,9 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
+import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
-import edu.illinois.cs.cogcomp.saul.classifier.{ ClassifierUtils, ConstrainedClassifier, Learnable, SparseNetworkLBP }
+import edu.illinois.cs.cogcomp.saul.classifier.{ ClassifierUtils, ConstrainedClassifier, Learnable }
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
@@ -34,14 +35,14 @@ class SLTest2 extends FlatSpec with Matchers {
 
     override def feature = using(word)
 
-    override lazy val classifier = new SparseNetworkLBP
+    override lazy val classifier = new SparseNetworkLearner()
   }
   object TestBiClassifier extends Learnable(tokens) {
     def label: Property[String] = testLabel
 
     override def feature = using(word, biWord)
 
-    override lazy val classifier = new SparseNetworkLBP
+    override lazy val classifier = new SparseNetworkLearner()
   }
   object TestConstraintClassifier extends ConstrainedClassifier[String, String](TestClassifier) {
     def subjectTo = null
@@ -107,8 +108,15 @@ class SLTest2 extends FlatSpec with Matchers {
 
     InitializedModel.Factors.foreach(
       x => {
-        x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector.eq(cls_base(0).classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector) should be(true)
-        x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(1).getWeightVector.eq(cls_base(1).classifier.asInstanceOf[SparseNetworkLBP].getLTU(0).getWeightVector) should be(true)
+        val classifierWeightVector0 = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+        val baseWeightVector0 = cls_base(0).classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+
+        classifierWeightVector0 should be(baseWeightVector0)
+
+        val classifierWeightVector1 = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getLTU(1).asInstanceOf[LinearThresholdUnit].getWeightVector
+        val baseWeightVector1 = cls_base(1).classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+
+        classifierWeightVector1 should be(baseWeightVector1)
       }
     )
     //InitializedModel.wv.getWeightArray.filter(p => (p > 0.00)).isEmpty should be(true)
@@ -116,7 +124,7 @@ class SLTest2 extends FlatSpec with Matchers {
   }
 
   val para = new SLParameters
-  para.loadConfigFile("./config/DCD.config")
+  para.loadConfigFile("../config/DCD.config")
   model.para = para
   model.infSolver = new Saul_SL_Inference[String](model.Factors.toList, model.LTUWeightTemplates)
   val learner = LearnerFactory.getLearner(model.infSolver, model.featureGenerator, para)
