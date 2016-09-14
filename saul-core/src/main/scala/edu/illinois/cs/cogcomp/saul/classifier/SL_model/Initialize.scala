@@ -6,8 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.lbjava.learn.LinearThresholdUnit
-import edu.illinois.cs.cogcomp.saul.classifier.SparseNetworkLBP
+import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.sl.core.SLProblem
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
@@ -29,7 +28,7 @@ object Initialize {
       model.Factors.foreach {
         cf =>
           cf.onClassifier.classifier.forget()
-          val ilearner = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
+          val ilearner = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
           val lLexicon = cf.onClassifier.classifier.getLabelLexicon
           sp.instanceList.toList.zipWithIndex.foreach {
 
@@ -44,13 +43,14 @@ object Initialize {
                   val exampleLabels = a(2).asInstanceOf[Array[Int]]
                   val labelValues = a(3).asInstanceOf[Array[Double]]
                   val label = exampleLabels(0)
-                  var N = ilearner.getNetwork.size();
+                  var N = ilearner.getNetwork.size()
                   if (label >= N || ilearner.getNetwork.get(label) == null) {
-                    ilearner.iConjuctiveLables = ilearner.iConjuctiveLables | ilearner.getLabelLexicon.lookupKey(label).isConjunctive();
-                    var ltu: LinearThresholdUnit = ilearner.getbaseLTU
-                    ltu.initialize(ilearner.getnumExamples, ilearner.getnumFeatures);
-                    ilearner.getNetwork.set(label, ltu);
-                    N = label + 1;
+                    val isConjunctiveLabels = ilearner.isUsingConjunctiveLabels | ilearner.getLabelLexicon.lookupKey(label).isConjunctive
+                    ilearner.setConjunctiveLabels(isConjunctiveLabels)
+                    val ltu: LinearThresholdUnit = ilearner.getBaseLTU
+                    ltu.initialize(ilearner.getNumExamples, ilearner.getNumFeatures)
+                    ilearner.getNetwork.set(label, ltu)
+                    N = label + 1
                   }
               } // for each candidate
             } // for each constraintFactor
@@ -63,12 +63,12 @@ object Initialize {
     model.Factors.foreach(
       x => {
 
-        val sparseNet = x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
+        val sparseNet = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
         val temp = (sparseNet.getLexicon.size())
 
         for (i <- 0 until sparseNet.getNetwork.size()) {
 
-          val getTheWeight = x.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
+          val getTheWeight = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
           val t = Array.fill[Float](temp)(0)
 
           if (initialize) {

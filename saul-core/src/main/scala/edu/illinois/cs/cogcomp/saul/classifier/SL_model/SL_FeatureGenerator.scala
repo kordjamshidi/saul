@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.saul.classifier.SparseNetworkLBP
+import edu.illinois.cs.cogcomp.lbjava.learn.SparseNetworkLearner
 import edu.illinois.cs.cogcomp.sl.core.{ AbstractFeatureGenerator, IInstance, IStructure }
 import edu.illinois.cs.cogcomp.sl.util.{ FeatureVectorBuffer, IFeatureVector }
 
@@ -28,7 +28,7 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
 
       case (cf, indF) =>
         val candis: Seq[_] = cf.getCandidates(myX.head)
-        val sparseNet = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP]
+        val sparseNet = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
         val fvLocal = new FeatureVectorBuffer()
 
         candis.foreach {

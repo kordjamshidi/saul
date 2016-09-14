@@ -6,7 +6,8 @@
   */
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
-import edu.illinois.cs.cogcomp.saul.classifier.{ ConstrainedClassifier, SparseNetworkLBP }
+import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
+import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.sl.core.{ AbstractInferenceSolver, IInstance, IStructure }
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
@@ -84,7 +85,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
       var offset = 0
       a.foreach {
         cf =>
-          for (i <- 0 until cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.size()) {
+          for (i <- 0 until cf.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.size()) {
             val ltuSize = ltuTemplates(ltu_count).size //cf.onClassifier.asInstanceOf[SparseNetworkLBP].net.get(i).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector
             //  print("w", ltu_count, " size:\t", ltuSize.size)
             val myLTUJointlyTrainedWeight = weight.getWeightArray.slice(offset, offset + ltuSize)
@@ -95,11 +96,13 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
             //    println("size mismatch!", cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector.size(), ",", ltuSize.size)
             //              }
             val exampleFeatureIndexes = ofDim[Int](myLTUJointlyTrainedWeight.length)
-            cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(i).getWeightVector.clear()
+            val weightVector = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getLTU(i).asInstanceOf[LinearThresholdUnit].getWeightVector
+            weightVector.clear()
+
             // val  exampleFeatureIndexes = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon.getMap.values.toArray.map(_.asInstanceOf[Int])//.toArray//.toArray().asInstanceOf[Array[Int]]
-            for (featureIndex <- 0 until myLTUJointlyTrainedWeight.length) {
+            for (featureIndex <- myLTUJointlyTrainedWeight.indices) {
               exampleFeatureIndexes(featureIndex) = featureIndex
-              cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLTU(i).getWeightVector.setWeight(featureIndex, myLTUJointlyTrainedWeight(featureIndex))
+              weightVector.setWeight(featureIndex, myLTUJointlyTrainedWeight(featureIndex))
               //cf.onClassifier.classifier.asInstanceOf[SparseNetworkLBP].getLexicon.;
             }
 
