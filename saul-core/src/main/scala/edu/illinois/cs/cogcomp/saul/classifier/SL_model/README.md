@@ -33,12 +33,24 @@ This view implements the idea of collective classification in the framework of s
 
 The underlying inference is performed using ILP techniques.
 
-###Walk trough the ER example
+###The ER example
 
 The explanation of the ER problem can be found in the [EntityRelation example](/saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/README.md).
-To solve this problem and extract the relations and entities jointly using SL, we use the same problem specification of this problem that is used for other configurations. This specification includes defining the
-[ER data model](/saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/EntityRelationDataModel.scala), [classifiers](/saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/EntityRelationClassifiers.scala) and [constraints](saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/EntityRelationConstraints.scala).
+To solve this problem and extract the relations and entities jointly using SL's structured output prediction models, we use the same problem specification of this problem that is used for other configurations in Saul. This specification includes defining the
+[ER data model](/saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/EntityRelationDataModel.scala),
+ [classifiers](/saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/EntityRelationClassifiers.scala) and [constraints](/saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/EntityRelationConstraints.scala).
+ The only different part is the end ER application is to simply call `StructuredLearning("NodeType_Name", "ListOfConstrainedClassifiers_Name")`, where `NodeTyeName` is a node type in our dataModel and indicates the type of examples that our model receives.
+ In fact, this specifies the type of most global object that is used as an independent example. The evaluation of the model also is done by calling def `Evaluate("NodeType_Name", "ListOfConstrainedClassifiers_Name",myModelName, modelPath)`. This is the
+ [end ER application](/saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/EntityRelationApp_SL.scala) that uses SL to train and test.
 
+###Saul-SL provided components
+
+ <ul>
+ <li> A __Saul IInstance__ (`Saul_SL_Instance`),  is simply a node in the data model graph. We call is a head because it is a global object and will be the head of a potential inference module later. Normally, we will have a classifier that applies on the head node and also other local classifiers that are applied on other nodes which are connected to the head node. </li>
+ <li> A __Saul Structure__ (`Saul_SL_Label_Structure`), is simply a list of labels collected fro the labels of all the engaged classifiers in the structured model. </li>
+ <li> __Saul Inference__ (`Saul_SL_Inference`), simply receives the list of constrained classifiers, one of these is a classifier which applies on the head object and the others are parts of the objective function and all of these share a set of constraints. Hence, inference is easily done by calling Lbjava on the list of constrained classifiers.   </li>
+ <li> __Saul loss__ this is simply the normalized aggregation (average) of the hamming loss of the classifiers labels, this is not weighted but can be extended to consider weights. </li>
+</ul>
 
 
 
