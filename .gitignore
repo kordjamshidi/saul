@@ -13,7 +13,6 @@ target/
 .projectFilesBackup
 *.class
 annotation-cache/
-/config
 *.lc
 *.lex
 *~
