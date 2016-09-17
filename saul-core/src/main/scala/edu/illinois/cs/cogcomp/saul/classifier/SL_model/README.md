@@ -1,3 +1,4 @@
+
 The `SL_model` package aims at providing the possibility of designing structured output prediction models, based on generalized linear models such as structured SVMs and structured Perceptrons.
 For implementating any structured learning problem in SL, we need to implement the following classes, [see here.](http://cogcomp.cs.illinois.edu/software/illinois-sl/)
 <ul>
@@ -5,7 +6,7 @@ For implementating any structured learning problem in SL, we need to implement t
 
 <li>The output structure, y. This should implement the IStructure interface.</li>
 
-<li>A procedure to compute the feature vector Φ(x,y). For this you need to extned the AbstractFeatureGenerator class and override its getFeatureVector method.</li>
+<li>A procedure to compute the feature vector Φ(x,y). For this you need to extend the AbstractFeatureGenerator class and override its getFeatureVector method.</li>
 
 <li>A procedure InferenceSolver to perform the loss-augmented inference,
 
@@ -29,7 +30,7 @@ Now here in Saul-SL, what we do is that the way we define our model is based on 
 
 -The inference is done using the constraints that express the correlations between the Classifiers.
 
-This view implements the idea of collective classification in the framework of structured output prediction models and provides the possibility of using global first order constraints and domain knowledge easily in the structured learning model.
+This model implements the idea of collective classification in the framework of structured output prediction models and provides the possibility of using global first order constraints and domain knowledge easily in the structured learning model.
 
 The underlying inference is performed using ILP techniques.
 
@@ -43,13 +44,15 @@ To solve this problem and extract the relations and entities jointly using SL's 
  In fact, this specifies the type of most global object that is used as an independent example. The evaluation of the model also is done by calling def `Evaluate("NodeType_Name", "ListOfConstrainedClassifiers_Name",myModelName, modelPath)`. This is the
  [end ER application](/saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/EntityRelationApp_SL.scala) that uses SL to train and test.
 
-###Saul-SL provided components
+###Saul-SL provided components for developer's information
 
  <ul>
  <li> A __Saul IInstance__ (`Saul_SL_Instance`),  is simply a node in the data model graph. We call is a head because it is a global object and will be the head of a potential inference module later. Normally, we will have a classifier that applies on the head node and also other local classifiers that are applied on other nodes which are connected to the head node. </li>
  <li> A __Saul Structure__ (`Saul_SL_Label_Structure`), is simply a list of labels collected fro the labels of all the engaged classifiers in the structured model. </li>
- <li> __Saul Inference__ (`Saul_SL_Inference`), simply receives the list of constrained classifiers, one of these is a classifier which applies on the head object and the others are parts of the objective function and all of these share a set of constraints. Hence, inference is easily done by calling Lbjava on the list of constrained classifiers.   </li>
- <li> __Saul loss__ this is simply the normalized aggregation (average) of the hamming loss of the classifiers labels, this is not weighted but can be extended to consider weights. </li>
+ <li> __Feature Generation__ (`SL_FeatureGenerator`), The global feature function is made by adding up (and concatenation) of the join feature functions of all involved classifiers. The SparseNetwork structure is used for keeping the information of the classifiers and the LTU keeping the vectors of weights.
+ <li> __Saul Inference__ (`Saul_SL_Inference`), simply receives the list of constrained classifiers, one of these is a classifier which applies on the head object and the others are parts of the objective function and all of these share a set of constraints. Hence, inference is easily done by calling LBJava on the list of constrained classifiers.   </li>
+ <li> __Saul Loss__ this is simply the normalized aggregation (average) of the hamming loss of the classifiers assigned labels, this is by default equally weighted but can be extended to input weights. </li>
+ <li> __Loss augmented Inference__ the score of each classifier is augmented by its loss, before the inference is performed in LBJava. This is done by using a method (that we have added) in LBJava's Learner, called `scoresAugmented`. For this modified score to be returned we set a flag called lossFlag before calling inference and after inference this flag is unset.
 </ul>
 
 
