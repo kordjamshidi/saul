@@ -6,6 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
+import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant
 import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
 import edu.illinois.cs.cogcomp.saul.classifier.{ ClassifierUtils, ConstrainedClassifier, Learnable }
@@ -45,7 +46,7 @@ class SLTest2 extends FlatSpec with Matchers {
     override lazy val classifier = new SparseNetworkLearner()
   }
   object TestConstraintClassifier extends ConstrainedClassifier[String, String](TestClassifier) {
-    def subjectTo = null
+    def subjectTo = ConstrainedClassifier.constraint[String] { x => new FirstOrderConstant(true) }
 
     override val pathToHead = Some(-pairs)
 
@@ -54,7 +55,7 @@ class SLTest2 extends FlatSpec with Matchers {
     override val solver = new OJalgoHook
   }
   object TestBiConstraintClassifier extends ConstrainedClassifier[String, String](TestBiClassifier) {
-    def subjectTo = null
+    def subjectTo = ConstrainedClassifier.constraint[String] { x => new FirstOrderConstant(true) }
 
     override val pathToHead = Some(-pairs)
 

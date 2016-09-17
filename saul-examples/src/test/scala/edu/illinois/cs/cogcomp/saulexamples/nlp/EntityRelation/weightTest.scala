@@ -5,12 +5,13 @@
   * http://cogcomp.cs.illinois.edu/
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
+
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
+import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant
 import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.{ Saul_SL_Inference, StructuredLearning }
 import edu.illinois.cs.cogcomp.saul.classifier.{ ConstrainedClassifier, Learnable }
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 import org.scalatest.{ FlatSpec, Matchers }
 
@@ -81,25 +82,25 @@ class weightTest extends FlatSpec with Matchers {
     // Initialize toy model
     import testModel._
     object TestClassifier extends Learnable(tokens) {
-      def label: Property[String] = testLabel
+      def label = testLabel
       override def feature = using(word)
       override lazy val classifier = new SparseNetworkLearner()
     }
     object TestBiClassifier extends Learnable(tokens) {
-      def label: Property[String] = testLabel
+      def label = testLabel
       override def feature = using(word, biWord)
       override lazy val classifier = new SparseNetworkLearner()
     }
     object TestConstraintClassifier extends ConstrainedClassifier[String, String](TestClassifier) {
-      def subjectTo = null
-      override val pathToHead = Some(-pairs)
-      override def filter(t: String, h: String): Boolean = t.equals(h)
+      def subjectTo = ConstrainedClassifier.constraint[String] { x => new FirstOrderConstant(true) }
+      //override val pathToHead = Some(-iEdge)
+      // override def filter(t: String, h: String): Boolean = t.equals(h)
       override val solver = new OJalgoHook
     }
     object TestBiConstraintClassifier extends ConstrainedClassifier[String, String](TestBiClassifier) {
-      def subjectTo = null
-      override val pathToHead = Some(-pairs)
-      override def filter(t: String, h: String): Boolean = t.equals(h)
+      def subjectTo = ConstrainedClassifier.constraint[String] { x => new FirstOrderConstant(true) }
+      // override val pathToHead = Some(-iEdge)
+      //override def filter(t: String, h: String): Boolean = t.equals(h)
       override val solver = new OJalgoHook
     }
 
@@ -108,7 +109,7 @@ class weightTest extends FlatSpec with Matchers {
 
     val cls = List(TestConstraintClassifier, TestBiConstraintClassifier)
     // This should combine the weights
-    val m = StructuredLearning(tokens, cls, initialize = false)
+    val m = StructuredLearning(tokens, cls, initialize = true)
 
     val clNet1 = TestConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
     val clNet2 = TestBiConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
@@ -137,7 +138,7 @@ class weightTest extends FlatSpec with Matchers {
 
   object testModel extends DataModel {
     val tokens = node[String]
-    val pairs = edge(tokens, tokens)
+    val iEdge = edge(tokens, tokens)
     val testLabel = property(tokens) { x: String => x.equals("candidate") }
     val word = property(tokens) { x: String => x }
     val biWord = property(tokens) { x: String => x + "-" + x }
