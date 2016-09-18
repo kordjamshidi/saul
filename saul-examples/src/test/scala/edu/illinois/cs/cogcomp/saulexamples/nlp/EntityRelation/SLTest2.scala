@@ -9,7 +9,7 @@ import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
 import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant
 import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
-import edu.illinois.cs.cogcomp.saul.classifier.{ ClassifierUtils, ConstrainedClassifier, Learnable }
+import edu.illinois.cs.cogcomp.saul.classifier.{JointTrainSparseNetwork, ClassifierUtils, ConstrainedClassifier, Learnable}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
@@ -33,36 +33,30 @@ class SLTest2 extends FlatSpec with Matchers {
   import testModel._
   object TestClassifier extends Learnable(tokens) {
     def label: Property[String] = testLabel
-
     override def feature = using(word)
-
     override lazy val classifier = new SparseNetworkLearner()
   }
+
   object TestBiClassifier extends Learnable(tokens) {
     def label: Property[String] = testLabel
-
     override def feature = using(word, biWord)
-
     override lazy val classifier = new SparseNetworkLearner()
   }
+
   object TestConstraintClassifier extends ConstrainedClassifier[String, String](TestClassifier) {
-    def subjectTo = ConstrainedClassifier.constraint[String] { x => new FirstOrderConstant(true) }
-
+    def subjectTo = ConstrainedClassifier.constraint { _ => new FirstOrderConstant(true) }
     override val pathToHead = Some(-pairs)
-
     override def filter(t: String, h: String): Boolean = t.equals(h)
-
     override val solver = new OJalgoHook
   }
+
   object TestBiConstraintClassifier extends ConstrainedClassifier[String, String](TestBiClassifier) {
-    def subjectTo = ConstrainedClassifier.constraint[String] { x => new FirstOrderConstant(true) }
-
+    def subjectTo = ConstrainedClassifier.constraint{ _ => new FirstOrderConstant(true) }
     override val pathToHead = Some(-pairs)
-
     override def filter(t: String, h: String): Boolean = t.equals(h)
-
     override val solver = new OJalgoHook
   }
+
   val words_train = List("this", "is", "a", "candidate")
   val words_test = List("this", "was", "not", "true")
   tokens.populate(words_train)
@@ -70,9 +64,11 @@ class SLTest2 extends FlatSpec with Matchers {
 
   val cls = List(TestConstraintClassifier, TestBiConstraintClassifier)
   val cls_base = List(TestClassifier, TestBiClassifier)
+  val model = Initialize(SLProblem, new SaulSLModel(cls), initialize = true)
 
+  JointTrainSparseNetwork(tokens,cls,3)
   // This should combine the weights
-  val m = StructuredLearning(tokens, cls, initialize = false)
+ // val m = StructuredLearning(tokens, cls, initialize = false)
 
   val SLProblem = SL_IOManager.makeSLProblem(tokens, cls)
   "Structured output learning (SL)" should "get correct number of instances." in {
@@ -80,7 +76,7 @@ class SLTest2 extends FlatSpec with Matchers {
     SLProblem.instanceList.size() should be(4)
   }
 
-  val model = Initialize(SLProblem, new SaulSLModel(cls))
+
   "Structured output learning (SL) initialization with zero" should "work." in {
     model.Factors.size should be(2)
     model.LTUWeightTemplates.size should be(4)

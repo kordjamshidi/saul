@@ -7,13 +7,14 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
-import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
+import edu.illinois.cs.cogcomp.saul.classifier.SL_model.StructuredLearning
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationConstrainedClassifiers._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDataModel._
+
 /** Created by Parisa on 12/8/15.
   */
 object EntityRelationApp_SL extends App {
+  import EntityRelationDataModel._
 
   EntityRelationDataModel.populateWithConllSmallSet() //.populateWithConll()
 
@@ -27,13 +28,15 @@ object EntityRelationApp_SL extends App {
   val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier,
     LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)
 
+  //JointTrainSparseNetwork.train[ConllRelation](pairs, cls, 5 )
+
   ClassifierUtils.TestClassifiers(cls: _*)
 
   val m = StructuredLearning(pairs, cls, initialize = true)
 
   println("Structured evaluation.\n")
 
-  StructuredLearning.Evaluate(pairs, cls, m, "")
+  //StructuredLearning.Evaluate(pairs, cls, m, "")
   //ClassifierUtils.TestClassifiers(cls_base:_*)
 }
 

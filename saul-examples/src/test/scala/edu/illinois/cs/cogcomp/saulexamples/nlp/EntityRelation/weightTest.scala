@@ -92,13 +92,13 @@ class weightTest extends FlatSpec with Matchers {
       override lazy val classifier = new SparseNetworkLearner()
     }
     object TestConstraintClassifier extends ConstrainedClassifier[String, String](TestClassifier) {
-      def subjectTo = ConstrainedClassifier.constraint[String] { x => new FirstOrderConstant(true) }
+      def subjectTo = ConstrainedClassifier.constraint { _ => new FirstOrderConstant(true) }
       //override val pathToHead = Some(-iEdge)
       // override def filter(t: String, h: String): Boolean = t.equals(h)
       override val solver = new OJalgoHook
     }
     object TestBiConstraintClassifier extends ConstrainedClassifier[String, String](TestBiClassifier) {
-      def subjectTo = ConstrainedClassifier.constraint[String] { x => new FirstOrderConstant(true) }
+      def subjectTo = ConstrainedClassifier.constraint { _ => new FirstOrderConstant(true) }
       // override val pathToHead = Some(-iEdge)
       //override def filter(t: String, h: String): Boolean = t.equals(h)
       override val solver = new OJalgoHook
@@ -109,7 +109,7 @@ class weightTest extends FlatSpec with Matchers {
 
     val cls = List(TestConstraintClassifier, TestBiConstraintClassifier)
     // This should combine the weights
-    val m = StructuredLearning(tokens, cls, initialize = true)
+    val m = StructuredLearning(tokens, cls)
 
     val clNet1 = TestConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
     val clNet2 = TestBiConstraintClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]

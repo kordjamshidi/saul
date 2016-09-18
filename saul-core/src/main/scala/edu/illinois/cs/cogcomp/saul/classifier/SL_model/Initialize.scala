@@ -24,7 +24,7 @@ object Initialize {
     var wvLength = 0
     var lt: ListBuffer[Array[Float]] = ListBuffer()
 
-    if (!initialize)
+    if (!initialize) //this means we are not reading any model into the SparseNetworks but we forget all the models and go over the data to build the right size for the lexicon and the right number of the ltu s
       model.Factors.foreach {
         cf =>
           cf.onClassifier.classifier.forget()
@@ -59,7 +59,7 @@ object Initialize {
         //   println("lexicon size:" + ilearner.getLexicon.size())
 
       } //for each factor
-
+//In this step or we have built the lexicon by going over the data in the above block or we use the loaded lexicons in the case of initialization==true, the goal is to build a global weight vector using all classifiers and initialize it accordingly
     model.Factors.foreach(
       x => {
 
@@ -71,7 +71,7 @@ object Initialize {
           val getTheWeight = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
           val t = Array.fill[Float](temp)(0)
 
-          if (initialize) {
+          if (initialize) { //if we are going to initialize we get the loaded weights otherwise the weights are filled with zeros
 
             for (j <- 0 until temp)
               t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
@@ -85,6 +85,8 @@ object Initialize {
         println("lexicon size: " + sparseNet.getLexicon.size(), "* label lexicon size:", sparseNet.getLabelLexicon.size())
       }
     )
+    // wv = Concatenate_(over factors)Concatenate_(over ltu) => size(wv)=sum_(over factors)sum_(over ltu)(size(ltu_i))
+
     val myWeight = Array(lt.flatten: _*)
     val wv = new WeightVector(myWeight) // wv this is one unified weight vector of all initialized LTUs
     val m = new SaulSLModel[HEAD](model.Factors.toList, lt) // lt is the list of individual weight vectors
