@@ -122,7 +122,7 @@ object EntityRelationApp extends Logging {
       pairs,
       PerConstrainedClassifier :: OrgConstrainedClassifier :: LocConstrainedClassifier ::
         WorksFor_PerOrg_ConstrainedClassifier :: LivesIn_PerOrg_relationConstrainedClassifier :: Nil,
-      jointTrainIteration
+      jointTrainIteration, true
     )
 
     // TODO: merge the following two tests

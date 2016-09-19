@@ -101,7 +101,7 @@ class EntityRelationTests extends FlatSpec with Matchers {
 
     PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be(1661)
 
-    //   ClassifierUtils.TestClassifiers(cls:_*)
+    ClassifierUtils.TestClassifiers(cls: _*)
     //   ClassifierUtils.TrainClassifiers(5,cls_base)
     //   ClassifierUtils.TestClassifiers(cls:_*)
 
