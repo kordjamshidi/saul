@@ -6,7 +6,8 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
-import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
+import edu.illinois.cs.cogcomp.saul.classifier.{JointTrainSparseNetwork, ClassifierUtils}
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationConstrainedClassifiers._
@@ -72,5 +73,12 @@ class EntityRelationTests extends FlatSpec with Matchers {
 
   "Initialization on ER " should "work." in {
     EntityRelationDataModel.populateWithConllSmallSet()
+    val jointTrainIteration = 5
+    JointTrainSparseNetwork.train[ConllRelation](
+    pairs,
+      PerConstrainedClassifier :: OrgConstrainedClassifier :: LocConstrainedClassifier ::
+        WorksFor_PerOrg_ConstrainedClassifier :: LivesIn_PerOrg_relationConstrainedClassifier :: Nil,
+      jointTrainIteration
+    )
   }
 }
