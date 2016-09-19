@@ -88,6 +88,8 @@ class EntityRelationTests extends FlatSpec with Matchers {
     PerConstrainedClassifier.onClassifier.classifier.getLabelLexicon.size() should be(2)
     PerConstrainedClassifier.onClassifier.classifier.getLexicon.size() should be(84)
 
+    PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be(0)
+
     ClassifierUtils.TrainClassifiers(5, cls_base)
 
     PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be(1661)
