@@ -168,7 +168,7 @@ object ClassifierUtils extends Logging {
   }
 
   object InitializeClassifiers {
-    def apply[HEAD <: AnyRef](node: Node[HEAD], cl: ConstrainedClassifier[_, HEAD]*)(implicit d1: DummyImplicit, d2: DummyImplicit, d3: DummyImplicit) = {
+    def apply[HEAD <: AnyRef](node: Node[HEAD], cl: ConstrainedClassifier[_, HEAD]*) = {
       cl.map {
         constrainedLearner =>
           InitSparseNetwork(node, constrainedLearner)
