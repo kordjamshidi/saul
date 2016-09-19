@@ -112,8 +112,8 @@ object EntityRelationApp extends Logging {
     val testTokens = tokens.getTestingInstances.toSet.toList
 
     // load pre-trained independent models
-    ClassifierUtils.LoadClassifier(jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier,
-      WorksForClassifier, LivesInClassifier, LocatedInClassifier, OrgBasedInClassifier)
+    //    ClassifierUtils.LoadClassifier(jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier,
+    //      WorksForClassifier, LivesInClassifier, LocatedInClassifier, OrgBasedInClassifier)
 
     // joint training
     val jointTrainIteration = 5
