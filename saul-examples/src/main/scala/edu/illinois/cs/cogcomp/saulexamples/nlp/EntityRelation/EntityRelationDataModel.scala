@@ -7,12 +7,9 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ ConllRawSentence, ConllRawToken, ConllRelation }
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.Conll04_Reader
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ConllRawSentence, ConllRawToken, ConllRelation}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationSensors._
-
-import scala.collection.JavaConversions._
 
 object EntityRelationDataModel extends DataModel {
 
@@ -122,4 +119,8 @@ object EntityRelationDataModel extends DataModel {
     sentences.populate(EntityRelationSensors.sentencesTrain)
     sentences.populate(EntityRelationSensors.sentencesTest, train = false)
   }
+  def populateWithConllSmallSet()= {
+
+  }
+
 }

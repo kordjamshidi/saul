@@ -69,4 +69,8 @@ class EntityRelationTests extends FlatSpec with Matchers {
     val results = PersonClassifier.crossValidation(5)
     results.foreach { case score => (score.overall.f1 > minScore) should be(true) }
   }
+
+  "Initialization on ER " should "work." in {
+    EntityRelationDataModel.populateWithConllSmallSet()
+  }
 }
