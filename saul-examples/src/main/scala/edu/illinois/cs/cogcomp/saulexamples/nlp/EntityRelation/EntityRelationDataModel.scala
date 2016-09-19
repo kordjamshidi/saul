@@ -7,7 +7,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ConllRawSentence, ConllRawToken, ConllRelation}
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ ConllRawSentence, ConllRawToken, ConllRelation }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationSensors._
 

@@ -6,8 +6,8 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
-import edu.illinois.cs.cogcomp.lbjava.learn.{LinearThresholdUnit, SparseNetworkLearner}
-import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, JointTrainSparseNetwork}
+import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
+import edu.illinois.cs.cogcomp.saul.classifier.{ ClassifierUtils, JointTrainSparseNetwork }
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationConstrainedClassifiers._
@@ -75,32 +75,33 @@ class EntityRelationTests extends FlatSpec with Matchers {
     EntityRelationDataModel.clearInstances()
     EntityRelationDataModel.populateWithConllSmallSet()
 
-    val cls_base= List(PersonClassifier,OrganizationClassifier,LocationClassifier,WorksForClassifier, LivesInClassifier)
+    val cls_base = List(PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
     val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier, LivesIn_PerOrg_relationConstrainedClassifier)
 
-    ClassifierUtils.ForgetAll(cls_base:_*)
+    ClassifierUtils.ForgetAll(cls_base: _*)
 
-    PerConstrainedClassifier.onClassifier.classifier.getLabelLexicon.size() should be (0)
-    PerConstrainedClassifier.onClassifier.classifier.getLexicon.size() should be (0)
+    PerConstrainedClassifier.onClassifier.classifier.getLabelLexicon.size() should be(0)
+    PerConstrainedClassifier.onClassifier.classifier.getLexicon.size() should be(0)
 
-    ClassifierUtils.InitializeClassifiers(pairs,cls:_*)
+    ClassifierUtils.InitializeClassifiers(pairs, cls: _*)
 
-    PerConstrainedClassifier.onClassifier.classifier.getLabelLexicon.size() should be (2)
-    PerConstrainedClassifier.onClassifier.classifier.getLexicon.size() should be (84)
+    PerConstrainedClassifier.onClassifier.classifier.getLabelLexicon.size() should be(2)
+    PerConstrainedClassifier.onClassifier.classifier.getLexicon.size() should be(84)
 
-    ClassifierUtils.TrainClassifiers(5,cls_base)
+    ClassifierUtils.TrainClassifiers(5, cls_base)
 
-    PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be (1661)
+    PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be(1661)
 
     val jointTrainIteration = 5
     JointTrainSparseNetwork.train[ConllRelation](
-    pairs, cls, jointTrainIteration, init = false)
+      pairs, cls, jointTrainIteration, init = false
+    )
 
-    PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be (1661)
+    PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be(1661)
 
-//   ClassifierUtils.TestClassifiers(cls:_*)
-//   ClassifierUtils.TrainClassifiers(5,cls_base)
-//   ClassifierUtils.TestClassifiers(cls:_*)
+    //   ClassifierUtils.TestClassifiers(cls:_*)
+    //   ClassifierUtils.TrainClassifiers(5,cls_base)
+    //   ClassifierUtils.TestClassifiers(cls:_*)
 
   }
 }
