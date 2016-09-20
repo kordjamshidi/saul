@@ -13,24 +13,23 @@ object InitSparseNetwork {
     // but we forget all the models and go over the data to build the right
     // size for the lexicon and the right number of the ltu s
     cClassifier.onClassifier.classifier.forget()
-    val ilearner = cClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
+    val iLearner = cClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
     allHeads.foreach {
-      myInstance =>
+      head =>
         {
-          val head = myInstance.asInstanceOf[HEAD]
           val candidates: Seq[_] = cClassifier.getCandidates(head)
           candidates.foreach {
             x =>
               val a = cClassifier.onClassifier.classifier.getExampleArray(x)
               val exampleLabels = a(2).asInstanceOf[Array[Int]]
               val label = exampleLabels(0)
-              val N = ilearner.getNetwork.size()
-              if (label >= N || ilearner.getNetwork.get(label) == null) {
-                val isConjunctiveLabels = ilearner.isUsingConjunctiveLabels | ilearner.getLabelLexicon.lookupKey(label).isConjunctive
-                ilearner.setConjunctiveLabels(isConjunctiveLabels)
-                val ltu: LinearThresholdUnit = ilearner.getBaseLTU
-                ltu.initialize(ilearner.getNumExamples, ilearner.getNumFeatures)
-                ilearner.getNetwork.set(label, ltu)
+              val N = iLearner.getNetwork.size()
+              if (label >= N || iLearner.getNetwork.get(label) == null) {
+                val isConjunctiveLabels = iLearner.isUsingConjunctiveLabels | iLearner.getLabelLexicon.lookupKey(label).isConjunctive
+                iLearner.setConjunctiveLabels(isConjunctiveLabels)
+                val ltu: LinearThresholdUnit = iLearner.getBaseLTU
+                ltu.initialize(iLearner.getNumExamples, iLearner.getNumFeatures)
+                iLearner.getNetwork.set(label, ltu)
               }
           } // for each candidate
         } // end case
