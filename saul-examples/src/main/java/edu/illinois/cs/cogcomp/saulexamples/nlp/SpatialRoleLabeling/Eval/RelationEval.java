@@ -1,7 +1,10 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval;
-
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.RELATION;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.SpRL2013Document;
 
 import javax.xml.bind.annotation.*;
 
@@ -21,8 +24,7 @@ public class RelationEval implements SpRLEval {
         this(-1, -1, -1, -1, -1, -1);
     }
 
-    public RelationEval(int trajectorStart, int trajectorEnd, int landmarkStart, int landmarkEnd,
-                        int spatialIndicatorStart, int spatialIndicatorEnd) {
+    public RelationEval(int trajectorStart, int trajectorEnd, int spatialIndicatorStart, int spatialIndicatorEnd, int landmarkStart, int landmarkEnd) {
         this.trajectorStart = trajectorStart;
         this.trajectorEnd = trajectorEnd;
         this.landmarkStart = landmarkStart;
