@@ -14,7 +14,6 @@ object InitSparseNetwork {
     // size for the lexicon and the right number of the ltu s
     cClassifier.onClassifier.classifier.forget()
     val ilearner = cClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
-    val lLexicon = cClassifier.onClassifier.classifier.getLabelLexicon
     allHeads.foreach {
       myInstance =>
         {
@@ -24,7 +23,6 @@ object InitSparseNetwork {
             x =>
               val a = cClassifier.onClassifier.classifier.getExampleArray(x)
               val exampleLabels = a(2).asInstanceOf[Array[Int]]
-              val labelValues = a(3).asInstanceOf[Array[Double]]
               val label = exampleLabels(0)
               val N = ilearner.getNetwork.size()
               if (label >= N || ilearner.getNetwork.get(label) == null) {
