@@ -22,7 +22,7 @@ object JointTrainSparseNetwork {
     train[HEAD](node, cls, 1, init)
   }
 
-  def apply[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], it: Int, init: Boolean = true)(implicit headTag: ClassTag[HEAD]) = {
+  def apply[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], it: Int, init: Boolean)(implicit headTag: ClassTag[HEAD]) = {
     train[HEAD](node, cls, it, init)
   }
 
