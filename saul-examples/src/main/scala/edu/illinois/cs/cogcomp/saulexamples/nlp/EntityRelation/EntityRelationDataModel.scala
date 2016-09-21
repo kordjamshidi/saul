@@ -8,8 +8,11 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ ConllRawSentence, ConllRawToken, ConllRelation }
+import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.Conll04_Reader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationSensors._
+
+import scala.collection.JavaConversions._
 
 object EntityRelationDataModel extends DataModel {
 
@@ -22,7 +25,7 @@ object EntityRelationDataModel extends DataModel {
   val sentencesToPairs = edge(sentences, pairs)
   val pairTo1stArg = edge(pairs, tokens)
   val pairTo2ndArg = edge(pairs, tokens)
-  // val tokenToPair = edge(tokens, pairs)
+  val tokenToPair = edge(tokens, pairs)
 
   sentenceToToken.addSensor(sentenceToTokens_GeneratingSensor _)
   sentencesToPairs.addSensor(sentenceToRelation_GeneratingSensor _)
@@ -119,7 +122,6 @@ object EntityRelationDataModel extends DataModel {
     sentences.populate(EntityRelationSensors.sentencesTrain)
     sentences.populate(EntityRelationSensors.sentencesTest, train = false)
   }
-
   def populateWithConllSmallSet() = {
     sentences.populate(EntityRelationSensors.sentencesSmallSet)
     sentences.populate(EntityRelationSensors.sentencesSmallSetTest, train = false)
