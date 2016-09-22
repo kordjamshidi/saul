@@ -9,7 +9,7 @@ import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
 import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant
 import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
-import edu.illinois.cs.cogcomp.saul.classifier.{JointTrainSparseNetwork, ClassifierUtils, ConstrainedClassifier, Learnable}
+import edu.illinois.cs.cogcomp.saul.classifier.{ JointTrainSparseNetwork, ClassifierUtils, ConstrainedClassifier, Learnable }
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
@@ -51,7 +51,7 @@ class SLTest2 extends FlatSpec with Matchers {
   }
 
   object TestBiConstraintClassifier extends ConstrainedClassifier[String, String](TestBiClassifier) {
-    def subjectTo = ConstrainedClassifier.constraint{ _ => new FirstOrderConstant(true) }
+    def subjectTo = ConstrainedClassifier.constraint { _ => new FirstOrderConstant(true) }
     override val pathToHead = Some(-pairs)
     override def filter(t: String, h: String): Boolean = t.equals(h)
     override val solver = new OJalgoHook
@@ -64,18 +64,17 @@ class SLTest2 extends FlatSpec with Matchers {
 
   val cls = List(TestConstraintClassifier, TestBiConstraintClassifier)
   val cls_base = List(TestClassifier, TestBiClassifier)
-  val model = Initialize(SLProblem, new SaulSLModel(cls), initialize = true)
+  val model = Initialize(SLProblem, new SaulSLModel(cls), usePreTrained = true)
 
-  JointTrainSparseNetwork(tokens,cls,3)
+  JointTrainSparseNetwork(tokens, cls, 3)
   // This should combine the weights
- // val m = StructuredLearning(tokens, cls, initialize = false)
+  // val m = StructuredLearning(tokens, cls, initialize = false)
 
   val SLProblem = SL_IOManager.makeSLProblem(tokens, cls)
   "Structured output learning (SL)" should "get correct number of instances." in {
     SLProblem.goldStructureList.size() should be(4)
     SLProblem.instanceList.size() should be(4)
   }
-
 
   "Structured output learning (SL) initialization with zero" should "work." in {
     model.Factors.size should be(2)
@@ -93,7 +92,7 @@ class SLTest2 extends FlatSpec with Matchers {
   }
 
   ClassifierUtils.TrainClassifiers(5, cls_base: _*)
-  val InitializedModel = Initialize(SLProblem, new SaulSLModel(cls), initialize = true)
+  val InitializedModel = Initialize(SLProblem, new SaulSLModel(cls), usePreTrained = true)
   "Structured output learning (SL) initialization with trained models" should "work." in {
     println("Factors:", InitializedModel.Factors.size)
     println("LTUs:", InitializedModel.LTUWeightTemplates.size)

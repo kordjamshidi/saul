@@ -24,7 +24,8 @@ object StructuredLearning {
 
   def trainSSVM[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], initialize: Boolean)(implicit t: ClassTag[HEAD]): SaulSLModel[HEAD] = {
     val sp = SL_IOManager.makeSLProblem(node, cls)
-    val model = Initialize(sp, new SaulSLModel(cls), initialize)
+    val model = Initialize(node, new SaulSLModel(cls), initialize)
+
     model.infSolver = new Saul_SL_Inference[HEAD](model.Factors.toList, model.LTUWeightTemplates)
     val para = new SLParameters
     //    para.STOP_CONDITION = 0.0001f

@@ -7,10 +7,10 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model
 
 import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
-import edu.illinois.cs.cogcomp.sl.core.SLProblem
+import edu.illinois.cs.cogcomp.saul.classifier.infer.InitSparseNetwork
+import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
 import edu.illinois.cs.cogcomp.sl.util.WeightVector
 
-import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
 /** Created by Parisa on 4/1/16.
@@ -19,50 +19,25 @@ import scala.collection.mutable.ListBuffer
   */
 object Initialize {
 
-  def apply[HEAD <: AnyRef](sp: SLProblem, model: SaulSLModel[HEAD], initialize: Boolean = false): SaulSLModel[HEAD] = {
+  def apply[HEAD <: AnyRef](node: Node[HEAD], model: SaulSLModel[HEAD], usePreTrained: Boolean = false): SaulSLModel[HEAD] = {
 
     var wvLength = 0
     var lt: ListBuffer[Array[Float]] = ListBuffer()
 
-    if (!initialize) //this means we are not reading any model into the SparseNetworks but we forget all the models and go over the data to build the right size for the lexicon and the right number of the ltu s
+    /*this means we are not reading any model into the SparseNetworks but
+     we forget all the models and go over the data to build the right size
+     for the lexicon and the right number of the ltu s*/
+
+    if (!usePreTrained)
       model.Factors.foreach {
-        cf =>
-          cf.onClassifier.classifier.forget()
-          val ilearner = cf.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
-          val lLexicon = cf.onClassifier.classifier.getLabelLexicon
-          sp.instanceList.toList.zipWithIndex.foreach {
+        cf => InitSparseNetwork(node, cf)
+      }
+    /*In this step or we have built the lexicon by going over the data in the above block or
+we use the loaded lexicons in the case of uesPreTrained == true, the goal is to build
+ a global weight vector using all classifiers and initialize it accordingly to have a fixed size*/
 
-            case (myIns, ind) => {
-              val ins = myIns.asInstanceOf[Saul_SL_Instance[HEAD]]
-              val candis: Seq[_] = cf.getCandidates(ins.head)
-              candis.foreach {
-                x =>
-                  val a = cf.onClassifier.classifier.getExampleArray(x)
-                  val a0 = a(0).asInstanceOf[Array[Int]] //exampleFeatures
-                  val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
-                  val exampleLabels = a(2).asInstanceOf[Array[Int]]
-                  val labelValues = a(3).asInstanceOf[Array[Double]]
-                  val label = exampleLabels(0)
-                  var N = ilearner.getNetwork.size()
-                  if (label >= N || ilearner.getNetwork.get(label) == null) {
-                    val isConjunctiveLabels = ilearner.isUsingConjunctiveLabels | ilearner.getLabelLexicon.lookupKey(label).isConjunctive
-                    ilearner.setConjunctiveLabels(isConjunctiveLabels)
-                    val ltu: LinearThresholdUnit = ilearner.getBaseLTU
-                    ltu.initialize(ilearner.getNumExamples, ilearner.getNumFeatures)
-                    ilearner.getNetwork.set(label, ltu)
-                    N = label + 1
-                  }
-              } // for each candidate
-            } // for each constraintFactor
-          } // for each example
-        //   print("weight vector size:" + ilearner.getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getParameters.asInstanceOf[LinearThresholdUnit.Parameters].weightVector.size())
-        //   println("lexicon size:" + ilearner.getLexicon.size())
-
-      } //for each factor
-//In this step or we have built the lexicon by going over the data in the above block or we use the loaded lexicons in the case of initialization==true, the goal is to build a global weight vector using all classifiers and initialize it accordingly
     model.Factors.foreach(
       x => {
-
         val sparseNet = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
         val temp = (sparseNet.getLexicon.size())
 
@@ -71,7 +46,7 @@ object Initialize {
           val getTheWeight = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
           val t = Array.fill[Float](temp)(0)
 
-          if (initialize) { //if we are going to initialize we get the loaded weights otherwise the weights are filled with zeros
+          if (usePreTrained) { //if we are going to initialize we get the loaded weights otherwise the weights are filled with zeros
 
             for (j <- 0 until temp)
               t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
