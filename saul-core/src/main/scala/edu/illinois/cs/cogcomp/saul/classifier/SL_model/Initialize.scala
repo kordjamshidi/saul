@@ -22,7 +22,7 @@ object Initialize {
   def apply[HEAD <: AnyRef](node: Node[HEAD], model: SaulSLModel[HEAD], usePreTrained: Boolean = false): SaulSLModel[HEAD] = {
 
     var wvLength = 0
-    var lt: ListBuffer[Array[Float]] = ListBuffer()
+    var fullWeightList: ListBuffer[Array[Float]] = ListBuffer()
 
     /*this means we are not reading any model into the SparseNetworks but
      we forget all the models and go over the data to build the right size
@@ -39,22 +39,22 @@ we use the loaded lexicons in the case of uesPreTrained == true, the goal is to 
     model.Factors.foreach(
       x => {
         val sparseNet = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
-        val temp = (sparseNet.getLexicon.size())
+        val lexiconSize = (sparseNet.getLexicon.size())
 
         for (i <- 0 until sparseNet.getNetwork.size()) {
 
-          val getTheWeight = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
-          val t = Array.fill[Float](temp)(0)
+          val trainedWeighs = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(i).asInstanceOf[LinearThresholdUnit].getWeightVector
+          val fullWeights = Array.fill[Float](lexiconSize)(0)
 
           if (usePreTrained) { //if we are going to initialize we get the loaded weights otherwise the weights are filled with zeros
 
-            for (j <- 0 until temp)
-              t(j) = getTheWeight.getWeight(j).asInstanceOf[Float]
+            for (j <- 0 until lexiconSize)
+              fullWeights(j) = trainedWeighs.getWeight(j).asInstanceOf[Float]
 
           }
-          lt = lt :+ t
+          fullWeightList = fullWeightList :+ fullWeights
 
-          wvLength = wvLength + temp
+          wvLength = wvLength + lexiconSize
         }
 
         println("lexicon size: " + sparseNet.getLexicon.size(), "* label lexicon size:", sparseNet.getLabelLexicon.size())
@@ -62,10 +62,11 @@ we use the loaded lexicons in the case of uesPreTrained == true, the goal is to 
     )
     // wv = Concatenate_(over factors)Concatenate_(over ltu) => size(wv)=sum_(over factors)sum_(over ltu)(size(ltu_i))
 
-    val myWeight = Array(lt.flatten: _*)
+    val myWeight = Array(fullWeightList.flatten: _*)
     val wv = new WeightVector(myWeight) // wv this is one unified weight vector of all initialized LTUs
-    val m = new SaulSLModel[HEAD](model.Factors.toList, lt) // lt is the list of individual weight vectors
+    val m = new SaulSLModel[HEAD](model.Factors.toList, fullWeightList) // lt is the list of individual weight vectors
     m.wv = wv
     m
+    /*This weigh vector is a a flat vector containing one block of weights per each ltu*/
   } //end f apply
 } // end of object

@@ -12,7 +12,7 @@ import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetwork
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.{ Saul_SL_Inference, StructuredLearning }
 import edu.illinois.cs.cogcomp.saul.classifier.{ ConstrainedClassifier, Learnable }
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.sl.util.WeightVector
+import edu.illinois.cs.cogcomp.sl.util.{ FeatureVectorBuffer, WeightVector }
 import org.scalatest.{ FlatSpec, Matchers }
 
 import scala.collection.mutable.ListBuffer
@@ -76,6 +76,19 @@ class weightTest extends FlatSpec with Matchers {
     val factorWeight3 = wv.getWeightArray.slice(offset, offset + t3.length)
     factorWeight3 should be(Array(14.0f, 16.0f, 18.0f, 24.0f, 35.5f, 78.32f, 567.865f))
   }
+  "featureVector operations" should "work" in {
+    val fvGlobal = new FeatureVectorBuffer()
+    val fv = new FeatureVectorBuffer()
+    val a0: Array[Int] = Array(1, 2, 3)
+    val a1: Array[Double] = Array(0.1, 0.2, 0.3)
+    val fvTemp = new FeatureVectorBuffer(a0, a1)
+    fvGlobal.addFeature(fvTemp)
+    fvTemp.toFeatureVector.getIndices should be(Array(1, 2, 3))
+    fvGlobal.addFeature(fvTemp, 3)
+    fvGlobal.addFeature(fvTemp, 3)
+    fvGlobal.shift(1)
+    fvGlobal.toFeatureVector.getIndices should be(Array(2, 3, 4, 5, 6, 7))
+  }
 
   // Testing the original functions with real classifiers
   "integration test" should "work" in {
@@ -83,22 +96,28 @@ class weightTest extends FlatSpec with Matchers {
     import testModel._
     object TestClassifier extends Learnable(tokens) {
       def label = testLabel
+
       override def feature = using(word)
+
       override lazy val classifier = new SparseNetworkLearner()
     }
     object TestBiClassifier extends Learnable(tokens) {
       def label = testLabel
+
       override def feature = using(word, biWord)
+
       override lazy val classifier = new SparseNetworkLearner()
     }
     object TestConstraintClassifier extends ConstrainedClassifier[String, String](TestClassifier) {
       def subjectTo = ConstrainedClassifier.constraint { _ => new FirstOrderConstant(true) }
+
       //override val pathToHead = Some(-iEdge)
       // override def filter(t: String, h: String): Boolean = t.equals(h)
       override val solver = new OJalgoHook
     }
     object TestBiConstraintClassifier extends ConstrainedClassifier[String, String](TestBiClassifier) {
       def subjectTo = ConstrainedClassifier.constraint { _ => new FirstOrderConstant(true) }
+
       // override val pathToHead = Some(-iEdge)
       //override def filter(t: String, h: String): Boolean = t.equals(h)
       override val solver = new OJalgoHook
@@ -143,4 +162,5 @@ class weightTest extends FlatSpec with Matchers {
     val word = property(tokens) { x: String => x }
     val biWord = property(tokens) { x: String => x + "-" + x }
   }
+
 }

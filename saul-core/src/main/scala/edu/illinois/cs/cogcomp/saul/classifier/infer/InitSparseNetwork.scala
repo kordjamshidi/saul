@@ -14,10 +14,11 @@ import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
   */
 object InitSparseNetwork {
   def apply[HEAD <: AnyRef](node: Node[HEAD], cClassifier: ConstrainedClassifier[_, HEAD]) = {
+
     val allHeads = node.getTrainingInstances
     //this means we are not reading any model into the SparseNetworks
     // but we forget all the models and go over the data to build the right
-    // size for the lexicon and the right number of the ltu s
+    // size for the lexicon and the right number of ltu s
     cClassifier.onClassifier.classifier.forget()
     val iLearner = cClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
     allHeads.foreach {

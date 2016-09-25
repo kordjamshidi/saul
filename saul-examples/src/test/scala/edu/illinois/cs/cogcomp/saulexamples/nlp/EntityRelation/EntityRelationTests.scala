@@ -92,6 +92,9 @@ class EntityRelationTests extends FlatSpec with Matchers {
 
     ClassifierUtils.TrainClassifiers(1, cls_base)
 
+    PerConstrainedClassifier.onClassifier.classifier.getLabelLexicon.size() should be(2)
+    PerConstrainedClassifier.onClassifier.classifier.getLexicon.size() should be(1661)
+
     PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be(1661)
 
     val jointTrainIteration = 1
@@ -99,7 +102,9 @@ class EntityRelationTests extends FlatSpec with Matchers {
       pairs, cls, jointTrainIteration, init = true
     )
 
-    PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be(50)
+    PerConstrainedClassifier.onClassifier.classifier.getLabelLexicon.size() should be(2)
+    PerConstrainedClassifier.onClassifier.classifier.getLexicon.size() should be(84)
+    PerConstrainedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getNetwork.get(0).asInstanceOf[LinearThresholdUnit].getWeightVector.size() should be(84)
 
   }
 }

@@ -17,14 +17,14 @@ import scala.reflect._
 /** Created by Parisa on 12/3/15.
   */
 object StructuredLearning {
-  def apply[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], initialize: Boolean = false)(implicit headTag: ClassTag[HEAD]) =
+  def apply[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], usePreTrained: Boolean = false)(implicit headTag: ClassTag[HEAD]) =
     {
-      trainSSVM[HEAD](node, cls, initialize)
+      trainSSVM[HEAD](node, cls, usePreTrained)
     }
 
-  def trainSSVM[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], initialize: Boolean)(implicit t: ClassTag[HEAD]): SaulSLModel[HEAD] = {
+  def trainSSVM[HEAD <: AnyRef](node: Node[HEAD], cls: List[ConstrainedClassifier[_, HEAD]], usePreTrained: Boolean)(implicit t: ClassTag[HEAD]): SaulSLModel[HEAD] = {
     val sp = SL_IOManager.makeSLProblem(node, cls)
-    val model = Initialize(node, new SaulSLModel(cls), initialize)
+    val model = Initialize(node, new SaulSLModel(cls), usePreTrained)
 
     model.infSolver = new Saul_SL_Inference[HEAD](model.Factors.toList, model.LTUWeightTemplates)
     val para = new SLParameters

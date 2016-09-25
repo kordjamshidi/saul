@@ -34,6 +34,7 @@ class SL_FeatureGenerator[HEAD <: AnyRef](model: SaulSLModel[HEAD]) extends Abst
         candis.foreach {
           (ci) =>
             var localOffset = 0
+            //This  block is the conversion from Lbjava to SL feature vectors
             val a = sparseNet.getExampleArray(ci, false)
             var a0 = a(0).asInstanceOf[Array[Int]]
             var a1 = a(1).asInstanceOf[Array[Double]]
