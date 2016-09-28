@@ -13,7 +13,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationCla
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationConstrainedClassifiers._
 
-object   EntityRelationApp extends Logging {
+object EntityRelationApp extends Logging {
   // learned models from the "saul-er-models" jar package
   val jarModelPath = "edu/illinois/cs/cogcomp/saulexamples/nlp/EntityRelation/models/"
 

@@ -8,15 +8,15 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
 import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant
-import edu.illinois.cs.cogcomp.lbjava.learn.{LinearThresholdUnit, SparseNetworkLearner}
+import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
-import edu.illinois.cs.cogcomp.saul.classifier.{JointTrainSparseNetwork, ClassifierUtils, ConstrainedClassifier, Learnable}
+import edu.illinois.cs.cogcomp.saul.classifier.{ JointTrainSparseNetwork, ClassifierUtils, ConstrainedClassifier, Learnable }
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
 import edu.illinois.cs.cogcomp.sl.core.SLParameters
 import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 /** Created by Parisa on 7/2/16.
   */

@@ -17,7 +17,7 @@ object EntityRelationApp_SL extends App {
 
   EntityRelationDataModel.populateWithConll() //.populateWithConll()
 
- // ClassifierUtils.LoadClassifier(EntityRelationApp.jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
+  // ClassifierUtils.LoadClassifier(EntityRelationApp.jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
 
   val cls_base = List(PersonClassifier, OrganizationClassifier, LocationClassifier, LivesInClassifier, WorksForClassifier)
 
@@ -35,7 +35,7 @@ object EntityRelationApp_SL extends App {
 
   println("Structured evaluation.\n")
 
- // StructuredLearning.Evaluate(pairs, cls, m, "")
+  // StructuredLearning.Evaluate(pairs, cls, m, "")
   //ClassifierUtils.TestClassifiers(cls_base:_*)
 }
 

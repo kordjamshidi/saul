@@ -8,20 +8,18 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
 import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant
-import edu.illinois.cs.cogcomp.lbjava.learn.{LinearThresholdUnit, SparseNetworkLearner}
+import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
-import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, ConstrainedClassifier, Learnable}
+import edu.illinois.cs.cogcomp.saul.classifier.{ ClassifierUtils, ConstrainedClassifier, Learnable }
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
 import edu.illinois.cs.cogcomp.sl.core.SLParameters
 import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
 
-/**
- * Created by Parisa on 9/27/16.
- */
-object preTest extends App{
-
+/** Created by Parisa on 9/27/16.
+  */
+object preTest extends App {
 
   object testModel extends DataModel {
     val tokens = node[String]
@@ -78,57 +76,52 @@ object preTest extends App{
   val cls_base = List(TestClassifier, TestBiClassifier)
   val model = Initialize(tokens, new SaulSLModel(cls), usePreTrained = false)
 
- // JointTrainSparseNetwork(tokens, cls, 3, true)
+  // JointTrainSparseNetwork(tokens, cls, 3, true)
   // This should combine the weights
   // val m = StructuredLearning(tokens, cls, initialize = false)
 
   val SLProblem = SL_IOManager.makeSLProblem(tokens, cls)
 
-    println("lables:", SLProblem.goldStructureList.size())
-   println("examples",SLProblem.instanceList.size())
+  println("lables:", SLProblem.goldStructureList.size())
+  println("examples", SLProblem.instanceList.size())
 
-    println("factors:",model.Factors.size)
-    println("ltus:",model.LTUWeightTemplates.size)
-    model.wv.getLength
-    model.wv.getWeightArray.filter(p => (p > 0.00)).isEmpty
-
+  println("factors:", model.Factors.size)
+  println("ltus:", model.LTUWeightTemplates.size)
+  model.wv.getLength
+  model.wv.getWeightArray.filter(p => (p > 0.00)).isEmpty
 
   val xGold = SLProblem.instanceList.get(0)
   val yGold = SLProblem.goldStructureList.get(0)
   model.featureGenerator = new SL_FeatureGenerator(model)
 
-
-    model.featureGenerator.getFeatureVector(xGold, yGold).getValues.sum //should be(3.0)
-
+  model.featureGenerator.getFeatureVector(xGold, yGold).getValues.sum //should be(3.0)
 
   ClassifierUtils.TrainClassifiers(5, cls_base: _*)
   val InitializedModel = Initialize(tokens, new SaulSLModel(cls), usePreTrained = true)
- // "Structured output learning (SL) initialization with trained models" should "work." in
+  // "Structured output learning (SL) initialization with trained models" should "work." in
 
-    println("Factors:", InitializedModel.Factors.size)
-    println("LTUs:", InitializedModel.LTUWeightTemplates.size)
-    println("modellength:", InitializedModel.wv.getLength)
-    println("weightArray:", InitializedModel.wv.getWeightArray)
-    InitializedModel.Factors.size //should be(2)
-    InitializedModel.LTUWeightTemplates.size //should be(4)
-    InitializedModel.wv.getLength //should be(24)
+  println("Factors:", InitializedModel.Factors.size)
+  println("LTUs:", InitializedModel.LTUWeightTemplates.size)
+  println("modellength:", InitializedModel.wv.getLength)
+  println("weightArray:", InitializedModel.wv.getWeightArray)
+  InitializedModel.Factors.size //should be(2)
+  InitializedModel.LTUWeightTemplates.size //should be(4)
+  InitializedModel.wv.getLength //should be(24)
 
-    InitializedModel.Factors.foreach(
-      x => {
-        val classifierWeightVector0 = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
-        val baseWeightVector0 = cls_base(0).classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+  InitializedModel.Factors.foreach(
+    x => {
+      val classifierWeightVector0 = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+      val baseWeightVector0 = cls_base(0).classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
 
-        classifierWeightVector0 //should be(baseWeightVector0)
+      classifierWeightVector0 //should be(baseWeightVector0)
 
-        val classifierWeightVector1 = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getLTU(1).asInstanceOf[LinearThresholdUnit].getWeightVector
-        val baseWeightVector1 = cls_base(1).classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
+      val classifierWeightVector1 = x.onClassifier.classifier.asInstanceOf[SparseNetworkLearner].getLTU(1).asInstanceOf[LinearThresholdUnit].getWeightVector
+      val baseWeightVector1 = cls_base(1).classifier.asInstanceOf[SparseNetworkLearner].getLTU(0).asInstanceOf[LinearThresholdUnit].getWeightVector
 
-        classifierWeightVector1 //should be(baseWeightVector1)
-      }
-    )
-    //InitializedModel.wv.getWeightArray.filter(p => (p > 0.00)).isEmpty should be(true)
-
-
+      classifierWeightVector1 //should be(baseWeightVector1)
+    }
+  )
+  //InitializedModel.wv.getWeightArray.filter(p => (p > 0.00)).isEmpty should be(true)
 
   val para = new SLParameters
   para.loadConfigFile("../config/DCD.config")
@@ -138,31 +131,31 @@ object preTest extends App{
 
   //"Structured output learning's loss" should " be calculate correctly." in {
 
-    val yTest = new Saul_SL_Label_Structure[String](cls, yGold.asInstanceOf[Saul_SL_Label_Structure[String]].head.asInstanceOf[String])
-    yTest.labels = for (
-      l <- yGold.asInstanceOf[Saul_SL_Label_Structure[ConllRelation]].labels
-    ) yield "true"
+  val yTest = new Saul_SL_Label_Structure[String](cls, yGold.asInstanceOf[Saul_SL_Label_Structure[String]].head.asInstanceOf[String])
+  yTest.labels = for (
+    l <- yGold.asInstanceOf[Saul_SL_Label_Structure[ConllRelation]].labels
+  ) yield "true"
 
   val yTest2 = new Saul_SL_Label_Structure[String](cls, yGold.asInstanceOf[Saul_SL_Label_Structure[String]].head.asInstanceOf[String])
-  yTest2.labels(0)= "true"
-  yTest2.labels(1)="false"
-  print(model.infSolver.getLoss(xGold, yGold, yTest2),"here")
+  yTest2.labels(0) = "true"
+  yTest2.labels(1) = "false"
+  print(model.infSolver.getLoss(xGold, yGold, yTest2), "here")
 
-  print(model.infSolver.getLoss(xGold, yGold, yGold),"here") //should be(0.00)
-    println(model.infSolver.getLoss(xGold, yGold, yTest),"here" )//>= (0.8) //should be(true)
- // }
+  print(model.infSolver.getLoss(xGold, yGold, yGold), "here") //should be(0.00)
+  println(model.infSolver.getLoss(xGold, yGold, yTest), "here") //>= (0.8) //should be(true)
+  // }
 
-    val weight = learner.train(SLProblem, model.wv)
+  val weight = learner.train(SLProblem, model.wv)
   //  "Structured output learning" should " have a correctly working inference module." in {
-      val yPredicted = model.infSolver.getBestStructure(model.wv, xGold)
-      val yMostViolated = model.infSolver.getLossAugmentedBestStructure(model.wv, xGold, yGold)
-      println(model.infSolver.getLoss(xGold, yGold, yPredicted),"here")// should be(0.00)
+  val yPredicted = model.infSolver.getBestStructure(model.wv, xGold)
+  val yMostViolated = model.infSolver.getLossAugmentedBestStructure(model.wv, xGold, yGold)
+  println(model.infSolver.getLoss(xGold, yGold, yPredicted), "here") // should be(0.00)
   //    model.infSolver.getLoss(xGold, yPredicted, yMostViolated) should be(0.00)
   //    (yPredicted.asInstanceOf[Saul_SL_Label_Structure[ConllRelation]].equals(yMostViolated.
   //      asInstanceOf[Saul_SL_Label_Structure[ConllRelation]])) should be(true)
   //  }
 
- // "Structured output learning (SL)" should "really work in Saul." in {
+  // "Structured output learning (SL)" should "really work in Saul." in {
 
   //}
 
