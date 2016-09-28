@@ -5,21 +5,23 @@
   * http://cogcomp.cs.illinois.edu/
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
+
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
 import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant
-import edu.illinois.cs.cogcomp.lbjava.learn.{ LinearThresholdUnit, SparseNetworkLearner }
+import edu.illinois.cs.cogcomp.lbjava.learn.{LinearThresholdUnit, SparseNetworkLearner}
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model._
-import edu.illinois.cs.cogcomp.saul.classifier.{ JointTrainSparseNetwork, ClassifierUtils, ConstrainedClassifier, Learnable }
+import edu.illinois.cs.cogcomp.saul.classifier.{JointTrainSparseNetwork, ClassifierUtils, ConstrainedClassifier, Learnable}
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.ConllRelation
 import edu.illinois.cs.cogcomp.sl.core.SLParameters
 import edu.illinois.cs.cogcomp.sl.learner.LearnerFactory
-import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.{FlatSpec, Matchers}
 
 /** Created by Parisa on 7/2/16.
   */
 class SLTest2 extends FlatSpec with Matchers {
+
   object testModel extends DataModel {
     val tokens = node[String]
     // val pairs = edge(tokens, tokens)
@@ -27,24 +29,32 @@ class SLTest2 extends FlatSpec with Matchers {
     val word = property(tokens) { x: String => x }
     val biWord = property(tokens) { x: String => x + "-" + x }
   }
+
   // Testing the original functions with real classifiers
   // "integration test" should "work" in {
   // Initialize toy model
+
   import testModel._
+
   object TestClassifier extends Learnable(tokens) {
     def label: Property[String] = testLabel
+
     override def feature = using(word)
+
     override lazy val classifier = new SparseNetworkLearner()
   }
 
   object TestBiClassifier extends Learnable(tokens) {
     def label: Property[String] = testLabel
+
     override def feature = using(word, biWord)
+
     override lazy val classifier = new SparseNetworkLearner()
   }
 
   object TestConstraintClassifier extends ConstrainedClassifier[String, String](TestClassifier) {
     def subjectTo = ConstrainedClassifier.constraint { _ => new FirstOrderConstant(true) }
+
     //  override val pathToHead = Some(-pairs)
     //override def filter(t: String, h: String): Boolean = t.equals(h)
     override val solver = new OJalgoHook
@@ -52,6 +62,7 @@ class SLTest2 extends FlatSpec with Matchers {
 
   object TestBiConstraintClassifier extends ConstrainedClassifier[String, String](TestBiClassifier) {
     def subjectTo = ConstrainedClassifier.constraint { _ => new FirstOrderConstant(true) }
+
     // override val pathToHead = Some(-pairs)
     //override def filter(t: String, h: String): Boolean = t.equals(h)
     override val solver = new OJalgoHook

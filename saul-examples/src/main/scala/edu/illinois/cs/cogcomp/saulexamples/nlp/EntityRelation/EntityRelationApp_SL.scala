@@ -6,7 +6,6 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
-import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.StructuredLearning
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationConstrainedClassifiers._
@@ -18,7 +17,7 @@ object EntityRelationApp_SL extends App {
 
   EntityRelationDataModel.populateWithConll() //.populateWithConll()
 
-  ClassifierUtils.LoadClassifier(EntityRelationApp.jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
+ // ClassifierUtils.LoadClassifier(EntityRelationApp.jarModelPath, PersonClassifier, OrganizationClassifier, LocationClassifier, WorksForClassifier, LivesInClassifier)
 
   val cls_base = List(PersonClassifier, OrganizationClassifier, LocationClassifier, LivesInClassifier, WorksForClassifier)
 
@@ -32,11 +31,11 @@ object EntityRelationApp_SL extends App {
 
   //ClassifierUtils.TestClassifiers(cls: _*)
 
-  val m = StructuredLearning(pairs, cls, usePreTrained = true)
+  val m = StructuredLearning(pairs, cls, usePreTrained = false)
 
   println("Structured evaluation.\n")
 
-  StructuredLearning.Evaluate(pairs, cls, m, "")
+ // StructuredLearning.Evaluate(pairs, cls, m, "")
   //ClassifierUtils.TestClassifiers(cls_base:_*)
 }
 

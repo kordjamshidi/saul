@@ -51,7 +51,7 @@ class Saul_SL_Inference[HEAD <: AnyRef](factors: List[ConstrainedClassifier[_, H
           TotalLoss = TotalLoss + localLoss / candidates.size
     }
     TotalLoss = TotalLoss / factors.size
-    //println("Loss=" + TotalLoss)
+    println("Loss=" + TotalLoss)
     TotalLoss
   }
 
