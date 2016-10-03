@@ -112,9 +112,9 @@ public class SaulWekaWrapper extends Learner {
     /**
      * Full Constructor.
      *
-     * @param n               The name of the classifier
-     * @param base            The classifier to be used in this system.
-     *                        have.
+     * @param n    The name of the classifier
+     * @param base The classifier to be used in this system.
+     *             have.
      **/
     public SaulWekaWrapper(String n, weka.classifiers.Classifier base) {
         super(n);
@@ -222,6 +222,7 @@ public class SaulWekaWrapper extends Learner {
     public double realValue(int[] f, double[] v) {
         return classify(f, v).realValueArray()[0];
     }
+
     /**
      * Returns a discrete distribution of the classifier's prediction values.
      *
@@ -312,11 +313,18 @@ public class SaulWekaWrapper extends Learner {
         }
         /*
          * Construct weka attribute for each lexicon entry.
-         * All features represented as real valued in weka
+         * If entry is discrete use a binary attribute
+         * If it is real, use a numerical attribute
          */
+        FastVector binaryValues = new FastVector(2);
+        binaryValues.addElement("0");
+        binaryValues.addElement("1");
         for (int featureIndex = 0; featureIndex < lexicon.size(); ++featureIndex) {
             Feature f = lexicon.lookupKey(featureIndex);
-            Attribute a = new Attribute(f.toString());
+            Attribute a = f.isDiscrete() ?
+                    new Attribute(f.toString(), binaryValues) :
+                    new Attribute(f.toString());
+
             attributeInfo.addElement(a);
         }
 
@@ -338,6 +346,11 @@ public class SaulWekaWrapper extends Learner {
         // Acknowledge that this instance will be a member of our dataset 'wekaInstances'
         inst.setDataset(wekaInstances);
 
+        // set all nominal feature values to 0, which means those features are not used in this example
+        for(int i=1; i< attributeInfo.size();i++)
+            if(inst.attribute(i).isNominal())
+                inst.setValue(i, "0");
+
         // Assign values for its attributes
         /*
          * Since we are iterating through this example's feature list, which does not contain the
@@ -349,7 +362,7 @@ public class SaulWekaWrapper extends Learner {
             Feature f = lexicon.lookupKey(exampleFeatures[featureIndex]);
 
             // if the feature does not exist, do nothing. this may occur in test set.
-            if(f == null)
+            if (f == null)
                 continue;
             Attribute att = (Attribute) attributeInfo.elementAt(attIndex);
 
@@ -362,8 +375,11 @@ public class SaulWekaWrapper extends Learner {
                 new Exception().printStackTrace();
                 System.exit(1);
             }
+            if (f.isDiscrete())
+                inst.setValue(attIndex, "1"); // this feature is used in this example so we set it to "1"
+            else
+                inst.setValue(attIndex, exampleValues[featureIndex]);
 
-            inst.setValue(attIndex, exampleValues[featureIndex]);
         }
 
         /*
