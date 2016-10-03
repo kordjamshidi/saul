@@ -1,6 +1,5 @@
 package edu.illinois.cs.cogcomp.saul.learn;
 
-import akka.japi.tuple.Tuple4;
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessInputStream;
 import edu.illinois.cs.cogcomp.core.datastructures.vectors.ExceptionlessOutputStream;
 import edu.illinois.cs.cogcomp.lbjava.classify.*;
@@ -67,7 +66,7 @@ public class SaulWekaWrapper extends Learner {
     /**
      * A buffer for lbjava instances.
      */
-    protected List<Tuple4<int[], double[], int[], double[]>> lbjavaInstances;
+    protected List<LBJavaInstance> lbjavaInstances;
     /**
      * Indicates whether the {@link #doneLearning()} method has been called and the
      * {@link #forget()} method has not yet been called.
@@ -163,7 +162,8 @@ public class SaulWekaWrapper extends Learner {
      **/
     public void learn(int[] exampleFeatures, double[] exampleValues, int[] exampleLabels,
                       double[] labelValues) {
-        lbjavaInstances.add(new Tuple4<>(exampleFeatures, exampleValues, exampleLabels, labelValues));
+        checkIfCanTrain();
+        lbjavaInstances.add(new LBJavaInstance(exampleFeatures, exampleValues, exampleLabels, labelValues));
     }
 
 
@@ -238,7 +238,7 @@ public class SaulWekaWrapper extends Learner {
         }
 
         Instance inQuestion =
-                makeInstance(exampleFeatures, exampleValues, new int[0], new double[0]);
+                makeInstance(new LBJavaInstance(exampleFeatures, exampleValues, new int[0], new double[0]));
 
         /*
          * For Numerical class values, this will return an array of size 1, containing the class
@@ -337,8 +337,7 @@ public class SaulWekaWrapper extends Learner {
     /**
      * Creates a WEKA Instance object out of a {@link FeatureVector}.
      **/
-    private Instance makeInstance(int[] exampleFeatures, double[] exampleValues,
-                                  int[] exampleLabels, double[] labelValues) {
+    private Instance makeInstance(LBJavaInstance instance) {
 
         // Initialize an Instance object
         Instance inst = new Instance(attributeInfo.size());
@@ -355,11 +354,11 @@ public class SaulWekaWrapper extends Learner {
         /*
          * Since we are iterating through this example's feature list, which does not contain the
          * label feature (the label feature is the first in the 'attribute' list), we set attIndex
-         * to at exampleFeatures[featureIndex] + 1, while we start featureIndex at 0.
+         * to at exampleFeatures[featureIndices] + 1, while we start featureIndices at 0.
          */
-        for (int featureIndex = 0; featureIndex < exampleFeatures.length; ++featureIndex) {
-            int attIndex = exampleFeatures[featureIndex] + 1;
-            Feature f = lexicon.lookupKey(exampleFeatures[featureIndex]);
+        for (int featureIndex = 0; featureIndex < instance.featureIndices.length; ++featureIndex) {
+            int attIndex = instance.featureIndices[featureIndex] + 1;
+            Feature f = lexicon.lookupKey(instance.featureIndices[featureIndex]);
 
             // if the feature does not exist, do nothing. this may occur in test set.
             if (f == null)
@@ -378,7 +377,7 @@ public class SaulWekaWrapper extends Learner {
             if (f.isDiscrete())
                 inst.setValue(attIndex, "1"); // this feature is used in this example so we set it to "1"
             else
-                inst.setValue(attIndex, exampleValues[featureIndex]);
+                inst.setValue(attIndex, instance.featureValues[featureIndex]);
 
         }
 
@@ -386,15 +385,15 @@ public class SaulWekaWrapper extends Learner {
          * Here, we assume that if either the labels FeatureVector is empty of features, or is null,
          * then this example is to be considered unlabeled.
          */
-        if (exampleLabels.length == 0) {
+        if (instance.labelIndices.length == 0) {
             inst.setClassMissing();
-        } else if (exampleLabels.length > 1) {
+        } else if (instance.labelIndices.length > 1) {
             System.err.println("WekaWrapper: Error - Weka Instances may only take a single class "
                     + "value, ");
             new Exception().printStackTrace();
             System.exit(1);
         } else {
-            Feature label = labelLexicon.lookupKey(exampleLabels[0]);
+            Feature label = labelLexicon.lookupKey(instance.labelIndices[0]);
 
             // make sure the label feature matches the n 0'th attribute
             if (!(label.getGeneratingClassifier().equals(((Attribute) attributeInfo.elementAt(0))
@@ -405,7 +404,7 @@ public class SaulWekaWrapper extends Learner {
             }
 
             if (!label.isDiscrete())
-                inst.setValue(0, labelValues[0]);
+                inst.setValue(0, instance.labelValues[0]);
             else
                 inst.setValue(0, label.getStringValue());
         }
@@ -469,13 +468,8 @@ public class SaulWekaWrapper extends Learner {
      * classifier's <code>buildClassifier(Instances)</code> method.
      **/
     public void doneLearning() {
-        if (trained) {
-            System.err.println("WekaWrapper: Error - Cannot call 'doneLearning()' again without "
-                    + "first calling 'forget()'");
-            new Exception().printStackTrace();
-            System.exit(1);
-        }
 
+        checkIfCanTrain();
         /*
          * System.out.println("\nWekaWrapper Data Summary:");
          * System.out.println(wekaInstances.toSummaryString());
@@ -483,8 +477,9 @@ public class SaulWekaWrapper extends Learner {
 
         try {
             initializeAttributes();
-            for (Tuple4<int[], double[], int[], double[]> t : lbjavaInstances)
-                wekaInstances.add(makeInstance(t.t1(), t.t2(), t.t3(), t.t4()));
+            for (LBJavaInstance i : lbjavaInstances)
+                wekaInstances.add(makeInstance(i));
+            lbjavaInstances.clear();
 
             baseClassifier.buildClassifier(wekaInstances);
         } catch (Exception e) {
@@ -498,6 +493,15 @@ public class SaulWekaWrapper extends Learner {
         trained = true;
         wekaInstances = new Instances(name, attributeInfo, 0);
         wekaInstances.setClassIndex(0);
+    }
+
+    private void checkIfCanTrain() {
+        if (trained) {
+            System.err.println("WekaWrapper: Error - Cannot call 'doneLearning()' or 'learn()' again without "
+                    + "first calling 'forget()'");
+            new Exception().printStackTrace();
+            System.exit(1);
+        }
     }
 
 
@@ -581,6 +585,20 @@ public class SaulWekaWrapper extends Learner {
         } catch (Exception e) {
             System.err.println("Can't read from object stream for '" + name + "': " + e);
             System.exit(1);
+        }
+    }
+
+    private class LBJavaInstance{
+        private final int[] featureIndices;
+        private final double[] featureValues;
+        private final int[] labelIndices;
+        private final double[] labelValues;
+        LBJavaInstance(int[] featureIndex, double[] featureValues, int[] labelIndex, double[] labelValues) {
+            this.featureIndices = featureIndex;
+
+            this.featureValues = featureValues;
+            this.labelIndices = labelIndex;
+            this.labelValues = labelValues;
         }
     }
 }
