@@ -1,4 +1,6 @@
-The `WekaWrapper` class wraps [Weka learners](http://www.cs.waikato.ac.nz/ml/weka/) in order to enable Saul to use them.
+#Saul Weka Wrapper
+
+The `SaulWekaWrapper` class wraps [Weka learners](http://www.cs.waikato.ac.nz/ml/weka/) in order to enable Saul to use them.
 This class, converts the feature vectors that Saul generates to compatible instances of Weka, and then calls Weka to build the learner using these data.
 
 **Note**: It is crucial to note that WEKA learning algorithms do not learn online. Therefore, whenever the learn method of the SaulWekaWrapper is called, no learning actually takes place. Rather, the input object is added to a collection of examples for the algorithm to learn once the doneLearning() method is called.
