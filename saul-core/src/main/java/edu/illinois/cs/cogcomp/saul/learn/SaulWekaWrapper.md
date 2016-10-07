@@ -6,7 +6,7 @@ This class, converts the feature vectors that Saul generates to compatible insta
 **Note**: It is crucial to note that WEKA learning algorithms do not learn online. Therefore, whenever the learn method of the SaulWekaWrapper is called, no learning actually takes place. Rather, the input object is added to a collection of examples for the algorithm to learn once the doneLearning() method is called.
 
 ## Usage
-The syntax is very similar to what is used for Saul's native learners. For example here is the syntax to used Weka's Naive Bayes learner:
+The syntax is very similar to what is used for Saul's native learners. For example here is the syntax to use Weka's Naive Bayes learner:
 
 ```scala
 object SpamClassifierWeka extends Learnable[Document](docs) {
