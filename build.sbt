@@ -1,4 +1,5 @@
 import de.heikoseeberger.sbtheader.HeaderPattern
+import sbt.Keys._
 import sbtrelease.ReleaseStateTransformations._
 
 scalaVersion in ThisBuild := "2.11.7"
@@ -57,8 +58,9 @@ lazy val commonSettings = Seq(
   organization := ccgGroupId,
   name := "saul-project",
   resolvers ++= Seq(
-    "Local Maven Repository" at "file://"+"/Users/Parisa/"+"/.m2/repository",
-    "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
+    Resolver.mavenLocal,
+    "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/",
+    "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
   ),
   javaOptions ++= List("-Xmx11g"),
   libraryDependencies ++= Seq(
@@ -68,9 +70,13 @@ lazy val commonSettings = Seq(
     "org.apache.commons" % "commons-math3" % "3.0",
     "org.scalatest" % "scalatest_2.11" % "2.2.4",
     "ch.qos.logback" % "logback-classic" % "1.1.7",
+    "org.scalanlp" %% "breeze" % "0.12",
+    "org.scalanlp" %% "breeze-natives" % "0.12",
+    "org.scalanlp" %% "breeze-viz" % "0.12",
     "edu.illinois.cs.cogcomp" % "illinois-sl"  % "1.3.6" withSources
   ),
   fork := true,
+  connectInput in run := true,
   headers := Map(
     "scala" -> (HeaderPattern.cStyleBlockComment, headerMsg),
     "java" -> (HeaderPattern.cStyleBlockComment, headerMsg)
@@ -87,10 +93,7 @@ lazy val saulCore = (project in file("saul-core")).
   settings(commonSettings: _*).
   settings(docSettings: _*).
   settings(
-    name := "saul",
-    libraryDependencies ++= Seq(
-      "com.typesafe.play" % "play_2.11" % "2.4.3"
-    )
+    name := "saul"
   ).enablePlugins(AutomateHeaderPlugin)
 
 lazy val saulExamples = (project in file("saul-examples")).
@@ -104,8 +107,10 @@ lazy val saulExamples = (project in file("saul-examples")).
       ccgGroupId % "illinois-corpusreaders" % cogcompNLPVersion,
       ccgGroupId % "illinois-pos" % cogcompNLPVersion,
       ccgGroupId % "saul-pos-tagger-models" % "1.3",
-      ccgGroupId % "saul-er-models" % "1.5",
-      ccgGroupId % "saul-srl-models" % "1.2"
+      ccgGroupId % "saul-er-models" % "1.7",
+      ccgGroupId % "saul-srl-models" % "1.2",
+      "org.json" % "json" % "20140107",
+      "com.twitter" % "hbc-core" % "2.2.0"
     )
   ).dependsOn(saulCore)
   .aggregate(saulCore)
@@ -117,6 +122,7 @@ lazy val saulWebapp = (project in file("saul-webapp")).
   settings(
     name := "saul-webapp",
     libraryDependencies ++= Seq(
+      "com.typesafe.play" % "play_2.11" % "2.4.3",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.3.6",
       "org.webjars.bower" % "tether-shepherd" % "1.1.3",
