@@ -7,7 +7,8 @@
 package edu.illinois.cs.cogcomp.saul.classifier.SL_model;
 
 import edu.illinois.cs.cogcomp.sl.util.FeatureVectorBuffer;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang.ArrayUtils;
+
 
 import java.util.ArrayList;
 import java.util.List;
