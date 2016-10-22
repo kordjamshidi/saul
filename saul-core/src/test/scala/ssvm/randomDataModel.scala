@@ -14,9 +14,15 @@ object randomDataModel extends DataModel {
   val r = scala.util.Random
   r.setSeed(0)
 
+
   val randomLabel = property(randomNode, cache = true) {
     x: String =>
       (2 * (if (r.nextGaussian() > 0) 1 else 0) - 1).toString
+  }
+  val binaryLabel = property(randomNode, cache = true) {
+    x: String =>
+      if (randomLabel== "-1") false
+      else true
   }
 
   val randomProperty = property(randomNode, cache = true) {
