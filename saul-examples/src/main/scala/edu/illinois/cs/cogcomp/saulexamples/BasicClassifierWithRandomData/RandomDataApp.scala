@@ -5,9 +5,12 @@
   * http://cogcomp.cs.illinois.edu/
   */
 package edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData
-import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.RandomClassifiers.{OppositClassifier, BinaryClassifier}
 
-object RandomDataApp extends App {
+import edu.illinois.cs.cogcomp.saul.classifier.JointTrainSparseNetwork
+import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.BinaryConstraints.{binaryConstrainedClassifier, oppositBinaryConstrainedClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.RandomClassifiers.{BinaryClassifier, OppositClassifier}
+
+object RandomDataApp extends App{
 
   import RandomDataModel._
   for (i <- 1 to 100) {
@@ -21,5 +24,8 @@ object RandomDataApp extends App {
   BinaryClassifier.test(examples)
   OppositClassifier.learn(30)
   OppositClassifier.test(examples)
+  binaryConstrainedClassifier.test(examples)
+  val ccl= List(binaryConstrainedClassifier,oppositBinaryConstrainedClassifier)
+  JointTrainSparseNetwork.train(randomNode,ccl ,10, false)
   binaryConstrainedClassifier.test(examples)
 }

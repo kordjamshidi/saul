@@ -68,14 +68,8 @@ lazy val commonSettings = Seq(
     "org.apache.commons" % "commons-math3" % "3.0",
     "org.scalatest" % "scalatest_2.11" % "2.2.4",
     "ch.qos.logback" % "logback-classic" % "1.1.7",
-<<<<<<< HEAD
-    "org.scalanlp" %% "breeze" % "0.12",
-    "org.scalanlp" %% "breeze-natives" % "0.12",
-    "org.scalanlp" %% "breeze-viz" % "0.12"
-=======
     "org.scalanlp" %% "breeze-viz" % "0.12",
     "edu.illinois.cs.cogcomp" % "illinois-sl"  % "1.3.6" withSources
->>>>>>> 68a277339667c96c089ab936a8b762dcf23a14eb
   ),
   fork := true,
   connectInput in run := true,
