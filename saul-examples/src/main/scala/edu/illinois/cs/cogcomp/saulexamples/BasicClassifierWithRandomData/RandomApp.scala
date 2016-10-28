@@ -10,7 +10,7 @@ import edu.illinois.cs.cogcomp.saul.classifier.JointTrainSparseNetwork
 import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.BinaryConstraints.{binaryConstrainedClassifier, oppositBinaryConstrainedClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.RandomClassifiers.{BinaryClassifier, OppositClassifier}
 
-object RandomDataApp extends App{
+object RandomApp extends App{
 
   import RandomDataModel._
   for (i <- 1 to 100) {
