@@ -17,6 +17,8 @@ abstract class JointTemplate[T](head: T, solver: ILPSolver, norm: Normalizer = n
     "T"
   }
 
+  verbosity = 2
+
   override def getHeadFinderTypes: Array[String] = {
     Array[String](null, null)
   }
