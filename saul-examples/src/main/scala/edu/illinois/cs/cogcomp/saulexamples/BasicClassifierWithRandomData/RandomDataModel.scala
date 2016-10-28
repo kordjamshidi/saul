@@ -29,4 +29,9 @@ object RandomDataModel extends DataModel {
       val p1new = p(1) + randomLabel(x).toDouble
       List(c * p1new - s * p(1), c * p1new + s * p(1))
   }
+
+  val oppositRandomLabel = property(randomNode, cache = true) {
+    x: String =>
+      if (randomLabel(x).equals("1") )  "-1"  else "1"
+  }
 }

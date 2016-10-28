@@ -17,4 +17,11 @@ object RandomClassifiers {
     override lazy val classifier = new SparseNetworkLearner()
     override val useCache = true
   }
+
+object OppositClassifier extends Learnable[String](randomNode) {
+    def label = oppositRandomLabel
+    override def feature = using(randomProperty)
+    override lazy val classifier = new SparseNetworkLearner()
+    override val useCache = true
+  }
 }

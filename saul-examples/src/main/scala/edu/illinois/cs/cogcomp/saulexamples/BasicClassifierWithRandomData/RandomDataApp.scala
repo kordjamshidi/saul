@@ -5,7 +5,7 @@
   * http://cogcomp.cs.illinois.edu/
   */
 package edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData
-import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.RandomClassifiers.BinaryClassifier
+import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.RandomClassifiers.{OppositClassifier, BinaryClassifier}
 
 object RandomDataApp extends App {
 
@@ -19,4 +19,7 @@ object RandomDataApp extends App {
   RandomDataModel.write(graphCacheFile)
   BinaryClassifier.learn(30)
   BinaryClassifier.test(examples)
+  OppositClassifier.learn(30)
+  OppositClassifier.test(examples)
+  binaryConstrainedClassifier.test(examples)
 }
