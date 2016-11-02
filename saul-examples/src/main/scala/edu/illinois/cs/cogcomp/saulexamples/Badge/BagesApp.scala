@@ -3,8 +3,9 @@ package edu.illinois.cs.cogcomp.saulexamples.Badge
 /** Created by Parisa on 9/13/16.
   */
 
-import edu.illinois.cs.cogcomp.saul.classifier.SimpleSparseNetwork
+import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, SimpleSparseNetwork}
 import edu.illinois.cs.cogcomp.saulexamples.Badge.BadgeClassifiers._
+import edu.illinois.cs.cogcomp.saulexamples.Badge.BadgeConstraintClassifiers.{oppositBadgeConstrainedClassifierMulti, badgeConstrainedClassifierMulti}
 import edu.illinois.cs.cogcomp.saulexamples.Badge.BadgeDataModel._
 
 import scala.collection.JavaConversions._
@@ -29,14 +30,14 @@ object BadgesApp extends App {
 
   // BadgeClassifierMulti.test()
   //BadgeOppositClassifierMulti.test()
-  //val cls=List(badgeConstrainedClassifierMulti,oppositBadgeConstrainedClassifierMulti)
+   val cls=List(badgeConstrainedClassifierMulti,oppositBadgeConstrainedClassifierMulti)
 
-  //  ClassifierUtils.InitializeClassifiers(badge, cls: _*)
+   ClassifierUtils.InitializeClassifiers(badge, cls: _*)
 
   // JointTrainSparseNetwork.train(badge,cls,5,false)
   // badgeConstrainedClassifierMulti.test()
 
   //oppositBadgeConstrainedClassifierMulti.test()
-  SimpleSparseNetwork.train(badge, BadgeClassifierMulti, 5, false)
+  SimpleSparseNetwork.train(badge, BadgeClassifierMulti, 1, false)
   BadgeClassifierMulti.test()
 }

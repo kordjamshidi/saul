@@ -33,8 +33,8 @@ object SimpleSparseNetwork {
       difference = 0
       allHeads.zipWithIndex.foreach {
         case (candidate, idx) =>
-          {
-            if (idx % 5000 == 0)
+
+          //  if (idx % 5000 == 0)
               logger.info(s"Training: $idx examples inferred.")
               val oracle = currentClassifier.getLabeler
               val baseClassifier = currentClassifier.classifier.asInstanceOf[SparseNetworkLearner]
@@ -88,9 +88,10 @@ object SimpleSparseNetwork {
                 trainOnce()
               }
           }
-      }
       train(node, currentClassifier, it - 1, false)
+      }
+
     }
-  }
+
 }
 
