@@ -57,7 +57,7 @@ object SimpleSparseNetwork {
                   // and the LTU of the predicted class should be demoted.
                   if (!result.equals(trueLabel)) //equals("true") && trueLabel.equals("false")   )
                   {
-                    val a = currentClassifier.getExampleArray(candidate)
+                    val a = currentClassifier.getExampleArray(candidate,true)
                     val a0 = a(0).asInstanceOf[Array[Int]] //exampleFeatures
                     val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
                     val exampleLabels = a(2).asInstanceOf[Array[Int]]

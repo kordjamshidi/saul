@@ -10,7 +10,7 @@ import edu.illinois.cs.cogcomp.lbjava.learn.SupportVectorMachine
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EmailSpam.SpamDataModel._
-import weka.classifiers.bayes.NaiveBayes
+import weka.classifiers.`lazy`.IBk
 
 object SpamClassifiers {
   object SpamClassifier extends Learnable(email) {
@@ -33,7 +33,7 @@ object SpamClassifiers {
   }
   object SpamClassifierWeka extends Learnable(email) {
     def label = spamLabel
-    override lazy val classifier = new SaulWekaWrapper(new NaiveBayes())
+    override lazy val classifier = new SaulWekaWrapper(new IBk(3))
     override def feature = using(words)
   }
 }
