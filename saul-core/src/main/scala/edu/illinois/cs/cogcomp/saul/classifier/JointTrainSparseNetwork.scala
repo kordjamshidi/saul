@@ -44,18 +44,16 @@ object JointTrainSparseNetwork {
               logger.info(s"Training: $idx examples inferred.")
 
             cls.foreach {
-              case classifier: ConstrainedClassifier[_, HEAD] =>
-                val typedClassifier = classifier.asInstanceOf[ConstrainedClassifier[_, HEAD]]
-                val oracle = typedClassifier.onClassifier.getLabeler
-
-                typedClassifier.getCandidates(h) foreach {
+              currentClassifier: ConstrainedClassifier[_, HEAD] =>
+                val oracle = currentClassifier.onClassifier.getLabeler
+                val baseClassifier = currentClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
+                currentClassifier.getCandidates(h) foreach {
                   candidate =>
                     {
                       def trainOnce() = {
-                        val result = typedClassifier.classifier.discreteValue(candidate)
+                        val result = currentClassifier.classifier.discreteValue(candidate)
                         val trueLabel = oracle.discreteValue(candidate)
-                        val ilearner = typedClassifier.onClassifier.classifier.asInstanceOf[SparseNetworkLearner]
-                        val lLexicon = typedClassifier.onClassifier.getLabelLexicon
+                        val lLexicon = currentClassifier.onClassifier.getLabelLexicon
                         var LTU_actual: Int = 0
                         var LTU_predicted: Int = 0
                         for (i <- 0 until lLexicon.size()) {
@@ -69,26 +67,26 @@ object JointTrainSparseNetwork {
                         // and the LTU of the predicted class should be demoted.
                         if (!result.equals(trueLabel)) //equals("true") && trueLabel.equals("false")   )
                         {
-                          val a = typedClassifier.onClassifier.getExampleArray(candidate)
+                          val a = currentClassifier.onClassifier.getExampleArray(candidate)
                           val a0 = a(0).asInstanceOf[Array[Int]] //exampleFeatures
                           val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
                           val exampleLabels = a(2).asInstanceOf[Array[Int]]
                           val label = exampleLabels(0)
-                          var N = ilearner.getNetwork.size
+                          var N = baseClassifier.getNetwork.size
 
-                          if (label >= N || ilearner.getNetwork.get(label) == null) {
-                            val conjugateLabels = ilearner.isUsingConjunctiveLabels | ilearner.getLabelLexicon.lookupKey(label).isConjunctive
-                            ilearner.setConjunctiveLabels(conjugateLabels)
+                          if (label >= N || baseClassifier.getNetwork.get(label) == null) {
+                            val conjugateLabels = baseClassifier.isUsingConjunctiveLabels | baseClassifier.getLabelLexicon.lookupKey(label).isConjunctive
+                            baseClassifier.setConjunctiveLabels(conjugateLabels)
 
-                            val ltu: LinearThresholdUnit = ilearner.getBaseLTU
-                            ltu.initialize(ilearner.getNumExamples, ilearner.getNumFeatures)
-                            ilearner.getNetwork.set(label, ltu)
+                            val ltu: LinearThresholdUnit = baseClassifier.getBaseLTU
+                            ltu.initialize(baseClassifier.getNumExamples, baseClassifier.getNumFeatures)
+                            baseClassifier.getNetwork.set(label, ltu)
                             N = label + 1
                           }
 
                           // test push
-                          val ltu_actual = ilearner.getLTU(LTU_actual).asInstanceOf[LinearThresholdUnit]
-                          val ltu_predicted = ilearner.getLTU(LTU_predicted).asInstanceOf[LinearThresholdUnit]
+                          val ltu_actual = baseClassifier.getLTU(LTU_actual).asInstanceOf[LinearThresholdUnit]
+                          val ltu_predicted = baseClassifier.getLTU(LTU_predicted).asInstanceOf[LinearThresholdUnit]
 
                           if (ltu_actual != null)
                             ltu_actual.promote(a0, a1, 0.1)
