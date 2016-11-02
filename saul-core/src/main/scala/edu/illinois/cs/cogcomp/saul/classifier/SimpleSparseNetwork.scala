@@ -36,9 +36,8 @@ object SimpleSparseNetwork {
           {
             if (idx % 5000 == 0)
               logger.info(s"Training: $idx examples inferred.")
-            currentClassifier: Learnable[HEAD] =>
               val oracle = currentClassifier.getLabeler
-              val baseClassifier = currentClassifier.asInstanceOf[SparseNetworkLearner]
+              val baseClassifier = currentClassifier.classifier.asInstanceOf[SparseNetworkLearner]
 
               {
                 def trainOnce() = {
