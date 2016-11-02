@@ -1,9 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.Badge
 
-import edu.illinois.cs.cogcomp.lbjava.learn.{SparseNetworkLearner, SparsePerceptron}
+import edu.illinois.cs.cogcomp.lbjava.learn.{ SparseNetworkLearner, SparsePerceptron }
 
-/**
-  * Created by Parisa on 9/13/16.
+/** Created by Parisa on 9/13/16.
   */
 
 object BadgeClassifiers {

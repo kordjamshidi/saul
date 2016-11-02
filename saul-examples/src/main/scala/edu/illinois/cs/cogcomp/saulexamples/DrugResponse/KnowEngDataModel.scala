@@ -82,8 +82,8 @@ object KnowEngDataModel extends DataModel {
 
   val drugResponse = property(patientDrug) {
     x: PatientDrug =>
-      val temp= x.response.doubleValue()
-      if (temp> 100) "+" else "-"
+      val temp = x.response.doubleValue()
+      if (temp > 100) "+" else "-"
   }
 
   val genesGroupedPerPathway = genes().map(x => x.KEGG.map(y => (x.GeneName, y))).flatten.groupBy(_._2).map(x => (x._1, x._2.map(t1 => t1._1)))

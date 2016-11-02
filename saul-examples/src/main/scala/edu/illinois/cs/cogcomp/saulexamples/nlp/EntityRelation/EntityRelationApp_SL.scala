@@ -29,7 +29,7 @@ object EntityRelationApp_SL extends App {
   val cls = List(PerConstrainedClassifier, OrgConstrainedClassifier, LocConstrainedClassifier,
     LivesIn_PerOrg_relationConstrainedClassifier, WorksFor_PerOrg_ConstrainedClassifier)
 
-  JointTrainSparseNetwork.train[ConllRelation](pairs, cls, 5, true )
+  JointTrainSparseNetwork.train[ConllRelation](pairs, cls, 5, true)
 
   //ClassifierUtils.TestClassifiers(cls: _*)
 

@@ -7,10 +7,10 @@
 package edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData
 
 import edu.illinois.cs.cogcomp.lbjava.learn.SparsePerceptron
-import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.BinaryConstraints.{binaryConstrainedClassifier, oppositBinaryConstrainedClassifier}
-import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.RandomClassifiers.{BinaryClassifier, OppositClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.BinaryConstraints.{ binaryConstrainedClassifier, oppositBinaryConstrainedClassifier }
+import edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData.RandomClassifiers.{ BinaryClassifier, OppositClassifier }
 
-object RandomApp extends App{
+object RandomApp extends App {
 
   import RandomDataModel._
   for (i <- 1 to 100) {
@@ -20,17 +20,17 @@ object RandomApp extends App{
   BinaryClassifier.classifier.asInstanceOf[SparsePerceptron].setInitialWeight(0.01)
   OppositClassifier.classifier.asInstanceOf[SparsePerceptron].setInitialWeight(0.02)
 
- // val graphCacheFile = "models/temp.model"
+  // val graphCacheFile = "models/temp.model"
   //RandomDataModel.deriveInstances()
- // RandomDataModel.write(graphCacheFile)
+  // RandomDataModel.write(graphCacheFile)
   //BinaryClassifier.learn(30)
   BinaryClassifier.test(examples)
   //OppositClassifier.learn(30)
   //OppositClassifier.test(examples)
   //binaryConstrainedClassifier.test(examples)
-  val ccl= List(binaryConstrainedClassifier,oppositBinaryConstrainedClassifier)
+  val ccl = List(binaryConstrainedClassifier, oppositBinaryConstrainedClassifier)
 
- // JointTrain.train(randomNode,ccl ,10)
+  // JointTrain.train(randomNode,ccl ,10)
 
   //binaryConstrainedClassifier.classifier.asInstanceOf[SparsePerceptron].setInitialWeight(0.01)
 
