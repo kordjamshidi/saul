@@ -63,7 +63,7 @@ object myApp extends Logging {
 
     val genesGroupedPerPathway = genes().map(x => x.KEGG.map(y => (x.GeneName, y))).flatten.groupBy(_._2).map(x => (x._1, x._2.map(t1 => t1._1)))
 
-    patientDrug().filter(x => drugResponse(x) > 12)
+    //patientDrug().filter(x => drugResponse(x) > 12)
 
     (patients() ~> -pgPatient ~> pgGenes) prop gene_KEGG
 

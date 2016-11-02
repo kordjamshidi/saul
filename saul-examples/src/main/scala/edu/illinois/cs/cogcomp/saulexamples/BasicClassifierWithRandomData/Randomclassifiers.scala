@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.BasicClassifierWithRandomData
 
-import edu.illinois.cs.cogcomp.lbjava.learn.SparseNetworkLearner
+import edu.illinois.cs.cogcomp.lbjava.learn.SparsePerceptron
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 
 object RandomClassifiers {
@@ -14,14 +14,14 @@ object RandomClassifiers {
   object BinaryClassifier extends Learnable[String](randomNode) {
     def label = randomLabel
     override def feature = using(randomProperty)
-    override lazy val classifier = new SparseNetworkLearner()
-    override val useCache = true
+    override lazy val classifier = new SparsePerceptron()
+    //override val useCache = true
   }
 
 object OppositClassifier extends Learnable[String](randomNode) {
     def label = oppositRandomLabel
     override def feature = using(randomProperty)
-    override lazy val classifier = new SparseNetworkLearner()
-    override val useCache = true
+    override lazy val classifier = new SparsePerceptron()
+    //override val useCache = true
   }
 }

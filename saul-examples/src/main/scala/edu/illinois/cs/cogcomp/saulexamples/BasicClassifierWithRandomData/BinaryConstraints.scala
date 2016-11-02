@@ -28,6 +28,5 @@ object BinaryConstraints {
     def subjectTo = BinaryConstraints.binaryConstraint
     override val solver = new OJalgoHook
   }
-
 }
 

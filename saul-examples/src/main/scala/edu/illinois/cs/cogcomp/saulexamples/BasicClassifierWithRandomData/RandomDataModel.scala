@@ -18,7 +18,7 @@ object RandomDataModel extends DataModel {
   val r = scala.util.Random
   r.setSeed(0)
 
-  val randomLabel = property(randomNode, cache = true) {
+  val randomLabel = property(randomNode, cache = true) ("1", "-1")  {
     x: String =>
       (2 * (if (r.nextGaussian() > 0) 1 else 0) - 1).toString
   }
@@ -30,7 +30,7 @@ object RandomDataModel extends DataModel {
       List(c * p1new - s * p(1), c * p1new + s * p(1))
   }
 
-  val oppositRandomLabel = property(randomNode, cache = true) {
+  val oppositRandomLabel = property(randomNode, cache = true) ("1", "-1")  {
     x: String =>
       if (randomLabel(x).equals("1") )  "-1"  else "1"
   }
