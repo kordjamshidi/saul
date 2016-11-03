@@ -35,63 +35,64 @@ object SimpleSparseNetwork {
         case (candidate, idx) =>
 
           //  if (idx % 5000 == 0)
-              logger.info(s"Training: $idx examples inferred.")
-              val oracle = currentClassifier.getLabeler
-              val baseClassifier = currentClassifier.classifier.asInstanceOf[SparseNetworkLearner]
+          logger.info(s"Training: $idx examples inferred.")
+          val oracle = currentClassifier.getLabeler
+          val baseClassifier = currentClassifier.classifier.asInstanceOf[SparseNetworkLearner]
 
+          {
+            def trainOnce() = {
+              val result = currentClassifier.classifier.discreteValue(candidate)
+              val trueLabel = oracle.discreteValue(candidate)
+              val lLexicon = currentClassifier.getLabelLexicon
+              var LTU_actual: Int = 0
+              var LTU_predicted: Int = 0
+              for (i <- 0 until lLexicon.size()) {
+                if (lLexicon.lookupKey(i).valueEquals(result))
+                  LTU_predicted = i
+                if (lLexicon.lookupKey(i).valueEquals(trueLabel))
+                  LTU_actual = i
+              }
+
+              // The idea is that when the prediction is wrong the LTU of the actual class should be promoted
+              // and the LTU of the predicted class should be demoted.
+              if (!result.equals(trueLabel)) //equals("true") && trueLabel.equals("false")   )
               {
-                def trainOnce() = {
-                  val result = currentClassifier.classifier.discreteValue(candidate)
-                  val trueLabel = oracle.discreteValue(candidate)
-                  val lLexicon = currentClassifier.getLabelLexicon
-                  var LTU_actual: Int = 0
-                  var LTU_predicted: Int = 0
-                  for (i <- 0 until lLexicon.size()) {
-                    if (lLexicon.lookupKey(i).valueEquals(result))
-                      LTU_predicted = i
-                    if (lLexicon.lookupKey(i).valueEquals(trueLabel))
-                      LTU_actual = i
-                  }
+                val a = currentClassifier.getExampleArray(candidate)
+                val a0 = a(0).asInstanceOf[Array[Int]] //exampleFeatures
+                val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
+                val exampleLabels = a(2).asInstanceOf[Array[Int]]
+                val labelValues = a(3).asInstanceOf[Array[Double]]
+                val label = exampleLabels(0)
+                var N = baseClassifier.getNetwork.size
 
-                  // The idea is that when the prediction is wrong the LTU of the actual class should be promoted
-                  // and the LTU of the predicted class should be demoted.
-                  if (!result.equals(trueLabel)) //equals("true") && trueLabel.equals("false")   )
-                  {
-                    val a = currentClassifier.getExampleArray(candidate,true)
-                    val a0 = a(0).asInstanceOf[Array[Int]] //exampleFeatures
-                    val a1 = a(1).asInstanceOf[Array[Double]] // exampleValues
-                    val exampleLabels = a(2).asInstanceOf[Array[Int]]
-                    val label = exampleLabels(0)
-                    var N = baseClassifier.getNetwork.size
+                if (label >= N || baseClassifier.getNetwork.get(label) == null) {
+                  val conjugateLabels = baseClassifier.isUsingConjunctiveLabels | baseClassifier.getLabelLexicon.lookupKey(label).isConjunctive
+                  baseClassifier.setConjunctiveLabels(conjugateLabels)
 
-                    if (label >= N || baseClassifier.getNetwork.get(label) == null) {
-                      val conjugateLabels = baseClassifier.isUsingConjunctiveLabels | baseClassifier.getLabelLexicon.lookupKey(label).isConjunctive
-                      baseClassifier.setConjunctiveLabels(conjugateLabels)
-
-                      val ltu: LinearThresholdUnit = baseClassifier.getBaseLTU
-                      ltu.initialize(baseClassifier.getNumExamples, baseClassifier.getNumFeatures)
-                      baseClassifier.getNetwork.set(label, ltu)
-                      N = label + 1
-                    }
-
-                    // test push
-                    val ltu_actual = baseClassifier.getLTU(LTU_actual).asInstanceOf[LinearThresholdUnit]
-                    val ltu_predicted = baseClassifier.getLTU(LTU_predicted).asInstanceOf[LinearThresholdUnit]
-
-                    if (ltu_actual != null)
-                      ltu_actual.promote(a0, a1, 0.1)
-                    if (ltu_predicted != null)
-                      ltu_predicted.demote(a0, a1, 0.1)
-                  }
+                  val ltu: LinearThresholdUnit = baseClassifier.getBaseLTU.clone.asInstanceOf[LinearThresholdUnit]
+                  ltu.initialize(baseClassifier.getNumExamples, baseClassifier.getNumFeatures)
+                  baseClassifier.getNetwork.set(label, ltu)
+                  N = label + 1
                 }
 
-                trainOnce()
-              }
-          }
-      train(node, currentClassifier, it - 1, false)
-      }
+                // test push
+                val ltu_actual = baseClassifier.getLTU(LTU_actual).asInstanceOf[LinearThresholdUnit]
+                val ltu_predicted = baseClassifier.getLTU(LTU_predicted).asInstanceOf[LinearThresholdUnit]
 
+                if (ltu_actual != null)
+                  ltu_actual.promote(a0, a1, 0.1)
+                if (ltu_predicted != null)
+                  ltu_predicted.demote(a0, a1, 0.1)
+              }
+            }
+
+            trainOnce()
+          }
+      }
+      train(node, currentClassifier, it - 1, false)
     }
+
+  }
 
 }
 

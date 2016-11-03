@@ -78,7 +78,7 @@ object JointTrainSparseNetwork {
                             val conjugateLabels = baseClassifier.isUsingConjunctiveLabels | baseClassifier.getLabelLexicon.lookupKey(label).isConjunctive
                             baseClassifier.setConjunctiveLabels(conjugateLabels)
 
-                            val ltu: LinearThresholdUnit = baseClassifier.getBaseLTU
+                            val ltu: LinearThresholdUnit = baseClassifier.getBaseLTU.clone().asInstanceOf[LinearThresholdUnit]
                             ltu.initialize(baseClassifier.getNumExamples, baseClassifier.getNumFeatures)
                             baseClassifier.getNetwork.set(label, ltu)
                             N = label + 1
