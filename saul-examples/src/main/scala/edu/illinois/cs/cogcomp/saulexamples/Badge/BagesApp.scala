@@ -4,9 +4,9 @@ package edu.illinois.cs.cogcomp.saulexamples.Badge
   */
 
 import edu.illinois.cs.cogcomp.saul.classifier.SL_model.StructuredLearning
-import edu.illinois.cs.cogcomp.saul.classifier.{ ClassifierUtils, JointTrain, JointTrainSparseNetwork }
-import edu.illinois.cs.cogcomp.saulexamples.Badge.BadgeClassifiers.{ BadgeClassifier, BadgeOppositClassifier }
-import edu.illinois.cs.cogcomp.saulexamples.Badge.BadgeConstraintClassifiers.{ badgeConstrainedClassifier, badgeConstrainedClassifierMulti, oppositBadgeConstrainedClassifier, oppositBadgeConstrainedClassifierMulti }
+import edu.illinois.cs.cogcomp.saul.classifier.{ClassifierUtils, JointTrain, JointTrainSparseNetwork}
+import edu.illinois.cs.cogcomp.saulexamples.Badge.BadgeClassifiers.{BadgeOppositClassifier, BadgeClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.Badge.BadgeConstraintClassifiers.{badgeConstrainedClassifier, badgeConstrainedClassifierMulti, oppositBadgeConstrainedClassifier, oppositBadgeConstrainedClassifierMulti}
 import edu.illinois.cs.cogcomp.saulexamples.Badge.BadgeDataModel._
 
 import scala.collection.JavaConversions._
@@ -21,16 +21,17 @@ object BadgesApp {
   val cls = List(badgeConstrainedClassifierMulti, oppositBadgeConstrainedClassifierMulti)
 
   object BadgeExperimentType extends Enumeration {
-    val JoinTrainSparsePerceptron, JoinTrainSparseNetwork, JoinTrainSL = Value
+    val JoinTrainSparsePerceptron, JointTrainSparseNetwork, JointTrainSparseNetworkLossAugmented, JoinTrainSL = Value
   }
 
   def main(args: Array[String]): Unit = {
     /** Choose the experiment you're interested in by changing the following line */
-    val testType = BadgeExperimentType.JoinTrainSL
+    val testType = BadgeExperimentType.JointTrainSparseNetworkLossAugmented
 
     testType match {
       case BadgeExperimentType.JoinTrainSparsePerceptron => JoinTrainSparsePerceptron()
-      case BadgeExperimentType.JoinTrainSparseNetwork => JoinTrainSparseNetwork()
+      case BadgeExperimentType.JointTrainSparseNetwork => JoinTrainSparseNetwork()
+      case BadgeExperimentType.JointTrainSparseNetworkLossAugmented => LossAugmentedJoinTrainSparseNetwork()
       case BadgeExperimentType.JoinTrainSL => JoinTrainSL()
     }
   }
@@ -40,20 +41,27 @@ object BadgesApp {
     BadgeClassifier.test()
     BadgeOppositClassifier.test()
     JointTrain.train(BadgeDataModel.badge, List(badgeConstrainedClassifier, oppositBadgeConstrainedClassifier), 5)
+    oppositBadgeConstrainedClassifier.test()
     badgeConstrainedClassifier.test()
     BadgeClassifier.test()
-    oppositBadgeConstrainedClassifier.test()
   }
 
   /*Test the joinTraining with SparseNetwork*/
   def JoinTrainSparseNetwork(): Unit = {
 
-    ClassifierUtils.InitializeClassifiers(badge, cls: _*)
-
-    JointTrainSparseNetwork.train(badge, cls, 5, false)
+    JointTrainSparseNetwork.train(badge, cls, 5, init = true)
 
     badgeConstrainedClassifierMulti.test()
-    oppositBadgeConstrainedClassifier.test()
+    oppositBadgeConstrainedClassifierMulti.test()
+  }
+
+  /*Test the joinTraining with SparseNetwork and doing loss augmented inference*/
+  def LossAugmentedJoinTrainSparseNetwork(): Unit = {
+
+   JointTrainSparseNetwork.train(badge, cls, 5, init =  true,lossAugmented = true)
+
+    badgeConstrainedClassifierMulti.test()
+    oppositBadgeConstrainedClassifierMulti.test()
   }
 
   /*Test the joinTraining with Structured output prediction in SL*/
