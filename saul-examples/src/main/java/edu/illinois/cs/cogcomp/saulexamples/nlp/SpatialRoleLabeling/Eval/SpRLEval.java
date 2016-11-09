@@ -4,12 +4,11 @@
   * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
   * http://cogcomp.cs.illinois.edu/
   */
-package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet;
+package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval;
 
 /**
- * Created by Taher on 2016-09-10.
+ * Created by Taher on 2016-09-20.
  */
-public enum SpRelationLabels {
-    GOLD,
-    CANDIDATE,
+public interface SpRLEval {
+    boolean isEqual(SpRLEval b);
 }

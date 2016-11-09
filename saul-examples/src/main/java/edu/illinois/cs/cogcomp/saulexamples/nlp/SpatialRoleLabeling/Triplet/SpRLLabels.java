@@ -4,18 +4,12 @@
   * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
   * http://cogcomp.cs.illinois.edu/
   */
-package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling;
-
-import java.math.BigInteger;
+package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet;
 
 /**
- * Created by taher on 7/30/16.
+ * Created by Taher on 2016-09-10.
  */
-public interface SpRLAnnotation {
-    Integer getStart();
-    Integer getEnd();
-    void setStart(Integer x);
-    void setEnd(Integer x);
-    String getText();
-    String getId();
+public enum SpRLLabels {
+    GOLD,
+    CANDIDATE,
 }
