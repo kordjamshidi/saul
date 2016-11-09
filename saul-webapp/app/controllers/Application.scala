@@ -21,21 +21,33 @@ import _root_.util._
 
 object Application {
 
-  val rootDir = "/tmp"
-
+  val rootDir = System.getProperty("java.io.tmpdir")
+  val exampleDir = "./saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples"
   val completeClasspath = (List(
     "scala.tools.nsc.Interpreter",
     "scala.AnyVal",
+    "edu.illinois.cs.cogcomp.edison.features.factory.WordFeatureExtractorFactory",
+    "edu.illinois.cs.cogcomp.edison.features.FeatureExtractor",
+    "edu.illinois.cs.cogcomp.saul.util.Logging",
     "edu.illinois.cs.cogcomp.saulexamples.nlp.EmailSpam.SpamApp",
-    "edu.illinois.cs.cogcomp.saulexamples.bioInformatics.regressionModel.MyApp",
+    "edu.illinois.cs.cogcomp.saulexamples.DrugResponse.myApp",
     "edu.illinois.cs.cogcomp.saul.datamodel.DataModel",
     "edu.illinois.cs.cogcomp.lbjava.parse.Parser",
     "edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation",
     "edu.illinois.cs.cogcomp.nlp.pipeline.IllinoisPipelineFactory",
     "edu.illinois.cs.cogcomp.curator.CuratorFactory",
-    "util.VisualizerInstance"
+    "ch.qos.logback.classic.Level",
+    "ch.qos.logback.classic.encoder.PatternLayoutEncoder",
+    "ch.qos.logback.classic.html.HTMLLayout",
+    "ch.qos.logback.classic.spi.ILoggingEvent",
+    "ch.qos.logback.core.encoder.Encoder",
+    "ch.qos.logback.core.encoder.LayoutWrappingEncoder",
+    "org.slf4j.impl.StaticLoggerBinder",
+    "org.slf4j.LoggerFactory",
+    "util.VisualizerInstance",
+    "weka.classifiers.bayes.NaiveBayes",
+    "com.twitter.hbc.core.endpoint.Location"
   ).flatMap(x => classPathOfClass(x)) ::: List(rootDir)).mkString(File.pathSeparator)
-
 }
 
 class Application extends Controller {
@@ -56,6 +68,22 @@ class Application extends Controller {
     Ok(views.html.plot("Plot Visualization"))
   }
 
+  def getExamples = Action(parse.json) { implicit request =>
+
+    Ok(Json.toJson(IOUtils.findLeafFolders(exampleDir)))
+  }
+
+  def getExampleFile = Action(parse.json) { implicit request =>
+    val files = parseRequest(GetExample(), request)
+    files match {
+      case Some(fileMap) => {
+        val (k,v) = fileMap.head
+        Ok(Json.toJson(IOUtils.getExampleFileContentList(exampleDir,v)))
+
+      }
+      case _ => Ok(getErrorJson(Json.toJson("No filemap found.")))
+    }
+  }
   def acceptDisplayModel = Action(parse.json) { implicit request =>
     execute(DisplayModel(), request)
   }
@@ -87,20 +115,18 @@ class Application extends Controller {
                 //If main class found, execute and get output and data population results
                 val executionResult = executeMain(scalaInstances, fileMap, compiler)
                 executionResult match {
-                  case Some(x) => {
+                  case Some(x) =>
                     Ok(JsObject(Seq(
                       "dataModelSchema" -> dataModelSchema,
                       "populatedModel" -> DataModelJsonInterface.getPopulatedInstancesJson(dataModel),
                       "log" -> JsObject(Logger.gather.map(record => (record._1, JsString(record._2))))
                     )))
-                  }
-                  case None => {
+                  case None =>
                     Ok(JsObject(Seq(
                       "dataModelSchema" -> dataModelSchema,
                       "populatedModel" -> JsNull,
                       "log" -> JsNull
                     )))
-                  }
                 }
               }
               case None => Ok(getErrorJson(Json.toJson("No DataModel found.")))
@@ -113,10 +139,10 @@ class Application extends Controller {
   }
 
   private def getDataModel(scalaInstances: Iterable[Any]): Option[DataModel] = {
-    val result = scalaInstances find (x => x match {
+    val result = scalaInstances find {
       case model: DataModel => true
       case _ => false
-    })
+    }
 
     result match {
       case Some(x) => x match {
@@ -140,21 +166,16 @@ class Application extends Controller {
 
   private def parseRequest(event: Event, request: Request[JsValue]): Option[Map[String, String]] = {
     request.body match {
-      case jsonData: JsObject => {
+      case jsonData: JsObject =>
         event match {
-          case Query() => {
+          case Query() =>
             val dataMap = jsonData.as[Map[String, String]]
             val query = dataMap("query")
             val files = Json.parse(dataMap("files")).as[Map[String, String]]
             val fileMap = QueryPreprocessor.preprocess(files, query)
-            fileMap match {
-              case Some(files) => Some(files)
-              case None => None
-            }
-          }
+            fileMap
           case _ => Some(jsonData.as[Map[String, String]])
         }
-      }
       case _ => None
     }
   }
@@ -167,14 +188,13 @@ class Application extends Controller {
       case Some(fileMap) => {
         val compilationResult = compile(fileMap)
         compilationResult match {
-          case Left(scalaInstances) => {
+          case Left(scalaInstances) =>
             event match {
               case DisplayModel() => Ok(displayModel(scalaInstances))
               case PopulateData() => Ok(populateModel(scalaInstances, fileMap, compiler))
               case RunMain() => Ok(runMain(scalaInstances))
               case Query() => Ok(populateModel(scalaInstances, fileMap, compiler))
             }
-          }
           case Right(errorMsg) => Ok(errorMsg)
         }
       }

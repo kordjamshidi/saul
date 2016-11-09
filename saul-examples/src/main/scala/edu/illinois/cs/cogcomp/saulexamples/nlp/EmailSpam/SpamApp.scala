@@ -14,8 +14,8 @@ import scala.collection.JavaConversions._
 
 object SpamApp extends Logging {
 
-  val trainData = new DocumentReader("../data/EmailSpam/train").docs.toList
-  val testData = new DocumentReader("../data/EmailSpam/test").docs.toList
+  val trainData = new DocumentReader("data/EmailSpam/train").docs.toList
+  val testData = new DocumentReader("data/EmailSpam/test").docs.toList
 
   object SpamExperimentType extends Enumeration {
     val TrainAndTest, CacheGraph, TestUsingGraphCache, TestSerialization = Value
@@ -23,7 +23,7 @@ object SpamApp extends Logging {
 
   def main(args: Array[String]): Unit = {
     /** Choose the experiment you're interested in by changing the following line */
-    val testType = SpamExperimentType.TestSerialization
+    val testType = SpamExperimentType.TrainAndTest
 
     testType match {
       case SpamExperimentType.TrainAndTest => TrainAndTestSpamClassifier()
@@ -36,7 +36,8 @@ object SpamApp extends Logging {
   /** A standard method for testing the Spam Classification problem. Simply training and testing the resulting model.*/
   def TrainAndTestSpamClassifier(): Unit = {
     /** Defining the data and specifying it's location  */
-    SpamDataModel.docs populate trainData
+    SpamDataModel.email populate trainData
+    SpamClassifier.forget()
     SpamClassifier.learn(30)
     SpamClassifier.test(testData)
   }
@@ -45,7 +46,7 @@ object SpamApp extends Logging {
   val graphCacheFile = "models/temp.model"
   def SpamClassifierWithGraphCache(): Unit = {
     /** Defining the data and specifying it's location  */
-    SpamDataModel.docs populate trainData
+    SpamDataModel.email populate trainData
     SpamDataModel.deriveInstances()
     SpamDataModel.write(graphCacheFile)
     SpamClassifierWithCache.learn(30)
@@ -66,7 +67,7 @@ object SpamApp extends Logging {
     * predictions before serialization.
     */
   def SpamClassifierWithSerialization(): Unit = {
-    SpamDataModel.docs populate trainData
+    SpamDataModel.email populate trainData
     SpamClassifier.learn(30)
     SpamClassifier.save()
     DeserializedSpamClassifier.load(SpamClassifier.lcFilePath, SpamClassifier.lexFilePath)

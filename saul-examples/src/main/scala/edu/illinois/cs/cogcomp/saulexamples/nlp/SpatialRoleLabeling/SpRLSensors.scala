@@ -12,6 +12,7 @@ import edu.illinois.cs.cogcomp.edison.features.helpers.PathFeatureHelper
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.nlp.CommonSensors
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet.{ SpRelation, SpRelationLabels }
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
@@ -23,9 +24,9 @@ import scala.util.matching.Regex
 object SpRLSensors extends Logging {
   val dependencyView = ViewNames.DEPENDENCY_STANFORD
 
-  def sentencesToRelations(sentence: SpRLSentence): List[RobertsRelation] = {
+  def sentencesToRelations(sentence: SpRLSentence): List[SpRelation] = {
 
-    val relations = ListBuffer[RobertsRelation]()
+    val relations = ListBuffer[SpRelation]()
     val constituents = sentence.getSentence.getView(ViewNames.TOKENS).asScala.toList
     val args = constituents.filter(x => isArgCandidate(x))
     val indicators: ListBuffer[Constituent] = getIndicatorCandidates(sentence.getSentence, Dictionaries.spLexicon)
@@ -35,24 +36,24 @@ object SpRLSensors extends Logging {
       val rels = getIndicatorRelations(sentence.getRelations.asScala.toList, i, sentence.getOffset)
       for (tr <- args) {
 
-        var label = RobertsRelation.RobertsRelationLabels.CANDIDATE
+        var label = SpRelationLabels.CANDIDATE
         val g = rels.find(r => isGoldTrajector(r, tr, sentence.getOffset) && r.getLandmark == null)
         if (g.isDefined) {
-          label = RobertsRelation.RobertsRelationLabels.GOLD
-          relations += new RobertsRelation(sentence.getSentence, tr.getSpan, i.getSpan, null, label, g.get.getId)
+          label = Triplet.SpRelationLabels.GOLD
+          relations += new SpRelation(sentence.getSentence, tr.getSpan, i.getSpan, null, label, g.get.getId)
         } else {
-          relations += new RobertsRelation(sentence.getSentence, tr.getSpan, i.getSpan, null, label, "")
+          relations += new SpRelation(sentence.getSentence, tr.getSpan, i.getSpan, null, label, "")
         }
 
         for (lm <- args) {
           if (lm.getSpan != tr.getSpan) {
             val g = rels.find(r => isGoldTrajector(r, tr, sentence.getOffset) && isGoldLandmark(r, lm, sentence.getOffset))
             if (g.isDefined) {
-              label = RobertsRelation.RobertsRelationLabels.GOLD
-              relations += new RobertsRelation(sentence.getSentence, tr.getSpan, i.getSpan, lm.getSpan, label, g.get.getId)
+              label = Triplet.SpRelationLabels.GOLD
+              relations += new SpRelation(sentence.getSentence, tr.getSpan, i.getSpan, lm.getSpan, label, g.get.getId)
             } else {
-              label = RobertsRelation.RobertsRelationLabels.CANDIDATE
-              relations += new RobertsRelation(sentence.getSentence, tr.getSpan, i.getSpan, lm.getSpan, label, "")
+              label = Triplet.SpRelationLabels.CANDIDATE
+              relations += new SpRelation(sentence.getSentence, tr.getSpan, i.getSpan, lm.getSpan, label, "")
             }
           }
         }
@@ -85,7 +86,7 @@ object SpRLSensors extends Logging {
     val down = paths.getSecond.asScala.toList
 
     val path: StringBuilder = new StringBuilder
-    var i = 0;
+    var i = 0
     while (i < up.size - 1) {
       path.append(getRelationName(relations, up(i), up(i + 1), "↑"))
       i += 1
@@ -181,10 +182,10 @@ object SpRLSensors extends Logging {
       val parsePhrase = tree.getParsePhrase(phrase)
       val headId = CollinsHeadFinder.getInstance.getHeadWordPosition(parsePhrase)
       val head = ta.getView(ViewNames.TOKENS).asInstanceOf[TokenLabelView].getConstituentAtToken(headId)
-      if (constituents.exists(x => x.getSpan == head.getSpan) && isArgCandidate(head))
+      if (constituents.exists(_.getSpan == head.getSpan) && isArgCandidate(head))
         return headId
 
-      val candidates = constituents.filter(c => isArgCandidate(c))
+      val candidates = constituents.filter(isArgCandidate)
       if (candidates.nonEmpty) {
         val lastId = candidates.last.getStartSpan
         return lastId

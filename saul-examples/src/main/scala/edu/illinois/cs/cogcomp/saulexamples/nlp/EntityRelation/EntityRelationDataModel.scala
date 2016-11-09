@@ -8,11 +8,8 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.datastruct.{ ConllRawSentence, ConllRawToken, ConllRelation }
-import edu.illinois.cs.cogcomp.saulexamples.EntityMentionRelation.reader.Conll04_Reader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.EntityRelation.EntityRelationSensors._
-
-import scala.collection.JavaConversions._
 
 object EntityRelationDataModel extends DataModel {
 
@@ -69,6 +66,12 @@ object EntityRelationDataModel extends DataModel {
     t: ConllRawToken => t.getLength
   }
 
+  val posWindowFeature = property(tokens, "POSWindow") { token: ConllRawToken =>
+    tokens.getWithWindow(token, -2, 2)
+      .flatten
+      .map({ token: ConllRawToken => pos(token) })
+  }
+
   val relFeature = property(pairs) {
     token: ConllRelation =>
       "w1-word-" + token.e1.phrase :: "w2-word-" + token.e2.phrase ::
@@ -121,5 +124,9 @@ object EntityRelationDataModel extends DataModel {
   def populateWithConll() = {
     sentences.populate(EntityRelationSensors.sentencesTrain)
     sentences.populate(EntityRelationSensors.sentencesTest, train = false)
+  }
+  def populateWithConllSmallSet() = {
+    sentences.populate(EntityRelationSensors.sentencesSmallSet)
+    sentences.populate(EntityRelationSensors.sentencesSmallSetTest, train = false)
   }
 }

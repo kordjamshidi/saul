@@ -38,15 +38,15 @@ object SpRLApp extends App with Logging {
   logger.info("population starts.")
 
   modelName match {
-    case "Roberts" =>
-      val name = "robertsSupervised2"
+    case "Relation" =>
+      val name = "Relation"
       val lexPath = modelDir + version + File.separator + name + File.separator + "lexicon.lex"
       val lex = if (isTrain) null else loadRobertsLexicon(lexPath)
       PopulateSpRLDataModel(getDataPath(), isTrain, version, modelName, lex)
       if (isTrain) {
         saveRobertsLexicon(lexPath)
       }
-      runClassifier(RobertsClassifiers.robertsSupervised2Classifier, name)
+      runClassifier(SpRLClassifiers.relationClassifier, name)
   }
 
   def runClassifier[T <: AnyRef](classifier: Learnable[T], name: String) = {
@@ -83,16 +83,3 @@ object SpRLApp extends App with Logging {
     else properties.getString(TEST_DIR)
   }
 }
-
-object SpRLTestApp extends App {
-  val text = "cars parked in front of the house ."
-  val ta = TextAnnotationFactory.createTextAnnotation("", "", text)
-  val tokens = ta.getView(ViewNames.TOKENS).getConstituents.asScala
-  val view = ta.getView(ViewNames.SRL_VERB)
-  val const = view.getConstituents.asScala
-  println(ta.getAvailableViews)
-
-  tokens.foreach(x =>
-    println(x.toString + " : " + view.getLabelsCovering(x)))
-}
-
