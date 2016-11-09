@@ -12,8 +12,10 @@ import java.math.BigInteger;
  * Created by taher on 7/30/16.
  */
 public interface SpRLAnnotation {
-    BigInteger getStart();
-    BigInteger getEnd();
+    Integer getStart();
+    Integer getEnd();
+    void setStart(Integer x);
+    void setEnd(Integer x);
     String getText();
     String getId();
 }
