@@ -21,7 +21,7 @@ import _root_.util._
 
 object Application {
 
-  val rootDir = "/tmp"
+  val rootDir = System.getProperty("java.io.tmpdir")
   val exampleDir = "./saul-examples/src/main/scala/edu/illinois/cs/cogcomp/saulexamples"
   val completeClasspath = (List(
     "scala.tools.nsc.Interpreter",
@@ -44,7 +44,9 @@ object Application {
     "ch.qos.logback.core.encoder.LayoutWrappingEncoder",
     "org.slf4j.impl.StaticLoggerBinder",
     "org.slf4j.LoggerFactory",
-    "util.VisualizerInstance"
+    "util.VisualizerInstance",
+    "weka.classifiers.bayes.NaiveBayes",
+    "com.twitter.hbc.core.endpoint.Location"
   ).flatMap(x => classPathOfClass(x)) ::: List(rootDir)).mkString(File.pathSeparator)
 }
 
