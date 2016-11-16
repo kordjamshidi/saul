@@ -7,22 +7,16 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 
 import java.io._
-import java.util
-
-import ch.qos.logback.classic.Level
-import edu.illinois.cs.cogcomp.core.datastructures.{ IntPair, ViewNames }
-import edu.illinois.cs.cogcomp.core.utilities.XmlModel
+import edu.illinois.cs.cogcomp.core.datastructures.IntPair
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
-import edu.illinois.cs.cogcomp.lbjava.classify.TestDiscrete
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{ RELATION, SpRL2013Document }
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet.{ SpRLLabels, SpRLRelation, SpRoleTypes }
-import edu.illinois.cs.cogcomp.saulexamples.nlp.TextAnnotationFactory
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{RELATION, SpRL2013Document}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet.{SpRLLabels, SpRLRelation}
 
-import scala.collection.immutable.HashSet
 import scala.collection.JavaConverters._
+import scala.collection.immutable.HashSet
 import scala.reflect.io.File
 
 /** Created by Parisa on 7/29/16.
