@@ -62,6 +62,7 @@ object DocumentConverterApp extends App {
           //file number correction
           case x if (x > 735) => f + 2
           case x if (x > 721) => f + 1
+          case x if (x > 115 && x < 200) => f + 1
           case x => f
         }
         if (!sentencesAreEqual(s, trimmedSentence)) {
