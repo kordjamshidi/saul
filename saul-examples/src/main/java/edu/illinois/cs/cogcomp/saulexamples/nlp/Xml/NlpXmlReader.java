@@ -8,6 +8,7 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -19,53 +20,88 @@ import java.util.*;
  * Created by Taher on 2016-12-18.
  */
 public class NlpXmlReader {
-    private final XPath xpath;
+    private XPath xpath = null;
     org.w3c.dom.Document xmlDocument;
-    private String documentTagName;
+    private String documentTagName = "DOCUMENT";
+    private String sentenceTagName = "SENTENCE";
+    private String phraseTagName = "PHRASE";
+    private String tokenTagName = "TOKEN";
     private String startTagName = "start";
     private String endTagName = "end";
     private String textTagName = "text";
     private String idTagName = "id";
 
-    public NlpXmlReader(String path) throws Exception {
+    public NlpXmlReader(String path) {
         this(new File(path));
     }
 
-    public NlpXmlReader(String path, String documentTagName) throws Exception {
-        this(new File(path), documentTagName);
-    }
-
-    public NlpXmlReader(File file) throws Exception {
-        this(file, "document");
-    }
-
-    public NlpXmlReader(File file, String documentTagName) throws Exception {
-        this.documentTagName = documentTagName;
+    public NlpXmlReader(File file) {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        xmlDocument = dBuilder.parse(file);
-        XPathFactory factory = XPathFactory.newInstance();
-        xpath = factory.newXPath();
+        DocumentBuilder dBuilder = null;
+        try {
+            dBuilder = dbFactory.newDocumentBuilder();
+            xmlDocument = dBuilder.parse(file);
+            XPathFactory factory = XPathFactory.newInstance();
+            xpath = factory.newXPath();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public List<Document> getDocuments() throws Exception {
-        return getElementList(documentTagName, null, NlpBaseElementTypes.Document);
+    public List<Document> getDocuments() {
+        return getDocuments(documentTagName);
     }
 
-    public List<Sentence> getAllSentences() throws Exception {
-        return getSentences("sentence", null);
+    public List<Document> getDocuments(String tagName) {
+        return getElementList(tagName, null, NlpBaseElementTypes.Document);
     }
 
-    public List<Sentence> getAllSentences(String tagName) throws Exception {
+    public List<Sentence> getAllSentences() {
+        return getSentences(sentenceTagName, null);
+    }
+
+    public List<Sentence> getAllSentences(String tagName) {
         return getSentences(tagName, null);
     }
 
-    public List<Sentence> getSentences(String documentId) throws Exception {
-        return getSentences("sentence", documentId);
+    public List<Sentence> getSentences(String parentId) {
+        return getSentences(sentenceTagName, parentId);
     }
 
-    public List<Sentence> getSentences(String tagName, String documentId) throws Exception {
-        return getElementList(tagName, documentId, NlpBaseElementTypes.Sentence);
+    public List<Sentence> getSentences(String tagName, String parentId) {
+        return getElementList(tagName, parentId, NlpBaseElementTypes.Sentence);
+    }
+
+    public List<Phrase> getAllPhrases() {
+        return getPhrases(phraseTagName, null);
+    }
+
+    public List<Phrase> getAllPhrases(String tagName) {
+        return getPhrases(tagName, null);
+    }
+
+    public List<Phrase> getPhrases(String parentId) {
+        return getPhrases(phraseTagName, parentId);
+    }
+
+    public List<Phrase> getPhrases(String tagName, String parentId) {
+        return getElementList(tagName, parentId, NlpBaseElementTypes.Phrase);
+    }
+
+    public List<Token> getAllTokens() {
+        return getTokens(tokenTagName, null);
+    }
+
+    public List<Token> getAllTokens(String tagName) {
+        return getTokens(tagName, null);
+    }
+
+    public List<Token> getTokens(String parentId) {
+        return getTokens(tokenTagName, parentId);
+    }
+
+    public List<Token> getTokens(String tagName, String parentId) {
+        return getElementList(tagName, parentId, NlpBaseElementTypes.Token);
     }
 
     private <T extends NlpBaseElement> List<T> getElementList(String tagName, String parentId, NlpBaseElementTypes type) {
