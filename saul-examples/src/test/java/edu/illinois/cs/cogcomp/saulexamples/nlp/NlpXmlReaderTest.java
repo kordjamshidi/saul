@@ -44,7 +44,15 @@ public class NlpXmlReaderTest {
         String docId = documents.get(0).getId();
         List<Phrase> phrases = reader.getPhrases("TRAJECTOR", docId);
         assertEquals("Document 1 Trajector phrase count", 3, phrases.size());
+        reader.addPropertiesFromTag("TESTPROP", docId, phrases);
+        assertEquals("first phrase additional prop[first_value]", "1", phrases.get(0).getProperty("TESTPROP_first_value"));
+        assertEquals("first phrase additional prop[second_value]", "T1", phrases.get(0).getProperty("TESTPROP_second_value"));
+        assertEquals("second phrase additional prop[first_value]", "2", phrases.get(1).getProperty("TESTPROP_first_value"));
+        assertEquals("second phrase additional prop[second_value]", "T2", phrases.get(1).getProperty("TESTPROP_second_value"));
+        assertEquals("third phrase additional prop[first_value]", null, phrases.get(2).getProperty("TESTPROP_first_value"));
+        assertEquals("third phrase additional prop[second_value]", null, phrases.get(2).getProperty("TESTPROP_second_value"));
     }
+
     private String getResourcePath(String relativePath) {
         return getClass().getClassLoader().getResource(relativePath).getPath();
     }

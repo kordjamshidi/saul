@@ -104,6 +104,17 @@ public class NlpXmlReader {
         return getElementList(tagName, parentId, NlpBaseElementTypes.Token);
     }
 
+    public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, String parentId, List<T> list) {
+        for (T e : list) {
+            Node n = getNodeBySpan(tagName, e.getStart(), e.getEnd(), parentId);
+            if (n != null) {
+                for (int i = 0; i < n.getAttributes().getLength(); i++) {
+                    e.setProperty(tagName + "_" + n.getAttributes().item(i).getNodeName(), n.getAttributes().item(i).getNodeValue());
+                }
+            }
+        }
+    }
+
     private <T extends NlpBaseElement> List<T> getElementList(String tagName, String parentId, NlpBaseElementTypes type) {
         NodeList nodes = parentId == null ?
                 getNodeList(tagName) :
@@ -145,6 +156,18 @@ public class NlpXmlReader {
         }
 
         return element;
+    }
+
+    private Node getNodeBySpan(String tagName, int start, int end, String parentId) {
+        String query = parentId == null ?
+                String.format("//%s[@start='%s', @end='%s']", tagName, start, end) :
+                String.format("//*[@id='%s']//%s[@start='%s' and @end='%s']", parentId, tagName, start, end);
+        try {
+            return (Node) xpath.evaluate(query, xmlDocument, XPathConstants.NODE);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private NodeList getNodeList(String parentId, String tagName) {
