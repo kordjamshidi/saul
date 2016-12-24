@@ -26,7 +26,6 @@ public class NlpXmlReaderTest {
     @Before
     public void setup() throws Exception {
         reader = new NlpXmlReader(getResourcePath("SpRL/2017/test.xml"), "SCENE");
-        reader.loadDocuments();
     }
 
     @Test
@@ -34,6 +33,7 @@ public class NlpXmlReaderTest {
         assertEquals("Document count", 2, reader.getDocuments().size());
         assertEquals("Document 1 Id", "sc1", reader.getDocuments().get(0).getId());
         assertEquals("Document 2 Id", "sc2", reader.getDocuments().get(1).getId());
+        assertEquals("Document 1 test attribute", "test", reader.getDocuments().get(0).getProperty("test"));
     }
 
     @Test

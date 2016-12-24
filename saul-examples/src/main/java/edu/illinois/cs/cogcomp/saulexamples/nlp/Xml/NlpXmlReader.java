@@ -1,8 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.Xml;
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Document;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Sentence;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.*;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -21,10 +21,11 @@ import java.util.*;
 public class NlpXmlReader {
     private final XPath xpath;
     org.w3c.dom.Document xmlDocument;
-    Map<String, Element> documentsMap = new HashMap<>();
-    List<Document> documents = new ArrayList<>();
-    boolean documentsLoaded = false;
     private String documentTagName;
+    private String startTagName = "start";
+    private String endTagName = "end";
+    private String textTagName = "text";
+    private String idTagName = "id";
 
     public NlpXmlReader(String path) throws Exception {
         this(new File(path));
@@ -47,29 +48,8 @@ public class NlpXmlReader {
         xpath = factory.newXPath();
     }
 
-    public void loadDocuments() throws Exception {
-        if (documentsLoaded)
-            return;
-        NodeList nodes = getNodeList(documentTagName);
-        for (int i = 0; i < nodes.getLength(); i++) {
-            if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                Element e = (Element) nodes.item(i);
-                Document d = new Document(
-                        getStringAttribute(e, "id"),
-                        getIntAttribute(e, "start"),
-                        getIntAttribute(e, "end"),
-                        getStringAttribute(e, "text"));
-                documentsMap.put(d.getId(), e);
-                documents.add(d);
-            }
-        }
-        documentsLoaded = true;
-    }
-
-
     public List<Document> getDocuments() throws Exception {
-        checkLoaded();
-        return documents;
+        return getElementList(documentTagName, null, NlpBaseElementTypes.Document);
     }
 
     public List<Sentence> getAllSentences() throws Exception {
@@ -85,36 +65,63 @@ public class NlpXmlReader {
     }
 
     public List<Sentence> getSentences(String tagName, String documentId) throws Exception {
-        checkLoaded();
-        NodeList nodes = documentId == null ?
+        return getElementList(tagName, documentId, NlpBaseElementTypes.Sentence);
+    }
+
+    private <T extends NlpBaseElement> List<T> getElementList(String tagName, String parentId, NlpBaseElementTypes type) {
+        NodeList nodes = parentId == null ?
                 getNodeList(tagName) :
-                getNodeList(documentId, tagName);
-        List<Sentence> sentences = new ArrayList<>();
+                getNodeList(parentId, tagName);
+        List<T> list = new ArrayList<>();
         for (int i = 0; i < nodes.getLength(); i++) {
             if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element e = (Element) nodes.item(i);
-                Sentence s = new Sentence(
-                        getStringAttribute(e, "id"),
-                        getIntAttribute(e, "start"),
-                        getIntAttribute(e, "end"),
-                        getStringAttribute(e, "text"));
-                documentsMap.put(s.getId(), e);
-                sentences.add(s);
+                NlpBaseElement s = getNlpBaseElement(e, type);
+                list.add((T) s);
             }
         }
-        return sentences;
+        return list;
     }
 
-    private void checkLoaded() throws Exception {
-        if (!documentsLoaded)
-            throw new Exception("Please load documents first.");
+    private NlpBaseElement getNlpBaseElement(Element e, NlpBaseElementTypes type) {
+        NlpBaseElement element = null;
+        switch (type) {
+            case Document:
+                element = new Document();
+                break;
+            case Sentence:
+                element = new Sentence();
+                break;
+            case Phrase:
+                element = new Phrase();
+                break;
+            case Token:
+                element = new Token();
+                break;
+        }
+        element.setId(getStringAttribute(e, idTagName));
+        element.setStart(getIntAttribute(e, startTagName));
+        element.setEnd(getIntAttribute(e, endTagName));
+        element.setText(getStringAttribute(e, textTagName));
+        NamedNodeMap attributes = e.getAttributes();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            element.setProperty(attributes.item(i).getNodeName(), attributes.item(i).getNodeValue());
+        }
+
+        return element;
     }
 
-    private NodeList getNodeList(String parentId, String tagName) throws XPathExpressionException {
+    private NodeList getNodeList(String parentId, String tagName) {
         String query = String.format("//*[@id='%s']//%s", parentId, tagName);
-        return (NodeList) xpath.evaluate(query, xmlDocument, XPathConstants.NODESET);
+        try {
+            return (NodeList) xpath.evaluate(query, xmlDocument, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-    private NodeList getNodeList(String tagName) throws XPathExpressionException {
+
+    private NodeList getNodeList(String tagName) {
         return xmlDocument.getElementsByTagName(tagName);
     }
 

@@ -1,5 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Taher on 2016-12-18.
  */
@@ -8,12 +11,32 @@ public class NlpBaseElement {
     private Integer start;
     private Integer end;
     private String text;
+    private Map<String, String> properties = new HashMap<>();
+
+    public NlpBaseElement() {
+        start = -1;
+        end = -1;
+    }
 
     public NlpBaseElement(String id, Integer start, Integer end, String text) {
         this.setId(id);
         this.setStart(start);
         this.setEnd(end);
         this.setText(text);
+    }
+
+    public boolean containsProperty(String name) {
+        return properties.containsKey(name);
+    }
+
+    public String getProperty(String name) {
+        if (properties.containsKey(name))
+            return properties.get(name);
+        return null;
+    }
+
+    public void setProperty(String name, String value) {
+        properties.put(name, value);
     }
 
     public String getId() {
