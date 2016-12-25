@@ -1,8 +1,6 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp;
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Document;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Phrase;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Sentence;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.*;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +49,20 @@ public class NlpXmlReaderTest {
         assertEquals("second phrase additional prop[second_value]", "T2", phrases.get(1).getProperty("TESTPROP_second_value"));
         assertEquals("third phrase additional prop[first_value]", null, phrases.get(2).getProperty("TESTPROP_first_value"));
         assertEquals("third phrase additional prop[second_value]", null, phrases.get(2).getProperty("TESTPROP_second_value"));
+    }
+
+    @Test
+    public void relation() {
+        String docId = documents.get(0).getId();
+        List<Relation> relations = reader.getAllRelations("RELATION", "Trajector_Indicator", "trajector_id", "spatial_indicator_id");
+        List<Relation> doc1Relations = reader.getRelations("RELATION", "Trajector_Indicator", "trajector_id", "spatial_indicator_id", docId);
+
+        assertEquals("Relations count", 8, relations.size());
+        assertEquals("first doc relations count", 3, doc1Relations.size());
+        assertEquals("first relation trajector id", "T1", relations.get(0).getFirstId());
+        assertEquals("first relation sparial indicator id", "S1", relations.get(0).getSecondId());
+        assertEquals("first relation name", "Trajector_Indicator", relations.get(0).getName());
+        assertEquals("first relation RCC8_value", "behind", relations.get(0).getProperty("RCC8_value"));
     }
 
     private String getResourcePath(String relativePath) {
