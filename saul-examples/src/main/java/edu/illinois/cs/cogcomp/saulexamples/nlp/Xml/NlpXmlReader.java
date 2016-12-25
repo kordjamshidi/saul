@@ -1,13 +1,14 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.Xml;
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Document;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Sentence;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.*;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -19,102 +20,167 @@ import java.util.*;
  * Created by Taher on 2016-12-18.
  */
 public class NlpXmlReader {
-    private final XPath xpath;
+    private XPath xpath = null;
     org.w3c.dom.Document xmlDocument;
-    Map<String, Element> documentsMap = new HashMap<>();
-    List<Document> documents = new ArrayList<>();
-    boolean documentsLoaded = false;
-    private String documentTagName;
+    private String documentTagName = "DOCUMENT";
+    private String sentenceTagName = "SENTENCE";
+    private String phraseTagName = "PHRASE";
+    private String tokenTagName = "TOKEN";
+    private String startTagName = "start";
+    private String endTagName = "end";
+    private String textTagName = "text";
+    private String idTagName = "id";
 
-    public NlpXmlReader(String path) throws Exception {
+    public NlpXmlReader(String path) {
         this(new File(path));
     }
 
-    public NlpXmlReader(String path, String documentTagName) throws Exception {
-        this(new File(path), documentTagName);
-    }
-
-    public NlpXmlReader(File file) throws Exception {
-        this(file, "document");
-    }
-
-    public NlpXmlReader(File file, String documentTagName) throws Exception {
-        this.documentTagName = documentTagName;
+    public NlpXmlReader(File file) {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        xmlDocument = dBuilder.parse(file);
-        XPathFactory factory = XPathFactory.newInstance();
-        xpath = factory.newXPath();
-    }
-
-    public void loadDocuments() throws Exception {
-        if (documentsLoaded)
-            return;
-        NodeList nodes = getNodeList(documentTagName);
-        for (int i = 0; i < nodes.getLength(); i++) {
-            if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                Element e = (Element) nodes.item(i);
-                Document d = new Document(
-                        getStringAttribute(e, "id"),
-                        getIntAttribute(e, "start"),
-                        getIntAttribute(e, "end"),
-                        getStringAttribute(e, "text"));
-                documentsMap.put(d.getId(), e);
-                documents.add(d);
-            }
+        DocumentBuilder dBuilder = null;
+        try {
+            dBuilder = dbFactory.newDocumentBuilder();
+            xmlDocument = dBuilder.parse(file);
+            XPathFactory factory = XPathFactory.newInstance();
+            xpath = factory.newXPath();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        documentsLoaded = true;
     }
 
-
-    public List<Document> getDocuments() throws Exception {
-        checkLoaded();
-        return documents;
+    public List<Document> getDocuments() {
+        return getDocuments(documentTagName);
     }
 
-    public List<Sentence> getAllSentences() throws Exception {
-        return getSentences("sentence", null);
+    public List<Document> getDocuments(String tagName) {
+        return getElementList(tagName, null, NlpBaseElementTypes.Document);
     }
 
-    public List<Sentence> getAllSentences(String tagName) throws Exception {
+    public List<Sentence> getAllSentences() {
+        return getSentences(sentenceTagName, null);
+    }
+
+    public List<Sentence> getAllSentences(String tagName) {
         return getSentences(tagName, null);
     }
 
-    public List<Sentence> getSentences(String documentId) throws Exception {
-        return getSentences("sentence", documentId);
+    public List<Sentence> getSentences(String parentId) {
+        return getSentences(sentenceTagName, parentId);
     }
 
-    public List<Sentence> getSentences(String tagName, String documentId) throws Exception {
-        checkLoaded();
-        NodeList nodes = documentId == null ?
+    public List<Sentence> getSentences(String tagName, String parentId) {
+        return getElementList(tagName, parentId, NlpBaseElementTypes.Sentence);
+    }
+
+    public List<Phrase> getAllPhrases() {
+        return getPhrases(phraseTagName, null);
+    }
+
+    public List<Phrase> getAllPhrases(String tagName) {
+        return getPhrases(tagName, null);
+    }
+
+    public List<Phrase> getPhrases(String parentId) {
+        return getPhrases(phraseTagName, parentId);
+    }
+
+    public List<Phrase> getPhrases(String tagName, String parentId) {
+        return getElementList(tagName, parentId, NlpBaseElementTypes.Phrase);
+    }
+
+    public List<Token> getAllTokens() {
+        return getTokens(tokenTagName, null);
+    }
+
+    public List<Token> getAllTokens(String tagName) {
+        return getTokens(tagName, null);
+    }
+
+    public List<Token> getTokens(String parentId) {
+        return getTokens(tokenTagName, parentId);
+    }
+
+    public List<Token> getTokens(String tagName, String parentId) {
+        return getElementList(tagName, parentId, NlpBaseElementTypes.Token);
+    }
+
+    public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, String parentId, List<T> list) {
+        for (T e : list) {
+            Node n = getNodeBySpan(tagName, e.getStart(), e.getEnd(), parentId);
+            if (n != null) {
+                for (int i = 0; i < n.getAttributes().getLength(); i++) {
+                    e.setProperty(tagName + "_" + n.getAttributes().item(i).getNodeName(), n.getAttributes().item(i).getNodeValue());
+                }
+            }
+        }
+    }
+
+    private <T extends NlpBaseElement> List<T> getElementList(String tagName, String parentId, NlpBaseElementTypes type) {
+        NodeList nodes = parentId == null ?
                 getNodeList(tagName) :
-                getNodeList(documentId, tagName);
-        List<Sentence> sentences = new ArrayList<>();
+                getNodeList(parentId, tagName);
+        List<T> list = new ArrayList<>();
         for (int i = 0; i < nodes.getLength(); i++) {
             if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element e = (Element) nodes.item(i);
-                Sentence s = new Sentence(
-                        getStringAttribute(e, "id"),
-                        getIntAttribute(e, "start"),
-                        getIntAttribute(e, "end"),
-                        getStringAttribute(e, "text"));
-                documentsMap.put(s.getId(), e);
-                sentences.add(s);
+                NlpBaseElement s = getNlpBaseElement(e, type);
+                list.add((T) s);
             }
         }
-        return sentences;
+        return list;
     }
 
-    private void checkLoaded() throws Exception {
-        if (!documentsLoaded)
-            throw new Exception("Please load documents first.");
+    private NlpBaseElement getNlpBaseElement(Element e, NlpBaseElementTypes type) {
+        NlpBaseElement element = null;
+        switch (type) {
+            case Document:
+                element = new Document();
+                break;
+            case Sentence:
+                element = new Sentence();
+                break;
+            case Phrase:
+                element = new Phrase();
+                break;
+            case Token:
+                element = new Token();
+                break;
+        }
+        element.setId(getStringAttribute(e, idTagName));
+        element.setStart(getIntAttribute(e, startTagName));
+        element.setEnd(getIntAttribute(e, endTagName));
+        element.setText(getStringAttribute(e, textTagName));
+        NamedNodeMap attributes = e.getAttributes();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            element.setProperty(attributes.item(i).getNodeName(), attributes.item(i).getNodeValue());
+        }
+
+        return element;
     }
 
-    private NodeList getNodeList(String parentId, String tagName) throws XPathExpressionException {
+    private Node getNodeBySpan(String tagName, int start, int end, String parentId) {
+        String query = parentId == null ?
+                String.format("//%s[@start='%s', @end='%s']", tagName, start, end) :
+                String.format("//*[@id='%s']//%s[@start='%s' and @end='%s']", parentId, tagName, start, end);
+        try {
+            return (Node) xpath.evaluate(query, xmlDocument, XPathConstants.NODE);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private NodeList getNodeList(String parentId, String tagName) {
         String query = String.format("//*[@id='%s']//%s", parentId, tagName);
-        return (NodeList) xpath.evaluate(query, xmlDocument, XPathConstants.NODESET);
+        try {
+            return (NodeList) xpath.evaluate(query, xmlDocument, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-    private NodeList getNodeList(String tagName) throws XPathExpressionException {
+
+    private NodeList getNodeList(String tagName) {
         return xmlDocument.getElementsByTagName(tagName);
     }
 

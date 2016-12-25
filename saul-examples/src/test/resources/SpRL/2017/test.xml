@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <SpRL>
-    <SCENE id="sc1">
+    <SCENE id="sc1" test="test">
         <DOCNO>annotations/01/1060.eng</DOCNO>
         <IMAGE>images/01/1060.jpg</IMAGE>
         <SENTENCE id="s601" start="0" end="88">
@@ -12,19 +12,27 @@
             <TRAJECTOR id="T1" start="10" end="15" text="a bar"/>
             <TRAJECTOR id="T2" start="49" end="56" text="a bench"/>
             <TRAJECTOR id="T3" start="62" end="72" text="one person"/>
-            <RELATION id="SR1" trajector_id="T1" landmark_id="L1" spatial_indicator_id="S1" general_type="direction" specific_type="relative" RCC8_value="behind" FoR="intrinsic"/>
-            <RELATION id="SR2" trajector_id="T2" landmark_id="L1" spatial_indicator_id="S1" general_type="direction" specific_type="relative" RCC8_value="behind" FoR="intrinsic"/>
-            <RELATION id="SR3" trajector_id="T3" landmark_id="L2" spatial_indicator_id="S2" general_type="region" specific_type="RCC8" RCC8_value="EC" FoR="intrinsic"/>
+            <TESTPROP id="TP1" first_value="1" second_value="T1" start="10" end="15"/>
+            <TESTPROP id="TP2" first_value="2" second_value="T2" start="49" end="56"/>
+            <RELATION id="SR1" trajector_id="T1" landmark_id="L1" spatial_indicator_id="S1" general_type="direction"
+                      specific_type="relative" RCC8_value="behind" FoR="intrinsic"/>
+            <RELATION id="SR2" trajector_id="T2" landmark_id="L1" spatial_indicator_id="S1" general_type="direction"
+                      specific_type="relative" RCC8_value="behind" FoR="intrinsic"/>
+            <RELATION id="SR3" trajector_id="T3" landmark_id="L2" spatial_indicator_id="S2" general_type="region"
+                      specific_type="RCC8" RCC8_value="EC" FoR="intrinsic"/>
         </SENTENCE>
         <SENTENCE id="s602" start="88" end="130">
             <TEXT>upper level with doors and a blue rail .</TEXT>
         </SENTENCE>
     </SCENE>
-    <SCENE id="sc2">
+    <SCENE id="sc2" test="test">
         <DOCNO>annotations/01/1069.eng</DOCNO>
         <IMAGE>images/01/1069.jpg</IMAGE>
         <SENTENCE id="s603" start="130" end="344">
-            <TEXT>Interior view of a room with a large bed with red bedcovers , a white wooden desk and chair below a TV fixed in the corner , a white fridge and a glass door with a wooden frame leading onto a veranda and garden .</TEXT>
+            <TEXT>Interior view of a room with a large bed with red bedcovers , a white wooden desk and chair below a TV
+                fixed in the corner , a white fridge and a glass door with a wooden frame leading onto a veranda and
+                garden .
+            </TEXT>
             <SPATIALINDICATOR id="S3" start="109" end="111" text="in"/>
             <SPATIALINDICATOR id="S4" start="92" end="97" text="below"/>
             <SPATIALINDICATOR id="S5" start="177" end="189" text="leading onto"/>
@@ -36,11 +44,16 @@
             <TRAJECTOR id="T5" start="70" end="81" text="wooden desk"/>
             <TRAJECTOR id="T6" start="86" end="91" text="chair"/>
             <TRAJECTOR id="T7" start="144" end="156" text="a glass door"/>
-            <RELATION id="SR4" trajector_id="T4" landmark_id="L3" spatial_indicator_id="S3" general_type="region" specific_type="RCC8" RCC8_value="EC" FoR="intrinsic"/>
-            <RELATION id="SR5" trajector_id="T5" landmark_id="L4" spatial_indicator_id="S4" general_type="direction" specific_type="relative" RCC8_value="below" FoR="intrinsic"/>
-            <RELATION id="SR6" trajector_id="T6" landmark_id="L4" spatial_indicator_id="S4" general_type="direction" specific_type="relative" RCC8_value="below" FoR="intrinsic"/>
-            <RELATION id="SR7" trajector_id="T7" landmark_id="L5" spatial_indicator_id="S5" general_type="region" specific_type="relative" RCC8_value="DC" FoR="intrinsic"/>
-            <RELATION id="SR8" trajector_id="T7" landmark_id="L6" spatial_indicator_id="S5" general_type="region" specific_type="relative" RCC8_value="DC" FoR="intrinsic"/>
+            <RELATION id="SR4" trajector_id="T4" landmark_id="L3" spatial_indicator_id="S3" general_type="region"
+                      specific_type="RCC8" RCC8_value="EC" FoR="intrinsic"/>
+            <RELATION id="SR5" trajector_id="T5" landmark_id="L4" spatial_indicator_id="S4" general_type="direction"
+                      specific_type="relative" RCC8_value="below" FoR="intrinsic"/>
+            <RELATION id="SR6" trajector_id="T6" landmark_id="L4" spatial_indicator_id="S4" general_type="direction"
+                      specific_type="relative" RCC8_value="below" FoR="intrinsic"/>
+            <RELATION id="SR7" trajector_id="T7" landmark_id="L5" spatial_indicator_id="S5" general_type="region"
+                      specific_type="relative" RCC8_value="DC" FoR="intrinsic"/>
+            <RELATION id="SR8" trajector_id="T7" landmark_id="L6" spatial_indicator_id="S5" general_type="region"
+                      specific_type="relative" RCC8_value="DC" FoR="intrinsic"/>
         </SENTENCE>
     </SCENE>
 </SpRL>
