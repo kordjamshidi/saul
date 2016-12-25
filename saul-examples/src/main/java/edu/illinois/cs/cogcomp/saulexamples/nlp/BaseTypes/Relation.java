@@ -10,19 +10,18 @@ public class Relation {
     private Map<String, String> properties = new HashMap<>();
     private String firstId;
     private String secondId;
-    private NlpBaseElementTypes firstType;
-    private NlpBaseElementTypes secondType;
+    private String name;
 
-    public Relation(){
-
+    public Relation(String name) {
+        this.setName(name);
     }
 
-    public  Relation(NlpBaseElementTypes firstType, String firstId, NlpBaseElementTypes secondType, String secondId){
+    public Relation(String name, String firstId, String secondId) {
+        this(name);
         this.setFirstId(firstId);
         this.setSecondId(secondId);
-        this.setFirstType(firstType);
-        this.setSecondType(secondType);
     }
+
     public boolean containsProperty(String name) {
         return properties.containsKey(name);
     }
@@ -53,19 +52,11 @@ public class Relation {
         this.secondId = secondId;
     }
 
-    public NlpBaseElementTypes getFirstType() {
-        return firstType;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstType(NlpBaseElementTypes firstType) {
-        this.firstType = firstType;
-    }
-
-    public NlpBaseElementTypes getSecondType() {
-        return secondType;
-    }
-
-    public void setSecondType(NlpBaseElementTypes secondType) {
-        this.secondType = secondType;
+    public void setName(String name) {
+        this.name = name;
     }
 }

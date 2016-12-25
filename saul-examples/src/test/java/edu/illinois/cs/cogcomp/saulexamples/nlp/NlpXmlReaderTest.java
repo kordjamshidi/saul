@@ -54,17 +54,14 @@ public class NlpXmlReaderTest {
     @Test
     public void relation() {
         String docId = documents.get(0).getId();
-        List<Relation> relations = reader.getAllRelations("RELATION", NlpBaseElementTypes.Phrase, "trajector_id", NlpBaseElementTypes.Phrase,
-                "spatial_indicator_id");
-        List<Relation> doc1Relations = reader.getRelations("RELATION", NlpBaseElementTypes.Phrase, "trajector_id", NlpBaseElementTypes.Phrase,
-                "spatial_indicator_id", docId);
+        List<Relation> relations = reader.getAllRelations("RELATION", "Trajector_Indicator", "trajector_id", "spatial_indicator_id");
+        List<Relation> doc1Relations = reader.getRelations("RELATION", "Trajector_Indicator", "trajector_id", "spatial_indicator_id", docId);
 
         assertEquals("Relations count", 8, relations.size());
         assertEquals("first doc relations count", 3, doc1Relations.size());
         assertEquals("first relation trajector id", "T1", relations.get(0).getFirstId());
         assertEquals("first relation sparial indicator id", "S1", relations.get(0).getSecondId());
-        assertEquals("first relation trajector type", NlpBaseElementTypes.Phrase, relations.get(0).getFirstType());
-        assertEquals("first relation spatial indicator type", NlpBaseElementTypes.Phrase, relations.get(0).getSecondType());
+        assertEquals("first relation name", "Trajector_Indicator", relations.get(0).getName());
         assertEquals("first relation RCC8_value", "behind", relations.get(0).getProperty("RCC8_value"));
     }
 

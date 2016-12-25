@@ -103,13 +103,11 @@ public class NlpXmlReader {
         return getElementList(tagName, parentId, NlpBaseElementTypes.Token);
     }
 
-    public List<Relation> getAllRelations(String tagName, NlpBaseElementTypes firstType, String firstIdProp,
-                                          NlpBaseElementTypes secondType, String secondIdProp) {
-        return getRelations(tagName, firstType, firstIdProp, secondType, secondIdProp, null);
+    public List<Relation> getAllRelations(String tagName, String name, String firstIdProp, String secondIdProp) {
+        return getRelations(tagName, name, firstIdProp, secondIdProp, null);
     }
 
-    public List<Relation> getRelations(String tagName, NlpBaseElementTypes firstType, String firstIdProp,
-                                       NlpBaseElementTypes secondType, String secondIdProp, String parentId) {
+    public List<Relation> getRelations(String tagName, String name, String firstIdProp, String secondIdProp, String parentId) {
 
         NodeList nodes = parentId == null ?
                 getNodeList(tagName) :
@@ -121,23 +119,20 @@ public class NlpXmlReader {
             if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
 
                 Element e = (Element) nodes.item(i);
-                list.add(getRelation(firstType, firstIdProp, secondType, secondIdProp, e));
+                list.add(getRelation(name , firstIdProp, secondIdProp, e));
             }
         }
         return list;
     }
 
-    private Relation getRelation(NlpBaseElementTypes firstType, String firstIdProp, NlpBaseElementTypes secondType,
-                                 String secondIdProp, Element e) {
-        Relation r = new Relation();
+    private Relation getRelation(String name, String firstIdProp, String secondIdProp, Element e) {
+        Relation r = new Relation(name);
         NamedNodeMap attributes = e.getAttributes();
         for (int j = 0; j < attributes.getLength(); j++) {
             r.setProperty(attributes.item(j).getNodeName(), attributes.item(j).getNodeValue());
         }
         r.setFirstId(r.getProperty(firstIdProp));
         r.setSecondId(r.getProperty(secondIdProp));
-        r.setFirstType(firstType);
-        r.setSecondType(secondType);
         return r;
     }
 
