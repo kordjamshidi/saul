@@ -54,7 +54,7 @@ public class NlpXmlReaderTest {
     @Test
     public void relation() {
         String docId = documents.get(0).getId();
-        List<Relation> relations = reader.getAllRelations("RELATION", "Trajector_Indicator", "trajector_id", "spatial_indicator_id");
+        List<Relation> relations = reader.getRelations("RELATION", "Trajector_Indicator", "trajector_id", "spatial_indicator_id");
         List<Relation> doc1Relations = reader.getRelations("RELATION", "Trajector_Indicator", "trajector_id", "spatial_indicator_id", docId);
 
         assertEquals("Relations count", 8, relations.size());

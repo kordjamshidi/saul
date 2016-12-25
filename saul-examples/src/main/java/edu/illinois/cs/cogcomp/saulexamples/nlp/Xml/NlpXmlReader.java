@@ -21,10 +21,6 @@ import java.util.*;
 public class NlpXmlReader {
     private XPath xpath = null;
     org.w3c.dom.Document xmlDocument;
-    private String documentTagName = "DOCUMENT";
-    private String sentenceTagName = "SENTENCE";
-    private String phraseTagName = "PHRASE";
-    private String tokenTagName = "TOKEN";
     private String startTagName = "start";
     private String endTagName = "end";
     private String textTagName = "text";
@@ -47,63 +43,35 @@ public class NlpXmlReader {
         }
     }
 
-    public List<Document> getDocuments() {
-        return getDocuments(documentTagName);
-    }
-
     public List<Document> getDocuments(String tagName) {
         return getElementList(tagName, null, NlpBaseElementTypes.Document);
     }
 
-    public List<Sentence> getAllSentences() {
-        return getSentences(sentenceTagName, null);
-    }
-
-    public List<Sentence> getAllSentences(String tagName) {
+    public List<Sentence> getSentences(String tagName) {
         return getSentences(tagName, null);
-    }
-
-    public List<Sentence> getSentences(String parentId) {
-        return getSentences(sentenceTagName, parentId);
     }
 
     public List<Sentence> getSentences(String tagName, String parentId) {
         return getElementList(tagName, parentId, NlpBaseElementTypes.Sentence);
     }
 
-    public List<Phrase> getAllPhrases() {
-        return getPhrases(phraseTagName, null);
-    }
-
-    public List<Phrase> getAllPhrases(String tagName) {
+    public List<Phrase> getPhrases(String tagName) {
         return getPhrases(tagName, null);
-    }
-
-    public List<Phrase> getPhrases(String parentId) {
-        return getPhrases(phraseTagName, parentId);
     }
 
     public List<Phrase> getPhrases(String tagName, String parentId) {
         return getElementList(tagName, parentId, NlpBaseElementTypes.Phrase);
     }
 
-    public List<Token> getAllTokens() {
-        return getTokens(tokenTagName, null);
-    }
-
-    public List<Token> getAllTokens(String tagName) {
+    public List<Token> getTokens(String tagName) {
         return getTokens(tagName, null);
-    }
-
-    public List<Token> getTokens(String parentId) {
-        return getTokens(tokenTagName, parentId);
     }
 
     public List<Token> getTokens(String tagName, String parentId) {
         return getElementList(tagName, parentId, NlpBaseElementTypes.Token);
     }
 
-    public List<Relation> getAllRelations(String tagName, String name, String firstIdProp, String secondIdProp) {
+    public List<Relation> getRelations(String tagName, String name, String firstIdProp, String secondIdProp) {
         return getRelations(tagName, name, firstIdProp, secondIdProp, null);
     }
 
@@ -119,7 +87,7 @@ public class NlpXmlReader {
             if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
 
                 Element e = (Element) nodes.item(i);
-                list.add(getRelation(name , firstIdProp, secondIdProp, e));
+                list.add(getRelation(name, firstIdProp, secondIdProp, e));
             }
         }
         return list;
