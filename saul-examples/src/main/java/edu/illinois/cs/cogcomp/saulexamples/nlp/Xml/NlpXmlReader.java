@@ -8,7 +8,6 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -104,6 +103,44 @@ public class NlpXmlReader {
         return getElementList(tagName, parentId, NlpBaseElementTypes.Token);
     }
 
+    public List<Relation> getAllRelations(String tagName, NlpBaseElementTypes firstType, String firstIdProp,
+                                          NlpBaseElementTypes secondType, String secondIdProp) {
+        return getRelations(tagName, firstType, firstIdProp, secondType, secondIdProp, null);
+    }
+
+    public List<Relation> getRelations(String tagName, NlpBaseElementTypes firstType, String firstIdProp,
+                                       NlpBaseElementTypes secondType, String secondIdProp, String parentId) {
+
+        NodeList nodes = parentId == null ?
+                getNodeList(tagName) :
+                getNodeList(parentId, tagName);
+
+        List<Relation> list = new ArrayList<>();
+
+        for (int i = 0; i < nodes.getLength(); i++) {
+            if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+
+                Element e = (Element) nodes.item(i);
+                list.add(getRelation(firstType, firstIdProp, secondType, secondIdProp, e));
+            }
+        }
+        return list;
+    }
+
+    private Relation getRelation(NlpBaseElementTypes firstType, String firstIdProp, NlpBaseElementTypes secondType,
+                                 String secondIdProp, Element e) {
+        Relation r = new Relation();
+        NamedNodeMap attributes = e.getAttributes();
+        for (int j = 0; j < attributes.getLength(); j++) {
+            r.setProperty(attributes.item(j).getNodeName(), attributes.item(j).getNodeValue());
+        }
+        r.setFirstId(r.getProperty(firstIdProp));
+        r.setSecondId(r.getProperty(secondIdProp));
+        r.setFirstType(firstType);
+        r.setSecondType(secondType);
+        return r;
+    }
+
     public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, String parentId, List<T> list) {
         for (T e : list) {
             Node n = getNodeBySpan(tagName, e.getStart(), e.getEnd(), parentId);
@@ -160,8 +197,18 @@ public class NlpXmlReader {
 
     private Node getNodeBySpan(String tagName, int start, int end, String parentId) {
         String query = parentId == null ?
-                String.format("//%s[@start='%s', @end='%s']", tagName, start, end) :
+                String.format("//%s[@start='%s' and @end='%s']", tagName, start, end) :
                 String.format("//*[@id='%s']//%s[@start='%s' and @end='%s']", parentId, tagName, start, end);
+        try {
+            return (Node) xpath.evaluate(query, xmlDocument, XPathConstants.NODE);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Node getNodeById(String id) {
+        String query = String.format("//*[@id='%s']", id);
         try {
             return (Node) xpath.evaluate(query, xmlDocument, XPathConstants.NODE);
         } catch (XPathExpressionException e) {

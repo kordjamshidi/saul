@@ -8,8 +8,8 @@ import java.util.Map;
  */
 public class NlpBaseElement {
     private String id;
-    private Integer start;
-    private Integer end;
+    private int start;
+    private int end;
     private String text;
     private Map<String, String> properties = new HashMap<>();
 
@@ -47,7 +47,7 @@ public class NlpBaseElement {
         this.id = id;
     }
 
-    public Integer getStart() {
+    public int getStart() {
         return start;
     }
 
@@ -55,7 +55,7 @@ public class NlpBaseElement {
         this.start = start;
     }
 
-    public Integer getEnd() {
+    public int getEnd() {
         return end;
     }
 
@@ -69,5 +69,20 @@ public class NlpBaseElement {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public static NlpBaseElement create(NlpBaseElementTypes type){
+
+        switch (type){
+            case Document:
+                return new Document();
+            case Sentence:
+                return new Sentence();
+            case Phrase:
+                return new Phrase();
+            case Token:
+                return new Token();
+        }
+        return null;
     }
 }
