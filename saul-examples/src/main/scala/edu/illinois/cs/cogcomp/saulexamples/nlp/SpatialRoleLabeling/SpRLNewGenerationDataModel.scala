@@ -27,17 +27,19 @@ object SpRLNewGenerationDataModel extends DataModel {
    */
 
   val docTosen = edge(documents, sentences)
-  // here DocToSentence needs to check the id match, therefore we need to have the id of documents referenced in the senetences as parent id
   docTosen.addSensor(DocToSentence _)
 //  val sentenceToPhrase = edge(sentences, phrases)
 //
-//  val relToTr = edge(relations, phrases)
-//  relToTr.addSensor(RelToTr _)
-//  // maybe we do not need the join nodes at all then?!
-//
-//  val relToLm = edge(relations, phrases)
-//  val relToSp = edge(relations, phrases)
+  val relToTr = edge(relations, phrases)
+  relToTr.addSensor(RelToTr _)
 
+  // maybe we do not need the join nodes at all then?!
+
+  val relToLm = edge(relations, phrases)
+
+  relToLm.addSensor(RelToLm _)
+  val relToSp = edge(relations, phrases)
+  relToSp.addSensor(RelToSp _)
   /*
      Properties
   */
@@ -72,13 +74,18 @@ object SpRLApp2 extends App {
   val reader = new NlpXmlReader("/Users/parisakordjamshidi/IdeaProjects/saul/saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
   val documentList = reader.getDocuments()
   val sentencesList = reader.getSentences()
-  val phrasesList = reader.getPhrases("TESTPROP")
+  val phrasesList = reader.getPhrases("TRAJECTOR", "TESTPROP")
 
   val relationList = reader.getRelations("RELATION")
 
   documents.populate(documentList)
   sentences.populate(sentencesList)
   phrases.populate(phrasesList)
+  relations.populate(relationList)
+
+  println ("number of trajectors connected to the relations:",(relations()~> relToTr size) , "relations:" , relations().size)
+  println ("number of landmarks connected to the relations:",(relations()~> relToLm size) , "relations:" , relations().size)
+  println ("number of indicators connected to the relations:",(relations()~> relToSp size) , "relations:" , relations().size)
 
   println(documents() prop testDocumentProperty)
   println(phrases() prop testPhraseProperty)
