@@ -6,17 +6,11 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.data;
 
-import edu.illinois.cs.cogcomp.lbjava.nlp.StringArraysToWords;
-import edu.illinois.cs.cogcomp.lbjava.parse.Parser;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Hashtable;
 
 /**

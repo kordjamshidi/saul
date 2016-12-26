@@ -4,6 +4,7 @@ import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import SpRLNewSensors._
+import edu.illinois.cs.cogcomp.saulexamples.data.Image
 
 import scala.collection.JavaConversions._
 
@@ -17,6 +18,7 @@ object SpRLNewGenerationDataModel extends DataModel {
   Nodes
    */
   val documents = node[Document]
+  val images = node[Image]
   val sentences = node[Sentence]
   val tokens = node[Token]
   val phrases = node[Phrase]
