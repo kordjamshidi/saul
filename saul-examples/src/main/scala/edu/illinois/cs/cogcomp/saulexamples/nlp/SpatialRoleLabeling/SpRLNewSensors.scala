@@ -8,7 +8,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Phrase, Rel
 object SpRLNewSensors {
 
   def DocToSentence(d: Document, s: Sentence): Boolean = {
-    d.getId == s.getProperty("id")
+    d.getId == s.getDocumentId
   }
 
   def RelToTr(r: Relation, p: Phrase): Boolean = {
