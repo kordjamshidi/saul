@@ -25,17 +25,18 @@ object SpRLNewGenerationDataModel extends DataModel {
   /*
   Edges
    */
+
   val docTosen = edge(documents, sentences)
   // here DocToSentence needs to check the id match, therefore we need to have the id of documents referenced in the senetences as parent id
   docTosen.addSensor(DocToSentence _)
-  val sentenceToToken = edge(sentences, tokens)
-
-  val relToTr = edge(relations, phrases)
-  relToTr.addSensor(RelToTr _)
-  // maybe we do not need the join nodes at all then?!
-
-  val relToLm = edge(relations, phrases)
-  val relToSp = edge(relations, phrases)
+//  val sentenceToPhrase = edge(sentences, phrases)
+//
+//  val relToTr = edge(relations, phrases)
+//  relToTr.addSensor(RelToTr _)
+//  // maybe we do not need the join nodes at all then?!
+//
+//  val relToLm = edge(relations, phrases)
+//  val relToSp = edge(relations, phrases)
 
   /*
      Properties
@@ -81,5 +82,7 @@ object SpRLApp2 extends App {
 
   println(documents() prop testDocumentProperty)
   println(phrases() prop testPhraseProperty)
+ val d = documents()~> docTosen
+  println("sentence num:", d.size , "should be equal to", sentencesList.size(), "should be equal to", sentences().size )
 
 }
