@@ -25,9 +25,8 @@ import java.util.Hashtable;
  * @author Umar Manzoor
  * 
  */
-public class ImageReader implements Parser {
+public class ImageReader {
 
-    private int currentFileId;
     private ArrayList<Image> images= new ArrayList<>();
     private ArrayList<Integer> objectCodes = new ArrayList<>();
     private ArrayList<String> objectConcepts = new ArrayList<>();
