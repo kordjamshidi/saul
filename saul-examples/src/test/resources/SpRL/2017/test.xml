@@ -44,6 +44,7 @@
             <TRAJECTOR id="T5" start="70" end="81" text="wooden desk"/>
             <TRAJECTOR id="T6" start="86" end="91" text="chair"/>
             <TRAJECTOR id="T7" start="144" end="156" text="a glass door"/>
+            <TESTPROP id="TP3" first_value="1" second_value="T1" start="62" end="72"/>
             <RELATION id="SR4" trajector_id="T4" landmark_id="L3" spatial_indicator_id="S3" general_type="region"
                       specific_type="RCC8" RCC8_value="EC" FoR="intrinsic"/>
             <RELATION id="SR5" trajector_id="T5" landmark_id="L4" spatial_indicator_id="S4" general_type="direction"

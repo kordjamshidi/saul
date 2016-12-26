@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by Taher on 2016-12-18.
  */
-public class NlpBaseElement {
+public abstract class NlpBaseElement {
     private String id;
     private int start;
     private int end;
@@ -24,6 +24,8 @@ public class NlpBaseElement {
         this.setEnd(end);
         this.setText(text);
     }
+
+    public abstract NlpBaseElementTypes getType();
 
     public boolean containsProperty(String name) {
         return properties.containsKey(name);

@@ -7,19 +7,17 @@ import java.util.Map;
  * Created by Taher on 2016-12-25.
  */
 public class Relation {
+    private String id;
     private Map<String, String> properties = new HashMap<>();
-    private String firstId;
-    private String secondId;
     private String name;
 
     public Relation(String name) {
         this.setName(name);
     }
 
-    public Relation(String name, String firstId, String secondId) {
+    public Relation(String name, String id, String firstId, String secondId) {
         this(name);
-        this.setFirstId(firstId);
-        this.setSecondId(secondId);
+        this.setId(id);
     }
 
     public boolean containsProperty(String name) {
@@ -36,27 +34,19 @@ public class Relation {
         properties.put(name, value);
     }
 
-    public String getFirstId() {
-        return firstId;
-    }
-
-    public void setFirstId(String firstId) {
-        this.firstId = firstId;
-    }
-
-    public String getSecondId() {
-        return secondId;
-    }
-
-    public void setSecondId(String secondId) {
-        this.secondId = secondId;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
