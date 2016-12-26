@@ -58,14 +58,13 @@ public class NlpXmlReaderTest {
     @Test
     public void relation() {
         String docId = documents.get(0).getId();
-        List<Relation> relations = reader.getRelations("RELATION", "Trajector_Indicator");
-        List<Relation> doc1Relations = reader.getRelationsByParentId("RELATION", "Trajector_Indicator", docId);
+        List<Relation> relations = reader.getRelations("RELATION");
+        List<Relation> doc1Relations = reader.getRelationsByParentId("RELATION", docId);
 
         assertEquals("Relations count", 8, relations.size());
         assertEquals("first doc relations count", 3, doc1Relations.size());
         assertEquals("first relation trajector id", "T1", relations.get(0).getProperty("trajector_id"));
         assertEquals("first relation sparial indicator id", "S1", relations.get(0).getProperty("spatial_indicator_id"));
-        assertEquals("first relation name", "Trajector_Indicator", relations.get(0).getName());
         assertEquals("first relation RCC8_value", "behind", relations.get(0).getProperty("RCC8_value"));
     }
 

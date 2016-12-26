@@ -143,11 +143,11 @@ public class NlpXmlReader {
         return getElementList(getTokenTagName(), parentId, NlpBaseElementTypes.Token, addPropertiesFromTag);
     }
 
-    public List<Relation> getRelations(String tagName, String name) {
-        return getRelationsByParentId(tagName, name, null);
+    public List<Relation> getRelations(String tagName) {
+        return getRelationsByParentId(tagName, null);
     }
 
-    public List<Relation> getRelationsByParentId(String tagName, String name, String parentId) {
+    public List<Relation> getRelationsByParentId(String tagName, String parentId) {
 
         NodeList nodes = parentId == null ?
                 getNodeList(tagName) :
@@ -159,7 +159,7 @@ public class NlpXmlReader {
             if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
 
                 Element e = (Element) nodes.item(i);
-                list.add(getRelation(name, e));
+                list.add(getRelation(e));
             }
         }
         return list;
@@ -192,8 +192,8 @@ public class NlpXmlReader {
         }
     }
 
-    private Relation getRelation(String name, Element e) {
-        Relation r = new Relation(name);
+    private Relation getRelation(Element e) {
+        Relation r = new Relation();
         NamedNodeMap attributes = e.getAttributes();
         for (int j = 0; j < attributes.getLength(); j++) {
             r.setProperty(attributes.item(j).getNodeName(), attributes.item(j).getNodeValue());

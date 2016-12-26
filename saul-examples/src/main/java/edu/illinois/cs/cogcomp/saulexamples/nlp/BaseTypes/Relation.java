@@ -9,14 +9,12 @@ import java.util.Map;
 public class Relation {
     private String id;
     private Map<String, String> properties = new HashMap<>();
-    private String name;
 
-    public Relation(String name) {
-        this.setName(name);
+    public Relation() {
+
     }
 
     public Relation(String name, String id, String firstId, String secondId) {
-        this(name);
         this.setId(id);
     }
 
@@ -32,14 +30,6 @@ public class Relation {
 
     public void setProperty(String name, String value) {
         properties.put(name, value);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getId() {

@@ -74,7 +74,7 @@ object SpRLApp2 extends App {
   val sentencesList = reader.getSentences()
   val phrasesList = reader.getPhrases("TESTPROP")
 
-  val relationList = reader.getRelations("RELATION", "Trajector_Indicator")
+  val relationList = reader.getRelations("RELATION")
 
   documents.populate(documentList)
   sentences.populate(sentencesList)
