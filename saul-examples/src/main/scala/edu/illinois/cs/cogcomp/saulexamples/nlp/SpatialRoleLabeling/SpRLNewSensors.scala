@@ -19,7 +19,7 @@ object SpRLNewSensors {
     r.getProperty("landmark_id") == p.getId
   }
   def RelToSp(r: Relation, p: Phrase): Boolean = {
-    r.getProperty(" spatial_indicator_id") == p.getId
+    r.getProperty("spatial_indicator_id") == p.getId
   }
 }
 
