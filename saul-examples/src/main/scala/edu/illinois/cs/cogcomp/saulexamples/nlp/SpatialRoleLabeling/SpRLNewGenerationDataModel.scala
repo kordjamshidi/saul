@@ -38,6 +38,7 @@ object SpRLNewGenerationDataModel extends DataModel {
   val relToLm = edge(relations, phrases)
 
   relToLm.addSensor(RelToLm _)
+
   val relToSp = edge(relations, phrases)
   relToSp.addSensor(RelToSp _)
   /*
@@ -74,22 +75,26 @@ object SpRLApp2 extends App {
   val reader = new NlpXmlReader("/Users/parisakordjamshidi/IdeaProjects/saul/saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
   val documentList = reader.getDocuments()
   val sentencesList = reader.getSentences()
-  val phrasesList = reader.getPhrases("TRAJECTOR", "TESTPROP")
+  val TrajectorList = reader.getPhrases("TRAJECTOR", "TESTPROP")
+  val LandmarkList = reader.getPhrases("LANDMARK")
 
   val relationList = reader.getRelations("RELATION")
 
   documents.populate(documentList)
   sentences.populate(sentencesList)
-  phrases.populate(phrasesList)
+  phrases.populate(TrajectorList)
+  phrases.populate(LandmarkList)
+
   relations.populate(relationList)
 
   println ("number of trajectors connected to the relations:",(relations()~> relToTr size) , "relations:" , relations().size)
-  println ("number of landmarks connected to the relations:",(relations()~> relToLm size) , "relations:" , relations().size)
+  println ("number of trajectors connected to the relations:",(relations()~> relToTr prop testPhraseProperty) , "relations:" , relations().size)
+  println ("number of landmarks connected to the relations:",(relations()~> relToLm size) , "relations:" , LandmarkList.size)
   println ("number of indicators connected to the relations:",(relations()~> relToSp size) , "relations:" , relations().size)
 
   println(documents() prop testDocumentProperty)
   println(phrases() prop testPhraseProperty)
- val d = documents()~> docTosen
+  val d = documents()~> docTosen
   println("sentence num:", d.size , "should be equal to", sentencesList.size(), "should be equal to", sentences().size )
 
 }
