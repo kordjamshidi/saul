@@ -116,30 +116,5 @@ public class ImageReader {
     }
     public void close() {
     }
-    
-    public Object next() {
-     /*
-        if (currentFileId < files.size()) {
-            File file = files.get(currentFileId++);
-            
-            String[] split = file.getPath().split(File.separator);
-            
-            String label = split[split.length - 2];
-            
-            try {
-                return new Image(file, label);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
-                return null;
-            }
-        } else
-            return null; */
-     return null;
-        
-    }
-    
-    public void reset() {
-        currentFileId = 0;
-    }
+
 }
