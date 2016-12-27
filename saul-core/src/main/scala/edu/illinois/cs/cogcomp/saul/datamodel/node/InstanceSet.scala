@@ -23,6 +23,13 @@ trait InstanceSet[T <: AnyRef] extends Iterable[T] {
     }
   }
 
+  def <~[U <: AnyRef](edge: Edge[U, T]): InstanceSet[U] = {
+    assert(node == edge.backward.from)
+    new InstanceSet[U] {
+      val node: Node[U] = edge.backward.to
+      val instances:Iterable[U] = self.instances.flatMap(t => edge.backward.neighborsOf(t))
+    }
+  }
   override def filter(pred: T => Boolean) = new InstanceSet[T] {
     val node: Node[T] = self.node
     val instances: Iterable[T] = self.instances.filter(pred)

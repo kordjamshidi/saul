@@ -26,6 +26,10 @@ object SpRLNewSensors {
     d.getId == s.getDocumentId
   }
 
+  def SentencePhrase(s: Sentence, p:Phrase): Boolean = {
+    s.getId == p.getSentenceId
+  }
+
   def RelToTr(r: Relation, p: Phrase): Boolean = {
     r.getProperty("trajector_id") == p.getId
   }

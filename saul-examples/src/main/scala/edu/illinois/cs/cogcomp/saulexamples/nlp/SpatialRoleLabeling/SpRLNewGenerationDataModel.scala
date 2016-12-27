@@ -28,12 +28,14 @@ object SpRLNewGenerationDataModel extends DataModel {
 
   val docTosen = edge(documents, sentences)
   docTosen.addSensor(DocToSentence _)
-  //  val sentenceToPhrase = edge(sentences, phrases)
+
+  val sentenceToPhrase = edge(sentences, phrases)
+  sentenceToPhrase.addSensor(SentencePhrase _)
+
   //
   val relToTr = edge(relations, phrases)
   relToTr.addSensor(RelToTr _)
 
-  // maybe we do not need the join nodes at all then?!
 
   val relToLm = edge(relations, phrases)
 
@@ -53,15 +55,14 @@ object SpRLNewGenerationDataModel extends DataModel {
   }
 
   val pos = property(phrases) {
-    x: Phrase =>
-      val s = sentences().find(s => s.getId == x.getSentenceId).get
-      getPos(x, s).mkString(",")
+    x: Phrase => getPos(x, phrases(x) <~ sentenceToPhrase head).mkString(",")
   }
   val lemma = property(phrases) {
-    x: Phrase =>
-      val s = sentences().find(s => s.getId == x.getSentenceId).get
-      getLemma(x, s).mkString(",")
-  }  // when we have the annotation in the xml then we need to just use a matching sensor
+    x: Phrase => getLemma(x, phrases(x) <~ sentenceToPhrase head).mkString(",")
+  }
+
+
+  // when we have the annotation in the xml then we need to just use a matching sensor
   // docTosen.addSensor(a_matchingSensor)
 
   //when we want to use our NLP tools then we use generating sensors
@@ -109,5 +110,6 @@ object SpRLApp2 extends App {
 
   println("phrase 1 pos tags:" + pos(phrases().head))
   println("phrase 1 lemma :" + lemma(phrases().head))
+  println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
 
 }
