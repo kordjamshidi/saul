@@ -5,7 +5,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import SpRLNewSensors._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
   * Created by parisakordjamshidi on 12/22/16.
@@ -28,8 +28,8 @@ object SpRLNewGenerationDataModel extends DataModel {
 
   val docTosen = edge(documents, sentences)
   docTosen.addSensor(DocToSentence _)
-//  val sentenceToPhrase = edge(sentences, phrases)
-//
+  //  val sentenceToPhrase = edge(sentences, phrases)
+  //
   val relToTr = edge(relations, phrases)
   relToTr.addSensor(RelToTr _)
 
@@ -52,7 +52,16 @@ object SpRLNewGenerationDataModel extends DataModel {
     x: Document => x.getProperty("test")
   }
 
-  // when we have the annotation in the xml then we need to just use a matching sensor
+  val pos = property(phrases) {
+    x: Phrase =>
+      val s = sentences().find(s => s.getId == x.getSentenceId).get
+      getPos(x, s).mkString(",")
+  }
+  val lemma = property(phrases) {
+    x: Phrase =>
+      val s = sentences().find(s => s.getId == x.getSentenceId).get
+      getLemma(x, s).mkString(",")
+  }  // when we have the annotation in the xml then we need to just use a matching sensor
   // docTosen.addSensor(a_matchingSensor)
 
   //when we want to use our NLP tools then we use generating sensors
@@ -72,14 +81,14 @@ object SpRLApp2 extends App {
 
   import SpRLNewGenerationDataModel._
 
-  val reader = new NlpXmlReader("/Users/parisakordjamshidi/IdeaProjects/saul/saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
-  val documentList = reader.getDocuments()
-  val sentencesList = reader.getSentences()
-  val TrajectorList = reader.getPhrases("TESTPROP")
-  reader.setPhraseTagName("LANDMARK");
-  val LandmarkList = reader.getPhrases("LANDMARK")
+  val reader = new NlpXmlReader("./saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
+  val documentList = reader.getDocuments().asScala
+  val sentencesList = reader.getSentences().asScala
+  val TrajectorList = reader.getPhrases("TESTPROP").asScala
+  reader.setPhraseTagName("LANDMARK")
+  val LandmarkList = reader.getPhrases().asScala
 
-  val relationList = reader.getRelations("RELATION")
+  val relationList = reader.getRelations("RELATION").asScala
 
   documents.populate(documentList)
   sentences.populate(sentencesList)
@@ -88,14 +97,17 @@ object SpRLApp2 extends App {
 
   relations.populate(relationList)
 
-  println ("number of trajectors connected to the relations:",(relations()~> relToTr size) , "relations:" , relations().size)
-  println ("number of trajectors connected to the relations:",(relations()~> relToTr prop testPhraseProperty) , "relations:" , relations().size)
-  println ("number of landmarks connected to the relations:",(relations()~> relToLm size) , "relations:" , LandmarkList.size)
-  println ("number of indicators connected to the relations:",(relations()~> relToSp size) , "relations:" , relations().size)
+  println("number of trajectors connected to the relations:", (relations() ~> relToTr size), "relations:", relations().size)
+  println("number of trajectors connected to the relations:", (relations() ~> relToTr prop testPhraseProperty), "relations:", relations().size)
+  println("number of landmarks connected to the relations:", (relations() ~> relToLm size), "relations:", LandmarkList.size)
+  println("number of indicators connected to the relations:", (relations() ~> relToSp size), "relations:", relations().size)
 
   println(documents() prop testDocumentProperty)
   println(phrases() prop testPhraseProperty)
-  val d = documents()~> docTosen
-  println("sentence num:", d.size , "should be equal to", sentencesList.size(), "should be equal to", sentences().size )
+  val d = documents() ~> docTosen
+  println("sentence num:", d.size, "should be equal to", sentencesList.length, "should be equal to", sentences().size)
+
+  println("phrase 1 pos tags:" + pos(phrases().head))
+  println("phrase 1 lemma :" + lemma(phrases().head))
 
 }

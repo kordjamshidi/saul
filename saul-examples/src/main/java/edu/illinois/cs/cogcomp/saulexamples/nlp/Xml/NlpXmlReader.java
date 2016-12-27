@@ -307,19 +307,31 @@ public class NlpXmlReader {
         return xmlDocument.getElementsByTagName(tagName);
     }
 
-    private String getStringAttribute(Element e, String name) {
-        if (e.hasAttribute(name))
-            return e.getAttribute(name);
-        NodeList innerElement = e.getElementsByTagName(name);
-        if (innerElement.getLength() > 0)
-            return innerElement.item(0).getTextContent();
-        return null;
-    }
-
     private Integer getIntAttribute(Element e, String name) {
-        if (e.hasAttribute(name))
+        String a = getStringAttribute(e, name);
+        if (a != null)
             return Integer.parseInt(e.getAttribute(name));
         return -1;
     }
+    private String getStringAttribute(Element e, String name){
 
+        String a = getAttribute(e, name);
+        if(a != null)
+            return  a;
+        a = getAttribute(e, name.toUpperCase());
+        if(a != null)
+            return  a;
+        a = getAttribute(e, name.toUpperCase());
+        if(a != null)
+            return  a;
+        return  null;
+    }
+    private String getAttribute(Element e, String name){
+        if (e.hasAttribute(name))
+            return e.getAttribute(name);
+        NodeList innerElement = e.getElementsByTagName(name);
+        if (innerElement.getLength() > 0 && innerElement.item(0).getParentNode() == e)
+            return innerElement.item(0).getTextContent();
+        return null;
+    }
 }
