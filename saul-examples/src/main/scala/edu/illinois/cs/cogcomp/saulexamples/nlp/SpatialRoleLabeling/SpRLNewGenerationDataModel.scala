@@ -111,5 +111,9 @@ object SpRLApp2 extends App {
   println("phrase 1 pos tags:" + pos(phrases().head))
   println("phrase 1 lemma :" + lemma(phrases().head))
   println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
+  phrases().foreach(x => println("phrease " + x.getId + " sentence:" + (phrases(x) <~ sentenceToPhrase).head.getId))
+  println("number of sentences connected to the phrases:", (phrases() <~ sentenceToPhrase size), "sentences:", sentences().size)
+
+
 
 }

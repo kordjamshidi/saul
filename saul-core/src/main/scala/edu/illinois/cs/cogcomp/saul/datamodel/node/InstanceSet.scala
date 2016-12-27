@@ -27,7 +27,8 @@ trait InstanceSet[T <: AnyRef] extends Iterable[T] {
     assert(node == edge.backward.from)
     new InstanceSet[U] {
       val node: Node[U] = edge.backward.to
-      val instances:Iterable[U] = self.instances.flatMap(t => edge.backward.neighborsOf(t))
+      val tempInst:Iterable[U] = self.instances.flatMap(t => edge.backward.neighborsOf(t))
+      val instances: Iterable[U] = tempInst.groupBy(x => edge.backward.to.keyFunc(x)).map(x => x._2.head)
     }
   }
   override def filter(pred: T => Boolean) = new InstanceSet[T] {
