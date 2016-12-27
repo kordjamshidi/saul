@@ -75,7 +75,8 @@ object SpRLApp2 extends App {
   val reader = new NlpXmlReader("/Users/parisakordjamshidi/IdeaProjects/saul/saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
   val documentList = reader.getDocuments()
   val sentencesList = reader.getSentences()
-  val TrajectorList = reader.getPhrases("TRAJECTOR", "TESTPROP")
+  val TrajectorList = reader.getPhrases("TESTPROP")
+  reader.setPhraseTagName("LANDMARK");
   val LandmarkList = reader.getPhrases("LANDMARK")
 
   val relationList = reader.getRelations("RELATION")
