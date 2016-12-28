@@ -6,17 +6,11 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.data;
 
-import edu.illinois.cs.cogcomp.lbjava.nlp.StringArraysToWords;
-import edu.illinois.cs.cogcomp.lbjava.parse.Parser;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Hashtable;
 
 /**
@@ -25,9 +19,8 @@ import java.util.Hashtable;
  * @author Umar Manzoor
  * 
  */
-public class ImageReader implements Parser {
+public class ImageReader {
 
-    private int currentFileId;
     private ArrayList<Image> images= new ArrayList<>();
     private ArrayList<Integer> objectCodes = new ArrayList<>();
     private ArrayList<String> objectConcepts = new ArrayList<>();
@@ -117,30 +110,5 @@ public class ImageReader implements Parser {
     }
     public void close() {
     }
-    
-    public Object next() {
-     /*
-        if (currentFileId < files.size()) {
-            File file = files.get(currentFileId++);
-            
-            String[] split = file.getPath().split(File.separator);
-            
-            String label = split[split.length - 2];
-            
-            try {
-                return new Image(file, label);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
-                return null;
-            }
-        } else
-            return null; */
-     return null;
-        
-    }
-    
-    public void reset() {
-        currentFileId = 0;
-    }
+
 }
