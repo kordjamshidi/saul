@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
+import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml._
 import SpRLNewSensors._
 
 import scala.collection.JavaConversions._
@@ -48,10 +48,10 @@ object SpRLNewGenerationDataModel extends DataModel {
   */
 
   val testPhraseProperty = property(phrases) {
-    x: Phrase => x.getProperty("TESTPROP_first_value")
+    x: Phrase => x.getPropertyValue("TESTPROP_first_value")
   }
   val testDocumentProperty = property(documents) {
-    x: Document => x.getProperty("test")
+    x: Document => x.getPropertyValue("test")
   }
 
   val pos = property(phrases) {
@@ -82,40 +82,40 @@ object SpRLApp2 extends App {
 
   import SpRLNewGenerationDataModel._
 
-  val reader = new NlpXmlReader("/Users/parisakordjamshidi/IdeaProjects/saul/saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
+  val reader = new NlpXmlReader("./saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", null, null)
   val documentList = reader.getDocuments()
   val sentencesList = reader.getSentences()
-  val TrajectorList = reader.getPhrases("TESTPROP")
-  //Todo : do we need to keep this input parameter? that is keeping all the associated tags to a linguistic unit?
+
+  reader.setPhraseTagName("TRAJECTOR")
+  val trajectorList = reader.getPhrases()
   reader.setPhraseTagName("LANDMARK")
-  val LandmarkList = reader.getPhrases("LANDMARK")
+  val landmarkList = reader.getPhrases()
   reader.setPhraseTagName("SPATIALINDICATOR")
-  val SpIndicatorList= reader.getPhrases("SPATIALINDICATOR")
+  val spIndicatorList = reader.getPhrases()
+
   val relationList = reader.getRelations("RELATION")
 
   documents.populate(documentList)
   sentences.populate(sentencesList)
-  phrases.populate(TrajectorList)
-  phrases.populate(LandmarkList)
-  phrases.populate(SpIndicatorList)
+
+  //reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, new XmlPartOfMatching)
+  reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, XmlMatchings.headwordMatching)
+  reader.addPropertiesFromTag("LANDMARK", phrases().toList, new XmlPartOfMatching)
+  reader.addPropertiesFromTag("SPATIALINDICATOR", phrases().toList, new XmlPartOfMatching)
+
   relations.populate(relationList)
 
-  println("number of trajectors connected to the relations:", (relations() ~> relToTr size), "relations:", relations().size)
-  println("number of trajectors connected to the relations:", (relations() ~> relToTr prop testPhraseProperty), "relations:", relations().size)
-  println("number of landmarks connected to the relations:", (relations() ~> relToLm size), "relations:", LandmarkList.size)
-  println("number of indicators connected to the relations:", (relations() ~> relToSp size), "relations:", relations().size)
+  println("trajectors in the model:", (relations() ~> relToTr), "actual trajectors:", trajectorList)
+  println("landmarks in the model:", (relations() ~> relToLm), "actual landmarks:", landmarkList)
+  println("indicators in the model:", (relations() ~> relToSp), "actual indicators:", spIndicatorList)
 
-  println(documents() prop testDocumentProperty)
-  println(phrases() prop testPhraseProperty)
   val d = documents() ~> docTosen
   println("sentence num:", d.size, "should be equal to", sentencesList.length, "should be equal to", sentences().size)
 
   println("phrase 1 pos tags:" + pos(phrases().head))
   println("phrase 1 lemma :" + lemma(phrases().head))
   println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
-  phrases().foreach(x => println("phrease " + x.getId + " sentence:" + (phrases(x) <~ sentenceToPhrase).head.getId))
   println("number of sentences connected to the phrases:", (phrases() <~ sentenceToPhrase size), "sentences:", sentences().size)
-
 
 
 }
