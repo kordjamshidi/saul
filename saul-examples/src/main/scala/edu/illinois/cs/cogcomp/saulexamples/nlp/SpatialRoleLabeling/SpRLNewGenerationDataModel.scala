@@ -5,7 +5,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import SpRLNewSensors._
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 
 /**
   * Created by parisakordjamshidi on 12/22/16.
@@ -82,21 +82,22 @@ object SpRLApp2 extends App {
 
   import SpRLNewGenerationDataModel._
 
-  val reader = new NlpXmlReader("./saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
-  val documentList = reader.getDocuments().asScala
-  val sentencesList = reader.getSentences().asScala
-  val TrajectorList = reader.getPhrases("TESTPROP").asScala
+  val reader = new NlpXmlReader("/Users/parisakordjamshidi/IdeaProjects/saul/saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
+  val documentList = reader.getDocuments()
+  val sentencesList = reader.getSentences()
+  val TrajectorList = reader.getPhrases("TESTPROP")
+  //Todo : do we need to keep this input parameter? that is keeping all the associated tags to a linguistic unit?
   reader.setPhraseTagName("LANDMARK")
-  val LandmarkList = reader.getPhrases().asScala
-
-  val relationList = reader.getRelations("RELATION").asScala
-  reader.close();
+  val LandmarkList = reader.getPhrases("LANDMARK")
+  reader.setPhraseTagName("SPATIALINDICATOR")
+  val SpIndicatorList= reader.getPhrases("SPATIALINDICATOR")
+  val relationList = reader.getRelations("RELATION")
 
   documents.populate(documentList)
   sentences.populate(sentencesList)
   phrases.populate(TrajectorList)
   phrases.populate(LandmarkList)
-
+  phrases.populate(SpIndicatorList)
   relations.populate(relationList)
 
   println("number of trajectors connected to the relations:", (relations() ~> relToTr size), "relations:", relations().size)
@@ -114,6 +115,7 @@ object SpRLApp2 extends App {
   println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
   phrases().foreach(x => println("phrease " + x.getId + " sentence:" + (phrases(x) <~ sentenceToPhrase).head.getId))
   println("number of sentences connected to the phrases:", (phrases() <~ sentenceToPhrase size), "sentences:", sentences().size)
+
 
 
 }
