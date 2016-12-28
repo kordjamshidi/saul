@@ -35,7 +35,7 @@ public class NlpXmlReaderTest {
         String docId = documents.get(0).getId();
         List<Sentence> sentences = reader.getSentencesByParentId(docId);
         assertEquals("Document 1 sentence count", 2, sentences.size());
-        assertEquals("sentence 1 documentId", docId, sentences.get(0).getDocumentId());
+        assertEquals("sentence 1 documentId", docId, sentences.get(0).getDocument().getId());
     }
 
     @Test
@@ -43,8 +43,8 @@ public class NlpXmlReaderTest {
         String docId = documents.get(0).getId();
         List<Phrase> phrases = reader.getPhrasesByParentId(docId, "TESTPROP");
         assertEquals("Document 1 Trajector phrase count", 3, phrases.size());
-        assertEquals("phrase 1 documentId", docId, phrases.get(0).getDocumentId());
-        assertEquals("phrase 1 sentenceId", "s601", phrases.get(0).getSentenceId());
+        assertEquals("phrase 1 documentId", docId, phrases.get(0).getDocument().getId());
+        assertEquals("phrase 1 sentenceId", "s601", phrases.get(0).getSentence().getId());
 
         assertEquals("first phrase additional prop[first_value]", "1", phrases.get(0).getProperty("TESTPROP_first_value"));
         assertEquals("first phrase additional prop[second_value]", "T1", phrases.get(0).getProperty("TESTPROP_second_value"));

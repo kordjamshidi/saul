@@ -18,7 +18,8 @@ import java.util.*;
 /**
  * Created by Taher on 2016-12-18.
  */
-public class NlpXmlReader {
+public class NlpXmlReader{
+    private Map<String, NlpBaseElement> identityMap;
     private XPath xpath = null;
     org.w3c.dom.Document xmlDocument;
     private String documentTagName;
@@ -35,6 +36,7 @@ public class NlpXmlReader {
     }
 
     public NlpXmlReader(File file, String documentTagName, String sentenceTagName, String phraseTagName, String tokenTagName) {
+        identityMap = new HashMap<>();
         this.setDocumentTagName(documentTagName);
         this.setSentenceTagName(sentenceTagName);
         this.setPhraseTagName(phraseTagName);
@@ -49,6 +51,10 @@ public class NlpXmlReader {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void close(){
+        identityMap.clear();
     }
 
     public String getDocumentTagName() {
@@ -166,30 +172,32 @@ public class NlpXmlReader {
     }
 
     public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, List<T> list) {
-        String pId = null;
+        String documentId = null;
         for (T e : list) {
-            if (pId == null) {
-                switch (e.getType()) {
-                    case Document:
-                        break;
-                    case Sentence:
-                        pId = ((Sentence) e).getDocumentId();
-                        break;
-                    case Phrase:
-                        pId = ((Phrase) e).getDocumentId();
-                        break;
-                    case Token:
-                        pId = ((Token) e).getDocumentId();
-                        break;
-                }
+            if (documentId == null) {
+                documentId = getDocumentId(e);
             }
-            Node n = getNodeBySpan(tagName, e.getStart(), e.getEnd(), pId);
+            Node n = getNodeBySpan(tagName, e.getStart(), e.getEnd(), documentId);
             if (n != null) {
                 for (int i = 0; i < n.getAttributes().getLength(); i++) {
                     e.setProperty(tagName + "_" + n.getAttributes().item(i).getNodeName(), n.getAttributes().item(i).getNodeValue());
                 }
             }
         }
+    }
+
+    private <T extends NlpBaseElement> String getDocumentId(T e) {
+        switch (e.getType()) {
+            case Document:
+                break;
+            case Sentence:
+                return ((Sentence) e).getDocument().getId();
+            case Phrase:
+                return ((Phrase) e).getDocument().getId();
+            case Token:
+                return ((Token) e).getDocument().getId();
+        }
+        return null;
     }
 
     private Relation getRelation(Element e) {
@@ -223,32 +231,35 @@ public class NlpXmlReader {
     }
 
     private NlpBaseElement getNlpBaseElement(Element e, NlpBaseElementTypes type) {
+        if(e == null)
+            return null;
         NlpBaseElement element = null;
+        String id = getStringAttribute(e, getIdTagName());
+        if(identityMap.containsKey(id)){
+            return identityMap.get(id);
+        }
         switch (type) {
             case Document:
                 element = new Document();
                 break;
             case Sentence:
                 Sentence s = new Sentence();
-                s.setDocumentId(getStringAttribute(getAncestor(e, documentTagName), idTagName));
+                s.setDocument((Document)getNlpBaseElement(getAncestorElement(e, documentTagName), NlpBaseElementTypes.Document));
                 element = s;
                 break;
             case Phrase:
                 Phrase p = new Phrase();
-                p.setDocumentId(getStringAttribute(getAncestor(e, documentTagName), idTagName));
-                p.setSentenceId(getStringAttribute(getAncestor(e, sentenceTagName), idTagName));
+                p.setSentence((Sentence) getNlpBaseElement(getAncestorElement(e, sentenceTagName), NlpBaseElementTypes.Sentence));
                 element = p;
                 break;
             case Token:
                 Token t = new Token();
-                t.setDocumentId(getStringAttribute(getAncestor(e, documentTagName), idTagName));
-                t.setSentenceId(getStringAttribute(getAncestor(e, sentenceTagName), idTagName));
-                t.setPhraseId(getStringAttribute(getAncestor(e, sentenceTagName), idTagName));
+                t.setSentence((Sentence) getNlpBaseElement(getAncestorElement(e, sentenceTagName), NlpBaseElementTypes.Sentence));
+                t.setPhrase((Phrase) getNlpBaseElement(getAncestorElement(e, phraseTagName), NlpBaseElementTypes.Phrase));
                 element = t;
                 break;
         }
-
-        element.setId(getStringAttribute(e, getIdTagName()));
+        element.setId(id);
         element.setStart(getIntAttribute(e, getStartTagName()));
         element.setEnd(getIntAttribute(e, getEndTagName()));
         element.setText(getStringAttribute(e, getTextTagName()));
@@ -260,7 +271,8 @@ public class NlpXmlReader {
         return element;
     }
 
-    private Element getAncestor(Element n, String ancestorTagName) {
+
+    private Element getAncestorElement(Element n, String ancestorTagName) {
         if (n == null || ancestorTagName == null || n.getNodeName() == ancestorTagName)
             return n;
         Node parent = n.getParentNode();
@@ -268,7 +280,7 @@ public class NlpXmlReader {
             return null;
         while (parent != null && parent.getNodeType() != Node.ELEMENT_NODE)
             parent = parent.getParentNode();
-        return getAncestor((Element) parent, ancestorTagName);
+        return getAncestorElement((Element) parent, ancestorTagName);
     }
 
     private Node getNodeBySpan(String tagName, int start, int end, String parentId) {

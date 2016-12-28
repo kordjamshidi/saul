@@ -55,10 +55,10 @@ object SpRLNewGenerationDataModel extends DataModel {
   }
 
   val pos = property(phrases) {
-    x: Phrase => getPos(x, phrases(x) <~ sentenceToPhrase head).mkString(",")
+    x: Phrase => getPos(x).mkString(",")
   }
   val lemma = property(phrases) {
-    x: Phrase => getLemma(x, phrases(x) <~ sentenceToPhrase head).mkString(",")
+    x: Phrase => getLemma(x).mkString(",")
   }
 
 
@@ -90,6 +90,7 @@ object SpRLApp2 extends App {
   val LandmarkList = reader.getPhrases().asScala
 
   val relationList = reader.getRelations("RELATION").asScala
+  reader.close();
 
   documents.populate(documentList)
   sentences.populate(sentencesList)
@@ -113,7 +114,6 @@ object SpRLApp2 extends App {
   println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
   phrases().foreach(x => println("phrease " + x.getId + " sentence:" + (phrases(x) <~ sentenceToPhrase).head.getId))
   println("number of sentences connected to the phrases:", (phrases() <~ sentenceToPhrase size), "sentences:", sentences().size)
-
 
 
 }

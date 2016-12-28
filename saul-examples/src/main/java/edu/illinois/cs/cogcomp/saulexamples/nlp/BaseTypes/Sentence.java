@@ -5,14 +5,14 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
  */
 public class Sentence extends NlpBaseElement {
 
-    private String documentId;
+    private Document document;
 
     public Sentence() {
     }
 
-    public Sentence(String documentId, String id, Integer start, Integer end, String text) {
+    public Sentence(Document document, String id, Integer start, Integer end, String text) {
         super(id, start, end, text);
-        this.setDocumentId(documentId);
+        this.setDocument(document);
     }
 
     @Override
@@ -20,11 +20,11 @@ public class Sentence extends NlpBaseElement {
         return NlpBaseElementTypes.Sentence;
     }
 
-    public String getDocumentId() {
-        return documentId;
+    public Document getDocument() {
+        return document;
     }
 
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    public void setDocument(Document document) {
+        this.document = document;
     }
 }

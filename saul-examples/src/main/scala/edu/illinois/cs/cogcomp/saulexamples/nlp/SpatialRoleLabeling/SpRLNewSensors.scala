@@ -23,11 +23,11 @@ object SpRLNewSensors {
   private val as = TextAnnotationFactory.createPipelineAnnotatorService(settings)
 
   def DocToSentence(d: Document, s: Sentence): Boolean = {
-    d.getId == s.getDocumentId
+    d.getId == s.getDocument.getId
   }
 
   def SentencePhrase(s: Sentence, p:Phrase): Boolean = {
-    s.getId == p.getSentenceId
+    s.getId == p.getSentence.getId
   }
 
   def RelToTr(r: Relation, p: Phrase): Boolean = {
@@ -42,27 +42,35 @@ object SpRLNewSensors {
     r.getProperty("spatial_indicator_id") == p.getId
   }
 
-  def getPos(p: NlpBaseElement, s: Sentence): Seq[String] = {
-    val constituents = getPhraseConstituents(p, s)
+  def getPos(e: NlpBaseElement): Seq[String] = {
+    val constituents = getPhraseConstituents(e)
     constituents.map(x => WordFeatureExtractorFactory.pos.getFeatures(x).asScala.mkString)
   }
 
-  def getLemma(p: NlpBaseElement, s: Sentence): Seq[String] = {
-    val constituents = getPhraseConstituents(p, s)
+  def getLemma(e: NlpBaseElement): Seq[String] = {
+    val constituents = getPhraseConstituents(e)
     constituents.map(x => WordFeatureExtractorFactory.lemma.getFeatures(x).asScala.mkString)
   }
 
-  private def getPhraseConstituents(p: NlpBaseElement, s: Sentence): Seq[Constituent] = {
+  def getSentence(e: NlpBaseElement) = e match{
+    case s: Sentence => s
+    case p: Phrase => p.getSentence
+    case t: Token => t.getSentence
+    case _ => null
+  }
+
+  private def getPhraseConstituents(e: NlpBaseElement): Seq[Constituent] = {
+    val s = getSentence(e);
     val ta = getTextAnnotaion(s)
     val v = ta.getView(ViewNames.TOKENS)
-    val startId = ta.getTokenIdFromCharacterOffset(p.getStart - s.getStart)
-    val endId = ta.getTokenIdFromCharacterOffset(p.getEnd - 1 - s.getStart)
+    val startId = ta.getTokenIdFromCharacterOffset(e.getStart - s.getStart)
+    val endId = ta.getTokenIdFromCharacterOffset(e.getEnd - 1 - s.getStart)
     v.getConstituentsCoveringSpan(startId, endId + 1).asScala
   }
 
   private def getTextAnnotaion(sentence: Sentence): TextAnnotation = {
     if (!sentenceMap.contains(sentence.getId)) {
-      val ta = as.createAnnotatedTextAnnotation(sentence.getDocumentId, sentence.getId, sentence.getText)
+      val ta = as.createAnnotatedTextAnnotation(sentence.getDocument.getId, sentence.getId, sentence.getText)
       sentenceMap.put(sentence.getId, ta)
     }
     sentenceMap(sentence.getId)
