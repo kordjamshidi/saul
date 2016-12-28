@@ -23,24 +23,24 @@ object SpRLNewSensors {
   TextAnnotationFactory.disableSettings(settings, USE_SRL_NOM, USE_NER_ONTONOTES, USE_SRL_VERB, USE_NER_CONLL, USE_STANFORD_DEP)
   private val as = TextAnnotationFactory.createPipelineAnnotatorService(settings)
 
-  def DocToSentence(d: Document, s: Sentence): Boolean = {
+  def DocToSentenceMatching(d: Document, s: Sentence): Boolean = {
     d.getId == s.getDocument.getId
   }
 
-  def SentencePhrase(s: Sentence): Seq[Phrase] = {
+  def SentencePhraseGenerating(s: Sentence): Seq[Phrase] = {
     getPhrases(s)
   }
 
-  def RelToTr(r: Relation, p: Phrase): Boolean = {
+  def RelToTrMatching(r: Relation, p: Phrase): Boolean = {
     // when not using exact matching it can be more than one phrases for a trajector
     p.getPropertyValues("TRAJECTOR_id").contains(r.getProperty("trajector_id"))
   }
 
-  def RelToLm(r: Relation, p: Phrase): Boolean = {
+  def RelToLmMatching(r: Relation, p: Phrase): Boolean = {
     p.getPropertyValues("LANDMARK_id").contains(r.getProperty("landmark_id"))
   }
 
-  def RelToSp(r: Relation, p: Phrase): Boolean = {
+  def RelToSpMatching(r: Relation, p: Phrase): Boolean = {
     p.getPropertyValues("SPATIALINDICATOR_id").contains(r.getProperty("spatial_indicator_id"))
   }
 

@@ -27,22 +27,22 @@ object SpRLNewGenerationDataModel extends DataModel {
    */
 
   val docTosen = edge(documents, sentences)
-  docTosen.addSensor(DocToSentence _)
+  docTosen.addSensor(DocToSentenceMatching _)
 
   val sentenceToPhrase = edge(sentences, phrases)
-  sentenceToPhrase.addSensor(SentencePhrase _)
+  sentenceToPhrase.addSensor(SentencePhraseGenerating _)
 
   //
   val relToTr = edge(relations, phrases)
-  relToTr.addSensor(RelToTr _)
+  relToTr.addSensor(RelToTrMatching _)
 
 
   val relToLm = edge(relations, phrases)
 
-  relToLm.addSensor(RelToLm _)
+  relToLm.addSensor(RelToLmMatching _)
 
   val relToSp = edge(relations, phrases)
-  relToSp.addSensor(RelToSp _)
+  relToSp.addSensor(RelToSpMatching _)
   /*
      Properties
   */
