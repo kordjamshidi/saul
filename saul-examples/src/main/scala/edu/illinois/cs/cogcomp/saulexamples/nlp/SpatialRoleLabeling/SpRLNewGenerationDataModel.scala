@@ -60,6 +60,13 @@ object SpRLNewGenerationDataModel extends DataModel {
   val lemma = property(phrases) {
     x: Phrase => getLemma(x).mkString(",")
   }
+  val isTrajector= property(phrases) {
+    x : Phrase =>
+      x.getPropertyValue("")
+  }
+  val isLandmark = property(phrases)
+  val isSpIndicator = property(phrases)
+
 
 
   // when we have the annotation in the xml then we need to just use a matching sensor
@@ -106,6 +113,7 @@ object SpRLApp2 extends App {
   relations.populate(relationList)
 
   println("trajectors in the model:", (relations() ~> relToTr), "actual trajectors:", trajectorList)
+  println("trajectors in the model:", (relations() ~> relToTr prop isTrajector), "actual trajectors:", trajectorList)
   println("landmarks in the model:", (relations() ~> relToLm), "actual landmarks:", landmarkList)
   println("indicators in the model:", (relations() ~> relToSp), "actual indicators:", spIndicatorList)
 
@@ -116,6 +124,5 @@ object SpRLApp2 extends App {
   println("phrase 1 lemma :" + lemma(phrases().head))
   println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
   println("number of sentences connected to the phrases:", (phrases() <~ sentenceToPhrase size), "sentences:", sentences().size)
-
 
 }
