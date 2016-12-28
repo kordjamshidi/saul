@@ -26,7 +26,7 @@ object SpRLNewSensors {
     d.getId == s.getDocument.getId
   }
 
-  def SentencePhrase(s: Sentence, p:Phrase): Boolean = {
+  def SentencePhrase(s: Sentence, p: Phrase): Boolean = {
     s.getId == p.getSentence.getId
   }
 
@@ -52,7 +52,7 @@ object SpRLNewSensors {
     constituents.map(x => WordFeatureExtractorFactory.lemma.getFeatures(x).asScala.mkString)
   }
 
-  def getSentence(e: NlpBaseElement) = e match{
+  def getSentence(e: NlpBaseElement) = e match {
     case s: Sentence => s
     case p: Phrase => p.getSentence
     case t: Token => t.getSentence

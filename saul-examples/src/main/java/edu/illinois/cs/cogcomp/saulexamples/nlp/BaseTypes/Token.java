@@ -12,6 +12,14 @@ public class Token extends NlpBaseElement {
 
     }
 
+    public Token(Sentence sentence, String id, Integer start, Integer end, String text) {
+        this(sentence, null, id, start, end, text);
+    }
+
+    public Token(Phrase phrase, String id, Integer start, Integer end, String text) {
+        this(phrase.getSentence(), phrase, id, start, end, text);
+    }
+
     public Token(Sentence sentence, Phrase phrase, String id, Integer start, Integer end, String text) {
         super(id, start, end, text);
         this.setSentence(sentence);

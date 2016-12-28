@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * Created by Taher on 2016-12-18.
  */
-public class NlpXmlReader{
+public class NlpXmlReader {
     private Map<String, NlpBaseElement> identityMap;
     private XPath xpath = null;
     org.w3c.dom.Document xmlDocument;
@@ -53,7 +53,7 @@ public class NlpXmlReader{
         }
     }
 
-    public void close(){
+    public void close() {
         identityMap.clear();
     }
 
@@ -231,11 +231,11 @@ public class NlpXmlReader{
     }
 
     private NlpBaseElement getNlpBaseElement(Element e, NlpBaseElementTypes type) {
-        if(e == null)
+        if (e == null)
             return null;
         NlpBaseElement element = null;
         String id = getStringAttribute(e, getIdTagName());
-        if(identityMap.containsKey(id)){
+        if (identityMap.containsKey(id)) {
             return identityMap.get(id);
         }
         switch (type) {
@@ -244,7 +244,7 @@ public class NlpXmlReader{
                 break;
             case Sentence:
                 Sentence s = new Sentence();
-                s.setDocument((Document)getNlpBaseElement(getAncestorElement(e, documentTagName), NlpBaseElementTypes.Document));
+                s.setDocument((Document) getNlpBaseElement(getAncestorElement(e, documentTagName), NlpBaseElementTypes.Document));
                 element = s;
                 break;
             case Phrase:
@@ -254,8 +254,8 @@ public class NlpXmlReader{
                 break;
             case Token:
                 Token t = new Token();
-                t.setSentence((Sentence) getNlpBaseElement(getAncestorElement(e, sentenceTagName), NlpBaseElementTypes.Sentence));
                 t.setPhrase((Phrase) getNlpBaseElement(getAncestorElement(e, phraseTagName), NlpBaseElementTypes.Phrase));
+                t.setSentence((Sentence) getNlpBaseElement(getAncestorElement(e, sentenceTagName), NlpBaseElementTypes.Sentence));
                 element = t;
                 break;
         }
@@ -325,20 +325,22 @@ public class NlpXmlReader{
             return Integer.parseInt(e.getAttribute(name));
         return -1;
     }
-    private String getStringAttribute(Element e, String name){
+
+    private String getStringAttribute(Element e, String name) {
 
         String a = getAttribute(e, name);
-        if(a != null)
-            return  a;
+        if (a != null)
+            return a;
         a = getAttribute(e, name.toUpperCase());
-        if(a != null)
-            return  a;
+        if (a != null)
+            return a;
         a = getAttribute(e, name.toUpperCase());
-        if(a != null)
-            return  a;
-        return  null;
+        if (a != null)
+            return a;
+        return null;
     }
-    private String getAttribute(Element e, String name){
+
+    private String getAttribute(Element e, String name) {
         if (e.hasAttribute(name))
             return e.getAttribute(name);
         NodeList innerElement = e.getElementsByTagName(name);
