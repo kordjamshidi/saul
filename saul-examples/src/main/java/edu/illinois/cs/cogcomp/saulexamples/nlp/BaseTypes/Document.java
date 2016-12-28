@@ -3,7 +3,7 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 /**
  * Created by Taher on 2016-12-18.
  */
-public class Document extends NlpBasedElement {
+public class Document extends NlpBaseElement {
     public Document() {
     }
 

@@ -8,17 +8,17 @@ import java.util.Map;
 /**
  * Created by Taher on 2016-12-18.
  */
-public abstract class NlpBasedElement extends SpanBasedElement {
+public abstract class NlpBaseElement extends SpanBasedElement {
     private String id;
     private String text;
     private Map<String, List<String>> properties = new HashMap<>();
 
-    public NlpBasedElement() {
+    public NlpBaseElement() {
         setStart(-1);
         setEnd(-1);
     }
 
-    public NlpBasedElement(String id, Integer start, Integer end, String text) {
+    public NlpBaseElement(String id, Integer start, Integer end, String text) {
         this.setId(id);
         this.setStart(start);
         this.setEnd(end);
@@ -67,7 +67,7 @@ public abstract class NlpBasedElement extends SpanBasedElement {
         this.text = text;
     }
 
-    public static NlpBasedElement create(NlpBaseElementTypes type) {
+    public static NlpBaseElement create(NlpBaseElementTypes type) {
 
         switch (type) {
             case Document:

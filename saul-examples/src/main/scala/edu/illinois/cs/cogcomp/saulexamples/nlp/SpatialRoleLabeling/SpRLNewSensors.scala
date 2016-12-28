@@ -44,12 +44,12 @@ object SpRLNewSensors {
     p.getPropertyValues("SPATIALINDICATOR_id").contains(r.getProperty("spatial_indicator_id"))
   }
 
-  def getPos(e: NlpBasedElement): Seq[String] = {
+  def getPos(e: NlpBaseElement): Seq[String] = {
     val constituents = getElementConstituents(e)
     constituents.map(x => WordFeatureExtractorFactory.pos.getFeatures(x).asScala.mkString)
   }
 
-  def getLemma(e: NlpBasedElement): Seq[String] = {
+  def getLemma(e: NlpBaseElement): Seq[String] = {
     val constituents = getElementConstituents(e)
     constituents.map(x => WordFeatureExtractorFactory.lemma.getFeatures(x).asScala.mkString)
   }
@@ -67,7 +67,7 @@ object SpRLNewSensors {
     new Token(p, p.getId + head.getSpan, head.getStartCharOffset, head.getEndCharOffset, head.toString)
   }
 
-  def getSentence(e: NlpBasedElement) = e match {
+  def getSentence(e: NlpBaseElement) = e match {
     case s: Sentence => s
     case p: Phrase => p.getSentence
     case t: Token => t.getSentence
@@ -85,7 +85,7 @@ object SpRLNewSensors {
     return sentence.getId + x.getSpan
   }
 
-  private def getElementConstituents(e: NlpBasedElement): Seq[Constituent] = {
+  private def getElementConstituents(e: NlpBaseElement): Seq[Constituent] = {
     val s = getSentence(e)
     val ta = getTextAnnotaion(s)
     val v = ta.getView(ViewNames.TOKENS)

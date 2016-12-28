@@ -19,7 +19,7 @@ import java.util.*;
  * Created by Taher on 2016-12-18.
  */
 public class NlpXmlReader {
-    private Map<String, NlpBasedElement> identityMap;
+    private Map<String, NlpBaseElement> identityMap;
     private XPath xpath = null;
     org.w3c.dom.Document xmlDocument;
     private String documentTagName;
@@ -171,11 +171,11 @@ public class NlpXmlReader {
         return list;
     }
 
-    public <T extends NlpBasedElement> void addPropertiesFromTag(String tagName, List<T> list) {
+    public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, List<T> list) {
         addPropertiesFromTag(tagName, list, new XmlExachMatching());
     }
 
-    public <T extends NlpBasedElement> void addPropertiesFromTag(String tagName, List<T> list, IXmlSpanMatching matching) {
+    public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, List<T> list, IXmlSpanMatching matching) {
         for (T e : list) {
             String documentId = getDocumentId(e);
             NodeList matchingNodes = getNodes(tagName, e.getStart(), e.getEnd(), documentId, matching);
@@ -192,7 +192,7 @@ public class NlpXmlReader {
         }
     }
 
-    private <T extends NlpBasedElement> String getDocumentId(T e) {
+    private <T extends NlpBaseElement> String getDocumentId(T e) {
         switch (e.getType()) {
             case Document:
                 break;
@@ -216,7 +216,7 @@ public class NlpXmlReader {
         return r;
     }
 
-    private <T extends NlpBasedElement> List<T> getElementList(String tagName, String parentId, NlpBaseElementTypes type, String... addPropertiesFromTag) {
+    private <T extends NlpBaseElement> List<T> getElementList(String tagName, String parentId, NlpBaseElementTypes type, String... addPropertiesFromTag) {
         NodeList nodes = parentId == null ?
                 getNodeList(tagName) :
                 getNodeList(parentId, tagName);
@@ -224,7 +224,7 @@ public class NlpXmlReader {
         for (int i = 0; i < nodes.getLength(); i++) {
             if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element e = (Element) nodes.item(i);
-                NlpBasedElement s = getNlpBaseElement(e, type);
+                NlpBaseElement s = getNlpBaseElement(e, type);
                 list.add((T) s);
             }
         }
@@ -236,10 +236,10 @@ public class NlpXmlReader {
         return list;
     }
 
-    private NlpBasedElement getNlpBaseElement(Element e, NlpBaseElementTypes type) {
+    private NlpBaseElement getNlpBaseElement(Element e, NlpBaseElementTypes type) {
         if (e == null)
             return null;
-        NlpBasedElement element = null;
+        NlpBaseElement element = null;
         String id = getStringAttribute(e, getIdTagName());
         if (identityMap.containsKey(id)) {
             return identityMap.get(id);
