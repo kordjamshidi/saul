@@ -14,7 +14,7 @@ public class Relation {
 
     }
 
-    public Relation(String name, String id, String firstId, String secondId) {
+    public Relation(String id) {
         this.setId(id);
     }
 

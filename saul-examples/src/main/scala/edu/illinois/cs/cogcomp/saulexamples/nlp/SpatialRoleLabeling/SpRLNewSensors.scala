@@ -33,15 +33,18 @@ object SpRLNewSensors {
 
   def RelToTrMatching(r: Relation, p: Phrase): Boolean = {
     // when not using exact matching it can be more than one phrases for a trajector
-    p.getPropertyValues("TRAJECTOR_id").contains(r.getProperty("trajector_id"))
+    p.getPropertyValues("TRAJECTOR_id").contains(r.getProperty("trajector_id")) ||
+      r.getProperty("TRAJECTOR_candidate_id") == p.getId
   }
 
   def RelToLmMatching(r: Relation, p: Phrase): Boolean = {
-    p.getPropertyValues("LANDMARK_id").contains(r.getProperty("landmark_id"))
+    p.getPropertyValues("LANDMARK_id").contains(r.getProperty("landmark_id")) ||
+      r.getProperty("LANDMARK_candidate_id") == p.getId
   }
 
   def RelToSpMatching(r: Relation, p: Phrase): Boolean = {
-    p.getPropertyValues("SPATIALINDICATOR_id").contains(r.getProperty("spatial_indicator_id"))
+    p.getPropertyValues("SPATIALINDICATOR_id").contains(r.getProperty("spatial_indicator_id")) ||
+      r.getProperty("SPATIALINDICATOR_candidate_id") == p.getId
   }
 
   def getPos(e: NlpBaseElement): Seq[String] = {

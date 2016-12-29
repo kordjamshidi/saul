@@ -60,13 +60,11 @@ object SpRLNewGenerationDataModel extends DataModel {
   val lemma = property(phrases) {
     x: Phrase => getLemma(x).mkString(",")
   }
-  val isTrajector= property(phrases) {
-    x : Phrase =>
-      x.getPropertyValue("")
+  val isTrajector = property(phrases) {
+    x: Phrase => x.getPropertyValues("TRAJECTOR_id").nonEmpty
   }
   val isLandmark = property(phrases)
   val isSpIndicator = property(phrases)
-
 
 
   // when we have the annotation in the xml then we need to just use a matching sensor
@@ -112,10 +110,27 @@ object SpRLApp2 extends App {
 
   relations.populate(relationList)
 
-  println("trajectors in the model:", (relations() ~> relToTr), "actual trajectors:", trajectorList)
-  println("trajectors in the model:", (relations() ~> relToTr prop isTrajector), "actual trajectors:", trajectorList)
-  println("landmarks in the model:", (relations() ~> relToLm), "actual landmarks:", landmarkList)
-  println("indicators in the model:", (relations() ~> relToSp), "actual indicators:", spIndicatorList)
+  val trCandidates = phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("TRAJECTOR_id").isEmpty)
+  val prepositions = phrases().filter(x => getPos(x).contains("IN") && x.getPropertyValues("SPATIALINDICATOR_id").isEmpty)
+  val lmCandidates = null :: phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("LANDMARK_id").isEmpty).toList
+  val candidateRelations = (for (tr <- trCandidates; sp <- prepositions; lm <- lmCandidates) yield (tr, sp, lm)).map {
+    case (tr, sp, lm) =>
+      val r = new Relation("candidate" + tr.getId + sp.getId)
+      r.setProperty("TRAJECTOR_candidate_id", tr.getId)
+      r.setProperty("SPATIALINDICATOR_candidate_id", sp.getId)
+      if (lm != null) {
+        r.setId(r.getId + lm.getId)
+        r.setProperty("LANDMARK_candidate_id", lm.getId)
+      }
+      r
+  }.filter(r => r.getProperty("LANDMARK_candidate_id") != r.getProperty("TRAJECTOR_candidate_id")).toList
+
+  relations.populate(candidateRelations)
+
+  println("trajectors in the model:", relations() ~> relToTr, "actual trajectors:", trajectorList)
+  println("trajectors in the model:", relations() ~> relToTr prop isTrajector, "actual trajectors:", trajectorList)
+  println("landmarks in the model:", relations() ~> relToLm, "actual landmarks:", landmarkList)
+  println("indicators in the model:", relations() ~> relToSp, "actual indicators:", spIndicatorList)
 
   val d = documents() ~> docTosen
   println("sentence num:", d.size, "should be equal to", sentencesList.length, "should be equal to", sentences().size)
@@ -123,6 +138,6 @@ object SpRLApp2 extends App {
   println("phrase 1 pos tags:" + pos(phrases().head))
   println("phrase 1 lemma :" + lemma(phrases().head))
   println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
-  println("number of sentences connected to the phrases:", (phrases() <~ sentenceToPhrase size), "sentences:", sentences().size)
+  println("number of sentences connected to the phrases:", phrases() <~ sentenceToPhrase size, "sentences:", sentences().size)
 
 }
