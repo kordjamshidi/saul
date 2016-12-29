@@ -7,10 +7,6 @@
 
 package edu.illinois.cs.cogcomp.saulexamples.data;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,13 +16,11 @@ import java.util.List;
  */
 public class Image {
     private final String label;
-    private List<Integer> ImageObjectCodes;
-    private List<String> ImageObjectConcepts;
+    public List<Segment> associatedObjects;
 
     public Image(String label) {
         this.label = label;
-        ImageObjectCodes = new ArrayList<>();
-        ImageObjectConcepts = new ArrayList<>();
+        associatedObjects = new ArrayList<>();
     }
 
     public String getLabel()
@@ -35,22 +29,14 @@ public class Image {
     }
 
     // Retrieving associated objects of the image.
-    public List<Integer> getObjectCodes()
+    public List<Segment> getObjectCodes()
     {
-        return Collections.unmodifiableList(ImageObjectCodes);
-    }
-
-    // Storing associated objects of the image.
-    public void setObjects(List<Integer> ObjectCodes, List<String> ObjectConcepts)
-    {
-        this.ImageObjectCodes = ObjectCodes;
-        this.ImageObjectConcepts = ObjectConcepts;
+        return Collections.unmodifiableList(associatedObjects);
     }
 
     @Override
     public String toString() {
         // TODO Auto-generated method stub
-        return label + ", " + ImageObjectCodes + ", " + ImageObjectConcepts;
+        return label + ", " + associatedObjects.toString();
     }
-
 }

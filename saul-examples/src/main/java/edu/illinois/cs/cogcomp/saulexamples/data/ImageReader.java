@@ -37,22 +37,54 @@ public class ImageReader {
         if (!d.isDirectory()) {
             throw new IOException(directory + " is not a directory!");
         }
-        /*******************************************************/
-        // Loading Image Codes and its Corresponding Concept
-        // Storing information in HashTable for quick retrieval
-        /*******************************************************/
+        // Load Concepts
+        LoadConcepts();
+        // Load Training Features
+        LoadTrainingFeatures();
+        // Get Objects
+        LoadObjects(d);
+    }
+
+    /*****************************************/
+    // Takes object code as input and returns
+    // object concept
+    /*****************************************/
+    public String MappingCode2Concept(int code)
+    {
+        return MapCode2Concept.get(code);
+    }
+
+    /*******************************************************/
+    // Loading Image Codes and its Corresponding Concept
+    // Storing information in HashTable for quick retrieval
+    /*******************************************************/
+    private void LoadConcepts() throws IOException
+    {
         BufferedReader reader = new BufferedReader(new FileReader("mSprl/wlist.txt"));
         String line;
-        while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
             String[] CodesInfo = line.split("\\t");
             MapCode2Concept.put(Integer.parseInt(CodesInfo[0]),CodesInfo[1]);
         }
+    }
+
+    /*******************************************************/
+    // Loading Image Codes and its Corresponding Concept
+    // Storing information in HashTable for quick retrieval
+    /*******************************************************/
+    private void LoadTrainingFeatures() throws IOException
+    {
+
+    }
+
+    private void LoadObjects(File d) throws IOException
+    {
         /*******************************************************/
         // Loading Image and its Objects information
         // Storing information in HashTable for quick retrieval
         /*******************************************************/
-        reader = new BufferedReader(new FileReader("mSprl/labels.txt"));
-        line = null;
+        BufferedReader reader = new BufferedReader(new FileReader("mSprl/labels.txt"));
+        String line = null;
         boolean repeat = false;
         int PreImageName = -1;
         int ImageName = -1;
@@ -93,9 +125,10 @@ public class ImageReader {
             objectCodes = ImageTable.get(Integer.parseInt(label));
             for (Integer i : objectCodes )
             {
-                objectConcepts.add(MappingCode2Concept(i));
+                Segment sObj = new Segment(i, "Feature", MappingCode2Concept(i));
+                iObj.associatedObjects.add(sObj);
+
             }
-            iObj.setObjects(objectCodes, objectConcepts);
             images.add(iObj);
             objectConcepts.clear();
         }
@@ -104,10 +137,11 @@ public class ImageReader {
     // Takes object code as input and returns
     // object concept
     /*****************************************/
-    public String MappingCode2Concept(int code)
+    public ArrayList getImages()
     {
-        return MapCode2Concept.get(code);
+        return images;
     }
+
     public void close() {
     }
 
