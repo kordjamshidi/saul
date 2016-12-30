@@ -60,11 +60,17 @@ object SpRLNewGenerationDataModel extends DataModel {
   val lemma = property(phrases) {
     x: Phrase => getLemma(x).mkString(",")
   }
+  
   val isTrajector = property(phrases) {
     x: Phrase => x.getPropertyValues("TRAJECTOR_id").nonEmpty
   }
-  val isLandmark = property(phrases)
-  val isSpIndicator = property(phrases)
+  val isLandmark = property(phrases) {
+    x: Phrase =>
+      x.getPropertyValue("LANDMARK_id") != null
+}
+
+  //val isSpIndicator = property(phrases)
+
 
 
   // when we have the annotation in the xml then we need to just use a matching sensor
