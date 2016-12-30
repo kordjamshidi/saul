@@ -119,7 +119,9 @@ object SpRLApp2 extends App {
   val trCandidates = phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("TRAJECTOR_id").isEmpty)
   val prepositions = phrases().filter(x => getPos(x).contains("IN") && x.getPropertyValues("SPATIALINDICATOR_id").isEmpty)
   val lmCandidates = null :: phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("LANDMARK_id").isEmpty).toList
-  val candidateRelations = (for (tr <- trCandidates; sp <- prepositions; lm <- lmCandidates) yield (tr, sp, lm)).map {
+  val candidateRelations = (for (tr <- trCandidates; sp <- prepositions; lm <- lmCandidates) yield (tr, sp, lm))
+    .filter{case (tr, sp, lm) => tr.getSentence.getId == sp.getSentence.getId && (lm == null || tr.getSentence.getId == lm.getSentence.getId)}
+    .map {
     case (tr, sp, lm) =>
       val r = new Relation("candidate" + tr.getId + sp.getId)
       r.setProperty("TRAJECTOR_candidate_id", tr.getId)
