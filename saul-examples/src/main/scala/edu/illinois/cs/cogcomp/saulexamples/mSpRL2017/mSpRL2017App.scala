@@ -15,4 +15,7 @@ object mSpRL2017App  extends App {
 
   mSpRL2017DataModel.image populate trainData
 
+
+
+
 }
