@@ -7,16 +7,18 @@ public class Segment {
     private int segmentCode;
     private String segmentFeatures;
     private String segmentConcept;
-    public Segment(int sC, String sF, String sCon)
+    private String imageID;
+    public Segment(String iD, int sC, String sF, String sCon)
     {
+        imageID = iD;
         segmentCode = sC;
         segmentFeatures = sF;
         segmentConcept = sCon;
     }
 
-    public String getSegmentConcept()
+    public String getAssociatedImageID()
     {
-        return segmentConcept;
+        return imageID;
     }
 
     public String getSegmentFeatures()
@@ -28,10 +30,15 @@ public class Segment {
         return segmentCode;
     }
 
+    public String getSegmentConcept()
+    {
+        return segmentConcept;
+    }
+
     @Override
     public String toString() {
         // TODO Auto-generated method stub
-        return segmentCode + ", " + segmentFeatures + ", " + segmentConcept;
+        return imageID + ", " + segmentCode + ", " + segmentFeatures + ", " + segmentConcept;
     }
 
 }
