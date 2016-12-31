@@ -6,18 +6,13 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.data.{DocumentReader, ImageReader}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.EmailSpam.SpamClassifiers._
-
+import edu.illinois.cs.cogcomp.saulexamples.data.ImageReader
 import scala.collection.JavaConversions._
 
-object mSpRL2017App extends Logging {
+object mSpRL2017App  extends App {
 
-  val trainData = new ImageReader("C:/Users/Umar Manzoor/Documents/GitHub/saul/mSprl/images")
+  val trainData = new ImageReader("C:/Users/Umar Manzoor/Documents/GitHub/saul/mSprl/images").images.toList
 
-  def main(args: Array[String]): Unit = {
-    /** Choose the experiment you're interested in by changing the following line */
+  mSpRL2017DataModel.image populate trainData
 
-  }
 }

@@ -21,10 +21,8 @@ import java.util.Hashtable;
  */
 public class ImageReader {
 
-    private ArrayList<Image> images= new ArrayList<>();
-    private ArrayList<Integer> objectCodes = new ArrayList<>();
-    private ArrayList<String> objectConcepts = new ArrayList<>();
-    private Hashtable<Integer, ArrayList<Integer>> ImageTable = new Hashtable<Integer, ArrayList<Integer>>();
+    public ArrayList<Image> images= new ArrayList<>();
+    private ArrayList<Segment> objectCodesFeatures = new ArrayList<>();
     private Hashtable<Integer, String> MapCode2Concept = new Hashtable<Integer, String>();
 
     public ImageReader(String directory) throws IOException {
@@ -39,10 +37,8 @@ public class ImageReader {
         }
         // Load Concepts
         LoadConcepts();
-        // Load Training Features
-        LoadTrainingFeatures();
-        // Get Objects
-        LoadObjects(d);
+        // Load Image Objects / Features
+        LoadImageInfo(d);
     }
 
     /*****************************************/
@@ -69,32 +65,27 @@ public class ImageReader {
     }
 
     /*******************************************************/
-    // Loading Image Codes and its Corresponding Concept
-    // Storing information in HashTable for quick retrieval
+    // Loading Image and its Objects information
+    // (Including features / codes / Concepts)
     /*******************************************************/
-    private void LoadTrainingFeatures() throws IOException
+    private void LoadImageInfo(File d) throws IOException
     {
-
-    }
-
-    private void LoadObjects(File d) throws IOException
-    {
-        /*******************************************************/
-        // Loading Image and its Objects information
-        // Storing information in HashTable for quick retrieval
-        /*******************************************************/
-        BufferedReader reader = new BufferedReader(new FileReader("mSprl/labels.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader("data/features.txt"));
         String line = null;
         boolean repeat = false;
         int PreImageName = -1;
         int ImageName = -1;
         int objectCode;
+        String features;
+        Image i_Obj;
         while ((line = reader.readLine()) != null) {
             String[] ImageInfo = line.split("\\t");
-            // We are interested in ImageName and Object Code
+            // We are interested in ImageName, Object Code and Features
             // Ignoring Object Count ImageInfo[1];
             ImageName = Integer.parseInt(ImageInfo[0]);
-            objectCode = Integer.parseInt(ImageInfo[2]);
+            features = ImageInfo[2];
+            objectCode = Integer.parseInt(ImageInfo[3]);
+
 
             if (!repeat) {
                 PreImageName = ImageName;
@@ -102,47 +93,25 @@ public class ImageReader {
             }
             if(PreImageName!=ImageName)
             {
-                ImageTable.put(PreImageName, objectCodes);
-                objectCodes = new ArrayList<Integer>();
+                i_Obj = new Image(Integer.toString(PreImageName));
+                i_Obj.associatedObjects = objectCodesFeatures;
+                images.add(i_Obj);
+
+                objectCodesFeatures = new ArrayList<>();
                 PreImageName = ImageName;
-                objectCodes.add(objectCode);
+                Segment s_obj = new Segment(objectCode,features, MappingCode2Concept(objectCode));
+                objectCodesFeatures.add(s_obj);
 
             }
             else
             {
                 PreImageName = ImageName;
-                objectCodes.add(objectCode);
+                Segment s_obj = new Segment(objectCode,features, MappingCode2Concept(objectCode));
+                objectCodesFeatures.add(s_obj);
             }
         }
-        ImageTable.put(ImageName, objectCodes);
-        objectConcepts.clear();
-        for (File f : d.listFiles()) {
-            String[] s = f.getName().split("\\.");
-            String label = s[0];
-            Image iObj = new Image(label);
-
-            // Object Code to Object Concept Conversion
-            objectCodes = ImageTable.get(Integer.parseInt(label));
-            for (Integer i : objectCodes )
-            {
-                Segment sObj = new Segment(i, "Feature", MappingCode2Concept(i));
-                iObj.associatedObjects.add(sObj);
-
-            }
-            images.add(iObj);
-            objectConcepts.clear();
-        }
+        i_Obj = new Image(Integer.toString(PreImageName));
+        i_Obj.associatedObjects = objectCodesFeatures;
+        images.add(i_Obj);
     }
-    /*****************************************/
-    // Takes object code as input and returns
-    // object concept
-    /*****************************************/
-    public ArrayList getImages()
-    {
-        return images;
-    }
-
-    public void close() {
-    }
-
 }
