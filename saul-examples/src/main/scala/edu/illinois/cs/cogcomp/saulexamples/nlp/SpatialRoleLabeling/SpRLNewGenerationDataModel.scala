@@ -112,20 +112,16 @@ object SpRLApp2 extends App {
   reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, XmlMatchings.headwordMatching)
   reader.addPropertiesFromTag("LANDMARK", phrases().toList, new XmlPartOfMatching)
   reader.addPropertiesFromTag("SPATIALINDICATOR", phrases().toList, new XmlPartOfMatching)
-
   relations.populate(relationList)
 
-  val trCandidates = phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("TRAJECTOR_id").isEmpty).toList
+  val trCandidates = null :: phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("TRAJECTOR_id").isEmpty).toList
   val spCandidates = phrases().filter(x => getPos(x).contains("IN") && x.getPropertyValues("SPATIALINDICATOR_id").isEmpty).toList
   val lmCandidates = null :: phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("LANDMARK_id").isEmpty).toList
   val candidateRelations = getCandidateRelations[Phrase](args => args.filter(_ != null).groupBy(_.getSentence.getId).size <= 1, trCandidates, spCandidates, lmCandidates)
-
   relations.populate(candidateRelations)
-
 
   println(candidateRelations.size)
   println(relations().size)
-
   println("trajectors in the model:", relations() ~> relToTr, "actual trajectors:", trajectorList)
   println("trajectors in the model:", relations() ~> relToTr prop isTrajector, "actual trajectors:", trajectorList)
   println("landmarks in the model:", relations() ~> relToLm, "actual landmarks:", landmarkList)
