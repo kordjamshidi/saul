@@ -7,13 +7,19 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.data.ImageReader
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
 import scala.collection.JavaConversions._
+
 
 object mSpRL2017App  extends App {
 
-  val trainData = new ImageReader("C:/Users/Umar Manzoor/Documents/GitHub/saul/mSprl/images").images.toList
+  val image_reader = new ImageReader("C:/Users/Umar Manzoor/Documents/GitHub/saul/data/msprl")
 
-  mSpRL2017DataModel.image populate trainData
+  val imageList = image_reader.getImages()
+  val segementList = image_reader.getSegments()
+
+//  image.populate(imageList.toList)
+//  segment.populate(segementList)
 
 
 

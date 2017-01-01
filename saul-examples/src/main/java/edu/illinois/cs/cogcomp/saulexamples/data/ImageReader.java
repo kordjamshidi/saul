@@ -12,7 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
-
+import java.util.List;
 /**
  * Reads documents, given a directory
  * 
@@ -21,10 +21,10 @@ import java.util.Hashtable;
  */
 public class ImageReader {
 
-    public ArrayList<Image> images= new ArrayList<>();
-    private ArrayList<Segment> objectCodesFeatures = new ArrayList<>();
+    public List<Image> images;
+    private List<Segment> segments;
     private Hashtable<Integer, String> MapCode2Concept = new Hashtable<Integer, String>();
-
+    private String path;
     public ImageReader(String directory) throws IOException {
         File d = new File(directory);
         
@@ -35,17 +35,18 @@ public class ImageReader {
         if (!d.isDirectory()) {
             throw new IOException(directory + " is not a directory!");
         }
+        path = directory;
+        images = new ArrayList<>();
+        segments = new ArrayList<>();
         // Load Concepts
-        LoadConcepts();
-        // Load Image Objects / Features
-        LoadImageInfo(d);
+        getConcepts(directory);
     }
 
     /*****************************************/
     // Takes object code as input and returns
     // object concept
     /*****************************************/
-    public String MappingCode2Concept(int code)
+    private String MappingCode2Concept(int code)
     {
         return MapCode2Concept.get(code);
     }
@@ -54,9 +55,10 @@ public class ImageReader {
     // Loading Image Codes and its Corresponding Concept
     // Storing information in HashTable for quick retrieval
     /*******************************************************/
-    private void LoadConcepts() throws IOException
+    private void getConcepts(String directory) throws IOException
     {
-        BufferedReader reader = new BufferedReader(new FileReader("mSprl/wlist.txt"));
+        String file = directory + "/wlist.txt";
+        BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
             while ((line = reader.readLine()) != null) {
             String[] CodesInfo = line.split("\\t");
@@ -65,53 +67,44 @@ public class ImageReader {
     }
 
     /*******************************************************/
-    // Loading Image and its Objects information
-    // (Including features / codes / Concepts)
+    // Loading Image
     /*******************************************************/
-    private void LoadImageInfo(File d) throws IOException
+    public List getImages() throws IOException
     {
-        BufferedReader reader = new BufferedReader(new FileReader("data/features.txt"));
-        String line = null;
-        boolean repeat = false;
-        int PreImageName = -1;
-        int ImageName = -1;
-        int objectCode;
-        String features;
-        Image i_Obj;
-        while ((line = reader.readLine()) != null) {
-            String[] ImageInfo = line.split("\\t");
-            // We are interested in ImageName, Object Code and Features
-            // Ignoring Object Count ImageInfo[1];
-            ImageName = Integer.parseInt(ImageInfo[0]);
-            features = ImageInfo[2];
-            objectCode = Integer.parseInt(ImageInfo[3]);
+        String folder = path + "/images/00";
+        File d = new File(folder);
 
-
-            if (!repeat) {
-                PreImageName = ImageName;
-                repeat = true;
-            }
-            if(PreImageName!=ImageName)
-            {
-                i_Obj = new Image(Integer.toString(PreImageName));
-                i_Obj.associatedObjects = objectCodesFeatures;
-                images.add(i_Obj);
-
-                objectCodesFeatures = new ArrayList<>();
-                PreImageName = ImageName;
-                Segment s_obj = new Segment(objectCode,features, MappingCode2Concept(objectCode));
-                objectCodesFeatures.add(s_obj);
-
-            }
-            else
-            {
-                PreImageName = ImageName;
-                Segment s_obj = new Segment(objectCode,features, MappingCode2Concept(objectCode));
-                objectCodesFeatures.add(s_obj);
-            }
+        if (!d.exists()) {
+            throw new IOException(path + " does not exist!");
         }
-        i_Obj = new Image(Integer.toString(PreImageName));
-        i_Obj.associatedObjects = objectCodesFeatures;
-        images.add(i_Obj);
+
+        if (!d.isDirectory()) {
+            throw new IOException(path + " is not a directory!");
+        }
+
+        for (File f: d.listFiles()){
+
+            String label = f.getName();
+            String[] split = label.split("\\.");
+            images.add(new Image(label, split[0]));}
+        return images;
+    }
+    /*******************************************************/
+    // Loading Image
+    /*******************************************************/
+    public List getSegments() throws IOException
+    {
+        String file = path + "/features.txt";
+        String line;
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        while ((line = reader.readLine()) != null) {
+            String[] segmentInfo = line.split("\\t");
+            String imageID = segmentInfo[0];
+            int segmentCode = Integer.parseInt(segmentInfo[3]);
+            String segmentConcept = MappingCode2Concept(segmentCode);
+            String segmentFeatures = segmentInfo[2];
+            segments.add(new Segment(imageID, segmentCode, segmentFeatures, segmentConcept));
+        }
+        return segments;
     }
 }

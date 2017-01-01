@@ -16,11 +16,16 @@ import java.util.List;
  */
 public class Image {
     private final String label;
-    public List<Segment> associatedObjects;
+    private String id;
 
-    public Image(String label) {
+    public Image(String label, String id) {
         this.label = label;
-        associatedObjects = new ArrayList<>();
+        this.id = id;
+    }
+
+    public String getImageID()
+    {
+        return id;
     }
 
     public String getLabel()
@@ -28,15 +33,9 @@ public class Image {
         return label;
     }
 
-    // Retrieving associated objects of the image.
-    public List<Segment> getObjectCodes()
+    public void setImageID(String ID)
     {
-        return Collections.unmodifiableList(associatedObjects);
+        id = ID;
     }
 
-    @Override
-    public String toString() {
-        // TODO Auto-generated method stub
-        return label + ", " + associatedObjects.toString();
-    }
 }
