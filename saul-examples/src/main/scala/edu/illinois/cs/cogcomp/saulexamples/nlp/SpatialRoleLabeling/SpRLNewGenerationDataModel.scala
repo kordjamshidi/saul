@@ -117,7 +117,7 @@ object SpRLApp2 extends App {
   val trCandidates = null :: phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("TRAJECTOR_id").isEmpty).toList
   val spCandidates = phrases().filter(x => getPos(x).contains("IN") && x.getPropertyValues("SPATIALINDICATOR_id").isEmpty).toList
   val lmCandidates = null :: phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("LANDMARK_id").isEmpty).toList
-  val candidateRelations = getCandidateRelations[Phrase](args => args.filter(_ != null).groupBy(_.getSentence.getId).size <= 1, trCandidates, spCandidates, lmCandidates)
+  val candidateRelations = getCandidateRelations[Phrase](trCandidates, spCandidates, lmCandidates)
   relations.populate(candidateRelations)
 
   println(candidateRelations.size)
@@ -136,13 +136,18 @@ object SpRLApp2 extends App {
   println("number of sentences connected to the phrases:", phrases() <~ sentenceToPhrase size, "sentences:", sentences().size)
 
 
-  private def getCandidateRelations[T <: NlpBaseElement](jointFilter: List[T] => Boolean, argumentInstances: List[T]*): List[Relation] = {
+  private def getCandidateRelations[T <: NlpBaseElement](argumentInstances: List[T]*): List[Relation] = {
     if (argumentInstances.length < 2) {
       List.empty
     }
     else {
       crossProduct(argumentInstances.seq.toList)
-        .filter(jointFilter)
+        .filter(args => args.filter(_ != null).groupBy {
+          case x: Token => x.getSentence.getId
+          case x: Phrase => x.getSentence.getId
+          case x: Sentence => x.getDocument.getId
+          case _ => null
+        }.size <= 1)
         .map(args => {
           val r = new Relation()
           args.zipWithIndex.filter(x => x._1 != null).foreach {
