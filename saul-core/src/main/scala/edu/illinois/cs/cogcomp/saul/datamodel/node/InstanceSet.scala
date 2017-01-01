@@ -12,6 +12,7 @@ import edu.illinois.cs.cogcomp.saul.datamodel.property.TypedProperty
 trait InstanceSet[T <: AnyRef] extends Iterable[T] {
   self =>
   def instances: Iterable[T]
+
   def node: Node[T]
 
   def ~>[U <: AnyRef](edge: Edge[T, U]): InstanceSet[U] = {
@@ -26,6 +27,7 @@ trait InstanceSet[T <: AnyRef] extends Iterable[T] {
   def <~[U <: AnyRef](edge: Edge[U, T]): InstanceSet[U] = {
     this ~> -edge
   }
+
   override def filter(pred: T => Boolean) = new InstanceSet[T] {
     val node: Node[T] = self.node
     val instances: Iterable[T] = self.instances.filter(pred)

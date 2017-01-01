@@ -60,17 +60,16 @@ object SpRLNewGenerationDataModel extends DataModel {
   val lemma = property(phrases) {
     x: Phrase => getLemma(x).mkString(",")
   }
-  
+
   val isTrajector = property(phrases) {
     x: Phrase => x.getPropertyValues("TRAJECTOR_id").nonEmpty
   }
   val isLandmark = property(phrases) {
     x: Phrase =>
       x.getPropertyValue("LANDMARK_id") != null
-}
+  }
 
   //val isSpIndicator = property(phrases)
-
 
 
   // when we have the annotation in the xml then we need to just use a matching sensor
@@ -104,7 +103,7 @@ object SpRLApp2 extends App {
   reader.setPhraseTagName("SPATIALINDICATOR")
   val spIndicatorList = reader.getPhrases()
 
-  val relationList = reader.getRelations("RELATION")
+  val relationList = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
   documents.populate(documentList)
   sentences.populate(sentencesList)
@@ -116,24 +115,16 @@ object SpRLApp2 extends App {
 
   relations.populate(relationList)
 
-  val trCandidates = phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("TRAJECTOR_id").isEmpty)
-  val prepositions = phrases().filter(x => getPos(x).contains("IN") && x.getPropertyValues("SPATIALINDICATOR_id").isEmpty)
+  val trCandidates = phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("TRAJECTOR_id").isEmpty).toList
+  val spCandidates = phrases().filter(x => getPos(x).contains("IN") && x.getPropertyValues("SPATIALINDICATOR_id").isEmpty).toList
   val lmCandidates = null :: phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("LANDMARK_id").isEmpty).toList
-  val candidateRelations = (for (tr <- trCandidates; sp <- prepositions; lm <- lmCandidates) yield (tr, sp, lm))
-    .filter{case (tr, sp, lm) => tr.getSentence.getId == sp.getSentence.getId && (lm == null || tr.getSentence.getId == lm.getSentence.getId)}
-    .map {
-    case (tr, sp, lm) =>
-      val r = new Relation("candidate" + tr.getId + sp.getId)
-      r.setProperty("TRAJECTOR_candidate_id", tr.getId)
-      r.setProperty("SPATIALINDICATOR_candidate_id", sp.getId)
-      if (lm != null) {
-        r.setId(r.getId + lm.getId)
-        r.setProperty("LANDMARK_candidate_id", lm.getId)
-      }
-      r
-  }.filter(r => r.getProperty("LANDMARK_candidate_id") != r.getProperty("TRAJECTOR_candidate_id")).toList
+  val candidateRelations = getCandidateRelations[Phrase](args => args.filter(_ != null).groupBy(_.getSentence.getId).size <= 1, trCandidates, spCandidates, lmCandidates)
 
   relations.populate(candidateRelations)
+
+
+  println(candidateRelations.size)
+  println(relations().size)
 
   println("trajectors in the model:", relations() ~> relToTr, "actual trajectors:", trajectorList)
   println("trajectors in the model:", relations() ~> relToTr prop isTrajector, "actual trajectors:", trajectorList)
@@ -147,5 +138,40 @@ object SpRLApp2 extends App {
   println("phrase 1 lemma :" + lemma(phrases().head))
   println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
   println("number of sentences connected to the phrases:", phrases() <~ sentenceToPhrase size, "sentences:", sentences().size)
+
+
+  private def getCandidateRelations[T <: NlpBaseElement](jointFilter: List[T] => Boolean, argumentInstances: List[T]*): List[Relation] = {
+    if (argumentInstances.length < 2) {
+      List.empty
+    }
+    else {
+      crossProduct(argumentInstances.seq.toList)
+        .filter(jointFilter)
+        .map(args => {
+          val r = new Relation()
+          args.zipWithIndex.filter(x => x._1 != null).foreach {
+            case (a, i) => {
+              r.setArgumentId(i, a.getId)
+              r.setId(r.getId + "[" + i + ", " + a.getId + "]")
+            }
+          }
+          r
+        }).filter(r => distinctArguments(r))
+    }
+  }
+
+  def distinctArguments(r: Relation): Boolean = {
+    (for (i <- Range(0, r.getArgumentsCount); j <- Range(0, r.getArgumentsCount)) yield (i, j))
+      .forall { case (i, j) =>
+        i == j || r.getArgumentId(i) != r.getArgumentId(j) || (r.getArgumentId(i) == null && r.getArgumentId(j) == null)
+      }
+  }
+
+  def crossProduct[T](input: List[List[T]]): List[List[T]] = input match {
+    case Nil => Nil
+    case head :: Nil => head.map(_ :: Nil)
+    case head :: tail => for (elem <- head; sub <- crossProduct(tail)) yield elem :: sub
+  }
+
 
 }
