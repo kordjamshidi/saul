@@ -6,6 +6,8 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.data;
 
+import com.jmatio.io.MatFileReader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
 /**
  * Reads documents, given a directory
  * 
@@ -69,7 +72,7 @@ public class ImageReader {
     /*******************************************************/
     // Loading Image
     /*******************************************************/
-    public List getImages() throws IOException
+    public List<Image> getImages() throws IOException
     {
         String folder = path + "/images/00";
         File d = new File(folder);
@@ -92,7 +95,7 @@ public class ImageReader {
     /*******************************************************/
     // Loading Image
     /*******************************************************/
-    public List getSegments() throws IOException
+    public List<Segment> getSegments() throws IOException
     {
         String file = path + "/features.txt";
         String line;
