@@ -16,22 +16,26 @@ import java.util.List;
  */
 public class Image {
     private final String label;
-    private String img_id;
+    private String id;
 
-    public Image(String label) {
+    public Image(String label, String id) {
         this.label = label;
-        // for the time being name / id is same.
-        this.img_id = label;
+        this.id = id;
     }
 
     public String getImageID()
     {
-        return img_id;
+        return id;
+    }
+
+    public String getLabel()
+    {
+        return label;
     }
 
     public void setImageID(String ID)
     {
-        img_id = ID;
+        id = ID;
     }
 
 }
