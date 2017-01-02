@@ -48,10 +48,11 @@ object SpRLNewGenerationDataModel extends DataModel {
   */
 
   val testPhraseProperty = property(phrases) {
-    x: Phrase => x.getPropertyValue("TESTPROP_first_value")
+    x: Phrase => x.getPropertyFirstValue("TESTPROP_first_value")
   }
+
   val testDocumentProperty = property(documents) {
-    x: Document => x.getPropertyValue("test")
+    x: Document => x.getPropertyFirstValue("test")
   }
 
   val pos = property(phrases) {
@@ -64,28 +65,14 @@ object SpRLNewGenerationDataModel extends DataModel {
   val isTrajector = property(phrases) {
     x: Phrase => x.getPropertyValues("TRAJECTOR_id").nonEmpty
   }
+
   val isLandmark = property(phrases) {
-    x: Phrase =>
-      x.getPropertyValue("LANDMARK_id") != null
+    x: Phrase =>      x.getPropertyValues("LANDMARK_id").nonEmpty
   }
 
-  //val isSpIndicator = property(phrases)
-
-
-  // when we have the annotation in the xml then we need to just use a matching sensor
-  // docTosen.addSensor(a_matchingSensor)
-
-  //when we want to use our NLP tools then we use generating sensors
-  // sentenceToToken.addSensor(a_generatingSensor)
-  //  val spPairs = join(tokens,tokens)
-  // val spTriplets = join(spPairs,spatialIndicators)
-  //  val isTrajector= property(tokens){
-  //    x: Token => x.hasXmlAttribute("trajector") // or  x.hastag("trajector")
-  // each base type has two methods of hasXMLTag or hasXMLAttribute that recieves a string as input.
-  //  }
-  //  val lemma = property (tokens) {
-  //    x:Token => TextAnnotationSensor(x)
-  //  }
+  val isSpIndicator = property(phrases){
+    x: Phrase => x.getPropertyValues("SPATIALINDICATOR_id").nonEmpty
+  }
 }
 
 object SpRLApp2 extends App {
@@ -147,7 +134,7 @@ object SpRLApp2 extends App {
           case x: Phrase => x.getSentence.getId
           case x: Sentence => x.getDocument.getId
           case _ => null
-        }.size <= 1)
+        }.size <= 1 && args.filter(_ != null).groupBy(_.getId).size == args.count(_ != null))
         .map(args => {
           val r = new Relation()
           args.zipWithIndex.filter(x => x._1 != null).foreach {
@@ -157,15 +144,8 @@ object SpRLApp2 extends App {
             }
           }
           r
-        }).filter(r => distinctArguments(r))
+        })
     }
-  }
-
-  def distinctArguments(r: Relation): Boolean = {
-    (for (i <- Range(0, r.getArgumentsCount); j <- Range(0, r.getArgumentsCount)) yield (i, j))
-      .forall { case (i, j) =>
-        i == j || r.getArgumentId(i) != r.getArgumentId(j) || (r.getArgumentId(i) == null && r.getArgumentId(j) == null)
-      }
   }
 
   def crossProduct[T](input: List[List[T]]): List[List[T]] = input match {

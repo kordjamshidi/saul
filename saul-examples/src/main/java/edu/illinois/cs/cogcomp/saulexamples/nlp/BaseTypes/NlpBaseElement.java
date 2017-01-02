@@ -31,23 +31,26 @@ public abstract class NlpBaseElement extends SpanBasedElement {
         return properties.containsKey(name);
     }
 
-    public String getPropertyValue(String name) {
-        if (properties.containsKey(name))
+    public String getPropertyFirstValue(String name) {
+        if (properties.containsKey(name) && !properties.get(name).isEmpty())
             return properties.get(name).get(0);
         return null;
     }
+
     public List<String> getPropertyValues(String name) {
         if (properties.containsKey(name))
             return properties.get(name);
         return new ArrayList<>();
     }
+
     public void addPropertyValue(String name, String value) {
-        if(!containsProperty(name))
+        if (!containsProperty(name))
             properties.put(name, new ArrayList<>());
         properties.get(name).add(value);
     }
-    public void removeProperty(String name){
-        if(containsProperty(name))
+
+    public void removeProperty(String name) {
+        if (containsProperty(name))
             properties.remove(name);
     }
 
