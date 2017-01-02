@@ -11,7 +11,7 @@ import edu.illinois.cs.cogcomp.edison.features.factory.WordNetFeatureExtractor
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.nlp.CommonSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRLSensors._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet.{ SpRelation, SpRoleTypes }
+//import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet.{ SpRelation, SpRoleTypes }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -21,7 +21,7 @@ import scala.collection.mutable.ListBuffer
 object SpRLDataModel extends DataModel {
 
   val undefined = "[undefined]"
-
+/*
   // data model
   val sentences = node[SpRLSentence]
   val relations = node[SpRelation]
@@ -227,6 +227,6 @@ object SpRLDataModel extends DataModel {
   val BH1 = property(relations) {
     x: SpRelation => x.getRelationType
   }
-
+*/
 }
 

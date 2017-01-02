@@ -4,7 +4,7 @@ import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import SpRLNewSensors._
-import edu.illinois.cs.cogcomp.saulexamples.data.Image
+import edu.illinois.cs.cogcomp.saulexamples.data.ImageReader
 
 import scala.collection.JavaConversions._
 
@@ -75,6 +75,7 @@ object SpRLApp2 extends App {
   import SpRLNewGenerationDataModel._
 
   val reader = new NlpXmlReader("/Users/parisakordjamshidi/IdeaProjects/saul/saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", "TRAJECTOR", null)
+
   val documentList = reader.getDocuments()
   val sentencesList = reader.getSentences()
   val TrajectorList = reader.getPhrases("TRAJECTOR", "TESTPROP")
@@ -88,6 +89,8 @@ object SpRLApp2 extends App {
   phrases.populate(LandmarkList)
 
   relations.populate(relationList)
+
+  //images.populate(imageList);
 
   println ("number of trajectors connected to the relations:",(relations()~> relToTr size) , "relations:" , relations().size)
   println ("number of trajectors connected to the relations:",(relations()~> relToTr prop testPhraseProperty) , "relations:" , relations().size)

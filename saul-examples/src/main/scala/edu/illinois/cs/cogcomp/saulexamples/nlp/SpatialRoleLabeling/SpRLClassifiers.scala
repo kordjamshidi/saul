@@ -15,7 +15,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet.SpRL
   */
 object SpRLClassifiers {
   import SpRLDataModel._
-
+/*
   val relationFeatures = List(JF2_1, JF2_2, JF2_3, JF2_4, JF2_5, JF2_6, JF2_7, JF2_8,
     JF2_9, JF2_10, JF2_11, JF2_12, JF2_13, JF2_14, JF2_15, BH1)
 
@@ -54,5 +54,5 @@ object SpRLClassifiers {
 
     override def feature = using(relationFeatures)
   }
-
+*/
 }

@@ -1,7 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.saulexamples.data.{Image, ImageReader}
+import edu.illinois.cs.cogcomp.saulexamples.data.ImageReader
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Image
 
 import scala.collection.JavaConversions._
 
@@ -14,9 +15,6 @@ object  SpRL_image_DataModel extends DataModel {
 
   val image_lables = property(images){
     x: Image => x.getLabel
-  }
-  val image_regions = property(images) {
-    x: Image => x.getObjectCodes.asInstanceOf[Array[Int]].toList
   }
 }
 object SpRL_image_App  extends App {

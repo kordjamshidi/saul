@@ -12,7 +12,7 @@ import org.scalatest.{ FlatSpec, Matchers }
 /** Created by taher on 8/14/16.
   */
 class SpRLDataModelReaderTests extends FlatSpec with Matchers {
-  val path = getResourcePath("SpRL/2012/")
+ /* val path = getResourcePath("SpRL/2012/")
 
   private def getResourcePath(relativePath: String): String =
     getClass.getClassLoader.getResource(relativePath).getPath
@@ -182,5 +182,5 @@ class SpRLDataModelReaderTests extends FlatSpec with Matchers {
     BH1(rel31) should be("LANDMARK_TRAJECTOR_INDICATOR")
     BH1(rel41) should be("TRAJECTOR_INDICATOR")
   }
-
+*/
 }
