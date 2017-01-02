@@ -17,9 +17,11 @@ val image_reader = new ImageReader("C:/Users/Umar Manzoor/Documents/GitHub/saul/
 
   val imageList = image_reader.getImages()
   val segementList = image_reader.getSegments()
+  val relationList = image_reader.getSegmentsRelations()
 
     image.populate(imageList)
     segment.populate(segementList)
+    relation.populate(relationList)
 
 
 
