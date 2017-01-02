@@ -1,6 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.saulexamples.data.{Image, Segment}
+import edu.illinois.cs.cogcomp.saulexamples.data.Segment
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Image, Segment}
 
 
 object ImageSensors {
