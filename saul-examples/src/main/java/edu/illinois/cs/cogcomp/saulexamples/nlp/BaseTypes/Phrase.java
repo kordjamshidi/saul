@@ -3,19 +3,17 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 /**
  * Created by Taher on 2016-12-24.
  */
-public class Phrase extends NlpBaseElement{
+public class Phrase extends NlpBaseElement {
 
-    private String documentId;
-    private String sentenceId;
+    private Sentence sentence;
 
     public Phrase(){
 
     }
 
-    public Phrase(String documentId, String sentenceId, String id, Integer start, Integer end, String text) {
+    public Phrase(Sentence sentence, String id, Integer start, Integer end, String text) {
         super(id, start, end, text);
-        this.documentId = documentId;
-        this.sentenceId = sentenceId;
+        this.sentence = sentence;
     }
 
     @Override
@@ -23,19 +21,15 @@ public class Phrase extends NlpBaseElement{
         return NlpBaseElementTypes.Phrase;
     }
 
-    public String getDocumentId() {
-        return documentId;
+    public Document getDocument() {
+        return getSentence().getDocument();
     }
 
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    public Sentence getSentence() {
+        return sentence;
     }
 
-    public String getSentenceId() {
-        return sentenceId;
-    }
-
-    public void setSentenceId(String sentenceId) {
-        this.sentenceId = sentenceId;
+    public void setSentence(Sentence sentence) {
+        this.sentence = sentence;
     }
 }

@@ -5,19 +5,25 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
  */
 public class Token extends NlpBaseElement {
 
-    private String documentId;
-    private String sentenceId;
-    private String phraseId;
+    private Sentence sentence;
+    private Phrase phrase;
 
     public Token() {
 
     }
 
-    public Token(String documentId, String sentenceId, String phraseId, String id, Integer start, Integer end, String text) {
+    public Token(Sentence sentence, String id, Integer start, Integer end, String text) {
+        this(sentence, null, id, start, end, text);
+    }
+
+    public Token(Phrase phrase, String id, Integer start, Integer end, String text) {
+        this(phrase.getSentence(), phrase, id, start, end, text);
+    }
+
+    public Token(Sentence sentence, Phrase phrase, String id, Integer start, Integer end, String text) {
         super(id, start, end, text);
-        this.setDocumentId(documentId);
-        this.setSentenceId(sentenceId);
-        this.setPhraseId(phraseId);
+        this.setSentence(sentence);
+        this.setPhrase(phrase);
     }
 
     @Override
@@ -25,27 +31,23 @@ public class Token extends NlpBaseElement {
         return NlpBaseElementTypes.Token;
     }
 
-    public String getDocumentId() {
-        return documentId;
+    public Document getDocument() {
+        return getSentence().getDocument();
     }
 
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    public Sentence getSentence() {
+        return sentence;
     }
 
-    public String getSentenceId() {
-        return sentenceId;
+    public void setSentence(Sentence sentence) {
+        this.sentence = sentence;
     }
 
-    public void setSentenceId(String sentenceId) {
-        this.sentenceId = sentenceId;
+    public Phrase getPhrase() {
+        return phrase;
     }
 
-    public String getPhraseId() {
-        return phraseId;
-    }
-
-    public void setPhraseId(String phraseId) {
-        this.phraseId = phraseId;
+    public void setPhrase(Phrase phrase) {
+        this.phrase = phrase;
     }
 }

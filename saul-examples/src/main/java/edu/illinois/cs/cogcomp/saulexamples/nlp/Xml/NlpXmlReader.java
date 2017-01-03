@@ -19,6 +19,7 @@ import java.util.*;
  * Created by Taher on 2016-12-18.
  */
 public class NlpXmlReader {
+    private Map<String, NlpBaseElement> identityMap;
     private XPath xpath = null;
     org.w3c.dom.Document xmlDocument;
     private String documentTagName;
@@ -35,6 +36,7 @@ public class NlpXmlReader {
     }
 
     public NlpXmlReader(File file, String documentTagName, String sentenceTagName, String phraseTagName, String tokenTagName) {
+        identityMap = new HashMap<>();
         this.setDocumentTagName(documentTagName);
         this.setSentenceTagName(sentenceTagName);
         this.setPhraseTagName(phraseTagName);
@@ -49,6 +51,10 @@ public class NlpXmlReader {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void close() {
+        identityMap.clear();
     }
 
     public String getDocumentTagName() {
@@ -143,11 +149,11 @@ public class NlpXmlReader {
         return getElementList(getTokenTagName(), parentId, NlpBaseElementTypes.Token, addPropertiesFromTag);
     }
 
-    public List<Relation> getRelations(String tagName) {
-        return getRelationsByParentId(tagName, null);
+    public List<Relation> getRelations(String tagName, String... argumentIds) {
+        return getRelationsByParentId(tagName, null, argumentIds);
     }
 
-    public List<Relation> getRelationsByParentId(String tagName, String parentId) {
+    public List<Relation> getRelationsByParentId(String tagName, String parentId, String... argumentIds) {
 
         NodeList nodes = parentId == null ?
                 getNodeList(tagName) :
@@ -166,39 +172,50 @@ public class NlpXmlReader {
     }
 
     public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, List<T> list) {
-        String pId = null;
+        addPropertiesFromTag(tagName, list, new XmlExachMatching());
+    }
+
+    public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, List<T> list, IXmlSpanMatching matching) {
         for (T e : list) {
-            if (pId == null) {
-                switch (e.getType()) {
-                    case Document:
-                        break;
-                    case Sentence:
-                        pId = ((Sentence) e).getDocumentId();
-                        break;
-                    case Phrase:
-                        pId = ((Phrase) e).getDocumentId();
-                        break;
-                    case Token:
-                        pId = ((Token) e).getDocumentId();
-                        break;
-                }
-            }
-            Node n = getNodeBySpan(tagName, e.getStart(), e.getEnd(), pId);
-            if (n != null) {
-                for (int i = 0; i < n.getAttributes().getLength(); i++) {
-                    e.setProperty(tagName + "_" + n.getAttributes().item(i).getNodeName(), n.getAttributes().item(i).getNodeValue());
+            String documentId = getDocumentId(e);
+            NodeList matchingNodes = getNodes(tagName, e.getStart(), e.getEnd(), documentId, matching);
+            for (int j = 0; j < matchingNodes.getLength(); j++) {
+                Node n = matchingNodes.item(j);
+                if (n != null && n.getNodeType() == Node.ELEMENT_NODE) {
+                    SpanBasedElement xmlElement = getElementContainer((Element) n);
+                    if (matching.matches(xmlElement, e))
+                        for (int i = 0; i < n.getAttributes().getLength(); i++) {
+                            e.addPropertyValue(tagName + "_" + n.getAttributes().item(i).getNodeName(), n.getAttributes().item(i).getNodeValue());
+                        }
                 }
             }
         }
     }
 
-    private Relation getRelation(Element e) {
+    private <T extends NlpBaseElement> String getDocumentId(T e) {
+        switch (e.getType()) {
+            case Document:
+                break;
+            case Sentence:
+                return ((Sentence) e).getDocument().getId();
+            case Phrase:
+                return ((Phrase) e).getDocument().getId();
+            case Token:
+                return ((Token) e).getDocument().getId();
+        }
+        return null;
+    }
+
+    private Relation getRelation(Element e, String... argumentIds) {
         Relation r = new Relation();
         NamedNodeMap attributes = e.getAttributes();
         for (int j = 0; j < attributes.getLength(); j++) {
             r.setProperty(attributes.item(j).getNodeName(), attributes.item(j).getNodeValue());
         }
         r.setId(r.getProperty("id"));
+        for (int i = 0; i < argumentIds.length; i++) {
+            r.setArgumentId(i, argumentIds[i]);
+        }
         return r;
     }
 
@@ -223,44 +240,57 @@ public class NlpXmlReader {
     }
 
     private NlpBaseElement getNlpBaseElement(Element e, NlpBaseElementTypes type) {
+        if (e == null)
+            return null;
         NlpBaseElement element = null;
+        String id = getStringAttribute(e, getIdTagName());
+        if (identityMap.containsKey(id)) {
+            return identityMap.get(id);
+        }
         switch (type) {
             case Document:
                 element = new Document();
                 break;
             case Sentence:
                 Sentence s = new Sentence();
-                s.setDocumentId(getStringAttribute(getAncestor(e, documentTagName), idTagName));
+                s.setDocument((Document) getNlpBaseElement(getAncestorElement(e, documentTagName), NlpBaseElementTypes.Document));
                 element = s;
                 break;
             case Phrase:
                 Phrase p = new Phrase();
-                p.setDocumentId(getStringAttribute(getAncestor(e, documentTagName), idTagName));
-                p.setSentenceId(getStringAttribute(getAncestor(e, sentenceTagName), idTagName));
+                p.setSentence((Sentence) getNlpBaseElement(getAncestorElement(e, sentenceTagName), NlpBaseElementTypes.Sentence));
                 element = p;
                 break;
             case Token:
                 Token t = new Token();
-                t.setDocumentId(getStringAttribute(getAncestor(e, documentTagName), idTagName));
-                t.setSentenceId(getStringAttribute(getAncestor(e, sentenceTagName), idTagName));
-                t.setPhraseId(getStringAttribute(getAncestor(e, sentenceTagName), idTagName));
+                t.setPhrase((Phrase) getNlpBaseElement(getAncestorElement(e, phraseTagName), NlpBaseElementTypes.Phrase));
+                t.setSentence((Sentence) getNlpBaseElement(getAncestorElement(e, sentenceTagName), NlpBaseElementTypes.Sentence));
                 element = t;
                 break;
         }
-
-        element.setId(getStringAttribute(e, getIdTagName()));
+        element.setId(id);
         element.setStart(getIntAttribute(e, getStartTagName()));
         element.setEnd(getIntAttribute(e, getEndTagName()));
         element.setText(getStringAttribute(e, getTextTagName()));
         NamedNodeMap attributes = e.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
-            element.setProperty(attributes.item(i).getNodeName(), attributes.item(i).getNodeValue());
+            element.addPropertyValue(attributes.item(i).getNodeName(), attributes.item(i).getNodeValue());
         }
 
         return element;
     }
 
-    private Element getAncestor(Element n, String ancestorTagName) {
+    private SpanBasedElement getElementContainer(Element e) {
+        if (e == null)
+            return null;
+        SpanBasedElement element = new SpanBasedElement();
+        element.setStart(getIntAttribute(e, getStartTagName()));
+        element.setEnd(getIntAttribute(e, getEndTagName()));
+        return element;
+    }
+
+
+    private Element getAncestorElement(Element n, String ancestorTagName) {
         if (n == null || ancestorTagName == null || n.getNodeName() == ancestorTagName)
             return n;
         Node parent = n.getParentNode();
@@ -268,15 +298,16 @@ public class NlpXmlReader {
             return null;
         while (parent != null && parent.getNodeType() != Node.ELEMENT_NODE)
             parent = parent.getParentNode();
-        return getAncestor((Element) parent, ancestorTagName);
+        return getAncestorElement((Element) parent, ancestorTagName);
     }
 
-    private Node getNodeBySpan(String tagName, int start, int end, String parentId) {
+    private NodeList getNodes(String tagName, int start, int end, String parentId, IXmlSpanMatching matching) {
+        String searchQuery = matching.getXpathQuery(getStartTagName(), getEndTagName(), start, end);
         String query = parentId == null ?
-                String.format("//%s[@start='%s' and @end='%s']", tagName, start, end) :
-                String.format("//*[@id='%s']//%s[@start='%s' and @end='%s']", parentId, tagName, start, end);
+                String.format("//%s[%s]", tagName, searchQuery) :
+                String.format("//*[@id='%s']//%s[%s]", parentId, tagName, searchQuery);
         try {
-            return (Node) xpath.evaluate(query, xmlDocument, XPathConstants.NODE);
+            return (NodeList) xpath.evaluate(query, xmlDocument, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
             e.printStackTrace();
             return null;
@@ -307,19 +338,33 @@ public class NlpXmlReader {
         return xmlDocument.getElementsByTagName(tagName);
     }
 
-    private String getStringAttribute(Element e, String name) {
-        if (e.hasAttribute(name))
-            return e.getAttribute(name);
-        NodeList innerElement = e.getElementsByTagName(name);
-        if (innerElement.getLength() > 0)
-            return innerElement.item(0).getTextContent();
-        return null;
-    }
-
     private Integer getIntAttribute(Element e, String name) {
-        if (e.hasAttribute(name))
+        String a = getStringAttribute(e, name);
+        if (a != null)
             return Integer.parseInt(e.getAttribute(name));
         return -1;
     }
 
+    private String getStringAttribute(Element e, String name) {
+
+        String a = getAttribute(e, name);
+        if (a != null)
+            return a;
+        a = getAttribute(e, name.toUpperCase());
+        if (a != null)
+            return a;
+        a = getAttribute(e, name.toUpperCase());
+        if (a != null)
+            return a;
+        return null;
+    }
+
+    private String getAttribute(Element e, String name) {
+        if (e.hasAttribute(name))
+            return e.getAttribute(name);
+        NodeList innerElement = e.getElementsByTagName(name);
+        if (innerElement.getLength() > 0 && innerElement.item(0).getParentNode() == e)
+            return innerElement.item(0).getTextContent();
+        return null;
+    }
 }
