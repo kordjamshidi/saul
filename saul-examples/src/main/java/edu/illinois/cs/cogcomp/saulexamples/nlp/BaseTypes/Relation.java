@@ -1,6 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,12 +11,13 @@ import java.util.Map;
 public class Relation {
     private String id;
     private Map<String, String> properties = new HashMap<>();
+    private Map<Integer, String> argumentIds = new HashMap<>();
 
     public Relation() {
-
+        id = "";
     }
 
-    public Relation(String name, String id, String firstId, String secondId) {
+    public Relation(String id) {
         this.setId(id);
     }
 
@@ -38,5 +41,18 @@ public class Relation {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getArgumentsCount(){
+        return argumentIds.size();
+    }
+
+    public void setArgumentId(int index, String argumentId) {
+        argumentIds.put(index, argumentId);
+    }
+    public String getArgumentId(int index){
+        if(!argumentIds.containsKey(index))
+            return null;
+        return argumentIds.get(index);
     }
 }
