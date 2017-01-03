@@ -13,7 +13,7 @@ import scala.collection.JavaConversions._
 
 object mSpRL2017App  extends App {
 
-val image_reader = new ImageReader("C:/Users/Umar Manzoor/Documents/GitHub/saul/data/msprl")
+val image_reader = new ImageReader("data/msprl")
 
   val imageList = image_reader.getImages()
   val segementList = image_reader.getSegments()
