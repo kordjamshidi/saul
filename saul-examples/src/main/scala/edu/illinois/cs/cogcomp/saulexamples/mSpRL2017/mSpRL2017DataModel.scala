@@ -19,8 +19,10 @@ object mSpRL2017DataModel extends DataModel{
 
   // Here we will create relationships between different segments
   // I am planning to use Relation class
-//  val relToSg = edge(relation, segment)
-//  relToSg.addSensor(segment_segment_rel _)
+
+  val relToSg = edge(relation, segment)
+
+  relToSg.addSensor(rel_segment _)
 
   val image_lable = property(image){
 

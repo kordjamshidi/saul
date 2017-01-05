@@ -22,5 +22,6 @@ val image_reader = new ImageReader("data/msprl")
     image.populate(imageList)
     segment.populate(segementList)
     relation.populate(relationList)
+    print((image()~>image_segment).size)
 
 }
