@@ -7,11 +7,9 @@ import SpRLNewSensors._
 
 import scala.collection.JavaConversions._
 
-/**
-  * Created by parisakordjamshidi on 12/22/16.
+/** Created by parisakordjamshidi on 12/22/16.
   */
 object SpRLNewGenerationDataModel extends DataModel {
-
 
   /*
   Nodes
@@ -35,7 +33,6 @@ object SpRLNewGenerationDataModel extends DataModel {
   //
   val relToTr = edge(relations, phrases)
   relToTr.addSensor(RelToTrMatching _)
-
 
   val relToLm = edge(relations, phrases)
 
@@ -67,10 +64,10 @@ object SpRLNewGenerationDataModel extends DataModel {
   }
 
   val isLandmark = property(phrases) {
-    x: Phrase =>      x.getPropertyValues("LANDMARK_id").nonEmpty
+    x: Phrase => x.getPropertyValues("LANDMARK_id").nonEmpty
   }
 
-  val isSpIndicator = property(phrases){
+  val isSpIndicator = property(phrases) {
     x: Phrase => x.getPropertyValues("SPATIALINDICATOR_id").nonEmpty
   }
 }
@@ -122,12 +119,10 @@ object SpRLApp2 extends App {
   println("phrease 1 sentence:" + (phrases(phrases().head) <~ sentenceToPhrase).head.getText)
   println("number of sentences connected to the phrases:", phrases() <~ sentenceToPhrase size, "sentences:", sentences().size)
 
-
   private def getCandidateRelations[T <: NlpBaseElement](argumentInstances: List[T]*): List[Relation] = {
     if (argumentInstances.length < 2) {
       List.empty
-    }
-    else {
+    } else {
       crossProduct(argumentInstances.seq.toList)
         .filter(args => args.filter(_ != null).groupBy {
           case x: Token => x.getSentence.getId
@@ -153,6 +148,5 @@ object SpRLApp2 extends App {
     case head :: Nil => head.map(_ :: Nil)
     case head :: tail => for (elem <- head; sub <- crossProduct(tail)) yield elem :: sub
   }
-
 
 }

@@ -10,18 +10,17 @@ import edu.illinois.cs.cogcomp.saulexamples.data.ImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
 import scala.collection.JavaConversions._
 
+object mSpRL2017App extends App {
 
-object mSpRL2017App  extends App {
-
-val image_reader = new ImageReader("data/msprl")
+  val image_reader = new ImageReader("data/msprl")
 
   val imageList = image_reader.getImages()
   val segementList = image_reader.getSegments()
   val relationList = image_reader.getSegmentsRelations()
 
-    image.populate(imageList)
-    segment.populate(segementList)
-    relation.populate(relationList)
-    print((image()~>image_segment).size)
+  image.populate(imageList)
+  segment.populate(segementList)
+  relation.populate(relationList)
+  print((image() ~> image_segment).size)
 
 }

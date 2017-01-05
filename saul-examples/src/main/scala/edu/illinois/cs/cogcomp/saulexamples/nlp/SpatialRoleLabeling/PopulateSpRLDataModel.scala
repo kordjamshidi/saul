@@ -15,7 +15,7 @@ import scala.collection.immutable.HashSet
 /** Created by taher on 7/28/16.
   */
 object PopulateSpRLDataModel extends Logging {
- /* def apply(path: String, isTraining: Boolean, dataVersion: String, modelName: String, savedLexicon: HashSet[String]) = {
+  /* def apply(path: String, isTraining: Boolean, dataVersion: String, modelName: String, savedLexicon: HashSet[String]) = {
 
     modelName match {
       case "Triplet" =>

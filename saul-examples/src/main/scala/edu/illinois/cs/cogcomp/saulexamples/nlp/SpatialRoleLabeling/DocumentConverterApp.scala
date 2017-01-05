@@ -1,20 +1,19 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 
-import java.io.{File, FileReader, PrintWriter}
+import java.io.{ File, FileReader, PrintWriter }
 import java.math.BigInteger
 
 import edu.illinois.cs.cogcomp.core.datastructures.IntPair
 import edu.illinois.cs.cogcomp.core.utilities.XmlModel
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{RELATION, SpRL2013Document, TRAJECTOR}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.{Scene, Sentence, SpRL2017Document}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{ RELATION, SpRL2013Document, TRAJECTOR }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.{ Scene, Sentence, SpRL2017Document }
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.io.Source
 
-/**
-  * Created by Taher on 2016-10-17.
+/** Created by Taher on 2016-10-17.
   */
 object DocumentConverterApp extends App {
   val specificType = 10
@@ -43,7 +42,6 @@ object DocumentConverterApp extends App {
   val trainSentCount = alginDocs(train, "train", 0)
   val goldSentCount = alginDocs(gold, "gold", trainSentCount)
 
-
   private def alginDocs(sprl2012Doc: SpRL2013Document, dataPartition: String, sentenceNumberOffset: Int): Int = {
     val landmarks = sprl2012Doc.getTAGS.getLANDMARK.asScala
     val spatialIndicators = sprl2012Doc.getTAGS.getSPATIALINDICATOR.asScala
@@ -70,8 +68,7 @@ object DocumentConverterApp extends App {
         }
         if (fileNumber >= clefReader.documents.size()) {
           //println(s"${dataPartition}_s + $sentenceNumber . file index out of bound( $sentenceNumber > ${clefReader.documents.size() - 1} })")
-        }
-        else {
+        } else {
           val scene = getScene(sprl2017Doc, clefReader.documents.get(fileNumber))
           addSentenceToScene(sprl2012Doc, relations, scene, sentenceOffset, trimmedSentence, sentenceNumber)
           doclist.put(scene.getDocNo(), 1)
@@ -79,7 +76,7 @@ object DocumentConverterApp extends App {
       }
     }
     val out = new PrintWriter(s"$dataPartition.txt")
-    doclist.toList.sortBy(x=>x._1).foreach(d => out.println(d._1))
+    doclist.toList.sortBy(x => x._1).foreach(d => out.println(d._1))
     out.close()
     val destDir = new File(destPath + dataPartition)
     if (!destDir.exists())
@@ -107,9 +104,9 @@ object DocumentConverterApp extends App {
 
   private def addSentenceToScene(sprl2012Doc: SpRL2013Document, relations: List[RELATION], scene: Scene, sentenceOffset: IntPair, text: String, id: Int): Boolean = {
     val rels = relations.filter(r => containsRelation(sprl2012Doc, r, sentenceOffset))
-    val relationFeatures = sentenceToRelationsMap(id).filter(x => x.size > 7 && x (7).trim != "_")
-//    if (relationFeatures.size != rels.size)
-//      println(s"cannot find relation features for sentence s$id : ${relationFeatures.size} != ${rels.size}")
+    val relationFeatures = sentenceToRelationsMap(id).filter(x => x.size > 7 && x(7).trim != "_")
+    //    if (relationFeatures.size != rels.size)
+    //      println(s"cannot find relation features for sentence s$id : ${relationFeatures.size} != ${rels.size}")
 
     rels.zipWithIndex.foreach {
       case (r, i) =>
@@ -197,6 +194,5 @@ object DocumentConverterApp extends App {
       pair
     }).toList
   }
-
 
 }
