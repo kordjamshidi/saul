@@ -29,9 +29,7 @@
         <DOCNO>annotations/01/1069.eng</DOCNO>
         <IMAGE>images/01/1069.jpg</IMAGE>
         <SENTENCE id="s603" start="130" end="344">
-            <TEXT>Interior view of a room with a large bed with red bedcovers , a white wooden desk and chair below a TV
-                fixed in the corner , a white fridge and a glass door with a wooden frame leading onto a veranda and
-                garden .
+            <TEXT>Interior view of a room with a large bed with red bedcovers , a white wooden desk and chair below a TV fixed in the corner , a white fridge and a glass door with a wooden frame leading onto a veranda and garden .
             </TEXT>
             <SPATIALINDICATOR id="S3" start="109" end="111" text="in"/>
             <SPATIALINDICATOR id="S4" start="92" end="97" text="below"/>
@@ -44,6 +42,14 @@
             <TRAJECTOR id="T5" start="70" end="81" text="wooden desk"/>
             <TRAJECTOR id="T6" start="86" end="91" text="chair"/>
             <TRAJECTOR id="T7" start="144" end="156" text="a glass door"/>
+            <TESTPROP id="TP3" first_value="1" second_value="T1" start="62" end="72"/>
+            <MATCH id="inc1" start="70" end="82"/>
+            <MATCH id="inc2" start="143" end="157"/>
+            <MATCH id="p1" start="100" end="101"/>
+            <MATCH id="p2" start="98" end="100"/>
+            <MATCH id="p3" start="100" end="102"/>
+            <MATCH id="o1" start="93" end="99"/>
+            <MATCH id="e1" start="144" end="156"/>
             <RELATION id="SR4" trajector_id="T4" landmark_id="L3" spatial_indicator_id="S3" general_type="region"
                       specific_type="RCC8" RCC8_value="EC" FoR="intrinsic"/>
             <RELATION id="SR5" trajector_id="T5" landmark_id="L4" spatial_indicator_id="S4" general_type="direction"

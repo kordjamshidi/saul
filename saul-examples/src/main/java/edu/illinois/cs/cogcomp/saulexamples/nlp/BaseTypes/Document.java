@@ -18,4 +18,9 @@ public class Document extends NlpBaseElement {
     public Document(String id, Integer start, Integer end, String text) {
         super(id, start, end, text);
     }
+
+    @Override
+    public NlpBaseElementTypes getType() {
+        return NlpBaseElementTypes.Document;
+    }
 }

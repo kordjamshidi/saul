@@ -195,7 +195,7 @@ object SpRLDataModel extends DataModel {
   val JF2_12 = property(relations) {
     x: SpRLRelation => ""
     //      val view = x.getTextAnnotation.getView(ViewNames.SRL_VERB)
-    //      view match {
+    //      view matches {
     //        case null =>
     //          "TRAJECTOR=;INDICATOR=;LANDMARK="
     //        case _ =>

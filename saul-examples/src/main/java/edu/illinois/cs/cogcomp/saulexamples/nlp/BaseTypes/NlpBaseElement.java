@@ -1,21 +1,21 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by Taher on 2016-12-18.
  */
-public class NlpBaseElement {
+public abstract class NlpBaseElement extends SpanBasedElement {
     private String id;
-    private int start;
-    private int end;
     private String text;
-    private Map<String, String> properties = new HashMap<>();
+    private Map<String, List<String>> properties = new HashMap<>();
 
     public NlpBaseElement() {
-        start = -1;
-        end = -1;
+        setStart(-1);
+        setEnd(-1);
     }
 
     public NlpBaseElement(String id, Integer start, Integer end, String text) {
@@ -25,18 +25,33 @@ public class NlpBaseElement {
         this.setText(text);
     }
 
+    public abstract NlpBaseElementTypes getType();
+
     public boolean containsProperty(String name) {
         return properties.containsKey(name);
     }
 
-    public String getProperty(String name) {
-        if (properties.containsKey(name))
-            return properties.get(name);
+    public String getPropertyFirstValue(String name) {
+        if (properties.containsKey(name) && !properties.get(name).isEmpty())
+            return properties.get(name).get(0);
         return null;
     }
 
-    public void setProperty(String name, String value) {
-        properties.put(name, value);
+    public List<String> getPropertyValues(String name) {
+        if (properties.containsKey(name))
+            return properties.get(name);
+        return new ArrayList<>();
+    }
+
+    public void addPropertyValue(String name, String value) {
+        if (!containsProperty(name))
+            properties.put(name, new ArrayList<>());
+        properties.get(name).add(value);
+    }
+
+    public void removeProperty(String name) {
+        if (containsProperty(name))
+            properties.remove(name);
     }
 
     public String getId() {
@@ -47,22 +62,6 @@ public class NlpBaseElement {
         this.id = id;
     }
 
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(Integer start) {
-        this.start = start;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(Integer end) {
-        this.end = end;
-    }
-
     public String getText() {
         return text;
     }
@@ -71,9 +70,9 @@ public class NlpBaseElement {
         this.text = text;
     }
 
-    public static NlpBaseElement create(NlpBaseElementTypes type){
+    public static NlpBaseElement create(NlpBaseElementTypes type) {
 
-        switch (type){
+        switch (type) {
             case Document:
                 return new Document();
             case Sentence:
@@ -84,5 +83,10 @@ public class NlpBaseElement {
                 return new Token();
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return getText();
     }
 }
