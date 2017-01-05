@@ -18,10 +18,10 @@ object mSpRL2017App extends App {
   val segementList = image_reader.getSegments()
   val relationList = image_reader.getSegmentsRelations()
 
-  image.populate(imageList)
+  images.populate(imageList)
   segment.populate(segementList)
   relation.populate(relationList)
-  print((image() ~> image_segment).size)
-  print ((relation()~>relToSg).size)
+  print((images() ~> image_segment).size)
+  print ((relation()~>relationsToSegments).size)
 
 }

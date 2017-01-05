@@ -23,7 +23,7 @@ public class Image {
         this.id = id;
     }
 
-    public String getImageID()
+    public String getID()
     {
         return id;
     }
@@ -33,7 +33,7 @@ public class Image {
         return label;
     }
 
-    public void setImageID(String ID)
+    public void setID(String ID)
     {
         id = ID;
     }

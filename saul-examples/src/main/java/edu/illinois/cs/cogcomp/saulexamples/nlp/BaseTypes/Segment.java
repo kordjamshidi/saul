@@ -4,15 +4,15 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
  * Created by Umar Manzoor on 29/12/2016.
  */
 public class Segment {
-    private int segmentID;
+    private int segmentId;
     private int segmentCode;
     private String segmentFeatures;
     private String segmentConcept;
-    private String imageID;
+    private String imageId;
     public Segment(String pID, int sID, int sC, String sF, String sCon)
     {
-        imageID = pID;
-        segmentID = sID;
+        imageId = pID;
+        segmentId = sID;
         segmentCode = sC;
         segmentFeatures = sF;
         segmentConcept = sCon;
@@ -20,12 +20,12 @@ public class Segment {
 
     public String getAssociatedImageID()
     {
-        return imageID;
+        return imageId;
     }
 
-    public  int getSegmentID()
+    public  int getSegmentId()
     {
-        return segmentID;
+        return segmentId;
     }
 
     public String getSegmentFeatures()
@@ -45,7 +45,7 @@ public class Segment {
     @Override
     public String toString() {
         // TODO Auto-generated method stub
-        return imageID + ", " + segmentID + ", " + segmentCode + ", " + segmentFeatures + ", " + segmentConcept;
+        return imageId + ", " + segmentId + ", " + segmentCode + ", " + segmentFeatures + ", " + segmentConcept;
     }
 
 }

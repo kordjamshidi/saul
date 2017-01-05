@@ -8,45 +8,45 @@ import scala.io.Source
 
 object mSpRL2017DataModel extends DataModel {
 
-  val image = node[Image]
+  val images = node[Image]
   val segment = node[Segment]
 
   val relation = node[SegmentRelation]
 
-  val image_segment = edge(image, segment)
+  val image_segment = edge(images, segment)
   // Linking associated Segments with Images
-  image_segment.addSensor(image_segment_link _)
+  image_segment.addSensor(imageSegmentLink _)
 
   // Here we will create relationships between different segments
   // I am planning to use Relation class
 
-  val relToSg = edge(relation, segment)
+  val relationsToSegments = edge(relation, segment)
 
-  relToSg.addSensor(rel_segment _)
+  relationsToSegments.addSensor(rel_segment _)
 
-  val image_lable = property(image) {
+  val imageLable = property(images) {
 
     x: Image => x.getLabel
 
   }
 
-  val image_id = property(image) {
+  val imageId = property(images) {
 
-    x: Image => x.getImageID
+    x: Image => x.getID
   }
 
-  val segment_lable = property(segment) {
+  val segmentLable = property(segment) {
 
     x: Segment => x.getSegmentConcept
 
   }
 
-  val segment_id = property(segment) {
+  val segmentId = property(segment) {
 
     x: Segment => x.getSegmentCode
   }
 
-  val segment_features = property(segment) {
+  val segmentFeatures = property(segment) {
 
     x: Segment => x.getSegmentFeatures
   }
