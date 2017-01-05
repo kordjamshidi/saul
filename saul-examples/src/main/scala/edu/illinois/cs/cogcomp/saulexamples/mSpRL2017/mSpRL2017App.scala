@@ -22,5 +22,6 @@ object mSpRL2017App extends App {
   segment.populate(segementList)
   relation.populate(relationList)
   print((image() ~> image_segment).size)
+  print ((relation()~>relToSg).size)
 
 }
