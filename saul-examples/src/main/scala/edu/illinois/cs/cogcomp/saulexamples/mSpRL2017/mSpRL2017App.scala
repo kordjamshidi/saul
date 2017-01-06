@@ -12,16 +12,16 @@ import scala.collection.JavaConversions._
 
 object mSpRL2017App extends App {
 
-  val image_reader = new ImageReader("./saul-examples/src/test/resources/mSprl")
+  val imageReader = new ImageReader("./saul-examples/src/test/resources/mSprl")
 
-  val imageList = image_reader.getImages()
-  val segementList = image_reader.getSegments()
-  val relationList = image_reader.getSegmentsRelations()
+  val imageList = imageReader.getImages()
+  val segementList = imageReader.getSegments()
+  val relationList = imageReader.getSegmentsRelations()
 
   images.populate(imageList)
-  segment.populate(segementList)
-  relation.populate(relationList)
-  print((images() ~> image_segment).size)
-  print ((relation()~>relationsToSegments).size)
+  segments.populate(segementList)
+  relations.populate(relationList)
+  print((images() ~> imagesToSegments).size)
+  print((relations() ~> relationsToSegments).size)
 
 }

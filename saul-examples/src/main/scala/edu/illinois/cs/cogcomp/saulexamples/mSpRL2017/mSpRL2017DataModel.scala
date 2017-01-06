@@ -2,29 +2,29 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.ImageSensors._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Image, Segment, SegmentRelation }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Image, Segment, SegmentRelation}
 
 import scala.io.Source
 
 object mSpRL2017DataModel extends DataModel {
 
   val images = node[Image]
-  val segment = node[Segment]
+  val segments = node[Segment]
 
-  val relation = node[SegmentRelation]
+  val relations = node[SegmentRelation]
 
-  val image_segment = edge(images, segment)
+  val imagesToSegments = edge(images, segments)
   // Linking associated Segments with Images
-  image_segment.addSensor(imageSegmentLink _)
+  imagesToSegments.addSensor(imageSegmentLink _)
 
   // Here we will create relationships between different segments
   // I am planning to use Relation class
 
-  val relationsToSegments = edge(relation, segment)
+  val relationsToSegments = edge(relations, segments)
 
-  relationsToSegments.addSensor(rel_segment _)
+  relationsToSegments.addSensor(relationSegmentLink _)
 
-  val imageLable = property(images) {
+  val imageLabel = property(images) {
 
     x: Image => x.getLabel
 
@@ -32,22 +32,22 @@ object mSpRL2017DataModel extends DataModel {
 
   val imageId = property(images) {
 
-    x: Image => x.getID
+    x: Image => x.getId
   }
 
-  val segmentLable = property(segment) {
+  val segmentLabel = property(segments) {
 
-    x: Segment => x.getSegmentConcept
+    x: Segment => x.getConcept
 
   }
 
-  val segmentId = property(segment) {
+  val segmentId = property(segments) {
 
-    x: Segment => x.getSegmentCode
+    x: Segment => x.getCode
   }
 
-  val segmentFeatures = property(segment) {
+  val segmentFeatures = property(segments) {
 
-    x: Segment => x.getSegmentFeatures
+    x: Segment => x.getFeatures
   }
 }
