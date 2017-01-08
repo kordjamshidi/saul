@@ -1,5 +1,6 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 
+
 /**
  * Created by Umar Manzoor on 29/12/2016.
  */
@@ -9,6 +10,7 @@ public class Segment {
     private String segmentFeatures;
     private String segmentConcept;
     private String imageId;
+    public double[] features;
     public Segment(String pID, int sID, int sC, String sF, String sCon)
     {
         imageId = pID;
@@ -31,6 +33,7 @@ public class Segment {
     public String getSegmentFeatures()
     {
         return segmentFeatures;
+
     }
     public  int getSegmentCode()
     {

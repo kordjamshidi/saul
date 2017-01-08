@@ -72,7 +72,12 @@ public class ImageReader {
         String line;
             while ((line = reader.readLine()) != null) {
             String[] CodesInfo = line.split("\\t");
-            MapCode2Concept.put(Integer.parseInt(CodesInfo[0]),CodesInfo[1]);
+                if(CodesInfo.length>1) {
+                    MapCode2Concept.put(Integer.parseInt(CodesInfo[0]), CodesInfo[1]);
+                }
+                else {
+                    MapCode2Concept.put(Integer.parseInt(CodesInfo[0]), " ");
+                }
         }
     }
 
@@ -114,6 +119,7 @@ public class ImageReader {
             int segmentCode = Integer.parseInt(segmentInfo[3]);
             String segmentConcept = MappingCode2Concept(segmentCode);
             String segmentFeatures = segmentInfo[2];
+            segmentFeatures = segmentFeatures.trim().replaceAll(" +", " ");
             segments.add(new Segment(imageID, segmentID, segmentCode, segmentFeatures, segmentConcept));
         }
         return segments;

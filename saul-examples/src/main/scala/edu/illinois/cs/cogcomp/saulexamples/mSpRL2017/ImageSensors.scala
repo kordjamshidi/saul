@@ -8,6 +8,6 @@ object ImageSensors {
     i.getID == s.getAssociatedImageID
   }
   def rel_segment(r: SegmentRelation, s: Segment): Boolean = {
-    (r.getFirstSegmentId == s.getSegmentId) || (r.getSecondSegmentId == s.getSegmentId)
+    (r.getFirstSegmentId == s.getSegmentId) || (r.getSecondSegmentId == s.getSegmentId) || (r.getImageId == s.getAssociatedImageID)
   }
 }

@@ -8,20 +8,38 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.data.ImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.ImageClassifiers._
 import scala.collection.JavaConversions._
 
 object mSpRL2017App extends App {
 
-  val image_reader = new ImageReader("data/msprl")
+  val imageReaderTraining = new ImageReader("data/msprl/train")
+  val imageReaderTest = new ImageReader("data/msprl/test")
 
-  val imageList = image_reader.getImages()
-  val segementList = image_reader.getSegments()
-  val relationList = image_reader.getSegmentsRelations()
+  val imageListTrain = imageReaderTraining.getImages()
+  val segementListTrain = imageReaderTraining.getSegments()
+  val relationListTrain = imageReaderTraining.getSegmentsRelations()
 
-  images.populate(imageList)
-  segment.populate(segementList)
-  relation.populate(relationList)
-  print((images() ~> image_segment).size)
-  print ((relation()~>relationsToSegments).size)
+  images.populate(imageListTrain)
+  segments.populate(segementListTrain)
+  relation.populate(relationListTrain)
+
+
+  val imageListTest = imageReaderTest.getImages()
+  val segementListTest = imageReaderTest.getSegments()
+  val relationListTest = imageReaderTest.getSegmentsRelations()
+
+  images.populate(imageListTest)
+  segments.populate(segementListTest)
+  relation.populate(relationListTest)
+
+  ImageSVMClassifier.learn(5)
+  ImageSVMClassifier.test(segementListTest)
+
+  ImageClassifierWeka.learn(5)
+  ImageClassifierWeka.test(segementListTest)
+
+//  print((images() ~> image_segment).size)
+//  print ((relation()~>relationsToSegments).size)
 
 }
