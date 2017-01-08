@@ -4,46 +4,110 @@ An [Xml reader](NlpXmlReader.java) that facilitates reading data from xml files 
 
 ##Tag Names
 The reader uses `"DOCUMENT"`, `"SENTENCE"`, `"PHRASE"`, and `"TOKEN"` as default tag names 
-for the corresponding base types. You can change them either by the constructor or by the
-setters provided in the reader's class. Note that you can read a type from multiple tags by
-changing the tag name just before reading the data.
+for the corresponding base types. You can change them either by the constructor:
+```java
+  NlpXmlReader reader = new NlpXmlReader("xml_file.xml", "Doc_Tag", "Sentence_Tag", "Phrase_Tag", "TokenTag")
+```
+or by the setters provided in the reader's class. For example we can change the phrase's tag name by:
+```java
+  reader.setPhraseTagName("another_phrase_tag")
+```
 
-The properties or tags that determine `start`, `end`, `id` and `text` of each constituent
+Note that you can read a type from multiple tags by changing the tag name just before reading the data:
+```java
+  reader.setPhraseTagName("first_phrase_tag")
+  List[Phrase] firstPhraseList = reader.getPhrases() 
+  reader.setPhraseTagName("second_phrase_tag")
+  List[Phrase] secondPhraseList = reader.getPhrases()
+```
+
+The properties or tags that determine `start`, `end`, `id` and `text` of each linguistic unit
 are predefined in the reader and can be changed using the corresponding setters as well.
 
-##Read a list of constituents
+##Read a list of linguistic units
 Using `getDocuments`, `getSentences`, `getPhrases` and `getTokens` we can retrieve any of 
 the base types in the xml file. For each type except the document there is another function
-`getXXXByParentId` which retrieves list of a constituent which contained in another (Parent)constituent.
+`getXXXByParentId` which retrieves list of a linguistic unit which contained in another (Parent)linguistic unit.
+
+For example, to retrieve all sentences we should have:
+```java
+  List[Sentence] sentnces = reader.getSentences()
+```
+and to get sentences within a document with `id="doc1"` :
+```java
+  List[Sentence] sentnces = reader.getSentencesByParentId("doc1")
+```
 
 `getRelations` and `getRelationsByParentId` work similar to aforementioned functions, but need
-to determine the property name of argument ids of the relation as well.
+to determine the property name of argument ids of the relation as well. For example consider
+a relation with `R1` tag name that connects two phrases, we can obtain it's instances from the xml file by:
+```java
+  List[Relation] relations = reader.getRelations("R1", "first_phrase_id", "second_phrase_id")
+  List[Relation] doc1Relations = reader.getRelations("R1", "doc1", "first_phrase_id", "second_phrase_id")
+```
 
-## Adding properties to the constituents from other tags
+## Adding properties to the linguistic units from other tags
 In many scenarios we need to add properties from various tags. We can do that by providing
-the tag names when using `getXXXs` or `getXXXByParentId` when we have the constituents in 
-the xml file. But when we have generated the constituents from another source and want to 
+the tag names when using `getXXXs` or `getXXXByParentId` when we have the linguistic units in 
+the xml file. But when we have generated the linguistic units from another source and want to 
 add properties from a tag, we can use `addPropertiesFromTag`. This function uses the parent Id
-of the constituents(`documentId` for sentence, and `sentenceId` for `Token` and `Phrase`) to find
-the context for each constituent to be retrieved.
+of the linguistic units(`documentId` for sentence, and `sentenceId` for `Token` and `Phrase`) to find
+the context for each linguistic unit to be retrieved.
 
 ### Matching
-adding properties from a tag requires matching between constituents and tags. The default
+adding properties from a tag requires matching between linguistic units and tags. The default
 matching strategy is [`ExactMatching`](XmlExachMatching.java). 
 
 Built in matching strategies:
 - [`ExactMatching`](XmlExachMatching.java): adds tag's properties if the tag's span
- exactly matches with the constituent's span 
+ exactly matches with the linguistic unit's span 
 - [`InclusionMatching`](XmlInclusionMatching.java): adds tag's properties if the tag's span
- includes the constituent's span
+ includes the linguistic unit's span
 - [`PartOfMatching`](XmlPartOfMatching.java): adds tag's properties if the tag's span is
-a part of constituent span, in other word if the constituent's span includes the tag's span
+a part of linguistic unit span, in other word if the linguistic unit's span includes the tag's span
 - [`OverlapMatching`](XmlOverlapMatching.java): adds tag's properties if the tag's span
-and the constituent's span are overlapping
+and the linguistic unit's span are overlapping
 - [`HeadwordMatching`](../../../../../../../../scala/edu/illinois/cs/cogcomp/saulexamples/nlp/SpatialRoleLabeling/XmlMatchings.scala):
- adds tag's properties if the tag's span contains the headwords span of the constituent
+ adds tag's properties if the tag's span contains the headwords span of the linguistic unit
 
 You can create your own matching strategy by implementing [`IXmlSpanMatching`](IXmlSpanMatching.java) interface.
+
+We can use these strategies when calling `addPropertiesFromTag` function. 
+
+For example consider the following xml file:
+```xml
+  <PHRASE id="T3" start="95" end="96" text=","/>
+  <PHRASE id="T4" start="98" end="102" text="a TV"/>
+  <PHRASE id="T5" start="70" end="81" text="wooden desk"/>
+  <PHRASE id="T6" start="86" end="91" text="chair"/>
+  <PHRASE id="T7" start="144" end="156" text="a glass door"/>
+  <MATCH id="inc1" start="70" end="82"/>
+  <MATCH id="inc2" start="143" end="157"/>
+  <MATCH id="p1" start="100" end="101"/>
+  <MATCH id="p2" start="98" end="100"/>
+  <MATCH id="p3" start="100" end="102"/>
+  <MATCH id="o1" start="93" end="99"/>
+  <MATCH id="e1" start="144" end="156"/>
+```
+after reading phrases:
+```java
+  List[Phrase] phrases = reader.getPhrases()
+```
+we can use exact matching to add properties to them:
+```java
+  reader.addPropertiesFromTag("MATCH", phrases, new ExactMatching())
+```
+By doing so, the reader finds the "MATCH" tags that their span matches exactly with a phrase 
+instance and adds it's properties to that instance. For this example, the `MATCH` tag with 
+`id="e1"` matches with `PHRASE` with `id="T7"` and therefore it's properties will be added to 
+that phrase. The reader renames properties of the tag, by prepending the tag name to the name
+of each properties(`{MATCH_id="e1", MATCH_start="144", MATCH_end="156"}` will be added to `T7` phrase).
+
+For other strategies:
+- `InclusionMatching`: adds `Match` with `id="inc1"` properties to `T5` phrase and `inc2` to `T7`  
+- `PartOfMatching`: adds `p1`, `p2` and `p3` to `T4`
+- `OverlapMatching`: adds `inc1` to `T5`, `inc2` to `T7`, `p1` to `T4`, `p2` to `T4`, 
+`p3` to `T4`, `o1` to `T3` and `T4`, and `e1` to `T7`
 
 ## An example in scala
 Suppose we have this xml file: 
