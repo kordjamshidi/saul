@@ -12,8 +12,8 @@ import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{RELATION, SpRL2013Document}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet.{SpRLLabels, SpRLRelation}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{ RELATION, SpRL2013Document }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Triplet.{ SpRLLabels, SpRLRelation }
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashSet
@@ -22,7 +22,7 @@ import scala.reflect.io.File
 /** Created by Parisa on 7/29/16.
   */
 object SpRLApp extends App with Logging {
-
+  /*
   import SpRLConfigurator._
 
   val properties: ResourceManager = {
@@ -216,5 +216,5 @@ object SpRLApp extends App with Logging {
       doc.getLandmarkHashMap.get(r.getLandmarkId).getStart.intValue,
       doc.getLandmarkHashMap.get(r.getLandmarkId).getEnd.intValue
     )
-  }
+  }*/
 }

@@ -6,12 +6,11 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ISpanElement, Phrase}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ ISpanElement, Phrase }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRLNewSensors.getHeadword
-import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.{IXmlSpanMatching, XmlOverlapMatching}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.{ IXmlSpanMatching, XmlOverlapMatching }
 
-/**
-  * Created by Taher on 2016-12-28.
+/** Created by Taher on 2016-12-28.
   */
 object XmlMatchings {
   val headwordMatching = new IXmlSpanMatching {

@@ -29,7 +29,7 @@ public class NlpXmlReaderTest {
         assertEquals("Document count", 2, documents.size());
         assertEquals("Document 1 Id", "sc1", documents.get(0).getId());
         assertEquals("Document 2 Id", "sc2", documents.get(1).getId());
-        assertEquals("Document 1 test attribute", "test", documents.get(0).getPropertyValue("test"));
+        assertEquals("Document 1 test attribute", "test", documents.get(0).getPropertyFirstValue("test"));
     }
 
     @Test
@@ -48,12 +48,12 @@ public class NlpXmlReaderTest {
         assertEquals("phrase 1 documentId", docId, phrases.get(0).getDocument().getId());
         assertEquals("phrase 1 sentenceId", "s601", phrases.get(0).getSentence().getId());
 
-        assertEquals("first phrase additional prop[first_value]", "1", phrases.get(0).getPropertyValue("TESTPROP_first_value"));
-        assertEquals("first phrase additional prop[second_value]", "T1", phrases.get(0).getPropertyValue("TESTPROP_second_value"));
-        assertEquals("second phrase additional prop[first_value]", "2", phrases.get(1).getPropertyValue("TESTPROP_first_value"));
-        assertEquals("second phrase additional prop[second_value]", "T2", phrases.get(1).getPropertyValue("TESTPROP_second_value"));
-        assertEquals("third phrase additional prop[first_value]", null, phrases.get(2).getPropertyValue("TESTPROP_first_value"));
-        assertEquals("third phrase additional prop[second_value]", null, phrases.get(2).getPropertyValue("TESTPROP_second_value"));
+        assertEquals("first phrase additional prop[first_value]", "1", phrases.get(0).getPropertyFirstValue("TESTPROP_first_value"));
+        assertEquals("first phrase additional prop[second_value]", "T1", phrases.get(0).getPropertyFirstValue("TESTPROP_second_value"));
+        assertEquals("second phrase additional prop[first_value]", "2", phrases.get(1).getPropertyFirstValue("TESTPROP_first_value"));
+        assertEquals("second phrase additional prop[second_value]", "T2", phrases.get(1).getPropertyFirstValue("TESTPROP_second_value"));
+        assertEquals("third phrase additional prop[first_value]", null, phrases.get(2).getPropertyFirstValue("TESTPROP_first_value"));
+        assertEquals("third phrase additional prop[second_value]", null, phrases.get(2).getPropertyFirstValue("TESTPROP_second_value"));
 
     }
 
