@@ -4,15 +4,18 @@ In this example, we have used CLEF image dataset Available at (http://www.imagec
 
 The CLEF dataset contains segmentation masks, visual features, labels for the regions and the hierarchical annotation for regions. 
 
-Further information about these attributes please refer to CLEF dataset README.txt 
+For further information about these attributes please refer to CLEF dataset README.txt 
 
 ## mSpRL using Saul
-In this example, we implement compared the performance SVM and Naive Bayes for classifying the image segments using the feature set provided by CLEF image dataset using Saul.
+In this example, we implemented and compared the performance of SVM and Naive Bayes for classifying the image segments using the feature set provided by CLEF image dataset using Saul.
 
 ### Data representation and preparation
+
 The CLEF image data is made available in different files, we need basic data structures to load these data and feed them to the Saul application. [`Image`](../../../../../../../../java/edu/illinois/cs/cogcomp/nlp/BaseTypes/Image.java), [`Segment`](../../../../../../../../java/edu/illinois/cs/cogcomp/saulexamples/nlp/BaseTypes/Segment.java), and [`SegmentRelation`](../../../../../../../../java/edu/illinois/cs/cogcomp/saulexamples/nlp/BaseTypes/SegmentRelation.java) classes are used for this purpose.
 
-The dataset is collections of txt files, use image / segment / relation codes so we developed image reader for populating appropiate files and also converting image / segment / relation codes to corresponding concepts.
+In `Image` class, all revelant information about image will be stored, in `Segment` class all information about segments such as concept, features etc will be stored and in `SegmentRelation` class information about segment to segment relationship is stored.     
+
+The dataset is a collection of txt files, use image / segment / relation codes so we developed image reader for populating appropiate files and also converting image / segment / relation codes to corresponding concepts.
 
 So, the next step is to populate image / segment / relations.
 
@@ -69,20 +72,24 @@ Next step is to determine sensors:
 The [`imageSegmentLink`](ImageSensors.scala) sensor, generates relationship between image and its associated segements. The [`rel_segment`](ImageSensors.scala) sensor, generates relationship between different segments. 
 
 ### Features
-Now we can specify the features, all features are constructed using `property` method of `DataModel`. The classifier tries to predict imageLable:
+Now we can specify the features, all features are constructed using `property` method of `DataModel`. The classifier tries to predict segmentLable, segmentLable is a string like Building, Tree, Group of People etc:
 ```scala
   // classifier labels
-val imageLable = property(images) {
-    x: Image => x.getLabel
+  val imageId = property(images) {
+    x: Image => x.getID
   }
 
   val segmentLable = property(segments) {
     x: Segment => x.getSegmentConcept
   }
+
+  val segmentId = property(segments) {
+    x: Segment => x.getSegmentCode
+  }
 ```
 
 ### Classification
-We used SVM and Naive Bayes classifiers for classifying image segments using the CLEF features. Defining the classifier is straightforward using Saul:
+We used SVM and Naive Bayes classifiers for classifying image segments using the CLEF features. Each feature in CLEF feature set consists of 27 double values, these values are used for classifying the segment. Defining the classifier is straightforward using Saul:
 
 ```scala
 object ImageClassifiers {
