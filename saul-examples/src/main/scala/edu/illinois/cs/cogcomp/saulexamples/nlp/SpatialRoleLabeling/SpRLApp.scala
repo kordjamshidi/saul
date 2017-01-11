@@ -22,7 +22,6 @@ import scala.reflect.io.File
 /** Created by Parisa on 7/29/16.
   */
 object SpRLApp extends App with Logging {
-  /*
   import SpRLConfigurator._
 
   val properties: ResourceManager = {
@@ -216,5 +215,5 @@ object SpRLApp extends App with Logging {
       doc.getLandmarkHashMap.get(r.getLandmarkId).getStart.intValue,
       doc.getLandmarkHashMap.get(r.getLandmarkId).getEnd.intValue
     )
-  }*/
+  }
 }
