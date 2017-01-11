@@ -36,7 +36,9 @@ public class Token extends NlpBaseElement {
     }
 
     public Sentence getSentence() {
-        return sentence;
+        if (sentence != null)
+            return sentence;
+        return phrase != null ? phrase.getSentence() : null;
     }
 
     public void setSentence(Sentence sentence) {

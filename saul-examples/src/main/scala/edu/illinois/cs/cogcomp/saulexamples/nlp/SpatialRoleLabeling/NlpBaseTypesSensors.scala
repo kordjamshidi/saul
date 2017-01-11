@@ -4,7 +4,9 @@ import java.util.Properties
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
+import edu.illinois.cs.cogcomp.core.datastructures._
 import edu.illinois.cs.cogcomp.edison.features.factory.WordFeatureExtractorFactory
+import edu.illinois.cs.cogcomp.edison.features.helpers.PathFeatureHelper
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
@@ -16,9 +18,10 @@ import scala.collection.mutable
 /** Created by parisakordjamshidi on 12/25/16.
   */
 object NlpBaseTypesSensors {
+  private val dependencyView = ViewNames.DEPENDENCY_STANFORD
   private val sentenceMap = mutable.HashMap[String, TextAnnotation]()
   private val settings = new Properties()
-  TextAnnotationFactory.disableSettings(settings, USE_SRL_NOM, USE_NER_ONTONOTES, USE_SRL_VERB, USE_NER_CONLL, USE_STANFORD_DEP)
+  TextAnnotationFactory.disableSettings(settings, USE_SRL_NOM, USE_NER_ONTONOTES, USE_SRL_VERB, USE_NER_CONLL)
   private val as = TextAnnotationFactory.createPipelineAnnotatorService(settings)
 
   def documentToSentenceMatching(d: Document, s: Sentence): Boolean = {
@@ -64,11 +67,22 @@ object NlpBaseTypesSensors {
     val (startId: Int, endId: Int) = getTextAnnotationSpan(p, ta)
     val phrase = ta.getView(ViewNames.SHALLOW_PARSE).getConstituentsCoveringSpan(startId, endId + 1).get(0)
 
-    val tree: TreeView = ta.getView(ViewNames.PARSE_STANFORD).asInstanceOf[TreeView]
+    val tree: TreeView = ta.getView(dependencyView).asInstanceOf[TreeView]
     val parsePhrase = tree.getParsePhrase(phrase)
     val headId = CollinsHeadFinder.getInstance.getHeadWordPosition(parsePhrase)
     val head = ta.getView(ViewNames.TOKENS).asInstanceOf[TokenLabelView].getConstituentAtToken(headId)
     new Token(p, p.getId + head.getSpan, head.getStartCharOffset, head.getEndCharOffset, head.toString)
+  }
+
+  def getDependencyRelation(t: Token): String = {
+    getDependencyRelations(getTextAnnotation(t.getSentence)).find(r => r.getTarget.getStartCharOffset == t.getStart) match {
+      case Some(r) => r.getRelationName
+      case _ => ""
+    }
+  }
+
+  private def getDependencyRelations(ta: TextAnnotation): Seq[textannotation.Relation] = {
+    ta.getView(dependencyView).asInstanceOf[TreeView].getRelations.asScala
   }
 
 
