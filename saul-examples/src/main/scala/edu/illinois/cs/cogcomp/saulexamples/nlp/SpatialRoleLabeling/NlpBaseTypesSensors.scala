@@ -75,9 +75,21 @@ object NlpBaseTypesSensors {
   }
 
   def getDependencyRelation(t: Token): String = {
-    getDependencyRelations(getTextAnnotation(t.getSentence)).find(r => r.getTarget.getStartCharOffset == t.getStart) match {
-      case Some(r) => r.getRelationName
-      case _ => ""
+    val relations = getDependencyRelations(getTextAnnotation(t.getSentence))
+    val root = getDependencyRoot(relations)
+    if (root != null && root.getStartCharOffset == t.getStart)
+      "root"
+    else
+      relations.find(r => r.getTarget.getStartCharOffset == t.getStart) match {
+        case Some(r) => r.getRelationName
+        case _ => ""
+      }
+  }
+
+  private def getDependencyRoot(relations: Seq[textannotation.Relation]): Constituent = {
+    relations.find(x => relations.count(r => r.getTarget == x.getSource) == 0) match {
+      case Some(x) => x.getSource
+      case _ => null
     }
   }
 
