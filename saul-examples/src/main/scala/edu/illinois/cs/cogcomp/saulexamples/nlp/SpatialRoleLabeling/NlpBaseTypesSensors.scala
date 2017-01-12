@@ -21,7 +21,7 @@ object NlpBaseTypesSensors {
   private val dependencyView = ViewNames.DEPENDENCY_STANFORD
   private val sentenceMap = mutable.HashMap[String, TextAnnotation]()
   private val settings = new Properties()
-  TextAnnotationFactory.disableSettings(settings, USE_SRL_NOM, USE_NER_ONTONOTES, USE_SRL_VERB, USE_NER_CONLL)
+  TextAnnotationFactory.disableSettings(settings, USE_SRL_NOM, USE_NER_ONTONOTES, USE_SRL_VERB)
   private val as = TextAnnotationFactory.createPipelineAnnotatorService(settings)
 
   def documentToSentenceMatching(d: Document, s: Sentence): Boolean = {
@@ -63,8 +63,8 @@ object NlpBaseTypesSensors {
   }
 
   def getHeadword(p: Phrase): Token = {
-    val ta = getTextAnnotation(p.getSentence)
-    val (startId: Int, endId: Int) = getTextAnnotationSpan(p, ta)
+    val ta = getTextAnnotation(p)
+    val (startId: Int, endId: Int) = getTextAnnotationSpan(p)
     val phrase = ta.getView(ViewNames.SHALLOW_PARSE).getConstituentsCoveringSpan(startId, endId + 1).get(0)
 
     val tree: TreeView = ta.getView(dependencyView).asInstanceOf[TreeView]
@@ -75,7 +75,7 @@ object NlpBaseTypesSensors {
   }
 
   def getDependencyRelation(t: Token): String = {
-    val relations = getDependencyRelations(getTextAnnotation(t.getSentence))
+    val relations = getDependencyRelations(getTextAnnotation(t))
     val root = getDependencyRoot(relations)
     if (root != null && root.getStartCharOffset == t.getStart)
       "root"
@@ -84,6 +84,16 @@ object NlpBaseTypesSensors {
         case Some(r) => r.getRelationName
         case _ => ""
       }
+  }
+
+  def getSemanticRole(e: NlpBaseElement): String = {
+    val ta = getTextAnnotation(e)
+    val view = ta.getView(ViewNames.SRL_VERB)
+    val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
+    view match {
+      case null => ""
+      case _ => view.getLabelsCoveringSpan(startId, endId).asScala.mkString(",")
+    }
   }
 
   private def getDependencyRoot(relations: Seq[textannotation.Relation]): Constituent = {
@@ -96,7 +106,6 @@ object NlpBaseTypesSensors {
   private def getDependencyRelations(ta: TextAnnotation): Seq[textannotation.Relation] = {
     ta.getView(dependencyView).asInstanceOf[TreeView].getRelations.asScala
   }
-
 
   private def getSentence(e: NlpBaseElement) = e match {
     case s: Sentence => s
@@ -116,7 +125,7 @@ object NlpBaseTypesSensors {
     val sentence = getSentence(e)
     val ta = getTextAnnotation(sentence)
     val v = ta.getView(ViewNames.TOKENS)
-    val (startId: Int, endId: Int) = getTextAnnotationSpan(e, ta)
+    val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
     v.getConstituentsCoveringSpan(startId, endId).asScala.map(x =>
       e match {
         case p: Phrase => new Token(p, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)
@@ -139,7 +148,8 @@ object NlpBaseTypesSensors {
     v.getConstituentsCoveringSpan(startId, endId + 1).asScala
   }
 
-  private def getTextAnnotation(sentence: Sentence): TextAnnotation = {
+  private def getTextAnnotation(e: NlpBaseElement): TextAnnotation = {
+    val sentence = getSentence(e)
     if (!sentenceMap.contains(sentence.getId)) {
       val ta = as.createAnnotatedTextAnnotation(sentence.getDocument.getId, sentence.getId, sentence.getText)
       sentenceMap.put(sentence.getId, ta)
@@ -147,7 +157,8 @@ object NlpBaseTypesSensors {
     sentenceMap(sentence.getId)
   }
 
-  private def getTextAnnotationSpan(e: NlpBaseElement, ta: TextAnnotation) = {
+  private def getTextAnnotationSpan(e: NlpBaseElement) = {
+    val ta = getTextAnnotation(e)
     val startId = ta.getTokenIdFromCharacterOffset(e.getStart)
     val endId = ta.getTokenIdFromCharacterOffset(e.getEnd - 1)
     (startId, endId)

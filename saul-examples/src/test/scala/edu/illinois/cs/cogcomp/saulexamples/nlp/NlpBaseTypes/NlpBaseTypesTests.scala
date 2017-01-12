@@ -36,6 +36,11 @@ class NlpBaseTypesTests extends FlatSpec with Matchers {
     getDependencyRelation(tokens(1)).mkString should be("root")
     getDependencyRelation(tokens(2)).mkString should be("det")
     getDependencyRelation(tokens(3)).mkString should be("dobj")
+
+    getSemanticRole(tokens(0)).mkString should be("")
+    getSemanticRole(tokens(1)).mkString should be("")
+    getSemanticRole(tokens(2)).mkString should be("")
+    getSemanticRole(tokens(3)).mkString should be("")
   }
 
   "Extracted features for 'I am going to eat lunch.'" should "be correct" in {
