@@ -5,7 +5,8 @@ import java.util.Properties
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
 import edu.illinois.cs.cogcomp.core.datastructures._
-import edu.illinois.cs.cogcomp.edison.features.factory.WordFeatureExtractorFactory
+import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
+import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
 import edu.illinois.cs.cogcomp.edison.features.helpers.PathFeatureHelper
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
@@ -88,12 +89,26 @@ object NlpBaseTypesSensors {
 
   def getSemanticRole(e: NlpBaseElement): String = {
     val ta = getTextAnnotation(e)
-    val view = ta.getView(ViewNames.SRL_VERB)
+    val view = if (ta.hasView(ViewNames.SRL_VERB)) {
+      ta.getView(ViewNames.SRL_VERB)
+    } else {
+      null
+    }
     val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
     view match {
       case null => ""
-      case _ => view.getLabelsCoveringSpan(startId, endId).asScala.mkString(",")
+      case _ => view.getLabelsCoveringSpan(startId, endId + 1).asScala.mkString(",")
     }
+  }
+
+  def getSubCategorization(e: NlpBaseElement): String = {
+    val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
+    val ta = getTextAnnotation(e)
+    val v = ta.getView(ViewNames.TOKENS)
+    val constituents = v.getConstituentsCoveringSpan(startId, endId + 1).asScala
+    constituents
+      .map(x => FeatureUtilities.getFeatureSet(new SubcategorizationFrame(ViewNames.PARSE_STANFORD), x)
+        .asScala.mkString(",")).mkString(";")
   }
 
   private def getDependencyRoot(relations: Seq[textannotation.Relation]): Constituent = {
@@ -126,7 +141,7 @@ object NlpBaseTypesSensors {
     val ta = getTextAnnotation(sentence)
     val v = ta.getView(ViewNames.TOKENS)
     val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
-    v.getConstituentsCoveringSpan(startId, endId).asScala.map(x =>
+    v.getConstituentsCoveringSpan(startId, endId + 1).asScala.map(x =>
       e match {
         case p: Phrase => new Token(p, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)
         case s: Sentence => new Token(s, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)

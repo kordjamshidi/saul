@@ -42,15 +42,15 @@ object SpatialOntologyDataModel extends DataModel {
   }
 
   val semanticRole = property(tokens) {
-    x: Token => ""
+    x: Token => getSemanticRole(x)
   }
 
   val dependencyRelation = property(tokens){
-    x: Token => ""
+    x: Token => getDependencyRelation(x)
   }
 
   val subCategorization = property(tokens){
-    x: Token => ""
+    x: Token => getSubCategorization(x)
   }
 
   val spatialContext = property(tokens){

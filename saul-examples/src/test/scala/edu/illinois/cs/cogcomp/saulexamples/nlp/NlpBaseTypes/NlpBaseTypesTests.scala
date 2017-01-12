@@ -15,32 +15,44 @@ class NlpBaseTypesTests extends FlatSpec with Matchers {
     val sentence = new Sentence(document, "s1", 0, text.length, text )
     val tokens = sentenceToTokenGenerating(sentence)
 
-    tokens.length should be(4)
+    tokens.length should be(5)
 
     tokens(0).getText should be("I")
     tokens(1).getText should be("received")
     tokens(2).getText should be("the")
     tokens(3).getText should be("book")
+    tokens(4).getText should be(".")
 
     getPos(tokens(0)).mkString should be("PRP")
     getPos(tokens(1)).mkString should be("VBD")
     getPos(tokens(2)).mkString should be("DT")
     getPos(tokens(3)).mkString should be("NN")
+    getPos(tokens(4)).mkString should be(".")
 
     getLemma(tokens(0)).mkString should be("i")
     getLemma(tokens(1)).mkString should be("receive")
     getLemma(tokens(2)).mkString should be("the")
     getLemma(tokens(3)).mkString should be("book")
+    getLemma(tokens(4)).mkString should be(".")
 
     getDependencyRelation(tokens(0)).mkString should be("nsubj")
     getDependencyRelation(tokens(1)).mkString should be("root")
     getDependencyRelation(tokens(2)).mkString should be("det")
     getDependencyRelation(tokens(3)).mkString should be("dobj")
+    getDependencyRelation(tokens(4)).mkString should be("")
 
     getSemanticRole(tokens(0)).mkString should be("")
     getSemanticRole(tokens(1)).mkString should be("")
     getSemanticRole(tokens(2)).mkString should be("")
     getSemanticRole(tokens(3)).mkString should be("")
+    getSemanticRole(tokens(4)).mkString should be("")
+
+    getSubCategorization(tokens(0)).mkString should be("S>(NP)VP.")
+    getSubCategorization(tokens(1)).mkString should be("VP>(VBD)NP")
+    getSubCategorization(tokens(2)).mkString should be("NP>(DT)NN")
+    getSubCategorization(tokens(3)).mkString should be("NP>DT(NN)")
+    getSubCategorization(tokens(4)).mkString should be("S>NPVP(.)")
+
   }
 
   "Extracted features for 'I am going to eat lunch.'" should "be correct" in {
@@ -49,7 +61,7 @@ class NlpBaseTypesTests extends FlatSpec with Matchers {
     val sentence = new Sentence(document, "s2", 0, text.length, text )
     val tokens = sentenceToTokenGenerating(sentence)
 
-    tokens.length should be(6)
+    tokens.length should be(7)
 
     tokens(0).getText should be("I")
     tokens(1).getText should be("am")
@@ -57,6 +69,7 @@ class NlpBaseTypesTests extends FlatSpec with Matchers {
     tokens(3).getText should be("to")
     tokens(4).getText should be("eat")
     tokens(5).getText should be("lunch")
+    tokens(6).getText should be(".")
 
     getPos(tokens(0)).mkString should be("PRP")
     getPos(tokens(1)).mkString should be("VBP")
@@ -64,6 +77,7 @@ class NlpBaseTypesTests extends FlatSpec with Matchers {
     getPos(tokens(3)).mkString should be("TO")
     getPos(tokens(4)).mkString should be("VB")
     getPos(tokens(5)).mkString should be("NN")
+    getPos(tokens(6)).mkString should be(".")
 
     getLemma(tokens(0)).mkString should be("i")
     getLemma(tokens(1)).mkString should be("be")
@@ -71,6 +85,7 @@ class NlpBaseTypesTests extends FlatSpec with Matchers {
     getLemma(tokens(3)).mkString should be("to")
     getLemma(tokens(4)).mkString should be("eat")
     getLemma(tokens(5)).mkString should be("lunch")
+    getLemma(tokens(6)).mkString should be(".")
 
     getDependencyRelation(tokens(0)).mkString should be("nsubj")
     getDependencyRelation(tokens(1)).mkString should be("aux")
@@ -78,5 +93,15 @@ class NlpBaseTypesTests extends FlatSpec with Matchers {
     getDependencyRelation(tokens(3)).mkString should be("aux")
     getDependencyRelation(tokens(4)).mkString should be("xcomp")
     getDependencyRelation(tokens(5)).mkString should be("dobj")
+    getDependencyRelation(tokens(6)).mkString should be("")
+
+    getSubCategorization(tokens(0)).mkString should be("S>(NP)VP.")
+    getSubCategorization(tokens(1)).mkString should be("VP>(VBP)VP")
+    getSubCategorization(tokens(2)).mkString should be("VP>(VBG)S")
+    getSubCategorization(tokens(3)).mkString should be("VP>(TO)VP")
+    getSubCategorization(tokens(4)).mkString should be("VP>(VB)NP")
+    getSubCategorization(tokens(5)).mkString should be("VP>VB(NP)")
+    getSubCategorization(tokens(6)).mkString should be("S>NPVP(.)")
+
   }
 }
