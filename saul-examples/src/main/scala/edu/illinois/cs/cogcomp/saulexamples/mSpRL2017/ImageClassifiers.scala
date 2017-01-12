@@ -10,6 +10,7 @@ import edu.illinois.cs.cogcomp.lbjava.learn.{SparseNetworkLearner, SupportVector
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
+import weka.classifiers.`lazy`.IBk
 import weka.classifiers.bayes.NaiveBayes
 
 object ImageClassifiers {
@@ -22,6 +23,12 @@ object ImageClassifiers {
   object ImageClassifierWeka extends Learnable(segments) {
     def label = segmentLable
     override lazy val classifier = new SaulWekaWrapper(new NaiveBayes())
+    override def feature = using(segmentFeatures)
+  }
+
+  object ImageClassifierWekaIBK extends Learnable(segments) {
+    def label = segmentLable
+    override lazy val classifier = new SaulWekaWrapper(new IBk())
     override def feature = using(segmentFeatures)
   }
 }

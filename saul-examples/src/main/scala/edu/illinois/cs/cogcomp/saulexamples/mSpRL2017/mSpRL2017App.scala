@@ -6,40 +6,36 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.saulexamples.data.ImageReader
+import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.ImageClassifiers._
 import scala.collection.JavaConversions._
 
 object mSpRL2017App extends App {
 
-  val imageReaderTraining = new ImageReader("data/msprl/train")
-  val imageReaderTest = new ImageReader("data/msprl/test")
+  val CLEFDataset = new CLEFImageReader("C:/Users/Umar Manzoor/Documents/My DAP Downloads/saiaprtc12ok/benchmark/benchmark/saiapr_tc-12")
 
-  val imageListTrain = imageReaderTraining.getImages()
-  val segementListTrain = imageReaderTraining.getSegments()
-  val relationListTrain = imageReaderTraining.getSegmentsRelations()
+  val imageListTrain = CLEFDataset.trainingImages
+  val segementListTrain = CLEFDataset.trainingSegments
+  val relationListTrain = CLEFDataset.trainingRelations
 
   images.populate(imageListTrain)
   segments.populate(segementListTrain)
   relation.populate(relationListTrain)
 
 
-  val imageListTest = imageReaderTest.getImages()
-  val segementListTest = imageReaderTest.getSegments()
-  val relationListTest = imageReaderTest.getSegmentsRelations()
+  val imageListTest = CLEFDataset.testImages
+  val segementListTest = CLEFDataset.testSegments
+  val relationListTest = CLEFDataset.testRelations
 
-  images.populate(imageListTest)
-  segments.populate(segementListTest)
-  relation.populate(relationListTest)
+  images.populate(imageListTest, false)
+  segments.populate(segementListTest, false)
+  relation.populate(relationListTest, false)
 
   ImageSVMClassifier.learn(5)
   ImageSVMClassifier.test(segementListTest)
 
   ImageClassifierWeka.learn(5)
   ImageClassifierWeka.test(segementListTest)
-
-//  print((images() ~> image_segment).size)
-//  print ((relation()~>relationsToSegments).size)
 
 }
