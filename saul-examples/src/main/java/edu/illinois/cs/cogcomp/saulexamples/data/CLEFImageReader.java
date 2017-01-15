@@ -111,7 +111,7 @@ public class CLEFImageReader
     /*******************************************************/
     private void getConcepts(String directory) throws IOException
     {
-        String file = directory + "/wlist.txt";
+        String file = directory + "/wlist100.txt";
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
         while ((line = reader.readLine()) != null) {
@@ -198,12 +198,14 @@ public class CLEFImageReader
                     int segmentID = Integer.parseInt(segmentInfo[1]);
                     int segmentCode = Integer.parseInt(segmentInfo[3]);
                     String segmentConcept = MappingCode2Concept(segmentCode);
-                    String segmentFeatures = segmentInfo[2];
-                    segmentFeatures = segmentFeatures.trim().replaceAll(" +", " ");
-                    if(trainingData.contains(imageID))
-                        trainingSegments.add(new Segment(imageID, segmentID, segmentCode, segmentFeatures, segmentConcept));
-                    else if (testData.contains(imageID))
-                        testSegments.add(new Segment(imageID, segmentID, segmentCode, segmentFeatures, segmentConcept));
+                    if (segmentConcept != null) {
+                        String segmentFeatures = segmentInfo[2];
+                        segmentFeatures = segmentFeatures.trim().replaceAll(" +", " ");
+                        if (trainingData.contains(imageID))
+                            trainingSegments.add(new Segment(imageID, segmentID, segmentCode, segmentFeatures, segmentConcept));
+                        else if (testData.contains(imageID))
+                            testSegments.add(new Segment(imageID, segmentID, segmentCode, segmentFeatures, segmentConcept));
+                    }
                 }
             }
         }
@@ -319,6 +321,26 @@ public class CLEFImageReader
                 trainingData.add(Integer.toString(imageID));
             }
         }
+
+        String crossValidationImage = path + "/validation.mat";
+        d = new File(trainImage);
+
+        if (!d.exists()) {
+            throw new IOException(crossValidationImage + " does not exist!");
+        }
+
+        MatFileReader matValidaitonreader = new MatFileReader(crossValidationImage);
+
+        double[][] validation = ((MLDouble) matValidaitonreader.getMLArray("validation")).getArray();
+
+        if (validation.length > 1) {
+            for (int i = 0; i < validation.length; i++)
+            {
+                int imageID = (int)validation[i][0];
+                trainingData.add(Integer.toString(imageID));
+            }
+        }
+
     }
 
     /*******************************************************/
