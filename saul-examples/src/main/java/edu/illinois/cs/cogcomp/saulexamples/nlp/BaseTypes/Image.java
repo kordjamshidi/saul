@@ -23,7 +23,7 @@ public class Image {
         this.id = id;
     }
 
-    public String getID()
+    public String getId()
     {
         return id;
     }

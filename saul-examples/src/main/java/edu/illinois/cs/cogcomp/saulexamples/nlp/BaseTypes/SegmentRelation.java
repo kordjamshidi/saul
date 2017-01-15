@@ -9,26 +9,22 @@ public class SegmentRelation {
     private int secondSegmentId;
     private String relation;
 
-    public SegmentRelation(String imgID, int sg_id1, int sg_id2, String rel)
-    {
-        imageId = imgID;
-        firstSegmentId = sg_id1;
-        secondSegmentId = sg_id2;
-        relation = rel;
+    public SegmentRelation(String imageId, int firstSegmentId, int secondSegmentId, String relation) {
+        this.imageId = imageId;
+        this.firstSegmentId = firstSegmentId;
+        this.secondSegmentId = secondSegmentId;
+        this.relation = relation;
     }
 
-    public String getRelation()
-    {
+    public String getRelation() {
         return relation;
     }
 
-    public int getFirstSegmentId()
-    {
+    public int getFirstSegmentId() {
         return firstSegmentId;
     }
 
-    public int getSecondSegmentId()
-    {
+    public int getSecondSegmentId() {
         return secondSegmentId;
     }
     public String getImageId()

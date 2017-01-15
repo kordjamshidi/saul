@@ -5,7 +5,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Image, Segment, Segm
 object ImageSensors {
 
   def imageSegmentLink(i: Image, s: Segment): Boolean = {
-    i.getID == s.getAssociatedImageID
+    i.getId == s.getAssociatedImageID
   }
   def rel_segment(r: SegmentRelation, s: Segment): Boolean = {
     (r.getFirstSegmentId == s.getSegmentId) || (r.getSecondSegmentId == s.getSegmentId) || (r.getImageId == s.getAssociatedImageID)
