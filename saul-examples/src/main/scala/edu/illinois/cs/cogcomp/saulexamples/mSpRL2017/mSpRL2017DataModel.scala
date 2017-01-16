@@ -32,7 +32,7 @@ object mSpRL2017DataModel extends DataModel {
 
   val imageId = property(images) {
 
-    x: Image => x.getID
+    x: Image => x.getId
   }
 
   val segmentLable = property(segments) {

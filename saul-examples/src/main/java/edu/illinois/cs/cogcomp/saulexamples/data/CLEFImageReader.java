@@ -321,26 +321,6 @@ public class CLEFImageReader
                 trainingData.add(Integer.toString(imageID));
             }
         }
-
-        String crossValidationImage = path + "/validation.mat";
-        d = new File(trainImage);
-
-        if (!d.exists()) {
-            throw new IOException(crossValidationImage + " does not exist!");
-        }
-
-        MatFileReader matValidaitonreader = new MatFileReader(crossValidationImage);
-
-        double[][] validation = ((MLDouble) matValidaitonreader.getMLArray("validation")).getArray();
-
-        if (validation.length > 1) {
-            for (int i = 0; i < validation.length; i++)
-            {
-                int imageID = (int)validation[i][0];
-                trainingData.add(Integer.toString(imageID));
-            }
-        }
-
     }
 
     /*******************************************************/
