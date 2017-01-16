@@ -1,46 +1,54 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 
+
 /**
  * Created by Umar Manzoor on 29/12/2016.
  */
 public class Segment {
-    private int id;
-    private int code;
-    private String features;
-    private String concept;
+    private int segmentId;
+    private int segmentCode;
+    private String segmentFeatures;
+    private String segmentConcept;
     private String imageId;
-
-    public Segment(String imageId, int id, int code, String features, String concept) {
-        this.imageId = imageId;
-        this.id = id;
-        this.code = code;
-        this.features = features;
-        this.concept = concept;
+    public double[] features;
+    public Segment(String pID, int sID, int sC, String sF, String sCon)
+    {
+        imageId = pID;
+        segmentId = sID;
+        segmentCode = sC;
+        segmentFeatures = sF;
+        segmentConcept = sCon;
     }
 
-    public String getImageId() {
+    public String getAssociatedImageID()
+    {
         return imageId;
     }
 
-    public int getId() {
-        return id;
+    public  int getSegmentId()
+    {
+        return segmentId;
     }
 
-    public String getFeatures() {
-        return features;
+    public String getSegmentFeatures()
+    {
+        return segmentFeatures;
+
+    }
+    public  int getSegmentCode()
+    {
+        return segmentCode;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public String getConcept() {
-        return concept;
+    public String getSegmentConcept()
+    {
+        return segmentConcept;
     }
 
     @Override
     public String toString() {
-        return imageId + ", " + id + ", " + code + ", " + features + ", " + concept;
+        // TODO Auto-generated method stub
+        return imageId + ", " + segmentId + ", " + segmentCode + ", " + segmentFeatures + ", " + segmentConcept;
     }
 
 }
