@@ -27,5 +27,9 @@ public class SegmentRelation {
     public int getSecondSegmentId() {
         return secondSegmentId;
     }
+    public String getImageId()
+    {
+        return imageId;
+    }
 
 }

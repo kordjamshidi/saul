@@ -1,14 +1,13 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Image, Segment, SegmentRelation}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Image, Segment, SegmentRelation }
 
 object ImageSensors {
 
   def imageSegmentLink(i: Image, s: Segment): Boolean = {
-    i.getId == s.getImageId
+    i.getId == s.getAssociatedImageID
   }
-
-  def relationSegmentLink(r: SegmentRelation, s: Segment): Boolean = {
-    (r.getFirstSegmentId == s.getId) || (r.getSecondSegmentId == s.getId)
+  def rel_segment(r: SegmentRelation, s: Segment): Boolean = {
+    (r.getFirstSegmentId == s.getSegmentId) || (r.getSecondSegmentId == s.getSegmentId) || (r.getImageId == s.getAssociatedImageID)
   }
 }
