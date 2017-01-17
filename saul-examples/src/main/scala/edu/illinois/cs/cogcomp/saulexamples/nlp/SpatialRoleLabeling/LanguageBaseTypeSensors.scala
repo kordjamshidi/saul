@@ -10,6 +10,7 @@ import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, 
 import edu.illinois.cs.cogcomp.edison.features.helpers.PathFeatureHelper
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
+import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.TextAnnotationFactory
 
@@ -18,7 +19,7 @@ import scala.collection.mutable
 
 /** Created by parisakordjamshidi on 12/25/16.
   */
-object LanguageBaseTypeSensors {
+object LanguageBaseTypeSensors extends Logging {
   private val dependencyView = ViewNames.DEPENDENCY_STANFORD
   private val sentenceById = mutable.HashMap[String, TextAnnotation]()
   private val settings = new Properties()
@@ -92,6 +93,7 @@ object LanguageBaseTypeSensors {
     val view = if (ta.hasView(ViewNames.SRL_VERB)) {
       ta.getView(ViewNames.SRL_VERB)
     } else {
+      logger.warn("cannot find SRL_VERB view")
       null
     }
     val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
