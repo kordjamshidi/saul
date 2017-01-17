@@ -154,8 +154,8 @@ public class CLEFImageReader
                 getSegments(file);
 
                 //Load all relations
-                String spatial_rels = mainFolder + "/spatial_rels";
-                getSegmentsRelations(spatial_rels);
+                String spatialRelations = mainFolder + "/spatialRelations";
+                getSegmentsRelations(spatialRelations);
 
             }
         }
@@ -194,17 +194,17 @@ public class CLEFImageReader
             while ((line = reader.readLine()) != null) {
                 String[] segmentInfo = line.split("\\t");
                 if(segmentInfo.length==4) {
-                    String imageID = segmentInfo[0];
-                    int segmentID = Integer.parseInt(segmentInfo[1]);
+                    String imageId = segmentInfo[0];
+                    int segmentId = Integer.parseInt(segmentInfo[1]);
                     int segmentCode = Integer.parseInt(segmentInfo[3]);
                     String segmentConcept = MappingCode2Concept(segmentCode);
                     if (segmentConcept != null) {
                         String segmentFeatures = segmentInfo[2];
                         segmentFeatures = segmentFeatures.trim().replaceAll(" +", " ");
-                        if (trainingData.contains(imageID))
-                            trainingSegments.add(new Segment(imageID, segmentID, segmentCode, segmentFeatures, segmentConcept));
-                        else if (testData.contains(imageID))
-                            testSegments.add(new Segment(imageID, segmentID, segmentCode, segmentFeatures, segmentConcept));
+                        if (trainingData.contains(imageId))
+                            trainingSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept));
+                        else if (testData.contains(imageId))
+                            testSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept));
                     }
                 }
             }
@@ -221,16 +221,16 @@ public class CLEFImageReader
         if (d.exists()) {
             for (File f : d.listFiles()) {
                 String spatial_file = spatial_rels + "/" + f.getName();
-                MatFileReader matfilereader = new MatFileReader(spatial_file);
+                MatFileReader matFileReader = new MatFileReader(spatial_file);
                 int val;
-                int sg_id1;
-                int sg_id2;
+                int firstSegmentId;
+                int secondSegmentId;
                 String[] s = f.getName().split("\\.");
-                String img_id = s[0];
+                String imgId = s[0];
                 String rel;
-                double[][] topo = ((MLDouble) matfilereader.getMLArray("topo")).getArray();
-                double[][] x_rels = ((MLDouble) matfilereader.getMLArray("x_rels")).getArray();
-                double[][] y_rels = ((MLDouble) matfilereader.getMLArray("y_rels")).getArray();
+                double[][] topo = ((MLDouble) matFileReader.getMLArray("topo")).getArray();
+                double[][] xRels = ((MLDouble) matFileReader.getMLArray("x_rels")).getArray();
+                double[][] yRels = ((MLDouble) matFileReader.getMLArray("y_rels")).getArray();
 
                 /**************************************************/
                 // Exemptional case
@@ -242,8 +242,8 @@ public class CLEFImageReader
                         for (int y = 0; y < topo[1].length; y++) {
                             //Ignoring same indexes
                             if (x != y) {
-                                sg_id1 = x + 1;
-                                sg_id2 = y + 1;
+                                firstSegmentId = x + 1;
+                                secondSegmentId = y + 1;
                                 val = (int) topo[x][y];
                                 if (val == 1)
                                     rel = "adjacent";
@@ -252,14 +252,14 @@ public class CLEFImageReader
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(img_id)) {
+                                if(trainingData.contains(imgId)) {
                                     //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(img_id, sg_id1, sg_id2, rel));
+                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
                                 }
-                                else if (testData.contains(img_id)) {
-                                    testRelations.add(new SegmentRelation(img_id, sg_id1, sg_id2, rel));
+                                else if (testData.contains(imgId)) {
+                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
                                 }
-                                val = (int) x_rels[x][y];
+                                val = (int) xRels[x][y];
                                 if (val == 3)
                                     rel = "beside";
                                 else if (val == 4)
@@ -267,16 +267,16 @@ public class CLEFImageReader
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(img_id)) {
+                                if(trainingData.contains(imgId)) {
                                     //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(img_id, sg_id1, sg_id2, rel));
+                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
                                 }
-                                else if (testData.contains(img_id)) {
-                                    testRelations.add(new SegmentRelation(img_id, sg_id1, sg_id2, rel));
+                                else if (testData.contains(imgId)) {
+                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
                                 }
 
 
-                                val = (int) y_rels[x][y];
+                                val = (int) yRels[x][y];
                                 if (val == 5)
                                     rel = "above";
                                 else if (val == 6)
@@ -286,12 +286,12 @@ public class CLEFImageReader
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(img_id)) {
+                                if(trainingData.contains(imgId)) {
                                     //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(img_id, sg_id1, sg_id2, rel));
+                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
                                 }
-                                else if (testData.contains(img_id)) {
-                                    testRelations.add(new SegmentRelation(img_id, sg_id1, sg_id2, rel));
+                                else if (testData.contains(imgId)) {
+                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
                                 }
                             }
                         }
@@ -310,15 +310,15 @@ public class CLEFImageReader
         if (!d.exists()) {
             throw new IOException(trainImage + " does not exist!");
         }
-        MatFileReader matTrainreader = new MatFileReader(trainImage);
+        MatFileReader matTrainReader = new MatFileReader(trainImage);
 
-        double[][] training = ((MLDouble) matTrainreader.getMLArray("training")).getArray();
+        double[][] training = ((MLDouble) matTrainReader.getMLArray("training")).getArray();
 
         if (training.length > 1) {
             for (int i = 0; i < training.length; i++)
             {
-                int imageID = (int)training[i][0];
-                trainingData.add(Integer.toString(imageID));
+                int imageId = (int)training[i][0];
+                trainingData.add(Integer.toString(imageId));
             }
         }
     }

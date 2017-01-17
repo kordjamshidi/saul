@@ -24,7 +24,7 @@ object mSpRL2017DataModel extends DataModel {
 //  val relationsToSegments = edge(relation, segments)
 //  relationsToSegments.addSensor(rel_segment _)
 
-  val imageLable = property(images) {
+  val imageLabel = property(images) {
 
     x: Image => x.getLabel
 
