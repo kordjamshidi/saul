@@ -11,13 +11,13 @@ public class Segment {
     private String segmentConcept;
     private String imageId;
     public double[] features;
-    public Segment(String pID, int sID, int sC, String sF, String sCon)
+    public Segment(String ImageId, int segmentId, int segmentCode, String segmentFeatures, String segmentConcept)
     {
-        imageId = pID;
-        segmentId = sID;
-        segmentCode = sC;
-        segmentFeatures = sF;
-        segmentConcept = sCon;
+        this.imageId = ImageId;
+        this.segmentId = segmentId;
+        this.segmentCode = segmentCode;
+        this.segmentFeatures = segmentFeatures;
+        this.segmentConcept = segmentConcept;
     }
 
     public String getAssociatedImageID()
