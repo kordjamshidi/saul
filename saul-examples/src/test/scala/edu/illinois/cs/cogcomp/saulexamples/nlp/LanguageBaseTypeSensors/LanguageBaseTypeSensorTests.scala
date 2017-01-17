@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.saulexamples.nlp.NlpBaseTypes
+package edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Sentence}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.LanguageBaseTypeSensors._
@@ -7,7 +7,7 @@ import org.scalatest.{FlatSpec, Matchers}
 /**
   * Created by Taher on 2017-01-11.
   */
-class NlpBaseTypesTests extends FlatSpec with Matchers {
+class LanguageBaseTypeSensorTests extends FlatSpec with Matchers {
 
   "Extracted features for 'I received the book.'" should "be correct" in {
     val text = "I received the book."
