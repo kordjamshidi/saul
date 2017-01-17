@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.NlpBaseTypes
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Sentence}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.NlpBaseTypesSensors._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.LanguageBaseTypeSensors._
 import org.scalatest.{FlatSpec, Matchers}
 
 /**

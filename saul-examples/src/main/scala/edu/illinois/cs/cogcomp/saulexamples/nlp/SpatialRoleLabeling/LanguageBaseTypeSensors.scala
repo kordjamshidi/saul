@@ -18,9 +18,9 @@ import scala.collection.mutable
 
 /** Created by parisakordjamshidi on 12/25/16.
   */
-object NlpBaseTypesSensors {
+object LanguageBaseTypeSensors {
   private val dependencyView = ViewNames.DEPENDENCY_STANFORD
-  private val sentenceMap = mutable.HashMap[String, TextAnnotation]()
+  private val sentenceById = mutable.HashMap[String, TextAnnotation]()
   private val settings = new Properties()
   TextAnnotationFactory.disableSettings(settings, USE_SRL_NOM, USE_NER_ONTONOTES, USE_SRL_VERB)
   private val as = TextAnnotationFactory.createPipelineAnnotatorService(settings)
@@ -165,11 +165,11 @@ object NlpBaseTypesSensors {
 
   private def getTextAnnotation(e: NlpBaseElement): TextAnnotation = {
     val sentence = getSentence(e)
-    if (!sentenceMap.contains(sentence.getId)) {
+    if (!sentenceById.contains(sentence.getId)) {
       val ta = as.createAnnotatedTextAnnotation(sentence.getDocument.getId, sentence.getId, sentence.getText)
-      sentenceMap.put(sentence.getId, ta)
+      sentenceById.put(sentence.getId, ta)
     }
-    sentenceMap(sentence.getId)
+    sentenceById(sentence.getId)
   }
 
   private def getTextAnnotationSpan(e: NlpBaseElement) = {
