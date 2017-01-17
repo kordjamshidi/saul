@@ -3,6 +3,7 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml._
+import LanguageBaseTypeSensors._
 import SpRLNewSensors._
 
 import scala.collection.JavaConversions._
@@ -25,10 +26,10 @@ object SpRLNewGenerationDataModel extends DataModel {
    */
 
   val docTosen = edge(documents, sentences)
-  docTosen.addSensor(DocToSentenceMatching _)
+  docTosen.addSensor(documentToSentenceMatching _)
 
   val sentenceToPhrase = edge(sentences, phrases)
-  sentenceToPhrase.addSensor(SentencePhraseGenerating _)
+  sentenceToPhrase.addSensor(sentenceToPhraseGenerating _)
 
   //
   val relToTr = edge(relations, phrases)

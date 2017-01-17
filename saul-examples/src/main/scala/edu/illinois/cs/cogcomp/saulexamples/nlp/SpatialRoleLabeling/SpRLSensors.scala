@@ -99,12 +99,12 @@ object SpRLSensors extends Logging {
     val path: StringBuilder = new StringBuilder
     var i = 0
     while (i < up.size - 1) {
-      path.append(getRelationName(relations, up(i), up(i + 1), "â†‘"))
+      path.append(getRelationName(relations, up(i), up(i + 1), "↑"))
       i += 1
     }
     i = down.size - 1
     while (i > 0) {
-      path.append(getRelationName(relations, down(i), down(i - 1), "â†“"))
+      path.append(getRelationName(relations, down(i), down(i - 1), "↓"))
       i -= 1
     }
 
