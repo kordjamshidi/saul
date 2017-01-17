@@ -154,7 +154,7 @@ public class CLEFImageReader
                 getSegments(file);
 
                 //Load all relations
-                String spatialRelations = mainFolder + "/spatialRelations";
+                String spatialRelations = mainFolder + "/spatial_rels";
                 getSegmentsRelations(spatialRelations);
 
             }
