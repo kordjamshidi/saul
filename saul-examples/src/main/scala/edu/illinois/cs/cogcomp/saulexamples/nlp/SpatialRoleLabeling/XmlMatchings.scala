@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ ISpanElement, Phrase }
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.LanguageBaseTypeSensors.getHeadword
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getHeadword
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.{ IXmlSpanMatching, XmlOverlapMatching }
 
 /** Created by Taher on 2016-12-28.

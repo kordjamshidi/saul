@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
+package edu.illinois.cs.cogcomp.saulexamples.vision;
 
 
 /**

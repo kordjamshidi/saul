@@ -14,9 +14,9 @@ import java.util.*;
 
 import com.jmatio.io.*;
 import com.jmatio.types.*;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Image;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Segment;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.SegmentRelation;
+import edu.illinois.cs.cogcomp.saulexamples.vision.Image;
+import edu.illinois.cs.cogcomp.saulexamples.vision.Segment;
+import edu.illinois.cs.cogcomp.saulexamples.vision.SegmentRelation;
 
 
 /**

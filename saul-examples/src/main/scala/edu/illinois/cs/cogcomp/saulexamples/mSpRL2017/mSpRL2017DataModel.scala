@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.ImageSensors._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Image, Segment, SegmentRelation }
+import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
