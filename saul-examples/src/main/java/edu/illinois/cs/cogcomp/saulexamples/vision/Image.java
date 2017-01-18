@@ -5,7 +5,7 @@
  * http://cogcomp.cs.illinois.edu/
  */
 
-package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
+package edu.illinois.cs.cogcomp.saulexamples.vision;
 
 import java.util.ArrayList;
 import java.util.Collections;

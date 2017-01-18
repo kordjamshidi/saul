@@ -3,7 +3,7 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import SpRLNewSensors._
-import LanguageBaseTypeSensors._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 /**
   * Created by Taher on 2017-01-11.
   */
