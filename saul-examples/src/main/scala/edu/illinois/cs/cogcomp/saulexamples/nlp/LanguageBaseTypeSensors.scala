@@ -1,16 +1,14 @@
-package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
+package edu.illinois.cs.cogcomp.saulexamples.nlp
 
 import java.util.Properties
 
-import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
+import edu.illinois.cs.cogcomp.core.datastructures.{ViewNames, _}
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
-import edu.illinois.cs.cogcomp.core.datastructures._
 import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
 import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.TextAnnotationFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
