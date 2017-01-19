@@ -8,6 +8,7 @@ public interface ISpanElement {
     void setStart(int start);
     void setEnd(int end);
     int getEnd();
+    String getText();
     boolean matches(ISpanElement e);
     boolean contains(ISpanElement e);
     boolean isPartOf(ISpanElement e);

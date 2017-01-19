@@ -103,7 +103,7 @@ Next step is to determine sensors:
     
     relationsToSegments.addSensor(rel_segment _)
 ```
-The [`imageSegmentLink`](ImageSensors.scala) sensor, generates relationship between image and its associated segements. The [`rel_segment`](ImageSensors.scala) sensor, generates relationship between different segments. 
+The [`imageSegmentLink`](Sensors.scala) sensor, generates relationship between image and its associated segements. The [`rel_segment`](Sensors.scala) sensor, generates relationship between different segments. 
 
 ### Features
 Now we can specify the features, all features are constructed using `property` method of `DataModel`. The classifier tries to predict segmentLable, segmentLable is a string like Building, Tree, Group of People etc:

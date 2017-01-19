@@ -94,7 +94,7 @@ object SpRLApp2 extends App {
   sentences.populate(sentencesList)
 
   //reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, new XmlPartOfMatching)
-  reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, XmlMatchings.headwordMatching)
+  reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, XmlMatchings.phraseHeadwordMatching)
   reader.addPropertiesFromTag("LANDMARK", phrases().toList, new XmlPartOfMatching)
   reader.addPropertiesFromTag("SPATIALINDICATOR", phrases().toList, new XmlPartOfMatching)
   relations.populate(relationList)

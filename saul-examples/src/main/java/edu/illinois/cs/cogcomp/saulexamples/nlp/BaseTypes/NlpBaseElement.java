@@ -62,14 +62,6 @@ public abstract class NlpBaseElement extends SpanBasedElement {
         this.id = id;
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
     public static NlpBaseElement create(NlpBaseElementTypes type) {
 
         switch (type) {
