@@ -69,8 +69,8 @@ object SpatialOntologyDataModel extends DataModel {
       getTokenDistance(first, second)
   }
 
-  def getArguments(r: Relation):(Token, Token) = {
-    val arguments = relations(r) ~> relationToToken toList
+  def getArguments(r: Relation): (Token, Token) = {
+    val arguments = (relations(r) ~> relationToToken).toList
     if (arguments(0).getPropertyValues("SPATIALINDICATOR_id").contains(r.getArgumentId(1)))
       (arguments(1), arguments(0))
     else

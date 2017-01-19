@@ -9,6 +9,8 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.ImageClassifiers._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.XmlMatchings
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 
@@ -51,17 +53,24 @@ object SpatialOntologyApp extends App {
   val documentList = reader.getDocuments()
   val sentenceList = reader.getSentences()
 
-  val trRelationList = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
-  trRelationList.foreach(_.setProperty("TR_RELATION", "true"))
-  val lmRelationList = reader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
-  lmRelationList.foreach(_.setProperty("LM_RELATION", "true"))
-
   documents.populate(documentList)
   sentences.populate(sentenceList)
-  relations.populate(trRelationList ++ lmRelationList)
 
   reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
+
+  val trRelationList = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
+  trRelationList.foreach(_.setProperty("TR_RELATION", "true"))
+  val lmRelationList = reader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
+  lmRelationList.foreach(_.setProperty("LM_RELATION", "true"))
+  relations.populate(trRelationList ++ lmRelationList)
+
+  val trCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("TRAJECTOR_id")).toList
+  val spCandidates = tokens().filter(x => getPos(x).contains("IN") && !x.containsProperty("SPATIALINDICATOR_id")).toList
+  val lmCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("LANDMARK_id")).toList
+  val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
+  val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
+  relations.populate(trCandidateRelations ++ lmCandidateRelations)
 
 }

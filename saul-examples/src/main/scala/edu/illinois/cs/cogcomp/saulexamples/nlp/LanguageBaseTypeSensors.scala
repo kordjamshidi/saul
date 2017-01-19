@@ -118,6 +118,35 @@ object LanguageBaseTypeSensors {
     Math.abs(getStartTokenId(t1) - getStartTokenId(t2))
   }
 
+  def getCandidateRelations[T <: NlpBaseElement](argumentInstances: List[T]*): List[Relation] = {
+    if (argumentInstances.length < 2) {
+      List.empty
+    } else {
+      crossProduct(argumentInstances.seq.toList)
+        .filter(args => args.filter(_ != null).groupBy {
+          case x: Token => x.getSentence.getId
+          case x: Phrase => x.getSentence.getId
+          case x: Sentence => x.getDocument.getId
+          case _ => null
+        }.size <= 1 && args.filter(_ != null).groupBy(_.getId).size == args.count(_ != null))
+        .map(args => {
+          val r = new Relation()
+          args.zipWithIndex.filter(x => x._1 != null).foreach {
+            case (a, i) => {
+              r.setArgumentId(i, a.getId)
+              r.setId(r.getId + "[" + i + ", " + a.getId + "]")
+            }
+          }
+          r
+        })
+    }
+  }
+
+  def crossProduct[T](input: List[List[T]]): List[List[T]] = input match {
+    case Nil => Nil
+    case head :: Nil => head.map(_ :: Nil)
+    case head :: tail => for (elem <- head; sub <- crossProduct(tail)) yield elem :: sub
+  }
   ////////////////////////////////////////////////////////////////////////////
   /// private methods
   ////////////////////////////////////////////////////////////////////////////

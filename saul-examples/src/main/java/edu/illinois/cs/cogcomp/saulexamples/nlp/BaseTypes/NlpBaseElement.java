@@ -28,17 +28,17 @@ public abstract class NlpBaseElement extends SpanBasedElement {
     public abstract NlpBaseElementTypes getType();
 
     public boolean containsProperty(String name) {
-        return properties.containsKey(name);
+        return properties.containsKey(name) && !properties.get(name).isEmpty();
     }
 
     public String getPropertyFirstValue(String name) {
-        if (properties.containsKey(name) && !properties.get(name).isEmpty())
+        if (containsProperty(name))
             return properties.get(name).get(0);
         return null;
     }
 
     public List<String> getPropertyValues(String name) {
-        if (properties.containsKey(name))
+        if (containsProperty(name))
             return properties.get(name);
         return new ArrayList<>();
     }
