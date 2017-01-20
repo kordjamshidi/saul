@@ -8,6 +8,7 @@ import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
 import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
+import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 
 import scala.collection.JavaConverters._
@@ -15,7 +16,7 @@ import scala.collection.mutable
 
 /** Created by parisakordjamshidi on 12/25/16.
   */
-object LanguageBaseTypeSensors {
+object LanguageBaseTypeSensors extends Logging {
   private val dependencyView = ViewNames.DEPENDENCY_STANFORD
   private val parserView = ViewNames.PARSE_STANFORD
   private val sentenceById = mutable.HashMap[String, TextAnnotation]()
@@ -101,6 +102,7 @@ object LanguageBaseTypeSensors {
     val view = if (ta.hasView(ViewNames.SRL_VERB)) {
       ta.getView(ViewNames.SRL_VERB)
     } else {
+      logger.warn("Cannot find SRL view")
       null
     }
     val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
@@ -147,6 +149,7 @@ object LanguageBaseTypeSensors {
     case head :: Nil => head.map(_ :: Nil)
     case head :: tail => for (elem <- head; sub <- crossProduct(tail)) yield elem :: sub
   }
+
   ////////////////////////////////////////////////////////////////////////////
   /// private methods
   ////////////////////////////////////////////////////////////////////////////
@@ -182,7 +185,9 @@ object LanguageBaseTypeSensors {
     case s: Sentence => s
     case p: Phrase => p.getSentence
     case t: Token => t.getSentence
-    case _ => null
+    case _ =>
+      logger.warn("cannot use 'getSentence' for document type.")
+      null
   }
 
   private def getPhrases(sentence: Sentence): Seq[Phrase] = {
@@ -201,7 +206,8 @@ object LanguageBaseTypeSensors {
       e match {
         case p: Phrase => new Token(p, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)
         case s: Sentence => new Token(s, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)
-        case _ => null
+        case _ =>
+          null
       }
     )
   }
@@ -234,11 +240,19 @@ object LanguageBaseTypeSensors {
 
   private def getStartTokenId(e: NlpBaseElement): Int = {
     val ta = getTextAnnotation(e)
-    ta.getTokenIdFromCharacterOffset(e.getStart)
+    val start = e match {
+      case _: Document | _: Sentence => 0
+      case _ => e.getStart
+    }
+    ta.getTokenIdFromCharacterOffset(start)
   }
 
   private def getEndTokenId(e: NlpBaseElement): Int = {
     val ta = getTextAnnotation(e)
-    ta.getTokenIdFromCharacterOffset(e.getEnd - 1)
+    val end = e match {
+      case _: Document | _: Sentence => ta.getText.length
+      case _ => e.getEnd
+    }
+    ta.getTokenIdFromCharacterOffset(end - 1)
   }
 }
