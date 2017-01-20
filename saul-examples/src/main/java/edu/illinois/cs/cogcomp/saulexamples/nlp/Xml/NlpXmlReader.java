@@ -292,6 +292,7 @@ public class NlpXmlReader {
         SpanBasedElement element = new SpanBasedElement();
         element.setStart(getIntAttribute(e, getStartTagName()));
         element.setEnd(getIntAttribute(e, getEndTagName()));
+        element.setText(getStringAttribute(e, getTextTagName()));
         return element;
     }
 
