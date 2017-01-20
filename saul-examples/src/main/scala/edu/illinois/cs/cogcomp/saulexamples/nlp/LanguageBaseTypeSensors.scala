@@ -207,6 +207,7 @@ object LanguageBaseTypeSensors extends Logging {
         case p: Phrase => new Token(p, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)
         case s: Sentence => new Token(s, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)
         case _ =>
+          logger.warn("cannot find tokens for base types other than phrase and sentence.")
           null
       }
     )
