@@ -7,6 +7,7 @@ public class SpanBasedElement implements ISpanElement{
 
     private int start;
     private int end;
+    private String text;
 
     public int getStart() {
         return start;
@@ -56,4 +57,12 @@ public class SpanBasedElement implements ISpanElement{
                 (e.getStart() <= getStart() && getStart() < e.getEnd());
     }
 
+    @Override
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
 }
