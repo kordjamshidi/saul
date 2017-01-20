@@ -73,4 +73,7 @@ object SpatialOntologyApp extends App {
   val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
   relations.populate(trCandidateRelations ++ lmCandidateRelations)
 
+
+
+
 }
