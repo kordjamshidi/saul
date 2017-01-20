@@ -12,12 +12,14 @@ import edu.illinois.cs.cogcomp.saul.datamodel.edge.Edge
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saul.datamodel.property.features.discrete.DiscreteProperty
 import edu.illinois.cs.cogcomp.saul.util.Logging
+import edu.illinois.cs.cogcomp.saul.util.ProgressBar
 
 import java.util.concurrent.atomic.AtomicInteger
 
 import scala.collection.mutable
 import scala.collection.mutable.{ ArrayBuffer, ListBuffer, HashMap => MutableHashMap, LinkedHashSet => MutableSet, Map => MutableMap }
 import scala.reflect.ClassTag
+
 
 trait NodeProperty[T <: AnyRef] extends Property[T] {
   def node: Node[T]
@@ -57,6 +59,8 @@ class Node[T <: AnyRef](val keyFunc: T => Any = (x: T) => x, val tag: ClassTag[T
   val properties = new ArrayBuffer[NodeProperty[T]]
 
   private val collection = MutableSet[NT]()
+
+  val progressBar = new ProgressBar(0);
 
   def getAllInstances: Iterable[T] = this.collection.toSeq.map(_.apply)
 
@@ -129,6 +133,9 @@ class Node[T <: AnyRef](val keyFunc: T => Any = (x: T) => x, val tag: ClassTag[T
       // TODO: Populating join nodes takes significant amount of time on large graphs. Investigate.
       joinNodes.foreach(_.addFromChild(this, instance, train, populateEdge))
     }
+
+    // Update Progress Bar
+    progressBar +=1
   }
 
   def populateFrom(n: Node[_]): Unit = {
@@ -138,7 +145,11 @@ class Node[T <: AnyRef](val keyFunc: T => Any = (x: T) => x, val tag: ClassTag[T
 
   /** Operator for adding a sequence of T into my table. */
   def populate(ts: Iterable[T], train: Boolean = true, populateEdge: Boolean = true) = {
+    progressBar.progress()
+    progressBar.init()
+    progressBar.total = ts.size;
     ts.foreach(addInstance(_, train, populateEdge))
+    progressBar.finish()
   }
 
   /** Relational operators */

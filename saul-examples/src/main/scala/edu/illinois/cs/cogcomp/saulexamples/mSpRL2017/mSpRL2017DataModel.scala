@@ -16,13 +16,13 @@ object mSpRL2017DataModel extends DataModel {
   val segments = node[Segment]
   val relation = node[SegmentRelation]
 
-//  val image_segment = edge(images, segments)
+  val image_segment = edge(images, segments)
   // Linking associated Segments with Images
-//  image_segment.addSensor(imageSegmentLink _)
+  image_segment.addSensor(imageSegmentLink _)
 
+  val relationsToSegments = edge(relation, segments)
   // Linking associated Segments with Segments
-//  val relationsToSegments = edge(relation, segments)
-//  relationsToSegments.addSensor(rel_segment _)
+  relationsToSegments.addSensor(rel_segment _)
 
   val imageLabel = property(images) {
 

@@ -86,7 +86,11 @@ lazy val saulCore = (project in file("saul-core")).
   settings(commonSettings: _*).
   settings(docSettings: _*).
   settings(
-    name := "saul"
+    name := "saul",
+    libraryDependencies ++= Seq(
+      "com.github.nscala-time" %% "nscala-time" % "2.16.0",
+      "org.scala-lang" % "jline" % "2.10.4"
+    )
   ).enablePlugins(AutomateHeaderPlugin)
 
 lazy val saulExamples = (project in file("saul-examples")).
