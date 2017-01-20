@@ -10,7 +10,7 @@ object Sensors {
   }
 
   def rel_segment(r: SegmentRelation, s: Segment): Boolean = {
-    (r.getFirstSegmentId == s.getSegmentId) || (r.getSecondSegmentId == s.getSegmentId) || (r.getImageId == s.getAssociatedImageID)
+    (r.getFirstSegmentId == s.getSegmentId || r.getSecondSegmentId == s.getSegmentId) && (r.getImageId == s.getAssociatedImageID)
   }
 
   def relationToTokenMatching(r: Relation, t: Token): Boolean = {
