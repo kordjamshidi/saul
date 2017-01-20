@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.ImageSensors._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Sensors._
 import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 
 import scala.collection.JavaConversions._

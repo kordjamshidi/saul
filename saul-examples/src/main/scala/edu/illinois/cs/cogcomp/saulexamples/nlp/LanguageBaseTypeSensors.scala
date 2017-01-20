@@ -8,6 +8,7 @@ import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
 import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
+import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 
 import scala.collection.JavaConverters._
@@ -15,7 +16,7 @@ import scala.collection.mutable
 
 /** Created by parisakordjamshidi on 12/25/16.
   */
-object LanguageBaseTypeSensors {
+object LanguageBaseTypeSensors extends Logging {
   private val dependencyView = ViewNames.DEPENDENCY_STANFORD
   private val parserView = ViewNames.PARSE_STANFORD
   private val sentenceById = mutable.HashMap[String, TextAnnotation]()
@@ -62,15 +63,26 @@ object LanguageBaseTypeSensors {
   }
 
   def getHeadword(p: Phrase): Token = {
-    val ta = getTextAnnotation(p)
+    var ta = getTextAnnotation(p)
     val (startId: Int, endId: Int) = getTextAnnotationSpan(p)
-    val phrase = new Constituent("temp", "", ta, startId, endId + 1)
-
-    val tree: TreeView = ta.getView(parserView).asInstanceOf[TreeView]
-    val parsePhrase = tree.getParsePhrase(phrase)
-    val headId = CollinsHeadFinder.getInstance.getHeadWordPosition(parsePhrase)
+    var phrase = new Constituent("temp", "", ta, startId, endId + 1)
+    var headId: Int = getHeadwordId(ta, phrase)
+    if (headId < startId || headId > endId) {
+      //when out of phrase, create a text annotation using just the phrase text
+      ta = TextAnnotationFactory.createTextAnnotation(as, "", "", p.getText)
+      phrase = new Constituent("temp", "", ta, 0, ta.getTokens.length)
+      headId = getHeadwordId(ta, phrase)
+    }
     val head = ta.getView(ViewNames.TOKENS).asInstanceOf[TokenLabelView].getConstituentAtToken(headId)
     new Token(p, p.getId + head.getSpan, head.getStartCharOffset, head.getEndCharOffset, head.toString)
+  }
+
+  def getHeadword(text: String): (String, Int, Int) = {
+    val ta = TextAnnotationFactory.createTextAnnotation(as, "", "", text)
+    val phrase = new Constituent("temp", "", ta, 0, ta.getTokens.length)
+    val headId = getHeadwordId(ta, phrase)
+    val head = ta.getView(ViewNames.TOKENS).asInstanceOf[TokenLabelView].getConstituentAtToken(headId)
+    (head.toString, head.getStartCharOffset, head.getEndCharOffset)
   }
 
   def getDependencyRelation(t: Token): String = {
@@ -90,6 +102,7 @@ object LanguageBaseTypeSensors {
     val view = if (ta.hasView(ViewNames.SRL_VERB)) {
       ta.getView(ViewNames.SRL_VERB)
     } else {
+      logger.warn("Cannot find SRL view")
       null
     }
     val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
@@ -97,6 +110,54 @@ object LanguageBaseTypeSensors {
       case null => ""
       case _ => view.getLabelsCoveringSpan(startId, endId + 1).asScala.mkString(",")
     }
+  }
+
+  def isBefore(t1: Token, t2: Token): Boolean = {
+    getStartTokenId(t1) < getStartTokenId(t2)
+  }
+
+  def getTokenDistance(t1: Token, t2: Token): Int = {
+    Math.abs(getStartTokenId(t1) - getStartTokenId(t2))
+  }
+
+  def getCandidateRelations[T <: NlpBaseElement](argumentInstances: List[T]*): List[Relation] = {
+    if (argumentInstances.length < 2) {
+      List.empty
+    } else {
+      crossProduct(argumentInstances.seq.toList)
+        .filter(args => args.filter(_ != null).groupBy {
+          case x: Token => x.getSentence.getId
+          case x: Phrase => x.getSentence.getId
+          case x: Sentence => x.getDocument.getId
+          case _ => null
+        }.size <= 1 && args.filter(_ != null).groupBy(_.getId).size == args.count(_ != null))
+        .map(args => {
+          val r = new Relation()
+          args.zipWithIndex.filter(x => x._1 != null).foreach {
+            case (a, i) => {
+              r.setArgumentId(i, a.getId)
+              r.setId(r.getId + "[" + i + ", " + a.getId + "]")
+            }
+          }
+          r
+        })
+    }
+  }
+
+  def crossProduct[T](input: List[List[T]]): List[List[T]] = input match {
+    case Nil => Nil
+    case head :: Nil => head.map(_ :: Nil)
+    case head :: tail => for (elem <- head; sub <- crossProduct(tail)) yield elem :: sub
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// private methods
+  ////////////////////////////////////////////////////////////////////////////
+  private def getHeadwordId(ta: TextAnnotation, phrase: Constituent) = {
+    val tree: TreeView = ta.getView(ViewNames.PARSE_STANFORD).asInstanceOf[TreeView]
+    val parsePhrase = tree.getParsePhrase(phrase)
+    val headId = CollinsHeadFinder.getInstance.getHeadWordPosition(parsePhrase)
+    headId
   }
 
   def getSubCategorization(e: NlpBaseElement): String = {
@@ -124,7 +185,9 @@ object LanguageBaseTypeSensors {
     case s: Sentence => s
     case p: Phrase => p.getSentence
     case t: Token => t.getSentence
-    case _ => null
+    case _ =>
+      logger.warn("cannot use 'getSentence' for document type.")
+      null
   }
 
   private def getPhrases(sentence: Sentence): Seq[Phrase] = {
@@ -143,7 +206,9 @@ object LanguageBaseTypeSensors {
       e match {
         case p: Phrase => new Token(p, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)
         case s: Sentence => new Token(s, generateId(e, x), x.getStartCharOffset, x.getEndCharOffset, x.toString)
-        case _ => null
+        case _ =>
+          logger.warn("cannot find tokens for base types other than phrase and sentence.")
+          null
       }
     )
   }
@@ -170,10 +235,25 @@ object LanguageBaseTypeSensors {
     sentenceById(sentence.getId)
   }
 
-  private def getTextAnnotationSpan(e: NlpBaseElement) = {
+  private def getTextAnnotationSpan(e: NlpBaseElement): (Int, Int) = {
+    (getStartTokenId(e), getStartTokenId(e))
+  }
+
+  private def getStartTokenId(e: NlpBaseElement): Int = {
     val ta = getTextAnnotation(e)
-    val startId = ta.getTokenIdFromCharacterOffset(e.getStart)
-    val endId = ta.getTokenIdFromCharacterOffset(e.getEnd - 1)
-    (startId, endId)
+    val start = e match {
+      case _: Document | _: Sentence => 0
+      case _ => e.getStart
+    }
+    ta.getTokenIdFromCharacterOffset(start)
+  }
+
+  private def getEndTokenId(e: NlpBaseElement): Int = {
+    val ta = getTextAnnotation(e)
+    val end = e match {
+      case _: Document | _: Sentence => ta.getText.length
+      case _ => e.getEnd
+    }
+    ta.getTokenIdFromCharacterOffset(end - 1)
   }
 }

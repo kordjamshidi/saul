@@ -110,7 +110,7 @@ class Node[T <: AnyRef](val keyFunc: T => Any = (x: T) => x, val tag: ClassTag[T
 
     if (containsNT(nodeInstance)) {
       logger.trace(s"The instance $instance is duplicate and it will be ignored! " +
-        s"This might be because you= add the same instance to both train and test set. ")
+        s"This might be because you add the same instance to both train and test set. ")
     } else {
 
       val order = count.incrementAndGet()
