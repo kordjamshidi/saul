@@ -57,6 +57,13 @@ object SpatialOntologyDataModel extends DataModel {
     x: Token => ""
   }
 
+  val spatialRole = property(tokens)
+  {
+    x: Token => x.getPropertyValues("Trajector").get(0)
+  }
+  //Question: how I can get the information that I have in the XML file tags here as the properties of the base classes.
+  //This should be added to the documentation. 
+
   val before = property(relations) {
     r: Relation =>
       val (first, second) = getArguments(r)
@@ -76,4 +83,6 @@ object SpatialOntologyDataModel extends DataModel {
     else
       (arguments(0), arguments(1))
   }
+
+
 }

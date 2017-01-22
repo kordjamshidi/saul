@@ -12,8 +12,9 @@ import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
 import weka.classifiers.`lazy`.IBk
 import weka.classifiers.bayes.NaiveBayes
+import SpatialOntologyDataModel._
 
-object ImageClassifiers {
+object MultiModalSpRLClassifiers {
   object ImageSVMClassifier extends Learnable(segments) {
     def label = segmentLable
     override lazy val classifier = new SupportVectorMachine()
@@ -31,4 +32,7 @@ object ImageClassifiers {
     override lazy val classifier = new SaulWekaWrapper(new IBk())
     override def feature = using(segmentFeatures)
   }
+  //Here we add the trajector, landmark and indicator classifiers
+  // in addition to two pair classifiers indicator-tr amd indicator-lm.
+
 }

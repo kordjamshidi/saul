@@ -8,7 +8,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.ImageClassifiers._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.XmlMatchings
@@ -72,5 +72,4 @@ object SpatialOntologyApp extends App {
   val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
   val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
   relations.populate(trCandidateRelations ++ lmCandidateRelations)
-
 }
