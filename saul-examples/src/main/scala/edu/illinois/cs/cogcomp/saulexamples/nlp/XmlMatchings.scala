@@ -4,7 +4,7 @@
   * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
   * http://cogcomp.cs.illinois.edu/
   */
-package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
+package edu.illinois.cs.cogcomp.saulexamples.nlp
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ISpanElement, Phrase}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getHeadword
