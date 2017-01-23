@@ -57,7 +57,14 @@ the context for each linguistic unit to be retrieved.
 ### How to access added properties from other tags?
 To access those properties that added to a linguistic unit from other tags, simply use 
 the tag name followed by an underscore and then the property name. Let's say we've added
-properties of `"MyTag"` tag to a linguistic unit `x`. We can access `MyTag` properties like this:
+properties of `"MyTag"` tag to a linguistic unit `x` from the following xml file:
+```xml
+...
+    <MyTag firstProp="value1" ..../>
+    <MyTag firstProp="value2" ..../>
+...
+```
+We can access `MyTag` properties like this:
 ```java
 String firstProp = x.getPropertyFisrtValue("MyTag_firstProp");       
 ```
