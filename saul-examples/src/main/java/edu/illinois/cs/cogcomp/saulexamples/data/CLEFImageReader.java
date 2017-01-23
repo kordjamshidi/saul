@@ -17,12 +17,12 @@ import com.jmatio.types.*;
 import edu.illinois.cs.cogcomp.saulexamples.vision.Image;
 import edu.illinois.cs.cogcomp.saulexamples.vision.Segment;
 import edu.illinois.cs.cogcomp.saulexamples.vision.SegmentRelation;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader;
 
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Document;
 
 /**
  * Reads CLEF Image dataset, given a directory
- * Training Images: 14000
- * Test Images: 4000
  * @author Umar Manzoor
  *
  */
@@ -30,7 +30,7 @@ public class CLEFImageReader
 {
 
     private String path;
-
+    private Boolean readFullData;
     private List<String> trainingData;
     private List<String> testData;
 
@@ -57,6 +57,8 @@ public class CLEFImageReader
         trainingData = new ArrayList<>();
         testData = new ArrayList<>();
 
+        this.readFullData = readFullData;
+
         // Training Data
         trainingImages = new ArrayList<>();
         trainingSegments = new ArrayList<>();
@@ -75,8 +77,11 @@ public class CLEFImageReader
         // Load Testing
         getTestImages();
         // Load all Images
-        getallImages(directory, readFullData);
+        getallImages(directory);
 
+        System.out.println("Total Train Data " + trainingData.size());
+
+        System.out.println("Total Test Data " + testData.size());
 
         System.out.println("Total Train Images " + trainingImages.size());
 
@@ -124,7 +129,7 @@ public class CLEFImageReader
     /*******************************************************/
     // Load all Images in the CLEF Dataset
     /*******************************************************/
-    private void getallImages(String directory, Boolean readFullData) throws IOException
+    private void getallImages(String directory) throws IOException
     {
         File d = new File(directory);
 
@@ -303,21 +308,40 @@ public class CLEFImageReader
     // Loading Training Images
     /*******************************************************/
     private void getTrainingImages() throws IOException {
-        String trainImage = path + "/training.mat";
-        File d = new File(trainImage);
 
-        if (!d.exists()) {
-            throw new IOException(trainImage + " does not exist!");
+        if(readFullData) {
+            String trainImage = path + "/training.mat";
+            File f = new File(trainImage);
+
+            if (!f.exists()) {
+                throw new IOException(trainImage + " does not exist!");
+            }
+            MatFileReader matTrainReader = new MatFileReader(trainImage);
+
+            double[][] training = ((MLDouble) matTrainReader.getMLArray("training")).getArray();
+
+            if (training.length > 1) {
+                for (int i = 0; i < training.length; i++) {
+                    int imageId = (int) training[i][0];
+                    trainingData.add(Integer.toString(imageId));
+                }
+            }
         }
-        MatFileReader matTrainReader = new MatFileReader(trainImage);
+        else {
+            String trainImage = path + "/sprl2017_train.xml";
+            File f = new File(trainImage);
 
-        double[][] training = ((MLDouble) matTrainReader.getMLArray("training")).getArray();
+            if (!f.exists()) {
+                throw new IOException(trainImage + " does not exist!");
+            }
+            NlpXmlReader reader = new NlpXmlReader(trainImage , "SCENE", "SENTENCE", null, null);
+            List<Document> documentList = reader.getDocuments();
 
-        if (training.length > 1) {
-            for (int i = 0; i < training.length; i++)
-            {
-                int imageId = (int)training[i][0];
-                trainingData.add(Integer.toString(imageId));
+            for (Document d: documentList){
+                String name = d.getPropertyFirstValue("IMAGE");
+                String s = name.substring(name.lastIndexOf("/")+1);
+                String[] label = s.split("\\.");
+                trainingData.add(label[0]);
             }
         }
     }
@@ -326,21 +350,38 @@ public class CLEFImageReader
     // Loading Testing Images
     /*******************************************************/
     private void getTestImages() throws IOException {
-        String testImage = path + "/testing.mat";
-        File d = new File(testImage);
+        if (readFullData) {
+            String testImage = path + "/testing.mat";
+            File d = new File(testImage);
 
-        if (!d.exists()) {
-            throw new IOException(testImage + " does not exist!");
-        }
-        MatFileReader matTrainreader = new MatFileReader(testImage);
+            if (!d.exists()) {
+                throw new IOException(testImage + " does not exist!");
+            }
+            MatFileReader matTrainreader = new MatFileReader(testImage);
 
-        double[][] testing = ((MLDouble) matTrainreader.getMLArray("testing")).getArray();
+            double[][] testing = ((MLDouble) matTrainreader.getMLArray("testing")).getArray();
 
-        if (testing.length > 1) {
-            for (int i = 0; i < testing.length; i++)
-            {
-                int imageID = (int)testing[i][0];
-                testData.add(Integer.toString(imageID));
+            if (testing.length > 1) {
+                for (int i = 0; i < testing.length; i++) {
+                    int imageID = (int) testing[i][0];
+                    testData.add(Integer.toString(imageID));
+                }
+            }
+        } else {
+            String testImage = path + "/sprl2017_gold.xml";
+            File f = new File(testImage);
+
+            if (!f.exists()) {
+                throw new IOException(testImage + " does not exist!");
+            }
+            NlpXmlReader reader = new NlpXmlReader(testImage, "SCENE", "SENTENCE", null, null);
+            List<Document> documentList = reader.getDocuments();
+
+            for (Document d : documentList) {
+                String name = d.getPropertyFirstValue("IMAGE");
+                String s = name.substring(name.lastIndexOf("/") + 1);
+                String[] label = s.split("\\.");
+                testData.add(label[0]);
             }
         }
     }
