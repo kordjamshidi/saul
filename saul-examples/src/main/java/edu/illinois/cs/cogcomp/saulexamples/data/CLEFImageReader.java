@@ -311,38 +311,11 @@ public class CLEFImageReader
 
         if(readFullData) {
             String trainImage = path + "/training.mat";
-            File f = new File(trainImage);
-
-            if (!f.exists()) {
-                throw new IOException(trainImage + " does not exist!");
-            }
-            MatFileReader matTrainReader = new MatFileReader(trainImage);
-
-            double[][] training = ((MLDouble) matTrainReader.getMLArray("training")).getArray();
-
-            if (training.length > 1) {
-                for (int i = 0; i < training.length; i++) {
-                    int imageId = (int) training[i][0];
-                    trainingData.add(Integer.toString(imageId));
-                }
-            }
+            getMatData(trainImage, true);
         }
         else {
             String trainImage = path + "/sprl2017_train.xml";
-            File f = new File(trainImage);
-
-            if (!f.exists()) {
-                throw new IOException(trainImage + " does not exist!");
-            }
-            NlpXmlReader reader = new NlpXmlReader(trainImage , "SCENE", "SENTENCE", null, null);
-            List<Document> documentList = reader.getDocuments();
-
-            for (Document d: documentList){
-                String name = d.getPropertyFirstValue("IMAGE");
-                String s = name.substring(name.lastIndexOf("/")+1);
-                String[] label = s.split("\\.");
-                trainingData.add(label[0]);
-            }
+            getXMLImages(trainImage, true);
         }
     }
 
@@ -352,36 +325,65 @@ public class CLEFImageReader
     private void getTestImages() throws IOException {
         if (readFullData) {
             String testImage = path + "/testing.mat";
-            File d = new File(testImage);
-
-            if (!d.exists()) {
-                throw new IOException(testImage + " does not exist!");
-            }
-            MatFileReader matTrainreader = new MatFileReader(testImage);
-
-            double[][] testing = ((MLDouble) matTrainreader.getMLArray("testing")).getArray();
-
-            if (testing.length > 1) {
-                for (int i = 0; i < testing.length; i++) {
-                    int imageID = (int) testing[i][0];
-                    testData.add(Integer.toString(imageID));
-                }
-            }
+            getMatData(testImage, false);
         } else {
             String testImage = path + "/sprl2017_gold.xml";
-            File f = new File(testImage);
+            getXMLImages(testImage, false);
+        }
+    }
+    /*******************************************************/
+    // Loading data from XML file
+    // if choose = true, trainData will be populated
+    // if choose = false, testData will be populated
+    /*******************************************************/
+    private void getXMLImages(String file, Boolean choose) throws IOException {
 
-            if (!f.exists()) {
-                throw new IOException(testImage + " does not exist!");
-            }
-            NlpXmlReader reader = new NlpXmlReader(testImage, "SCENE", "SENTENCE", null, null);
-            List<Document> documentList = reader.getDocuments();
+        File f = new File(file);
 
-            for (Document d : documentList) {
-                String name = d.getPropertyFirstValue("IMAGE");
-                String s = name.substring(name.lastIndexOf("/") + 1);
-                String[] label = s.split("\\.");
+        if (!f.exists()) {
+            throw new IOException(file + " does not exist!");
+        }
+        NlpXmlReader reader = new NlpXmlReader(file , "SCENE", "SENTENCE", null, null);
+        List<Document> documentList = reader.getDocuments();
+
+        for (Document d: documentList){
+            String name = d.getPropertyFirstValue("IMAGE");
+            String s = name.substring(name.lastIndexOf("/")+1);
+            String[] label = s.split("\\.");
+            if (choose)
+                trainingData.add(label[0]);
+            else
                 testData.add(label[0]);
+        }
+    }
+    /*******************************************************/
+    // Loading data from Mat file
+    // if choose = true, trainData will be populated
+    // if choose = false, testData will be populated
+    /*******************************************************/
+    private void getMatData(String file, Boolean choose) throws IOException {
+
+        File f = new File(file);
+
+        if (!f.exists()) {
+            throw new IOException(file + " does not exist!");
+        }
+        MatFileReader matReader = new MatFileReader(file);
+
+        double[][] data;
+
+        if(choose)
+            data = ((MLDouble) matReader.getMLArray("training")).getArray();
+        else
+            data = ((MLDouble) matReader.getMLArray("testing")).getArray();
+
+        if (data.length > 1) {
+            for (int i = 0; i < data.length; i++) {
+                int imageId = (int) data[i][0];
+                if(choose)
+                    trainingData.add(Integer.toString(imageId));
+                else
+                    testData.add(Integer.toString(imageId));
             }
         }
     }
