@@ -44,7 +44,7 @@ public class CLEFImageReader
 
     private Hashtable<Integer, String> MapCode2Concept = new Hashtable<Integer, String>();
 
-    public CLEFImageReader(String directory) throws IOException {
+    public CLEFImageReader(String directory, Boolean readFullData) throws IOException {
         File d = new File(directory);
 
         if (!d.exists()) {
@@ -75,12 +75,8 @@ public class CLEFImageReader
         // Load Testing
         getTestImages();
         // Load all Images
-        getallImages(directory);
+        getallImages(directory, readFullData);
 
-
-        System.out.println("Total Training Data " + trainingData.size());
-
-        System.out.println("Total Testing Data " + testData.size());
 
         System.out.println("Total Train Images " + trainingImages.size());
 
@@ -128,7 +124,7 @@ public class CLEFImageReader
     /*******************************************************/
     // Load all Images in the CLEF Dataset
     /*******************************************************/
-    private void getallImages(String directory) throws IOException
+    private void getallImages(String directory, Boolean readFullData) throws IOException
     {
         File d = new File(directory);
 
@@ -139,10 +135,11 @@ public class CLEFImageReader
         if (!d.isDirectory()) {
             throw new IOException(directory + " is not a directory!");
         }
-
+        int length=0;
 
         for (File f : d.listFiles()) {
             if (f.isDirectory()) {
+                ++length;
                 String mainFolder = directory + "/" +f.getName();
                 System.out.println(mainFolder);
                 //Load all images
@@ -158,6 +155,8 @@ public class CLEFImageReader
                 getSegmentsRelations(spatialRelations);
 
             }
+            if (!readFullData&&length==2)
+                break;
         }
     }
 

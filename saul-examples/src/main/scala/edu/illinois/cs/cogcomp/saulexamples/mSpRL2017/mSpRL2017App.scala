@@ -18,7 +18,8 @@ import scala.collection.JavaConversions._
 
 object mSpRL2017App extends App {
 
-  val CLEFDataset = new CLEFImageReader("data/mSprl/saiapr_tc-12")
+  val readFullData = false
+  val CLEFDataset = new CLEFImageReader("data/mSprl/saiapr_tc-12", readFullData)
 
   val imageListTrain = CLEFDataset.trainingImages
   val segementListTrain = CLEFDataset.trainingSegments
