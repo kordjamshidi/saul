@@ -282,8 +282,23 @@ public class NlpXmlReader {
         for (int i = 0; i < attributes.getLength(); i++) {
             element.addPropertyValue(attributes.item(i).getNodeName(), attributes.item(i).getNodeValue());
         }
-
+        NodeList children = e.getChildNodes();
+        for (int i = 0; i < e.getChildNodes().getLength(); i++) {
+            if (children.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                Element c = (Element) children.item(i);
+                if(isTextOnlyNode(c))
+                    element.addPropertyValue(c.getTagName(), c.getTextContent());
+            }
+        }
         return element;
+    }
+
+    private boolean isTextOnlyNode(Element n) {
+        if(!n.hasChildNodes())
+            return true;
+        if(n.getChildNodes().getLength() > 1)
+            return false;
+        return n.getFirstChild().getNodeType() == Node.TEXT_NODE;
     }
 
     private SpanBasedElement getElementContainer(Element e) {

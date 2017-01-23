@@ -53,6 +53,8 @@ object SpatialOntologyApp extends App {
   val documentList = reader.getDocuments()
   val sentenceList = reader.getSentences()
 
+  documentList.foreach(x => println(x.getPropertyFirstValue("IMAGE")))
+
   documents.populate(documentList)
   sentences.populate(sentenceList)
 
@@ -72,4 +74,5 @@ object SpatialOntologyApp extends App {
   val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
   val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
   relations.populate(trCandidateRelations ++ lmCandidateRelations)
+
 }
