@@ -11,6 +11,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import SpRLNewSensors._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 
 import scala.collection.JavaConversions._
 

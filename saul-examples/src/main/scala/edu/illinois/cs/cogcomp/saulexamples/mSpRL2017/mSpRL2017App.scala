@@ -11,8 +11,8 @@ import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.XmlMatchings
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
+import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 
 import scala.collection.JavaConversions._
 
