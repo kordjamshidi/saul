@@ -17,12 +17,12 @@ import com.jmatio.types.*;
 import edu.illinois.cs.cogcomp.saulexamples.vision.Image;
 import edu.illinois.cs.cogcomp.saulexamples.vision.Segment;
 import edu.illinois.cs.cogcomp.saulexamples.vision.SegmentRelation;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader;
 
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Document;
 
 /**
  * Reads CLEF Image dataset, given a directory
- * Training Images: 14000
- * Test Images: 4000
  * @author Umar Manzoor
  *
  */
@@ -30,7 +30,7 @@ public class CLEFImageReader
 {
 
     private String path;
-
+    private Boolean readFullData;
     private List<String> trainingData;
     private List<String> testData;
 
@@ -57,6 +57,8 @@ public class CLEFImageReader
         trainingData = new ArrayList<>();
         testData = new ArrayList<>();
 
+        this.readFullData = readFullData;
+
         // Training Data
         trainingImages = new ArrayList<>();
         trainingSegments = new ArrayList<>();
@@ -75,8 +77,11 @@ public class CLEFImageReader
         // Load Testing
         getTestImages();
         // Load all Images
-        getallImages(directory, readFullData);
+        getallImages(directory);
 
+        System.out.println("Total Train Data " + trainingData.size());
+
+        System.out.println("Total Test Data " + testData.size());
 
         System.out.println("Total Train Images " + trainingImages.size());
 
@@ -124,7 +129,7 @@ public class CLEFImageReader
     /*******************************************************/
     // Load all Images in the CLEF Dataset
     /*******************************************************/
-    private void getallImages(String directory, Boolean readFullData) throws IOException
+    private void getallImages(String directory) throws IOException
     {
         File d = new File(directory);
 
@@ -303,22 +308,14 @@ public class CLEFImageReader
     // Loading Training Images
     /*******************************************************/
     private void getTrainingImages() throws IOException {
-        String trainImage = path + "/training.mat";
-        File d = new File(trainImage);
 
-        if (!d.exists()) {
-            throw new IOException(trainImage + " does not exist!");
+        if(readFullData) {
+            String trainImage = path + "/training.mat";
+            getMatData(trainImage, true);
         }
-        MatFileReader matTrainReader = new MatFileReader(trainImage);
-
-        double[][] training = ((MLDouble) matTrainReader.getMLArray("training")).getArray();
-
-        if (training.length > 1) {
-            for (int i = 0; i < training.length; i++)
-            {
-                int imageId = (int)training[i][0];
-                trainingData.add(Integer.toString(imageId));
-            }
+        else {
+            String trainImage = path + "/sprl2017_train.xml";
+            getXMLImages(trainImage, true);
         }
     }
 
@@ -326,21 +323,67 @@ public class CLEFImageReader
     // Loading Testing Images
     /*******************************************************/
     private void getTestImages() throws IOException {
-        String testImage = path + "/testing.mat";
-        File d = new File(testImage);
-
-        if (!d.exists()) {
-            throw new IOException(testImage + " does not exist!");
+        if (readFullData) {
+            String testImage = path + "/testing.mat";
+            getMatData(testImage, false);
+        } else {
+            String testImage = path + "/sprl2017_gold.xml";
+            getXMLImages(testImage, false);
         }
-        MatFileReader matTrainreader = new MatFileReader(testImage);
+    }
+    /*******************************************************/
+    // Loading data from XML file
+    // if choose = true, trainData will be populated
+    // if choose = false, testData will be populated
+    /*******************************************************/
+    private void getXMLImages(String file, Boolean choose) throws IOException {
 
-        double[][] testing = ((MLDouble) matTrainreader.getMLArray("testing")).getArray();
+        File f = new File(file);
 
-        if (testing.length > 1) {
-            for (int i = 0; i < testing.length; i++)
-            {
-                int imageID = (int)testing[i][0];
-                testData.add(Integer.toString(imageID));
+        if (!f.exists()) {
+            throw new IOException(file + " does not exist!");
+        }
+        NlpXmlReader reader = new NlpXmlReader(file , "SCENE", "SENTENCE", null, null);
+        List<Document> documentList = reader.getDocuments();
+
+        for (Document d: documentList){
+            String name = d.getPropertyFirstValue("IMAGE");
+            String s = name.substring(name.lastIndexOf("/")+1);
+            String[] label = s.split("\\.");
+            if (choose)
+                trainingData.add(label[0]);
+            else
+                testData.add(label[0]);
+        }
+    }
+    /*******************************************************/
+    // Loading data from Mat file
+    // if choose = true, trainData will be populated
+    // if choose = false, testData will be populated
+    /*******************************************************/
+    private void getMatData(String file, Boolean choose) throws IOException {
+
+        File f = new File(file);
+
+        if (!f.exists()) {
+            throw new IOException(file + " does not exist!");
+        }
+        MatFileReader matReader = new MatFileReader(file);
+
+        double[][] data;
+
+        if(choose)
+            data = ((MLDouble) matReader.getMLArray("training")).getArray();
+        else
+            data = ((MLDouble) matReader.getMLArray("testing")).getArray();
+
+        if (data.length > 1) {
+            for (int i = 0; i < data.length; i++) {
+                int imageId = (int) data[i][0];
+                if(choose)
+                    trainingData.add(Integer.toString(imageId));
+                else
+                    testData.add(Integer.toString(imageId));
             }
         }
     }
