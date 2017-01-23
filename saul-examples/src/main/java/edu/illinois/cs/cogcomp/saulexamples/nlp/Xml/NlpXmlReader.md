@@ -54,6 +54,21 @@ add properties from a tag, we can use `addPropertiesFromTag`. This function uses
 of the linguistic units(`documentId` for sentence, and `sentenceId` for `Token` and `Phrase`) to find
 the context for each linguistic unit to be retrieved.
 
+### How to access added properties from other tags?
+To access those properties that added to a linguistic unit from other tags, simply use 
+the tag name followed by an underscore and then the property name. Let's say we've added
+properties of `"MyTag"` tag to a linguistic unit `x` from the following xml file:
+```xml
+...
+    <MyTag firstProp="value1" ..../>
+    <MyTag firstProp="value2" ..../>
+...
+```
+We can access `MyTag` properties like this:
+```java
+String firstProp = x.getPropertyFisrtValue("MyTag_firstProp");       
+```
+
 ### Matching
 adding properties from a tag requires matching between linguistic units and tags. The default
 matching strategy is [`ExactMatching`](XmlExachMatching.java). 
@@ -67,8 +82,10 @@ Built in matching strategies:
 a part of linguistic unit span, in other word if the linguistic unit's span includes the tag's span
 - [`OverlapMatching`](XmlOverlapMatching.java): adds tag's properties if the tag's span
 and the linguistic unit's span are overlapping
-- [`HeadwordMatching`](../../../../../../../../scala/edu/illinois/cs/cogcomp/saulexamples/nlp/SpatialRoleLabeling/XmlMatchings.scala):
- adds tag's properties if the tag's span contains the headwords span of the linguistic unit
+- [`phraseHeadwordMatching`](../../../../../../../../scala/edu/illinois/cs/cogcomp/saulexamples/nlp/SpatialRoleLabeling/XmlMatchings.scala):
+ adds tag's properties if the tag's span contains the headwords span of the phrase
+- [`xmlHeadwordMatching`](../../../../../../../../scala/edu/illinois/cs/cogcomp/saulexamples/nlp/SpatialRoleLabeling/XmlMatchings.scala):
+ adds tag's properties if the head word of the tag text contains the span of the linguistic unit
 
 You can create your own matching strategy by implementing [`IXmlSpanMatching`](IXmlSpanMatching.java) interface.
 
