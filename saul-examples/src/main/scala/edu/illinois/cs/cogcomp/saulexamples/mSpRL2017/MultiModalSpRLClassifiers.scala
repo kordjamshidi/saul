@@ -9,26 +9,25 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import edu.illinois.cs.cogcomp.lbjava.learn.{SparseNetworkLearner, SupportVectorMachine}
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRL2017DataModel._
 import weka.classifiers.`lazy`.IBk
 import weka.classifiers.bayes.NaiveBayes
-import SpatialOntologyDataModel._
+import MultiModalSpRLDataModel._
 
 object MultiModalSpRLClassifiers {
   object ImageSVMClassifier extends Learnable(segments) {
-    def label = segmentLable
+    def label = segmentLabel
     override lazy val classifier = new SupportVectorMachine()
     override def feature = using(segmentFeatures)
   }
 
   object ImageClassifierWeka extends Learnable(segments) {
-    def label = segmentLable
+    def label = segmentLabel
     override lazy val classifier = new SaulWekaWrapper(new NaiveBayes())
     override def feature = using(segmentFeatures)
   }
 
   object ImageClassifierWekaIBK extends Learnable(segments) {
-    def label = segmentLable
+    def label = segmentLabel
     override lazy val classifier = new SaulWekaWrapper(new IBk())
     override def feature = using(segmentFeatures)
   }

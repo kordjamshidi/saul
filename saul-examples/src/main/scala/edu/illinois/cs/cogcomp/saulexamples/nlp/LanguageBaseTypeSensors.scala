@@ -144,22 +144,6 @@ object LanguageBaseTypeSensors extends Logging {
     }
   }
 
-  def crossProduct[T](input: List[List[T]]): List[List[T]] = input match {
-    case Nil => Nil
-    case head :: Nil => head.map(_ :: Nil)
-    case head :: tail => for (elem <- head; sub <- crossProduct(tail)) yield elem :: sub
-  }
-
-  ////////////////////////////////////////////////////////////////////////////
-  /// private methods
-  ////////////////////////////////////////////////////////////////////////////
-  private def getHeadwordId(ta: TextAnnotation, phrase: Constituent) = {
-    val tree: TreeView = ta.getView(ViewNames.PARSE_STANFORD).asInstanceOf[TreeView]
-    val parsePhrase = tree.getParsePhrase(phrase)
-    val headId = CollinsHeadFinder.getInstance.getHeadWordPosition(parsePhrase)
-    headId
-  }
-
   def getSubCategorization(e: NlpBaseElement): String = {
     val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
     val ta = getTextAnnotation(e)
@@ -168,6 +152,30 @@ object LanguageBaseTypeSensors extends Logging {
     constituents
       .map(x => FeatureUtilities.getFeatureSet(new SubcategorizationFrame(ViewNames.PARSE_STANFORD), x)
         .asScala.mkString(",")).mkString(";")
+  }
+
+  def getWindow(t: Token, before: Int, after: Int): Seq[String] = {
+    val id = getStartTokenId(t)
+    val ta = getTextAnnotation(t)
+    val start = Math.max(0, id - before)
+    val end = Math.min(ta.getTokens.length - 1, id + after)
+    ta.getTokens.slice(start, end)
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// private methods
+  ////////////////////////////////////////////////////////////////////////////
+  private def crossProduct[T](input: List[List[T]]): List[List[T]] = input match {
+    case Nil => Nil
+    case head :: Nil => head.map(_ :: Nil)
+    case head :: tail => for (elem <- head; sub <- crossProduct(tail)) yield elem :: sub
+  }
+
+  private def getHeadwordId(ta: TextAnnotation, phrase: Constituent) = {
+    val tree: TreeView = ta.getView(ViewNames.PARSE_STANFORD).asInstanceOf[TreeView]
+    val parsePhrase = tree.getParsePhrase(phrase)
+    val headId = CollinsHeadFinder.getInstance.getHeadWordPosition(parsePhrase)
+    headId
   }
 
   private def getDependencyRoot(relations: Seq[textannotation.Relation]): Constituent = {
@@ -198,8 +206,7 @@ object LanguageBaseTypeSensors extends Logging {
   }
 
   private def getTokens(e: NlpBaseElement): Seq[Token] = {
-    val sentence = getSentence(e)
-    val ta = getTextAnnotation(sentence)
+    val ta = getTextAnnotation(e)
     val v = ta.getView(ViewNames.TOKENS)
     val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
     v.getConstituentsCoveringSpan(startId, endId + 1).asScala.map(x =>
@@ -236,7 +243,7 @@ object LanguageBaseTypeSensors extends Logging {
   }
 
   private def getTextAnnotationSpan(e: NlpBaseElement): (Int, Int) = {
-    (getStartTokenId(e), getStartTokenId(e))
+    (getStartTokenId(e), getEndTokenId(e))
   }
 
   private def getStartTokenId(e: NlpBaseElement): Int = {
@@ -251,7 +258,7 @@ object LanguageBaseTypeSensors extends Logging {
   private def getEndTokenId(e: NlpBaseElement): Int = {
     val ta = getTextAnnotation(e)
     val end = e match {
-      case _: Document | _: Sentence => ta.getText.length
+      case _: Document | _: Sentence => ta.getView(ViewNames.TOKENS).getConstituents.asScala.last.getEndCharOffset
       case _ => e.getEnd
     }
     ta.getTokenIdFromCharacterOffset(end - 1)
