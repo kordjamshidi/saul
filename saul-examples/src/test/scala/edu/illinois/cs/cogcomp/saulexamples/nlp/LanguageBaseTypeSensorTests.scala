@@ -17,6 +17,18 @@ class LanguageBaseTypeSensorTests extends FlatSpec with Matchers {
 
     tokens.length should be(5)
 
+    tokens(0).getDocument.getId should be("doc1")
+    tokens(1).getDocument.getId should be("doc1")
+    tokens(2).getDocument.getId should be("doc1")
+    tokens(3).getDocument.getId should be("doc1")
+    tokens(4).getDocument.getId should be("doc1")
+
+    tokens(0).getSentence.getId should be("s1")
+    tokens(1).getSentence.getId should be("s1")
+    tokens(2).getSentence.getId should be("s1")
+    tokens(3).getSentence.getId should be("s1")
+    tokens(4).getSentence.getId should be("s1")
+
     tokens(0).getText should be("I")
     tokens(1).getText should be("received")
     tokens(2).getText should be("the")

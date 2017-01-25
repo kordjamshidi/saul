@@ -6,6 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
+import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
@@ -45,33 +46,48 @@ object imageApp extends App {
   ImageClassifierWeka.test(segementListTest)
 }
 
-object textApp extends App {
+object textApp extends App with Logging {
 
   import MultiModalSpRLDataModel._
 
-  val reader = new NlpXmlReader("./saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", null, null)
+  val isTrain = true
+  val path = if(isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
+  val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
   val documentList = reader.getDocuments()
   val sentenceList = reader.getSentences()
-
-  documentList.foreach(x => println(x.getPropertyFirstValue("IMAGE")))
 
   documents.populate(documentList)
   sentences.populate(sentenceList)
 
+  logger.info("adding roles to the tokens from xml files, started ...")
   reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
 
-  val trRelationList = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
-  trRelationList.foreach(_.setProperty("TR_RELATION", "true"))
-  val lmRelationList = reader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
-  lmRelationList.foreach(_.setProperty("LM_RELATION", "true"))
-  textRelations.populate(trRelationList ++ lmRelationList)
+  SpatialRoleClassifier.modelDir = "models/mSpRL/spatialRole/"
+  if(isTrain){
+    logger.info("training started ...")
+    SpatialRoleClassifier.learn(20)
+    SpatialRoleClassifier.save()
+  }
+  else{
+    logger.info("testing started ...")
+    SpatialRoleClassifier.load()
+    SpatialRoleClassifier.test()
+  }
 
-  val trCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("TRAJECTOR_id")).toList
-  val spCandidates = tokens().filter(x => getPos(x).contains("IN") && !x.containsProperty("SPATIALINDICATOR_id")).toList
-  val lmCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("LANDMARK_id")).toList
-  val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
-  val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
-  textRelations.populate(trCandidateRelations ++ lmCandidateRelations)
+
+
+//  val trRelationList = trainReader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
+//  trRelationList.foreach(_.setProperty("TR_RELATION", "true"))
+//  val lmRelationList = trainReader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
+//  lmRelationList.foreach(_.setProperty("LM_RELATION", "true"))
+//  textRelations.populate(trRelationList ++ lmRelationList)
+//
+//  val trCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("TRAJECTOR_id")).toList
+//  val spCandidates = tokens().filter(x => getPos(x).contains("IN") && !x.containsProperty("SPATIALINDICATOR_id")).toList
+//  val lmCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("LANDMARK_id")).toList
+//  val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
+//  val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
+//  textRelations.populate(trCandidateRelations ++ lmCandidateRelations)
 }

@@ -74,6 +74,30 @@ object MultiModalSpRLDataModel extends DataModel {
         2
   }
 
+  val trajectorRole = property(tokens) {
+    x: Token =>
+      if (x.containsProperty("TRAJECTOR_id"))
+        "Trajector"
+      else
+        "None"
+  }
+
+  val landmarkRole = property(tokens) {
+    x: Token =>
+      if (x.containsProperty("LANDMARK_id"))
+        "Landmark"
+      else
+        "None"
+  }
+
+  val indicatorRole = property(tokens) {
+    x: Token =>
+      if (x.containsProperty("SPATIALINDICATOR_id"))
+        "Indicator"
+      else
+        "None"
+  }
+
   val spatialRole = property(tokens) {
     x: Token =>
       if (x.containsProperty("TRAJECTOR_id"))

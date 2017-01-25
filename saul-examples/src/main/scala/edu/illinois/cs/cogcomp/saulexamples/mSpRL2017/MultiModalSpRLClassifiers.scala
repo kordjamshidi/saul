@@ -31,7 +31,29 @@ object MultiModalSpRLClassifiers {
     override lazy val classifier = new SaulWekaWrapper(new IBk())
     override def feature = using(segmentFeatures)
   }
-  //Here we add the trajector, landmark and indicator classifiers
-  // in addition to two pair classifiers indicator-tr amd indicator-lm.
+
+  object SpatialRoleClassifier extends Learnable(tokens) {
+    def label = spatialRole
+    override lazy val classifier = new SupportVectorMachine()
+    override def feature = using(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+  }
+
+  object TrajectorRoleClassifier extends Learnable(tokens) {
+    def label = trajectorRole
+    override lazy val classifier = new SupportVectorMachine()
+    override def feature = using(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+  }
+
+  object LandmarkRoleClassifier extends Learnable(tokens) {
+    def label = landmarkRole
+    override lazy val classifier = new SupportVectorMachine()
+    override def feature = using(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+  }
+
+  object IndicatorRoleClassifier extends Learnable(tokens) {
+    def label = indicatorRole
+    override lazy val classifier = new SupportVectorMachine()
+    override def feature = using(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+  }
 
 }
