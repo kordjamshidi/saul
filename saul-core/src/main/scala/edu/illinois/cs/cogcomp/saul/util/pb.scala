@@ -1,11 +1,15 @@
 package edu.illinois.cs.cogcomp.saul.util
 
+import java.text.SimpleDateFormat
+
 import com.github.nscala_time.time.Imports._
+import org.apache.commons.lang.time.DurationFormatUtils
+
 import scala.tools.jline.TerminalFactory
 
 /** Output type format, indicate which format wil be used in
- *  the speed box.
- */
+  * the speed box.
+  */
 
 object Units extends Enumeration {
   type Units = Value
@@ -15,8 +19,8 @@ object Units extends Enumeration {
 import edu.illinois.cs.cogcomp.saul.util.Units._
 
 /** We're using Output as a trait of ProgressBar, so be able
- *  to mock the tty in the tests(i.e: override `print(...)`)
- */
+  * to mock the tty in the tests(i.e: override `print(...)`)
+  */
 
 trait Output {
   def print(s: String) = Console.print(s)
@@ -38,8 +42,8 @@ object ProgressBar {
 }
 
 /** By calling new ProgressBar with Int as a total, you'll
- *  create a new ProgressBar with default configuration.
- */
+  * create a new ProgressBar with default configuration.
+  */
 
 class ProgressBar(_total: Int) extends Output {
 
@@ -56,7 +60,7 @@ class ProgressBar(_total: Int) extends Output {
   /** Reset variable values
     *
     */
-  def init(){
+  def init() {
     total = _total
     current = 0
     startTime = DateTime.now
@@ -68,7 +72,7 @@ class ProgressBar(_total: Int) extends Output {
     barEnd = ""
     isFinish = false
     showBar = true
-    showSpeed =true
+    showSpeed = true
     showPercent = true
     showCounter = true
     showTimeLeft = true
@@ -82,10 +86,10 @@ class ProgressBar(_total: Int) extends Output {
   }
 
   /** Add to current value
-   *
-   *  @param          i the number to add to current value
-   *  @return         current value
-   */
+    *
+    * @param          i the number to add to current value
+    * @return current value
+    */
   def add(i: Int): Int = {
     current += i
     if (current <= total)
@@ -94,17 +98,17 @@ class ProgressBar(_total: Int) extends Output {
   }
 
   /** Add value using += operator
-   */
+    */
   def +=(i: Int): Int = add(i)
 
 
   /** Set Units size
-   *  the default is simple numbers, but you can use Bytes type instead.
-  */
+    * the default is simple numbers, but you can use Bytes type instead.
+    */
   def setUnits(u: Units) = units = u
 
   /** Set custom format to the drawing bar, default is `[=>-]`
-   */
+    */
   def format(fmt: String) {
     if (fmt.length >= 5) {
       val v = fmt.split("").toList
@@ -136,9 +140,12 @@ class ProgressBar(_total: Int) extends Output {
     }
     // time left box
     if (showTimeLeft) {
-      val fromStart = (startTime to DateTime.now).millis.toFloat
+      val millis = (startTime to DateTime.now).millis
+      suffix += " elapsed: " + DurationFormatUtils.formatDuration(millis, "HH:mm:ss", true)
+      val fromStart = millis.toFloat
       val left = (fromStart / current) * (total - current)
       val dur = Duration.millis(Math.ceil(left).toLong)
+      suffix += " left: "
       if (dur.seconds > 0) {
         if (dur.seconds < 1.minutes.seconds) suffix += "%ds".format(dur.seconds)
         else suffix += "%dm".format(dur.minutes)
@@ -177,8 +184,8 @@ class ProgressBar(_total: Int) extends Output {
 
 
   /** Calling finish manually will set current to total and draw
-   *  the last time
-   */
+    * the last time
+    */
   def finish() {
     if (current < total) add(total - current)
     println("\nData Successfully loaded.")

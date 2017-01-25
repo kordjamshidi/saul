@@ -53,13 +53,13 @@ object textApp extends App with Logging {
   val isTrain = true
   val path = if(isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
   val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
+  reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
   val documentList = reader.getDocuments()
   val sentenceList = reader.getSentences()
 
   documents.populate(documentList)
   sentences.populate(sentenceList)
 
-  logger.info("adding roles to the tokens from xml files, started ...")
   reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
@@ -67,7 +67,7 @@ object textApp extends App with Logging {
   SpatialRoleClassifier.modelDir = "models/mSpRL/spatialRole/"
   if(isTrain){
     logger.info("training started ...")
-    SpatialRoleClassifier.learn(20)
+    SpatialRoleClassifier.learn(100)
     SpatialRoleClassifier.save()
   }
   else{

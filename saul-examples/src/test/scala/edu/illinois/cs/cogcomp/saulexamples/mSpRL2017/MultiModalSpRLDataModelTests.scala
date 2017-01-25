@@ -13,6 +13,7 @@ import scala.collection.JavaConversions._
   */
 class MultiModalSpRLDataModelTests extends FlatSpec with Matchers {
   val reader = new NlpXmlReader("./saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", null, null)
+  reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
   val documentList = reader.getDocuments()
   val sentenceList = reader.getSentences()
 
@@ -23,7 +24,7 @@ class MultiModalSpRLDataModelTests extends FlatSpec with Matchers {
   reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
 
-  s"text features for `${sentences().head.getText}`" should "be correct." in {
+  s"text features for '${sentences().head.getText}'" should "be correct." in {
     val firstSentenceTokens = tokens().filter(_.getSentence.getId == sentences().head.getId).toList
     spatialContext(firstSentenceTokens(0)) should be(1)
     spatialContext(firstSentenceTokens(1)) should be(0)
