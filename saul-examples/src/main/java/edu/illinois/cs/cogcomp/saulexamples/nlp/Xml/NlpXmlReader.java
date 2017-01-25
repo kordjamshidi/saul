@@ -1,9 +1,10 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ * <p>
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.Xml;
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.*;
@@ -123,8 +124,14 @@ public class NlpXmlReader {
         return idTagName;
     }
 
-    public void setIdTagName(String idTagName) {
-        this.idTagName = idTagName;
+    public void setIdUsingAnotherProperty(String tagName, String propertyName) {
+        NodeList nodes = getNodeList(tagName);
+        for (int i = 0; i < nodes.getLength(); i++) {
+            if(nodes.item(i).getNodeType() == Node.ELEMENT_NODE){
+                Element e = (Element)nodes.item(i);
+                e.setAttribute("id", getAttribute(e, propertyName));
+            }
+        }
     }
 
     public List<Document> getDocuments(String... addPropertiesFromTag) {
@@ -286,7 +293,7 @@ public class NlpXmlReader {
         for (int i = 0; i < e.getChildNodes().getLength(); i++) {
             if (children.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element c = (Element) children.item(i);
-                if(isTextOnlyNode(c))
+                if (isTextOnlyNode(c))
                     element.addPropertyValue(c.getTagName(), c.getTextContent());
             }
         }
@@ -294,9 +301,9 @@ public class NlpXmlReader {
     }
 
     private boolean isTextOnlyNode(Element n) {
-        if(!n.hasChildNodes())
+        if (!n.hasChildNodes())
             return true;
-        if(n.getChildNodes().getLength() > 1)
+        if (n.getChildNodes().getLength() > 1)
             return false;
         return n.getFirstChild().getNodeType() == Node.TEXT_NODE;
     }
@@ -313,7 +320,7 @@ public class NlpXmlReader {
 
 
     private Element getAncestorElement(Element n, String ancestorTagName) {
-        if (n == null || ancestorTagName == null || n.getNodeName() == ancestorTagName)
+        if (n == null || ancestorTagName == null || n.getTagName() == ancestorTagName)
             return n;
         Node parent = n.getParentNode();
         if (parent == null)

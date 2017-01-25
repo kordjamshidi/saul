@@ -21,14 +21,15 @@ public class NlpXmlReaderTest {
     @Before
     public void setup() {
         reader = new NlpXmlReader(getResourcePath("SpRL/2017/test.xml"), "SCENE", "SENTENCE", "TRAJECTOR", null);
+        reader.setIdUsingAnotherProperty("SCENE","DOCNO");
         documents = reader.getDocuments();
     }
 
     @Test
     public void document() {
         assertEquals("Document count", 2, documents.size());
-        assertEquals("Document 1 Id", "sc1", documents.get(0).getId());
-        assertEquals("Document 2 Id", "sc2", documents.get(1).getId());
+        assertEquals("Document 1 Id", "annotations/01/1060.eng", documents.get(0).getId());
+        assertEquals("Document 2 Id", "annotations/01/1069.eng", documents.get(1).getId());
         assertEquals("Document 1 test attribute", "test", documents.get(0).getPropertyFirstValue("test"));
     }
 
