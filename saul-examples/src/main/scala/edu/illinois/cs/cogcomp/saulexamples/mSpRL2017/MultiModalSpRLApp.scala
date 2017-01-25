@@ -51,43 +51,42 @@ object textApp extends App with Logging {
   import MultiModalSpRLDataModel._
 
   val isTrain = true
-  val path = if(isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
+  val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
   val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
   reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
   val documentList = reader.getDocuments()
   val sentenceList = reader.getSentences()
 
-  documents.populate(documentList)
-  sentences.populate(sentenceList)
+  documents.populate(documentList, isTrain)
+  sentences.populate(sentenceList, isTrain)
 
   reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
 
   SpatialRoleClassifier.modelDir = "models/mSpRL/spatialRole/"
-  if(isTrain){
+  if (isTrain) {
     logger.info("training started ...")
     SpatialRoleClassifier.learn(100)
     SpatialRoleClassifier.save()
   }
-  else{
+  else {
     logger.info("testing started ...")
     SpatialRoleClassifier.load()
     SpatialRoleClassifier.test()
   }
 
 
-
-//  val trRelationList = trainReader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
-//  trRelationList.foreach(_.setProperty("TR_RELATION", "true"))
-//  val lmRelationList = trainReader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
-//  lmRelationList.foreach(_.setProperty("LM_RELATION", "true"))
-//  textRelations.populate(trRelationList ++ lmRelationList)
-//
-//  val trCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("TRAJECTOR_id")).toList
-//  val spCandidates = tokens().filter(x => getPos(x).contains("IN") && !x.containsProperty("SPATIALINDICATOR_id")).toList
-//  val lmCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("LANDMARK_id")).toList
-//  val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
-//  val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
-//  textRelations.populate(trCandidateRelations ++ lmCandidateRelations)
+  //  val trRelationList = trainReader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
+  //  trRelationList.foreach(_.setProperty("TR_RELATION", "true"))
+  //  val lmRelationList = trainReader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
+  //  lmRelationList.foreach(_.setProperty("LM_RELATION", "true"))
+  //  textRelations.populate(trRelationList ++ lmRelationList)
+  //
+  //  val trCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("TRAJECTOR_id")).toList
+  //  val spCandidates = tokens().filter(x => getPos(x).contains("IN") && !x.containsProperty("SPATIALINDICATOR_id")).toList
+  //  val lmCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("LANDMARK_id")).toList
+  //  val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
+  //  val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
+  //  textRelations.populate(trCandidateRelations ++ lmCandidateRelations)
 }
