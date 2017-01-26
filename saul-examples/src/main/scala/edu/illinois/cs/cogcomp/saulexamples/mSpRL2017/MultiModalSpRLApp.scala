@@ -76,7 +76,6 @@ object textApp extends App with Logging {
     SpatialRoleClassifier.test()
   }
 
-
   //  val trRelationList = trainReader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
   //  trRelationList.foreach(_.setProperty("TR_RELATION", "true"))
   //  val lmRelationList = trainReader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
@@ -89,4 +88,33 @@ object textApp extends App with Logging {
   //  val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
   //  val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
   //  textRelations.populate(trCandidateRelations ++ lmCandidateRelations)
+}
+
+object combinedApp extends App with Logging {
+
+  import MultiModalSpRLDataModel._
+
+  val isTrain = true
+  val readFullData = false
+  val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
+
+  val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", readFullData)
+  val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
+  reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
+
+  val documentList = reader.getDocuments()
+  val sentenceList = reader.getSentences()
+  val imageList = if(isTrain) CLEFDataSet.trainingImages else CLEFDataSet.testImages
+  val segmentList = if(isTrain) CLEFDataSet.trainingSegments else CLEFDataSet.testSegments
+  val relationList = if(isTrain) CLEFDataSet.trainingRelations else CLEFDataSet.testRelations
+
+  documents.populate(documentList, isTrain)
+  sentences.populate(sentenceList, isTrain)
+  images.populate(imageList, isTrain)
+  segments.populate(segmentList, isTrain)
+  segmentRelations.populate(relationList, isTrain)
+
+  reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
+  reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
+  reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
 }

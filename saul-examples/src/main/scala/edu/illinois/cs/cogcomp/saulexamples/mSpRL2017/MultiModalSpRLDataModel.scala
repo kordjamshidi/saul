@@ -35,11 +35,14 @@ object MultiModalSpRLDataModel extends DataModel {
   val relationToToken = edge(textRelations, tokens)
   relationToToken.addSensor(relationToTokenMatching _)
 
+  val documentToImage = edge(documents, images)
+  documentToImage.addSensor(documentToImageMatching _)
+
   val imageToSegment = edge(images, segments)
-  imageToSegment.addSensor(imageSegmentLink _)
+  imageToSegment.addSensor(imageToSegmentMatching _)
 
   val segmentRelationsToSegments = edge(segmentRelations, segments)
-  segmentRelationsToSegments.addSensor(rel_segment _)
+  segmentRelationsToSegments.addSensor(segmentRelationToSegmentMatching _)
 
   /*
   Properties
@@ -53,7 +56,7 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val semanticRole = property(tokens) {
-    x: Token => getSemanticRole(x)
+    x: Token => "" //getSemanticRole(x)
   }
 
   val dependencyRelation = property(tokens) {
