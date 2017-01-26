@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <SpRL>
-    <SCENE id="sc1" test="test">
+    <SCENE test="test">
         <DOCNO>annotations/01/1060.eng</DOCNO>
         <IMAGE>images/01/1060.jpg</IMAGE>
         <SENTENCE id="s601" start="0" end="88">
@@ -25,7 +25,7 @@
             <TEXT>upper level with doors and a blue rail .</TEXT>
         </SENTENCE>
     </SCENE>
-    <SCENE id="sc2" test="test">
+    <SCENE test="test">
         <DOCNO>annotations/01/1069.eng</DOCNO>
         <IMAGE>images/01/1069.jpg</IMAGE>
         <SENTENCE id="s603" start="130" end="344">

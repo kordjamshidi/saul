@@ -1,12 +1,15 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ * <p>
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.Xml;
 
+import edu.illinois.cs.cogcomp.saul.util.ProgressBar;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.*;
+import org.apache.commons.lang.time.StopWatch;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -123,8 +126,14 @@ public class NlpXmlReader {
         return idTagName;
     }
 
-    public void setIdTagName(String idTagName) {
-        this.idTagName = idTagName;
+    public void setIdUsingAnotherProperty(String tagName, String propertyName) {
+        NodeList nodes = getNodes(tagName);
+        for (int i = 0; i < nodes.getLength(); i++) {
+            if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                Element e = (Element) nodes.item(i);
+                e.setAttribute("id", getAttribute(e, propertyName));
+            }
+        }
     }
 
     public List<Document> getDocuments(String... addPropertiesFromTag) {
@@ -162,8 +171,8 @@ public class NlpXmlReader {
     public List<Relation> getRelationsByParentId(String tagName, String parentId, String... argumentIds) {
 
         NodeList nodes = parentId == null ?
-                getNodeList(tagName) :
-                getNodeList(parentId, tagName);
+                getNodes(tagName) :
+                getNodes(tagName, parentId);
 
         List<Relation> list = new ArrayList<>();
 
@@ -178,24 +187,47 @@ public class NlpXmlReader {
     }
 
     public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, List<T> list) {
-        addPropertiesFromTag(tagName, list, new XmlExachMatching());
+        addPropertiesFromTag(tagName, list, new ExactMatching());
     }
 
-    public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, List<T> list, IXmlSpanMatching matching) {
+    public <T extends NlpBaseElement> void addPropertiesFromTag(String tagName, List<T> list, ISpanElementMatching matching) {
+        System.out.println("Adding properties from '" + tagName + "' ...");
+        ProgressBar progress = new ProgressBar(list.size());
+        progress.progress();
+        String currentDocumentId = null;
+        NodeList matchingNodes = null;
+        List<Element> xmlElements = new ArrayList<>();
+        List<SpanBasedElement> elementContainers = new ArrayList<>();
         for (T e : list) {
             String documentId = getDocumentId(e);
-            NodeList matchingNodes = getNodes(tagName, e.getStart(), e.getEnd(), documentId, matching);
-            for (int j = 0; j < matchingNodes.getLength(); j++) {
-                Node n = matchingNodes.item(j);
-                if (n != null && n.getNodeType() == Node.ELEMENT_NODE) {
-                    SpanBasedElement xmlElement = getElementContainer((Element) n);
-                    if (matching.matches(xmlElement, e))
-                        for (int i = 0; i < n.getAttributes().getLength(); i++) {
-                            e.addPropertyValue(tagName + "_" + n.getAttributes().item(i).getNodeName(), n.getAttributes().item(i).getNodeValue());
-                        }
+            if (documentId == null) {
+                System.out.println("document id is null. This can affect the matching of the tags!");
+            }
+            if (currentDocumentId != documentId) {
+                currentDocumentId = documentId;
+                matchingNodes = getNodes(tagName, documentId);
+                elementContainers.clear();
+                xmlElements.clear();
+                for (int j = 0; j < matchingNodes.getLength(); j++) {
+                    Node n = matchingNodes.item(j);
+                    if (n != null && n.getNodeType() == Node.ELEMENT_NODE) {
+                        Element element = (Element) n;
+                        elementContainers.add(getElementContainer(element));
+                        xmlElements.add(element);
+                    }
                 }
             }
+            for (int j = 0; j < elementContainers.size(); j++) {
+                Element container = xmlElements.get(j);
+                if (matching.matches(elementContainers.get(j), e))
+                    for (int i = 0; i < container.getAttributes().getLength(); i++) {
+                        e.addPropertyValue(tagName + "_" + container.getAttributes().item(i).getNodeName(),
+                                container.getAttributes().item(i).getNodeValue());
+                    }
+            }
+            progress.add(1);
         }
+        progress.finish();
     }
 
     private <T extends NlpBaseElement> String getDocumentId(T e) {
@@ -227,8 +259,8 @@ public class NlpXmlReader {
 
     private <T extends NlpBaseElement> List<T> getElementList(String tagName, String parentId, NlpBaseElementTypes type, String... addPropertiesFromTag) {
         NodeList nodes = parentId == null ?
-                getNodeList(tagName) :
-                getNodeList(parentId, tagName);
+                getNodes(tagName) :
+                getNodes(tagName, parentId);
         List<T> list = new ArrayList<>();
         for (int i = 0; i < nodes.getLength(); i++) {
             if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -286,7 +318,7 @@ public class NlpXmlReader {
         for (int i = 0; i < e.getChildNodes().getLength(); i++) {
             if (children.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element c = (Element) children.item(i);
-                if(isTextOnlyNode(c))
+                if (isTextOnlyNode(c))
                     element.addPropertyValue(c.getTagName(), c.getTextContent());
             }
         }
@@ -294,9 +326,9 @@ public class NlpXmlReader {
     }
 
     private boolean isTextOnlyNode(Element n) {
-        if(!n.hasChildNodes())
+        if (!n.hasChildNodes())
             return true;
-        if(n.getChildNodes().getLength() > 1)
+        if (n.getChildNodes().getLength() > 1)
             return false;
         return n.getFirstChild().getNodeType() == Node.TEXT_NODE;
     }
@@ -313,7 +345,7 @@ public class NlpXmlReader {
 
 
     private Element getAncestorElement(Element n, String ancestorTagName) {
-        if (n == null || ancestorTagName == null || n.getNodeName() == ancestorTagName)
+        if (n == null || ancestorTagName == null || n.getTagName() == ancestorTagName)
             return n;
         Node parent = n.getParentNode();
         if (parent == null)
@@ -323,17 +355,20 @@ public class NlpXmlReader {
         return getAncestorElement((Element) parent, ancestorTagName);
     }
 
-    private NodeList getNodes(String tagName, int start, int end, String parentId, IXmlSpanMatching matching) {
-        String searchQuery = matching.getXpathQuery(getStartTagName(), getEndTagName(), start, end);
+    private NodeList getNodes(String tagName, String parentId) {
         String query = parentId == null ?
-                String.format("//%s[%s]", tagName, searchQuery) :
-                String.format("//*[@id='%s']//%s[%s]", parentId, tagName, searchQuery);
+                String.format("//%s", tagName) :
+                String.format("//*[@id='%s']//%s", parentId, tagName);
         try {
             return (NodeList) xpath.evaluate(query, xmlDocument, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private NodeList getNodes(String tagName) {
+        return xmlDocument.getElementsByTagName(tagName);
     }
 
     private Node getNodeById(String id) {
@@ -346,19 +381,6 @@ public class NlpXmlReader {
         }
     }
 
-    private NodeList getNodeList(String parentId, String tagName) {
-        String query = String.format("//*[@id='%s']//%s", parentId, tagName);
-        try {
-            return (NodeList) xpath.evaluate(query, xmlDocument, XPathConstants.NODESET);
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private NodeList getNodeList(String tagName) {
-        return xmlDocument.getElementsByTagName(tagName);
-    }
 
     private Integer getIntAttribute(Element e, String name) {
         String a = getStringAttribute(e, name);

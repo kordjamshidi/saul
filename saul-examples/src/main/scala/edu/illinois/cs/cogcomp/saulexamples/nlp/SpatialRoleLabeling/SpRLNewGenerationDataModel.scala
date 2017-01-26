@@ -102,8 +102,8 @@ object SpRLApp2 extends App {
 
   //reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, new XmlPartOfMatching)
   reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, XmlMatchings.phraseHeadwordMatching)
-  reader.addPropertiesFromTag("LANDMARK", phrases().toList, new XmlPartOfMatching)
-  reader.addPropertiesFromTag("SPATIALINDICATOR", phrases().toList, new XmlPartOfMatching)
+  reader.addPropertiesFromTag("LANDMARK", phrases().toList, new PartOfMatching)
+  reader.addPropertiesFromTag("SPATIALINDICATOR", phrases().toList, new PartOfMatching)
   relations.populate(relationList)
 
   val trCandidates = null :: phrases().filter(x => getPos(x).contains("NN") && x.getPropertyValues("TRAJECTOR_id").isEmpty).toList

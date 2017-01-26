@@ -21,14 +21,15 @@ public class NlpXmlReaderTest {
     @Before
     public void setup() {
         reader = new NlpXmlReader(getResourcePath("SpRL/2017/test.xml"), "SCENE", "SENTENCE", "TRAJECTOR", null);
+        reader.setIdUsingAnotherProperty("SCENE","DOCNO");
         documents = reader.getDocuments();
     }
 
     @Test
     public void document() {
         assertEquals("Document count", 2, documents.size());
-        assertEquals("Document 1 Id", "sc1", documents.get(0).getId());
-        assertEquals("Document 2 Id", "sc2", documents.get(1).getId());
+        assertEquals("Document 1 Id", "annotations/01/1060.eng", documents.get(0).getId());
+        assertEquals("Document 2 Id", "annotations/01/1069.eng", documents.get(1).getId());
         assertEquals("Document 1 test attribute", "test", documents.get(0).getPropertyFirstValue("test"));
     }
 
@@ -61,7 +62,7 @@ public class NlpXmlReaderTest {
     public void Overlapping(){
         reader.close();
         List<Phrase> phrases = reader.getPhrases();
-        reader.addPropertiesFromTag("MATCH", phrases, new XmlOverlapMatching());
+        reader.addPropertiesFromTag("MATCH", phrases, new OverlapMatching());
         assertTrue("contains p1", phrases.get(3).getPropertyValues("MATCH_id").contains("p1"));
         assertTrue("contains p2", phrases.get(3).getPropertyValues("MATCH_id").contains("p2"));
         assertTrue("contains p3", phrases.get(3).getPropertyValues("MATCH_id").contains("p3"));
@@ -74,7 +75,7 @@ public class NlpXmlReaderTest {
     public void Include(){
         reader.close();
         List<Phrase> phrases = reader.getPhrases();
-        reader.addPropertiesFromTag("MATCH", phrases, new XmlInclusionMatching());
+        reader.addPropertiesFromTag("MATCH", phrases, new InclusionMatching());
         assertFalse("does not contain p1", phrases.get(3).getPropertyValues("MATCH_id").contains("p1"));
         assertFalse("does not contain p2", phrases.get(3).getPropertyValues("MATCH_id").contains("p2"));
         assertFalse("does not contain p3", phrases.get(3).getPropertyValues("MATCH_id").contains("p3"));
@@ -87,7 +88,7 @@ public class NlpXmlReaderTest {
     public void partOf(){
         reader.close();
         List<Phrase> phrases = reader.getPhrases();
-        reader.addPropertiesFromTag("MATCH", phrases, new XmlPartOfMatching());
+        reader.addPropertiesFromTag("MATCH", phrases, new PartOfMatching());
         assertTrue("contains p1", phrases.get(3).getPropertyValues("MATCH_id").contains("p1"));
         assertTrue("contains p2", phrases.get(3).getPropertyValues("MATCH_id").contains("p2"));
         assertTrue("contains p3", phrases.get(3).getPropertyValues("MATCH_id").contains("p3"));
@@ -100,7 +101,7 @@ public class NlpXmlReaderTest {
     public void exact(){
         reader.close();
         List<Phrase> phrases = reader.getPhrases();
-        reader.addPropertiesFromTag("MATCH", phrases, new XmlExachMatching());
+        reader.addPropertiesFromTag("MATCH", phrases, new ExactMatching());
         assertFalse("does not contain p1", phrases.get(3).getPropertyValues("MATCH_id").contains("p1"));
         assertFalse("does not contain p2", phrases.get(3).getPropertyValues("MATCH_id").contains("p2"));
         assertFalse("does not contain p3", phrases.get(3).getPropertyValues("MATCH_id").contains("p3"));

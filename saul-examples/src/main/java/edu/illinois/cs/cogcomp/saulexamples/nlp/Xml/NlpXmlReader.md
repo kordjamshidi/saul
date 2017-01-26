@@ -74,13 +74,13 @@ adding properties from a tag requires matching between linguistic units and tags
 matching strategy is [`ExactMatching`](XmlExachMatching.java). 
 
 Built in matching strategies:
-- [`ExactMatching`](XmlExachMatching.java): adds tag's properties if the tag's span
+- [`ExactMatching`](../BaseTypes/ExachMatching.java): adds tag's properties if the tag's span
  exactly matches with the linguistic unit's span 
-- [`InclusionMatching`](XmlInclusionMatching.java): adds tag's properties if the tag's span
+- [`InclusionMatching`](../BaseTypes/InclusionMatching.java): adds tag's properties if the tag's span
  includes the linguistic unit's span
-- [`PartOfMatching`](XmlPartOfMatching.java): adds tag's properties if the tag's span is
+- [`PartOfMatching`](../BaseTypes/PartOfMatching.java): adds tag's properties if the tag's span is
 a part of linguistic unit span, in other word if the linguistic unit's span includes the tag's span
-- [`OverlapMatching`](XmlOverlapMatching.java): adds tag's properties if the tag's span
+- [`OverlapMatching`](../BaseTypes/OverlapMatching.java): adds tag's properties if the tag's span
 and the linguistic unit's span are overlapping
 - [`phraseHeadwordMatching`](../../../../../../../../scala/edu/illinois/cs/cogcomp/saulexamples/nlp/SpatialRoleLabeling/XmlMatchings.scala):
  adds tag's properties if the tag's span contains the headwords span of the phrase
