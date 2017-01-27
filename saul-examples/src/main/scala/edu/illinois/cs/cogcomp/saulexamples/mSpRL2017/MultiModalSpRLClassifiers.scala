@@ -14,6 +14,10 @@ import weka.classifiers.bayes.NaiveBayes
 import MultiModalSpRLDataModel._
 
 object MultiModalSpRLClassifiers {
+
+  private val tokenFeatures = List(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext,
+    isTokenAnImageConcept)
+
   object ImageSVMClassifier extends Learnable(segments) {
     def label = segmentLabel
     override lazy val classifier = new SupportVectorMachine()
@@ -35,25 +39,25 @@ object MultiModalSpRLClassifiers {
   object SpatialRoleClassifier extends Learnable(tokens) {
     def label = spatialRole
     override lazy val classifier = new SupportVectorMachine()
-    override def feature = using(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+    override def feature = using(tokenFeatures)
   }
 
   object TrajectorRoleClassifier extends Learnable(tokens) {
     def label = trajectorRole
-    override lazy val classifier = new SupportVectorMachine()
-    override def feature = using(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+    override lazy val classifier = new SparseNetworkLearner()
+    override def feature = using(tokenFeatures)
   }
 
   object LandmarkRoleClassifier extends Learnable(tokens) {
     def label = landmarkRole
     override lazy val classifier = new SupportVectorMachine()
-    override def feature = using(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+    override def feature = using(tokenFeatures)
   }
 
   object IndicatorRoleClassifier extends Learnable(tokens) {
     def label = indicatorRole
     override lazy val classifier = new SupportVectorMachine()
-    override def feature = using(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+    override def feature = using(tokenFeatures)
   }
 
 }

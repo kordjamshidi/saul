@@ -94,7 +94,7 @@ object combinedApp extends App with Logging {
 
   import MultiModalSpRLDataModel._
 
-  val isTrain = true
+  val isTrain = false
   val readFullData = false
   val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
 
@@ -117,4 +117,18 @@ object combinedApp extends App with Logging {
   reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
   reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
+
+  val classifier = TrajectorRoleClassifier
+
+  classifier.modelDir = "models/mSpRL/spatialRole/"
+  if (isTrain) {
+    println("training started ...")
+    classifier.learn(50)
+    classifier.save()
+  }
+  else {
+    println("testing started ...")
+    classifier.load()
+    classifier.test()
+  }
 }
