@@ -125,6 +125,12 @@ object MultiModalSpRLDataModel extends DataModel {
       getTokenDistance(first, second)
   }
 
+  val isTokenAnImageConcept = property(tokens) {
+    t: Token =>
+      ((tokens(t) <~ sentenceToToken <~ documentToSentence) ~> documentToImage ~> imageToSegment)
+        .map(_.getSegmentConcept) exists (x => t.getText.contains(x))
+  }
+
   val imageLabel = property(images) {
     x: Image => x.getLabel
   }
