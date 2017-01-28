@@ -94,7 +94,7 @@ object combinedApp extends App with Logging {
 
   import MultiModalSpRLDataModel._
 
-  val isTrain = false
+  val isTrain = true
   val readFullData = false
   val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
 
