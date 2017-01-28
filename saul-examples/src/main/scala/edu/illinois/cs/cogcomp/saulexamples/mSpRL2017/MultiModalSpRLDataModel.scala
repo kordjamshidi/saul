@@ -1,16 +1,21 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
+import java.io.File
+
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
 import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
+import org.deeplearning4j.models.glove.Glove
 
 /**
   * Created by Taher on 2017-01-11.
   */
 object MultiModalSpRLDataModel extends DataModel {
+  val word2Vec = WordVectorSerializer.loadStaticModel(new File("data/GoogleNews-vectors-negative300.bin.gz"))
   /*
   Nodes
    */
@@ -128,7 +133,8 @@ object MultiModalSpRLDataModel extends DataModel {
   val isTokenAnImageConcept = property(tokens) {
     t: Token =>
       ((tokens(t) <~ sentenceToToken <~ documentToSentence) ~> documentToImage ~> imageToSegment)
-        .map(_.getSegmentConcept) exists (x => t.getText.contains(x))
+        .map(x => getHeadword(x.getSegmentConcept.replaceAll("_", " ").toLowerCase)._1)
+        .exists(x => word2Vec.similarity(t.getText.toLowerCase, x) > 0.75)
   }
 
   val imageLabel = property(images) {
