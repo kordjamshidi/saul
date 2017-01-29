@@ -94,41 +94,45 @@ object combinedApp extends App with Logging {
 
   import MultiModalSpRLDataModel._
 
-  val isTrain = true
-  val readFullData = false
-  val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
+  runClassifier(true, false)
+  runClassifier(false, false)
 
-  val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", readFullData)
-  val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
-  reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
+  private def runClassifier(isTrain:Boolean, readFullData: Boolean) = {
+    val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
 
-  val documentList = reader.getDocuments()
-  val sentenceList = reader.getSentences()
-  val imageList = if(isTrain) CLEFDataSet.trainingImages else CLEFDataSet.testImages
-  val segmentList = if(isTrain) CLEFDataSet.trainingSegments else CLEFDataSet.testSegments
-  val relationList = if(isTrain) CLEFDataSet.trainingRelations else CLEFDataSet.testRelations
+    val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", readFullData)
+    val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
+    reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
 
-  documents.populate(documentList, isTrain)
-  sentences.populate(sentenceList, isTrain)
-  images.populate(imageList, isTrain)
-  segments.populate(segmentList, isTrain)
-  segmentRelations.populate(relationList, isTrain)
+    val documentList = reader.getDocuments()
+    val sentenceList = reader.getSentences()
+    val imageList = if (isTrain) CLEFDataSet.trainingImages else CLEFDataSet.testImages
+    val segmentList = if (isTrain) CLEFDataSet.trainingSegments else CLEFDataSet.testSegments
+    val relationList = if (isTrain) CLEFDataSet.trainingRelations else CLEFDataSet.testRelations
 
-  reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
-  reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
-  reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
+    documents.populate(documentList, isTrain)
+    sentences.populate(sentenceList, isTrain)
+    images.populate(imageList, isTrain)
+    segments.populate(segmentList, isTrain)
+    segmentRelations.populate(relationList, isTrain)
 
-  val classifier = TrajectorRoleClassifier
+    reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
+    reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
+    reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
 
-  classifier.modelDir = "models/mSpRL/spatialRole/"
-  if (isTrain) {
-    println("training started ...")
-    classifier.learn(50)
-    classifier.save()
+    val classifier = TrajectorRoleClassifier
+
+    classifier.modelDir = "models/mSpRL/spatialRole/"
+    if (isTrain) {
+      println("training started ...")
+      classifier.learn(50)
+      classifier.save()
+    }
+    else {
+      println("testing started ...")
+      classifier.load()
+      classifier.test()
+    }
   }
-  else {
-    println("testing started ...")
-    classifier.load()
-    classifier.test()
-  }
+
 }
