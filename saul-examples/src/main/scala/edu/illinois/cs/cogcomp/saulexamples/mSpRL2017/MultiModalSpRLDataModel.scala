@@ -135,8 +135,8 @@ object MultiModalSpRLDataModel extends DataModel {
 
   val isTokenAnImageConcept = property(tokens) {
     t: Token =>
-      segments().filter(x=> t.getDocument.getPropertyFirstValue("IMAGE").endsWith("/" +x.getAssociatedImageID + ".jpg"))
-        .map(x => x.getSegmentConcept.split("-").last.toLowerCase)
+      segments().filter(x => t.getDocument.getPropertyFirstValue("IMAGE").endsWith("/" + x.getAssociatedImageID + ".jpg"))
+        .map(x => if (x.getSegmentConcept == null) "" else x.getSegmentConcept.split("-").last.toLowerCase)
         .exists(x => word2Vec.similarity(t.getText.toLowerCase, x) > 0.60)
   }
 
