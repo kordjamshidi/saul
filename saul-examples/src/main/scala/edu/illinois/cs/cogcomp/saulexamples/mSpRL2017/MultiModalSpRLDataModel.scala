@@ -17,7 +17,7 @@ import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 object MultiModalSpRLDataModel extends DataModel {
 
   val gModel = new File("data/GoogleNews-vectors-negative300.bin.gz");
-  val word2Vec = WordVectorSerializer.loadGoogleModel(gModel, true);
+  lazy val word2Vec = WordVectorSerializer.loadGoogleModel(gModel, true);
 
   /*
   Nodes
@@ -135,8 +135,8 @@ object MultiModalSpRLDataModel extends DataModel {
 
   val isTokenAnImageConcept = property(tokens) {
     t: Token =>
-      ((tokens(t) <~ sentenceToToken <~ documentToSentence) ~> documentToImage ~> imageToSegment)
-        .map(x => getHeadword(x.getSegmentConcept.replaceAll("_", " ").toLowerCase)._1)
+      segments().filter(x=> t.getDocument.getPropertyFirstValue("IMAGE").endsWith("/" +x.getAssociatedImageID + ".jpg"))
+        .map(x => x.getSegmentConcept.split("-").last.toLowerCase)
         .exists(x => word2Vec.similarity(t.getText.toLowerCase, x) > 0.60)
   }
 
