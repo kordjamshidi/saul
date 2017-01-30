@@ -20,6 +20,6 @@ object MultiModalSpRLSensors {
   }
 
   def documentToImageMatching(d: Document, i: Image): Boolean = {
-    d.getPropertyFirstValue("IMAGE").endsWith("/" + i.getId)
+    d.getPropertyFirstValue("IMAGE").endsWith("/" + i.getLabel)
   }
 }
