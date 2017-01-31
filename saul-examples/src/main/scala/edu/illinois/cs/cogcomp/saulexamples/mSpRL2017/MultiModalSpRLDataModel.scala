@@ -116,6 +116,10 @@ object MultiModalSpRLDataModel extends DataModel {
         "None"
   }
 
+  val tokenVector = property(tokens) {
+    x: Token => getWordVector(x.getText.toLowerCase)
+  }
+
   val before = property(textRelations) {
     r: Relation =>
       val (first, second) = getArguments(r)

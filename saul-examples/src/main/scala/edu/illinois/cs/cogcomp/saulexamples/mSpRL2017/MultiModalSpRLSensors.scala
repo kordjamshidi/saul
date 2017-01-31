@@ -16,6 +16,16 @@ object MultiModalSpRLSensors {
     word2Vec.similarity(w1, w2)
   }
 
+  def getWordVector(w: String): List[Double] = {
+    val v = word2Vec.getWordVector(w)
+    if(v == null){
+      List.fill(300)(0.0)
+    }
+    else{
+      v.toList
+    }
+  }
+
   def imageToSegmentMatching(i: Image, s: Segment): Boolean = {
     i.getId == s.getAssociatedImageID
   }
