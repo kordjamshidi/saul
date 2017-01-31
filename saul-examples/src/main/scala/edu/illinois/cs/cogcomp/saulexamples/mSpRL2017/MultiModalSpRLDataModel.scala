@@ -9,15 +9,10 @@ import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
 import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 
-import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
-
 /**
   * Created by Taher on 2017-01-11.
   */
 object MultiModalSpRLDataModel extends DataModel {
-
-  val gModel = new File("data/GoogleNews-vectors-negative300.bin.gz");
-  lazy val word2Vec = WordVectorSerializer.loadGoogleModel(gModel, true);
 
   /*
   Nodes
@@ -135,9 +130,14 @@ object MultiModalSpRLDataModel extends DataModel {
 
   val isTokenAnImageConcept = property(tokens) {
     t: Token =>
-      segments().filter(x => t.getDocument.getPropertyFirstValue("IMAGE").endsWith("/" + x.getAssociatedImageID + ".jpg"))
-        .map(x => if (x.getSegmentConcept == null) "" else x.getSegmentConcept.split("-").last.toLowerCase)
-        .exists(x => word2Vec.similarity(t.getText.toLowerCase, x) > 0.60)
+      ((tokens(t) <~ sentenceToToken <~ documentToSentence) ~> documentToImage ~> imageToSegment)
+        .map(x =>
+          if (!phraseConceptToWord.contains(x.getSegmentConcept))
+            x.getSegmentConcept
+          else
+            phraseConceptToWord(x.getSegmentConcept)
+        )
+        .exists(x => getWord2VectorSimilarity(t.getText.toLowerCase, x) > 0.6)
   }
 
   val imageLabel = property(images) {
@@ -170,6 +170,5 @@ object MultiModalSpRLDataModel extends DataModel {
     else
       (arguments(0), arguments(1))
   }
-
 
 }
