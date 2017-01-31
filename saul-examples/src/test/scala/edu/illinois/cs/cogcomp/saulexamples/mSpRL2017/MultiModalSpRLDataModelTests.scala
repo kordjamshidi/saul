@@ -106,29 +106,11 @@ class MultiModalSpRLDataModelTests extends FlatSpec with Matchers {
     isTokenAnImageConcept(secondSentenceTokens(0)) should be("false")
     isTokenAnImageConcept(secondSentenceTokens(1)) should be("false")
     isTokenAnImageConcept(secondSentenceTokens(2)) should be("false")
-    isTokenAnImageConcept(secondSentenceTokens(3)) should be("false")
-    isTokenAnImageConcept(secondSentenceTokens(4)) should be("true")
+    isTokenAnImageConcept(secondSentenceTokens(3)) should be("true")
+    isTokenAnImageConcept(secondSentenceTokens(4)) should be("false")
     isTokenAnImageConcept(secondSentenceTokens(5)) should be("false")
     isTokenAnImageConcept(secondSentenceTokens(6)) should be("false")
     isTokenAnImageConcept(secondSentenceTokens(7)) should be("false")
     isTokenAnImageConcept(secondSentenceTokens(8)) should be("false")
   }
 }
-
-//behind it a bar with chairs and two people , and a bench with one person lying on it .
-//ImageId 1060 SegmentId 1 segmentCode 195 segmentConcept public-sign
-//ImageId 1060 SegmentId 3 segmentCode 191 segmentConcept plant
-//ImageId 1060 SegmentId 4 segmentCode 80 segmentConcept door
-//ImageId 1060 SegmentId 5 segmentCode 80 segmentConcept door
-//ImageId 1060 SegmentId 6 segmentCode 271 segmentConcept window
-//ImageId 1060 SegmentId 7 segmentCode 271 segmentConcept window
-//ImageId 1060 SegmentId 8 segmentCode 149 segmentConcept leaf
-//ImageId 1060 SegmentId 9 segmentCode 149 segmentConcept leaf
-//ImageId 1060 SegmentId 10 segmentCode 83 segmentConcept edifice
-
-//ImageId 1069 SegmentId 1 segmentCode 19 segmentConcept bed
-//ImageId 1069 SegmentId 2 segmentCode 173 segmentConcept non-wooden-furniture
-//ImageId 1069 SegmentId 3 segmentCode 80 segmentConcept door
-//ImageId 1069 SegmentId 4 segmentCode 173 segmentConcept non-wooden-furniture
-//ImageId 1069 SegmentId 5 segmentCode 72 segmentConcept curtain
-//ImageId 1069 SegmentId 6 segmentCode 264 segmentConcept wall
