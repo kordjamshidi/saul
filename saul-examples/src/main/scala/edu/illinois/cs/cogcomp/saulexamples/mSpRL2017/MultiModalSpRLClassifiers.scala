@@ -16,7 +16,7 @@ import MultiModalSpRLDataModel._
 object MultiModalSpRLClassifiers {
 
   private val tokenFeatures = List(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext,
-    isTokenAnImageConcept, tokenVector)
+    isTokenAnImageConcept, nearestSegmentConceptVector, tokenVector)
 
   object ImageSVMClassifier extends Learnable(segments) {
     def label = segmentLabel
