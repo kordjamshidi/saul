@@ -7,6 +7,7 @@ import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelat
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 
 import scala.collection.immutable.HashMap
+import scala.collection.JavaConversions._
 
 object MultiModalSpRLSensors {
 
@@ -35,9 +36,7 @@ object MultiModalSpRLSensors {
   }
 
   def relationToTokenMatching(r: Relation, t: Token): Boolean = {
-    (r.containsProperty("TR_RELATION") && t.getPropertyValues("TRAJECTOR_id").contains(r.getArgumentId(0))) ||
-      (r.containsProperty("LM_RELATION") && t.getPropertyValues("LANDMARK_id").contains(r.getArgumentId(0))) ||
-      t.getPropertyValues("SPATIALINDICATOR_id").contains(r.getArgumentId(1))
+    r.getArgumentIds.contains(t.getId)
   }
 
   def documentToImageMatching(d: Document, i: Image): Boolean = {
