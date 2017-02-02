@@ -134,16 +134,16 @@ object MultiModalSpRLDataModel extends DataModel {
 
   val isTokenAnImageConcept = property(tokens) {
     t: Token =>
-      ((tokens(t) <~ sentenceToToken <~ documentToSentence) ~> documentToImage ~> imageToSegment)
-        .map(x =>
-          if (!phraseConceptToWord.contains(x.getSegmentConcept))
-            x.getSegmentConcept
-          else
-            phraseConceptToWord(x.getSegmentConcept)
-        )
+      getSegmentConcepts(t)
         .exists(x => getWord2VectorSimilarity(t.getText.toLowerCase, x) > 0.6)
   }
 
+  val nearestSegmentConceptVector = property(tokens) {
+    t: Token =>
+      val concepts = getSegmentConcepts(t).map(x => (x, getWord2VectorSimilarity(t.getText.toLowerCase, x)))
+      val (nearest, _) = if(concepts.isEmpty) ("", 0) else concepts.maxBy(x => x._2)
+      getWordVector(nearest)
+  }
   val imageLabel = property(images) {
     x: Image => x.getLabel
   }
@@ -175,4 +175,13 @@ object MultiModalSpRLDataModel extends DataModel {
       (arguments(0), arguments(1))
   }
 
+  private def getSegmentConcepts(t: Token) = {
+    ((tokens(t) <~ sentenceToToken <~ documentToSentence) ~> documentToImage ~> imageToSegment)
+      .map(x =>
+        if (!phraseConceptToWord.contains(x.getSegmentConcept))
+          x.getSegmentConcept
+        else
+          phraseConceptToWord(x.getSegmentConcept)
+      )
+  }
 }
