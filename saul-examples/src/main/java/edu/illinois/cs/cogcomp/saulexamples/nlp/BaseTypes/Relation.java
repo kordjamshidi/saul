@@ -1,9 +1,10 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ * <p>
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 
 import java.util.*;
@@ -15,6 +16,7 @@ public class Relation {
     private String id;
     private Map<String, String> properties = new HashMap<>();
     private Map<Integer, String> argumentIds = new HashMap<>();
+    private Map<Integer, NlpBaseElement> arguments = new HashMap<>();
 
     public Relation() {
         id = "";
@@ -46,7 +48,7 @@ public class Relation {
         this.id = id;
     }
 
-    public int getArgumentsCount(){
+    public int getArgumentsCount() {
         return argumentIds.size();
     }
 
@@ -54,13 +56,38 @@ public class Relation {
         argumentIds.put(index, argumentId);
     }
 
-    public String getArgumentId(int index){
-        if(!argumentIds.containsKey(index))
+    public String getArgumentId(int index) {
+        if (!argumentIds.containsKey(index))
             return null;
         return argumentIds.get(index);
     }
 
-    public Collection<String> getArgumentIds(){
+    public void setArgument(int index, NlpBaseElement argument) {
+        arguments.put(index, argument);
+    }
+
+    public NlpBaseElement getArgument(int index) {
+        if (!arguments.containsKey(index))
+            return null;
+        return arguments.get(index);
+    }
+    public Collection<String> getArgumentIds() {
         return argumentIds.values();
+    }
+
+    public Collection<NlpBaseElement> getArguments() {
+        return arguments.values();
+    }
+
+    public boolean hasSameArguments(Relation r) {
+        if (r == null)
+            return getArgumentsCount() > 0;
+        if(r.getArgumentsCount() != r.getArgumentsCount())
+            return  false;
+        for(int i=0; i< getArgumentsCount(); i++){
+            if(getArgumentId(i) != r.getArgumentId(i))
+                return false;
+        }
+        return true;
     }
 }
