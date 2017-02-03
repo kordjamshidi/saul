@@ -105,7 +105,7 @@ object combinedPairApp extends App with Logging {
 
   import MultiModalSpRLDataModel._
 
-  val isTrajector = true
+  val isTrajector = false
   val classifier = TrajectorPairClassifier
   runClassifier(true, isTrajector)
   runClassifier(false, isTrajector)
@@ -152,10 +152,13 @@ object combinedPairApp extends App with Logging {
     reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
 
     if (populateRelations) {
-      val firstArgName = if (isTrajectorPair) "trajector_id" else "landmark_id"
 
-      val goldRelations = reader.getRelations("RELATION", firstArgName, "spatial_indicator_id")
-        .filter(x => x.getArgumentId(0) != "-1")
+      // read TRAJECTOR/LANDMARK elements as document and find empty ones: elements with `start` == -1
+      reader.setDocumentTagName(getFirstArgumentTagName(isTrajectorPair))
+      val nullArgumentIds = reader.getDocuments().filter(_.getStart == -1).map(_.getId)
+
+      val goldRelations = reader.getRelations("RELATION", getFirstArgumentIdName(isTrajectorPair), "spatial_indicator_id")
+        .filter(x => !nullArgumentIds.contains(x.getArgumentId(0)))
         .toList
 
       val firstArgCandidates = tokens().filter(x => getPos(x).head.contains("NN") || getPos(x).head.contains("PRP")).toList
@@ -180,9 +183,17 @@ object combinedPairApp extends App with Logging {
       textRelations.populate(candidateRelations, isTrain)
       goldRelations.size - candidateRelations.count(_.getProperty("RelationType") != "None")
     }
-    else{
+    else {
       0
     }
+  }
+
+  private def getFirstArgumentIdName(isTrajectorPair: Boolean) = {
+    if (isTrajectorPair) "trajector_id" else "landmark_id"
+  }
+
+  private def getFirstArgumentTagName(isTrajectorPair: Boolean) = {
+    if (isTrajectorPair) "TRAJECOTR" else "LANDMARK"
   }
 
   def isGold(goldRelations: List[Relation], r: Relation, firstArgName: String): Boolean = {
