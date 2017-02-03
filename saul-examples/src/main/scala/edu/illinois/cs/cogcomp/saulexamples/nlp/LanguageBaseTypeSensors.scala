@@ -136,6 +136,7 @@ object LanguageBaseTypeSensors extends Logging {
           args.zipWithIndex.filter(x => x._1 != null).foreach {
             case (a, i) => {
               r.setArgumentId(i, a.getId)
+              r.setArgument(i, a)
               r.setId(r.getId + "[" + i + ", " + a.getId + "]")
             }
           }
