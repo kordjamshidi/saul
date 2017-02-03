@@ -180,7 +180,7 @@ public class NlpXmlReader {
             if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
 
                 Element e = (Element) nodes.item(i);
-                list.add(getRelation(e));
+                list.add(getRelation(e, argumentIds));
             }
         }
         return list;
@@ -252,7 +252,7 @@ public class NlpXmlReader {
         }
         r.setId(r.getProperty("id"));
         for (int i = 0; i < argumentIds.length; i++) {
-            r.setArgumentId(i, argumentIds[i]);
+            r.setArgumentId(i, r.getProperty(argumentIds[i]));
         }
         return r;
     }

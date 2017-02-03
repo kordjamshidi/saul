@@ -14,6 +14,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
 
 import scala.collection.JavaConversions._
 
@@ -75,32 +76,62 @@ object textApp extends App with Logging {
     SpatialRoleClassifier.load()
     SpatialRoleClassifier.test()
   }
-
-  //  val trRelationList = trainReader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
-  //  trRelationList.foreach(_.setProperty("TR_RELATION", "true"))
-  //  val lmRelationList = trainReader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
-  //  lmRelationList.foreach(_.setProperty("LM_RELATION", "true"))
-  //  textRelations.populate(trRelationList ++ lmRelationList)
-  //
-  //  val trCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("TRAJECTOR_id")).toList
-  //  val spCandidates = tokens().filter(x => getPos(x).contains("IN") && !x.containsProperty("SPATIALINDICATOR_id")).toList
-  //  val lmCandidates = tokens().filter(x => getPos(x).contains("NN") && !x.containsProperty("LANDMARK_id")).toList
-  //  val trCandidateRelations = getCandidateRelations[Token](trCandidates, spCandidates)
-  //  val lmCandidateRelations = getCandidateRelations[Token](lmCandidates, spCandidates)
-  //  textRelations.populate(trCandidateRelations ++ lmCandidateRelations)
 }
 
 object combinedApp extends App with Logging {
 
+  val classifier = TrajectorRoleClassifier
+  runClassifier(true)
+  runClassifier(false)
+
+  def runClassifier(isTrain: Boolean) = {
+    combinedPairApp.populateData(isTrain)
+
+    classifier.modelDir = "models/mSpRL/spatialRole/"
+    if (isTrain) {
+      println("training started ...")
+      classifier.learn(50)
+      classifier.save()
+    }
+    else {
+      println("testing started ...")
+      classifier.load()
+      classifier.test()
+    }
+  }
+}
+
+object combinedPairApp extends App with Logging {
+
   import MultiModalSpRLDataModel._
 
-  runClassifier(true, false)
-  runClassifier(false, false)
+  val isTrajector = false
+  val classifier = TrajectorPairClassifier
+  runClassifier(true, isTrajector)
+  runClassifier(false, isTrajector)
 
-  private def runClassifier(isTrain:Boolean, readFullData: Boolean) = {
+  def runClassifier(isTrain: Boolean, isTrajector: Boolean) = {
+    val missingRelations = populateData(isTrain, true, isTrajector)
+    println("Missing relations count: " + missingRelations)
+
+    classifier.modelDir = "models/mSpRL/spatialRole/"
+    if (isTrain) {
+      println("training started ...")
+      classifier.learn(50)
+      classifier.save()
+    }
+    else {
+      println("testing started ...")
+      classifier.load()
+      classifier.test()
+    }
+  }
+
+  lazy val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
+
+  def populateData(isTrain: Boolean, populateRelations: Boolean = false, isTrajectorPair: Boolean = true) = {
     val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
 
-    val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", readFullData)
     val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
     reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
 
@@ -120,19 +151,58 @@ object combinedApp extends App with Logging {
     reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
     reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
 
-    val classifier = TrajectorRoleClassifier
+    if (populateRelations) {
 
-    classifier.modelDir = "models/mSpRL/spatialRole/"
-    if (isTrain) {
-      println("training started ...")
-      classifier.learn(50)
-      classifier.save()
+      // read TRAJECTOR/LANDMARK elements as document and find empty ones: elements with `start` == -1
+      reader.setDocumentTagName(getFirstArgumentTagName(isTrajectorPair))
+      val nullArgumentIds = reader.getDocuments().filter(_.getStart == -1).map(_.getId)
+
+      val goldRelations = reader.getRelations("RELATION", getFirstArgumentIdName(isTrajectorPair), "spatial_indicator_id")
+        .filter(x => !nullArgumentIds.contains(x.getArgumentId(0)))
+        .toList
+
+      val firstArgCandidates = tokens().filter(x => getPos(x).head.contains("NN") || getPos(x).head.contains("PRP")).toList
+      val spCandidates = tokens().filter(x => getPos(x).head.contains("IN") || Dictionaries.isPreposition(x.getText)).toList
+
+      val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
+
+      if (isTrajectorPair) {
+        candidateRelations
+          .foreach(r => r.setProperty("RelationType", isGold(goldRelations, r, "TRAJECTOR_id") match {
+            case true => "TR_SP"
+            case false => "None"
+          }))
+      }
+      else {
+        candidateRelations
+          .foreach(r => r.setProperty("RelationType", isGold(goldRelations, r, "LANDMARK_id") match {
+            case true => "LM_SP"
+            case false => "None"
+          }))
+      }
+      textRelations.populate(candidateRelations, isTrain)
+      goldRelations.size - candidateRelations.count(_.getProperty("RelationType") != "None")
     }
     else {
-      println("testing started ...")
-      classifier.load()
-      classifier.test()
+      0
     }
   }
 
+  private def getFirstArgumentIdName(isTrajectorPair: Boolean) = {
+    if (isTrajectorPair) "trajector_id" else "landmark_id"
+  }
+
+  private def getFirstArgumentTagName(isTrajectorPair: Boolean) = {
+    if (isTrajectorPair) "TRAJECOTR" else "LANDMARK"
+  }
+
+  def isGold(goldRelations: List[Relation], r: Relation, firstArgName: String): Boolean = {
+    goldRelations.exists(x =>
+      r.getArgument(0).getPropertyValues(firstArgName).contains(x.getArgumentId(0)) &&
+        r.getArgument(1).getPropertyValues("SPATIALINDICATOR_id").contains(x.getArgumentId(1))
+    )
+  }
+
 }
+
+
