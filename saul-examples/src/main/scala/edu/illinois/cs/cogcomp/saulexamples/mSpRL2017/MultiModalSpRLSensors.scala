@@ -35,8 +35,12 @@ object MultiModalSpRLSensors {
     (r.getFirstSegmentId == s.getSegmentId || r.getSecondSegmentId == s.getSegmentId) && (r.getImageId == s.getAssociatedImageID)
   }
 
-  def relationToTokenMatching(r: Relation, t: Token): Boolean = {
-    r.getArgumentIds.contains(t.getId)
+  def relationToFirstArgumentMatching(r: Relation, t: Token): Boolean = {
+    r.getArgumentId(0) == t.getId
+  }
+
+  def relationToSecondArgumentMatching(r: Relation, t: Token): Boolean = {
+    r.getArgumentId(1) == t.getId
   }
 
   def documentToImageMatching(d: Document, i: Image): Boolean = {
