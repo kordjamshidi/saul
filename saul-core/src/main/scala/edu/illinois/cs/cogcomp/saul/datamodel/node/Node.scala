@@ -20,7 +20,6 @@ import scala.collection.mutable
 import scala.collection.mutable.{ ArrayBuffer, ListBuffer, HashMap => MutableHashMap, LinkedHashSet => MutableSet, Map => MutableMap }
 import scala.reflect.ClassTag
 
-
 trait NodeProperty[T <: AnyRef] extends Property[T] {
   def node: Node[T]
 }
@@ -135,7 +134,7 @@ class Node[T <: AnyRef](val keyFunc: T => Any = (x: T) => x, val tag: ClassTag[T
     }
 
     // Update Progress Bar
-    progressBar +=1
+    progressBar += 1
   }
 
   def populateFrom(n: Node[_]): Unit = {

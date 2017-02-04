@@ -1,11 +1,17 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saulexamples.nlp
 
 import java.util.Properties
 
-import edu.illinois.cs.cogcomp.core.datastructures.{ViewNames, _}
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
+import edu.illinois.cs.cogcomp.core.datastructures.{ ViewNames, _ }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation, TokenLabelView, TreeView }
 import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
-import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
+import edu.illinois.cs.cogcomp.edison.features.factory.{ SubcategorizationFrame, WordFeatureExtractorFactory }
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saul.util.Logging
@@ -217,8 +223,7 @@ object LanguageBaseTypeSensors extends Logging {
         case _ =>
           logger.warn("cannot find tokens for base types other than phrase and sentence.")
           null
-      }
-    )
+      })
   }
 
   private def generateId(e: NlpBaseElement, x: Constituent): String = {

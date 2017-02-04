@@ -1,3 +1,9 @@
+/** This software is released under the University of Illinois/Research and Academic Use License. See
+  * the LICENSE file in the root folder for details. Copyright (c) 2016
+  *
+  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+  * http://cogcomp.cs.illinois.edu/
+  */
 package edu.illinois.cs.cogcomp.saul.util
 
 import java.text.SimpleDateFormat
@@ -101,7 +107,6 @@ class ProgressBar(_total: Int) extends Output {
     */
   def +=(i: Int): Int = add(i)
 
-
   /** Set Units size
     * the default is simple numbers, but you can use Bytes type instead.
     */
@@ -119,7 +124,6 @@ class ProgressBar(_total: Int) extends Output {
       barEnd = v(4)
     }
   }
-
 
   private def draw() {
     val width = TerminalFactory.get().getWidth()
@@ -181,7 +185,6 @@ class ProgressBar(_total: Int) extends Output {
     // print
     print("\r" + out)
   }
-
 
   /** Calling finish manually will set current to total and draw
     * the last time

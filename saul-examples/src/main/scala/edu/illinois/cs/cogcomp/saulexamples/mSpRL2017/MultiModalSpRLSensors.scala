@@ -11,7 +11,7 @@ import scala.collection.JavaConversions._
 
 object MultiModalSpRLSensors {
 
-  private lazy val word2Vec = WordVectorSerializer.loadGoogleModel(new File("data/GoogleNews-vectors-negative300.bin.gz"), true)
+  private lazy val word2Vec = WordVectorSerializer.loadGoogleModel(new File("data/GoogleNews-vectors-negative300.bin"), true)
 
   def getWord2VectorSimilarity(w1: String, w2:String) = {
     word2Vec.similarity(w1, w2)
@@ -22,7 +22,7 @@ object MultiModalSpRLSensors {
     if(v == null){
       List.fill(300)(0.0)
     }
-    else{
+    else {
       v.toList
     }
   }
