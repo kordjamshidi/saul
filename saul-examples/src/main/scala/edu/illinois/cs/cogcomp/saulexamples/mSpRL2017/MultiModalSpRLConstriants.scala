@@ -16,7 +16,6 @@ val integrity = ConstrainedClassifier.constraint[Relation]{
   x : Relation =>
 
     ((TrajectorPairClassifier on x) is "TR_SP") ==>
-      (SpatialRoleClassifier on (textRelations(x) ~> relationToToken) is "Trajector") and (IndicatorRoleClassifier on (textRelations(x) ~> relationToToken) is "Indicator")
-//we need to modify and use the correct edge here.
+      (SpatialRoleClassifier on (textRelations(x) ~> relationToFirstArgument) is "Trajector") and (IndicatorRoleClassifier on (textRelations(x) ~> relationToSecondArgument) is "Indicator")
 }
 }
