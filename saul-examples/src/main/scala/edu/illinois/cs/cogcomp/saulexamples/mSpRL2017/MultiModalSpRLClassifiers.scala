@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.lbjava.learn.{SparseNetworkLearner, SupportVectorMachine}
+import edu.illinois.cs.cogcomp.lbjava.learn.{ SparseNetworkLearner, SupportVectorMachine }
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
 import weka.classifiers.`lazy`.IBk

@@ -9,9 +9,9 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling
 import java.util.Properties
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation, TokenLabelView, TreeView }
 import edu.illinois.cs.cogcomp.edison.features.factory.WordFeatureExtractorFactory
-import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator.{USE_NER_CONLL, USE_NER_ONTONOTES, USE_SRL_NOM, USE_SRL_VERB, USE_STANFORD_DEP, USE_STANFORD_PARSE}
+import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator.{ USE_NER_CONLL, USE_NER_ONTONOTES, USE_SRL_NOM, USE_SRL_VERB, USE_STANFORD_DEP, USE_STANFORD_PARSE }
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.TextAnnotationFactory

@@ -1,18 +1,17 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Sentence}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Document, Sentence }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
-/**
-  * Created by Taher on 2017-01-11.
+/** Created by Taher on 2017-01-11.
   */
 class LanguageBaseTypeSensorTests extends FlatSpec with Matchers {
 
   "Extracted features for 'I received the book.'" should "be correct" in {
     val text = "I received the book."
     val document = new Document("doc1", 0, text.length, text)
-    val sentence = new Sentence(document, "s1", 0, text.length, text )
+    val sentence = new Sentence(document, "s1", 0, text.length, text)
     val tokens = sentenceToTokenGenerating(sentence)
 
     tokens.length should be(5)
@@ -70,7 +69,7 @@ class LanguageBaseTypeSensorTests extends FlatSpec with Matchers {
   "Extracted features for 'I am going to eat lunch.'" should "be correct" in {
     val text = "I am going to eat lunch."
     val document = new Document("doc1", 0, text.length, text)
-    val sentence = new Sentence(document, "s2", 0, text.length, text )
+    val sentence = new Sentence(document, "s2", 0, text.length, text)
     val tokens = sentenceToTokenGenerating(sentence)
 
     tokens.length should be(7)

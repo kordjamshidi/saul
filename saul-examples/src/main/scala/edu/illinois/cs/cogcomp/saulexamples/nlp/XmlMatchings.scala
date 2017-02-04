@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ISpanElement, ISpanElementMatching, Phrase}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ ISpanElement, ISpanElementMatching, Phrase }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getHeadword
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml._
 
@@ -21,8 +21,7 @@ object XmlMatchings {
         val p = element.asInstanceOf[Phrase]
         val head = getHeadword(p)
         xmlElement.contains(head)
-      }
-      else {
+      } else {
         false
       }
     }
@@ -34,8 +33,7 @@ object XmlMatchings {
       if (xmlElement.contains(element)) {
         val (_, start, end) = getHeadword(xmlElement.getText)
         element.getStart <= start + xmlElement.getStart && element.getEnd >= end + xmlElement.getStart
-      }
-      else {
+      } else {
         false
       }
     }
