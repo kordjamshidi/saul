@@ -35,8 +35,11 @@ object MultiModalSpRLDataModel extends DataModel {
   val sentenceToToken = edge(sentences, tokens)
   sentenceToToken.addSensor(sentenceToTokenGenerating _)
 
-  val relationToToken = edge(textRelations, tokens)
-  relationToToken.addSensor(relationToTokenMatching _)
+  val relationToFirstArgument = edge(textRelations, tokens)
+  relationToFirstArgument.addSensor(relationToFirstArgumentMatching _)
+
+  val relationToSecondArgument = edge(textRelations, tokens)
+  relationToSecondArgument.addSensor(relationToSecondArgumentMatching _)
 
   val documentToImage = edge(documents, images)
   documentToImage.addSensor(documentToImageMatching _)
@@ -227,11 +230,7 @@ object MultiModalSpRLDataModel extends DataModel {
   /// Helper methods
   ////////////////////////////////////////////////////////////////////
   def getArguments(r: Relation): (Token, Token) = {
-    val arguments = (textRelations(r) ~> relationToToken).toList
-    if (arguments(0).getPropertyValues("SPATIALINDICATOR_id").contains(r.getArgumentId(1)))
-      (arguments(1), arguments(0))
-    else
-      (arguments(0), arguments(1))
+    ((textRelations(r) ~> relationToFirstArgument).head, (textRelations(r) ~> relationToSecondArgument).head)
   }
 
   private def getSegmentConcepts(t: Token) = {
