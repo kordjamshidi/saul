@@ -136,8 +136,18 @@ object MultiModalSpRLDataModel extends DataModel {
       getWordVector(nearest)
   }
 
-  val relationType = property(textRelations) {
-    x: Relation => x.getProperty("RelationType")
+  val isTrajectorRelation = property(textRelations) {
+    x: Relation => x.getProperty("RelationType") match {
+      case "TR-SP" => "TR-SP"
+      case _ => "None"
+    }
+  }
+
+  val isLandmarkRelation = property(textRelations) {
+    x: Relation => x.getProperty("RelationType") match {
+      case "LM-SP" => "LM-SP"
+      case _ => "None"
+    }
   }
 
   val relationWordForm = property(textRelations) {

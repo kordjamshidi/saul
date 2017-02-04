@@ -105,31 +105,39 @@ object combinedPairApp extends App with Logging {
 
   import MultiModalSpRLDataModel._
 
-  val isTrajector = false
-  val classifier = TrajectorPairClassifier
-  runClassifier(true, isTrajector)
-  runClassifier(false, isTrajector)
+  runClassifiers(true)
+  runClassifiers(false)
 
-  def runClassifier(isTrain: Boolean, isTrajector: Boolean) = {
-    val missingRelations = populateData(isTrain, true, isTrajector)
-    println("Missing relations count: " + missingRelations)
+  private def runClassifiers(isTrain: Boolean) = {
+    val (missingTr, missingLm) = populateData(isTrain, true)
+    println("Missing trajector relations count: " + missingTr)
+    println("Missing landmark relations count: " + missingLm)
 
-    classifier.modelDir = "models/mSpRL/spatialRole/"
+    TrajectorPairClassifier.modelDir = "models/mSpRL/spatialRole/"
+    LandmarkPairClassifier.modelDir = "models/mSpRL/spatialRole/"
     if (isTrain) {
       println("training started ...")
-      classifier.learn(50)
-      classifier.save()
+
+      TrajectorPairClassifier.learn(50)
+      TrajectorPairClassifier.save()
+
+      LandmarkPairClassifier.learn(50)
+      LandmarkPairClassifier.save()
     }
     else {
       println("testing started ...")
-      classifier.load()
-      classifier.test()
+
+      TrajectorPairClassifier.load()
+      TrajectorPairClassifier.test()
+
+      LandmarkPairClassifier.load()
+      LandmarkPairClassifier.test()
     }
   }
 
   lazy val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
 
-  def populateData(isTrain: Boolean, populateRelations: Boolean = false, isTrajectorPair: Boolean = true) = {
+  def populateData(isTrain: Boolean, populateRelations: Boolean = false) = {
     val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
 
     val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
@@ -154,11 +162,19 @@ object combinedPairApp extends App with Logging {
     if (populateRelations) {
 
       // read TRAJECTOR/LANDMARK elements as document and find empty ones: elements with `start` == -1
-      reader.setDocumentTagName(getFirstArgumentTagName(isTrajectorPair))
-      val nullArgumentIds = reader.getDocuments().filter(_.getStart == -1).map(_.getId)
+      reader.setDocumentTagName("TRAJECOTR")
+      val nullTrajectorIds = reader.getDocuments().filter(_.getStart == -1).map(_.getId)
+      reader.setDocumentTagName("LANDMARK")
+      val nullLandmarkIds = reader.getDocuments().filter(_.getStart == -1).map(_.getId)
 
-      val goldRelations = reader.getRelations("RELATION", getFirstArgumentIdName(isTrajectorPair), "spatial_indicator_id")
-        .filter(x => !nullArgumentIds.contains(x.getArgumentId(0)))
+      // create pairs which first argument is trajector and second is indicator
+      val goldTrajectorRelations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
+        .filter(x => !nullTrajectorIds.contains(x.getArgumentId(0)))
+        .toList
+
+      // create pairs which first argument is landmark and second is indicator
+      val goldLandmarkRelations = reader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
+        .filter(x => !nullLandmarkIds.contains(x.getArgumentId(0)))
         .toList
 
       val firstArgCandidates = tokens().filter(x => getPos(x).head.contains("NN") || getPos(x).head.contains("PRP")).toList
@@ -166,34 +182,26 @@ object combinedPairApp extends App with Logging {
 
       val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
 
-      if (isTrajectorPair) {
-        candidateRelations
-          .foreach(r => r.setProperty("RelationType", isGold(goldRelations, r, "TRAJECTOR_id") match {
-            case true => "TR_SP"
-            case false => "None"
-          }))
-      }
-      else {
-        candidateRelations
-          .foreach(r => r.setProperty("RelationType", isGold(goldRelations, r, "LANDMARK_id") match {
-            case true => "LM_SP"
-            case false => "None"
-          }))
-      }
+      candidateRelations.foreach(r => {
+        val relationType = if (isGold(goldTrajectorRelations, r, "TRAJECTOR_id")) {
+          "TR-SP"
+        } else if (isGold(goldLandmarkRelations, r, "LANDMARK_id")) {
+          "LM-SP"
+        } else {
+          "None"
+        }
+        r.setProperty("RelationType", relationType)
+      })
+
       textRelations.populate(candidateRelations, isTrain)
-      goldRelations.size - candidateRelations.count(_.getProperty("RelationType") != "None")
+
+      val missedTrSp = goldTrajectorRelations.size - candidateRelations.count(_.getProperty("RelationType") == "TR-SP")
+      val missedLmSp = goldLandmarkRelations.size - candidateRelations.count(_.getProperty("RelationType") == "LM-SP")
+      (missedTrSp, missedLmSp)
     }
     else {
-      0
+      (0, 0)
     }
-  }
-
-  private def getFirstArgumentIdName(isTrajectorPair: Boolean) = {
-    if (isTrajectorPair) "trajector_id" else "landmark_id"
-  }
-
-  private def getFirstArgumentTagName(isTrajectorPair: Boolean) = {
-    if (isTrajectorPair) "TRAJECOTR" else "LANDMARK"
   }
 
   def isGold(goldRelations: List[Relation], r: Relation, firstArgName: String): Boolean = {
