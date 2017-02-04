@@ -78,7 +78,7 @@ object MultiModalSpRLClassifiers {
   }
 
   object TrajectorPairClassifier extends Learnable(textRelations) {
-    def label = relationType
+    def label = trajectorRelationType
 
     override lazy val classifier = new SparseNetworkLearner()
 
@@ -86,7 +86,7 @@ object MultiModalSpRLClassifiers {
   }
 
   object LandmarkPairClassifier extends Learnable(textRelations) {
-    def label = relationType
+    def label = landmarkRelationType
 
     override lazy val classifier = new SparseNetworkLearner()
 
