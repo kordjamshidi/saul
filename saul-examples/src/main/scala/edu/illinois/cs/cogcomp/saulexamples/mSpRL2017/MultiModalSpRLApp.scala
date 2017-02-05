@@ -8,7 +8,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalContrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
@@ -107,7 +107,15 @@ object combinedPairApp extends App with Logging {
 
   import MultiModalSpRLDataModel._
 
-//  runClassifiers(true)
+  val classifiers = List(
+    TrajectorRoleClassifier,
+    LandmarkRoleClassifier,
+    IndicatorRoleClassifier,
+    TrajectorPairClassifier,
+    LandmarkPairClassifier
+  )
+
+  runClassifiers(true)
   runClassifiers(false)
 
   private def runClassifiers(isTrain: Boolean) = {
@@ -115,44 +123,24 @@ object combinedPairApp extends App with Logging {
     println("Missing trajector relations count: " + missingTr)
     println("Missing landmark relations count: " + missingLm)
 
-    TrajectorPairClassifier.modelDir = "models/mSpRL/spatialRole/"
-    LandmarkPairClassifier.modelDir = "models/mSpRL/spatialRole/"
+    classifiers.foreach(_.modelDir = "models/mSpRL/spatialRole/")
+
     if (isTrain) {
       println("training started ...")
 
-      IndicatorRoleClassifier.learn(50)
-      IndicatorRoleClassifier.save()
-
-      TrajectorRoleClassifier.learn(50)
-      TrajectorRoleClassifier.save()
-
-      LandmarkRoleClassifier.learn(50)
-      TrajectorRoleClassifier.save()
-
-      TrajectorPairClassifier.learn(50)
-      TrajectorPairClassifier.save()
-
-      LandmarkPairClassifier.learn(50)
-      LandmarkPairClassifier.save()
+      classifiers.foreach(classifier=>{
+        classifier.learn(50)
+        classifier.save()
+      })
     }
     else {
 
       println("testing started ...")
 
-      IndicatorRoleClassifier.load()
-      IndicatorRoleClassifier.test()
-
-      TrajectorRoleClassifier.load()
-      TrajectorRoleClassifier.test()
-
-      LandmarkRoleClassifier.load()
-      LandmarkRoleClassifier.test()
-
-      TrajectorPairClassifier.load()
-      TrajectorPairClassifier.test()
-
-      LandmarkPairClassifier.load()
-      LandmarkPairClassifier.test()
+      classifiers.foreach(classifier=>{
+        classifier.load()
+        classifier.test()
+      })
 
       TRPairConstraintClassifier.test()
       LMPairConstraintClassifier.test()
@@ -179,9 +167,11 @@ object combinedPairApp extends App with Logging {
     segments.populate(segmentList, isTrain)
     segmentRelations.populate(relationList, isTrain)
 
-    reader.addPropertiesFromTag("TRAJECTOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
-    reader.addPropertiesFromTag("LANDMARK", tokens().toList, XmlMatchings.xmlHeadwordMatching)
-    reader.addPropertiesFromTag("SPATIALINDICATOR", tokens().toList, XmlMatchings.xmlHeadwordMatching)
+    val tokenInstances = if(isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
+
+    reader.addPropertiesFromTag("TRAJECTOR", tokenInstances.toList, XmlMatchings.xmlHeadwordMatching)
+    reader.addPropertiesFromTag("LANDMARK", tokenInstances.toList, XmlMatchings.xmlHeadwordMatching)
+    reader.addPropertiesFromTag("SPATIALINDICATOR", tokenInstances.toList, XmlMatchings.xmlHeadwordMatching)
 
     if (populateRelations) {
 
@@ -201,8 +191,8 @@ object combinedPairApp extends App with Logging {
         .filter(x => !nullLandmarkIds.contains(x.getArgumentId(0)))
         .toList
 
-      val firstArgCandidates = tokens().filter(x => getPos(x).head.contains("NN") || getPos(x).head.contains("PRP")).toList
-      val spCandidates = tokens().filter(x => getPos(x).head.contains("IN") || Dictionaries.isPreposition(x.getText)).toList
+      val firstArgCandidates = tokenInstances.filter(x => getPos(x).head.contains("NN") || getPos(x).head.contains("PRP")).toList
+      val spCandidates = tokenInstances.filter(x => getPos(x).head.contains("IN") || Dictionaries.isPreposition(x.getText)).toList
 
       val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
 

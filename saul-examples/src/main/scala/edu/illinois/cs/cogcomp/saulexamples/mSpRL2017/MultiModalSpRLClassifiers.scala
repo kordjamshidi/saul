@@ -48,7 +48,7 @@ object MultiModalSpRLClassifiers {
   object SpatialRoleClassifier extends Learnable(tokens) {
     def label = spatialRole
 
-    override lazy val classifier = new SupportVectorMachine()
+    override lazy val classifier = new SparseNetworkLearner()
 
     override def feature = using(tokenFeatures)
   }
@@ -64,7 +64,7 @@ object MultiModalSpRLClassifiers {
   object LandmarkRoleClassifier extends Learnable(tokens) {
     def label = landmarkRole
 
-    override lazy val classifier = new SupportVectorMachine()
+    override lazy val classifier = new SparseNetworkLearner()
 
     override def feature = using(tokenFeatures)
   }
@@ -72,7 +72,7 @@ object MultiModalSpRLClassifiers {
   object IndicatorRoleClassifier extends Learnable(tokens) {
     def label = indicatorRole
 
-    override lazy val classifier = new SupportVectorMachine()
+    override lazy val classifier = new SparseNetworkLearner()
 
     override def feature = using(tokenFeatures)
   }
