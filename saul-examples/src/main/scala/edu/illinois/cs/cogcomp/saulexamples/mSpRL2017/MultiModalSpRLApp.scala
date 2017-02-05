@@ -8,7 +8,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalContrainedClassifiers.argTRConstraintClassifier
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalContrainedClassifiers.TRPairConstraintClassifier
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
@@ -16,6 +16,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.SPATIALINDICATOR
 
 import scala.collection.JavaConversions._
 
@@ -119,6 +120,15 @@ object combinedPairApp extends App with Logging {
     if (isTrain) {
       println("training started ...")
 
+      IndicatorRoleClassifier.learn(50)
+      IndicatorRoleClassifier.save()
+
+      TrajectorRoleClassifier.learn(50)
+      TrajectorRoleClassifier.save()
+
+      LandmarkRoleClassifier.learn(50)
+      TrajectorRoleClassifier.save()
+
       TrajectorPairClassifier.learn(50)
       TrajectorPairClassifier.save()
 
@@ -126,7 +136,17 @@ object combinedPairApp extends App with Logging {
       LandmarkPairClassifier.save()
     }
     else {
+
       println("testing started ...")
+
+      IndicatorRoleClassifier.load()
+      IndicatorRoleClassifier.test()
+
+      TrajectorRoleClassifier.load()
+      TrajectorRoleClassifier.test()
+
+      LandmarkRoleClassifier.load()
+      LandmarkRoleClassifier.test()
 
       TrajectorPairClassifier.load()
       TrajectorPairClassifier.test()
@@ -134,7 +154,7 @@ object combinedPairApp extends App with Logging {
       LandmarkPairClassifier.load()
       LandmarkPairClassifier.test()
 
-      argTRConstraintClassifier.test()
+      TRPairConstraintClassifier.test()
     }
   }
 
