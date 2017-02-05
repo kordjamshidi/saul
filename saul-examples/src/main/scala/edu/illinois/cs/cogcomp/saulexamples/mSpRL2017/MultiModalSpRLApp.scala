@@ -8,7 +8,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalContrainedClassifiers.TRPairConstraintClassifier
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalContrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
@@ -155,6 +155,7 @@ object combinedPairApp extends App with Logging {
       LandmarkPairClassifier.test()
 
       TRPairConstraintClassifier.test()
+      LMPairConstraintClassifier.test()
     }
   }
 
