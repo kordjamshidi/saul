@@ -29,7 +29,7 @@ public class TestClassifierReader {
 		String line;
 		while ((line = reader.readLine()) != null) {
 			String[] s=line.split(" ");
-			dataList.add(new TestClassifierData(s[0],s[1].replaceAll("\\t", " "), s[2], s[3]));
+			dataList.add(new TestClassifierData(s[0], s[1].replaceAll("\\t", " "),s[2], s[3]));
 		}
 		reader.close();
 		return dataList;
