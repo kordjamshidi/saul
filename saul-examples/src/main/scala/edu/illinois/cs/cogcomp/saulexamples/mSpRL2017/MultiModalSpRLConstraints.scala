@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Relation
 import MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers.{IndicatorRoleClassifier, LandmarkPairClassifier, SpatialRoleClassifier, TrajectorPairClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 
 import scala.collection.JavaConversions._
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
@@ -16,14 +16,14 @@ object MultiModalSpRLConstraints {
   val integrityTR = ConstrainedClassifier.constraint[Relation] {
     x: Relation =>
       ((TrajectorPairClassifier on x) is "TR_SP") ==>
-        (SpatialRoleClassifier on (textRelations(x) ~> relationToFirstArgument).head is "Trajector") and
+        (TrajectorRoleClassifier on (textRelations(x) ~> relationToFirstArgument).head is "Trajector") and
         (IndicatorRoleClassifier on (textRelations(x) ~> relationToSecondArgument).head is "Indicator")
   }
 
   val integrityLM = ConstrainedClassifier.constraint[Relation] {
     x: Relation =>
       ((LandmarkPairClassifier on x) is "LM_SP") ==>
-        (SpatialRoleClassifier on (textRelations(x) ~> relationToFirstArgument).head is "Landmark") and
+        (LandmarkRoleClassifier on (textRelations(x) ~> relationToFirstArgument).head is "Landmark") and
         (IndicatorRoleClassifier on (textRelations(x) ~> relationToSecondArgument).head is "Indicator")
   }
 
