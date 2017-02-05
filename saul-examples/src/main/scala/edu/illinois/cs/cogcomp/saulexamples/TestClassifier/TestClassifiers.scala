@@ -28,4 +28,10 @@ object TestClassifiers {
     override lazy val classifier = new SparseNetworkLearner()
     override def feature = using(mixFeatures)
   }
+
+  object TestClassifierSN2 extends Learnable[TestClassifierData](tcData) {
+    def label = dataLabel
+    override lazy val classifier = new SparseNetworkLearner()
+    override def feature = using(realFeatures)
+  }
 }
