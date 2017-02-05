@@ -8,6 +8,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalContrainedClassifiers.argTRConstraintClassifier
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
@@ -105,7 +106,7 @@ object combinedPairApp extends App with Logging {
 
   import MultiModalSpRLDataModel._
 
-  runClassifiers(true)
+//  runClassifiers(true)
   runClassifiers(false)
 
   private def runClassifiers(isTrain: Boolean) = {
@@ -132,6 +133,8 @@ object combinedPairApp extends App with Logging {
 
       LandmarkPairClassifier.load()
       LandmarkPairClassifier.test()
+
+      argTRConstraintClassifier.test()
     }
   }
 

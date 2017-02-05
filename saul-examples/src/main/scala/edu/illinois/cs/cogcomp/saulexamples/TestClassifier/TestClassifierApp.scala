@@ -15,6 +15,9 @@ object TestClassifierApp extends App {
   TestClassifierSVM.learn(5)
   TestClassifierSVM.test()
 
-  TestClassifierSN.learn(5)
+  TestClassifierSN.learn(50)
   TestClassifierSN.test()
+
+  TestClassifierSN2.learn(5)
+  TestClassifierSN2.test()
 }
