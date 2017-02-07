@@ -205,10 +205,12 @@ public class CLEFImageReader
                     if (segmentConcept != null) {
                         String segmentFeatures = segmentInfo[2];
                         segmentFeatures = segmentFeatures.trim().replaceAll(" +", " ");
-                        if (trainingData.contains(imageId))
+                        if (trainingData.contains(imageId)) {
                             trainingSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept));
-                        else if (testData.contains(imageId))
+                        }
+                        else if (testData.contains(imageId)) {
                             testSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept));
+                        }
                     }
                 }
             }
@@ -251,51 +253,56 @@ public class CLEFImageReader
                                 val = (int) topo[x][y];
                                 if (val == 1)
                                     rel = "adjacent";
-                                else if (val == 2)
-                                    rel = "disjoint";
+//                              ****** Ignoring as not required in mSpRL
+//                                else if (val == 2)
+//                                    rel = "disjoint";
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(imgId)) {
-                                    //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
-                                }
-                                else if (testData.contains(imgId)) {
-                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                if(rel!=null) {
+                                    if (trainingData.contains(imgId)) {
+                                        //Creating new Relation between segments
+                                        trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    } else if (testData.contains(imgId)) {
+                                        testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    }
                                 }
                                 val = (int) xRels[x][y];
                                 if (val == 3)
                                     rel = "beside";
-                                else if (val == 4)
-                                    rel = "x-aligned";
+//                              ****** Ignoring as not required in mSpRL
+//                                else if (val == 4)
+//                                    rel = "x-aligned";
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(imgId)) {
-                                    //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                if(rel!=null) {
+                                    if (trainingData.contains(imgId)) {
+                                        //Creating new Relation between segments
+                                        trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    } else if (testData.contains(imgId)) {
+                                        testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    }
                                 }
-                                else if (testData.contains(imgId)) {
-                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
-                                }
-
 
                                 val = (int) yRels[x][y];
                                 if (val == 5)
                                     rel = "above";
                                 else if (val == 6)
                                     rel = "below";
-                                else if (val == 7)
-                                    rel = "y-aligned";
+//                               ****** Ignoring as not required in mSpRL
+//                                else if (val == 7)
+//                                    rel = "y-aligned";
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(imgId)) {
-                                    //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
-                                }
-                                else if (testData.contains(imgId)) {
-                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                if(rel!=null) {
+                                    if (trainingData.contains(imgId)) {
+                                        //Creating new Relation between segments
+                                        trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    } else if (testData.contains(imgId)) {
+                                        testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    }
                                 }
                             }
                         }
