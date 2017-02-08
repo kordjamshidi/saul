@@ -16,6 +16,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluator}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.SPATIALINDICATOR
 
 import scala.collection.JavaConversions._
@@ -115,8 +116,70 @@ object combinedPairApp extends App with Logging {
     LandmarkPairClassifier
   )
 
-  runClassifiers(true)
+  //runClassifiers(true)
   runClassifiers(false)
+
+  private def testTriplet(isTrain: Boolean): Unit = {
+    val tokenInstances = if (isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
+    val indicators = tokenInstances.filter(t => IndicatorRoleClassifier(t) == "Indicator").toList.sortBy(x => x.getSentence.getStart + x.getStart)
+
+    val relations = indicators.flatMap(sp => {
+      val pairs = tokens(sp) <~ relationToSecondArgument
+      val trajectorPairs = pairs.filter(r => TrajectorPairClassifier(r) == "TR-SP") ~> relationToFirstArgument
+      if (trajectorPairs.nonEmpty) {
+        val landmarkPairs = pairs.filter(r => LandmarkPairClassifier(r) == "LM-SP") ~> relationToFirstArgument
+        if (landmarkPairs.nonEmpty) {
+          trajectorPairs.flatMap(tr => landmarkPairs.map(lm => getRelationEval(tr, sp, lm))).toList
+        }
+        else {
+          List()//trajectorPairs.map(t => getRelationEval(t, sp, null)).toList
+        }
+      }
+      else {
+        List()
+      }
+    })
+    val predictedRelations = new RelationsEvalDocument(relations)
+    val actualRelations = new RelationsEvalDocument(getActualRelationEvals(isTrain))
+    val evaluator = new SpRLEvaluator()
+    val results = evaluator.evaluateRelations(actualRelations, predictedRelations)
+    evaluator.printEvaluation(results)
+  }
+
+  def getActualRelationEvals(isTrain: Boolean): List[RelationEval] = {
+    val reader = getXmlReader(isTrain)
+    val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
+    val trajectors = reader.getTagAsNlpBaseElement("TRAJECTOR").map(x => x.getId -> x).toMap
+    val landmarks = reader.getTagAsNlpBaseElement("LANDMARK").map(x => x.getId -> x).toMap
+    // read sp as phrase in otder to have access to the sentence offset
+    reader.setPhraseTagName("SPATIALINDICATOR")
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+    relations.map(r => {
+      val tr = trajectors(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      val lm = landmarks(r.getArgumentId(2))
+      val offset = sp.getSentence.getStart
+      new RelationEval(
+        tr.getStart + offset,
+        tr.getEnd + offset,
+        sp.getStart + offset,
+        sp.getEnd + offset,
+        lm.getStart + offset,
+        lm.getEnd + offset
+      )
+    }).toList
+  }
+
+  def getRelationEval(tr: Token, sp: Token, lm: Token): RelationEval = {
+    val offset = sp.getSentence.getStart
+    val lmStart = if (lm != null) offset + lm.getStart else -1
+    val lmEnd = if (lm != null) offset + lm.getEnd else -1
+    val trStart = if (tr != null) offset + tr.getStart else -1
+    val trEnd = if (tr != null) offset + tr.getEnd else -1
+    val spStart = offset + sp.getStart
+    val spEnd = offset + sp.getEnd
+    new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+  }
 
   private def runClassifiers(isTrain: Boolean) = {
     val (missingTr, missingLm) = populateData(isTrain, true)
@@ -128,7 +191,7 @@ object combinedPairApp extends App with Logging {
     if (isTrain) {
       println("training started ...")
 
-      classifiers.foreach(classifier=>{
+      classifiers.foreach(classifier => {
         classifier.learn(50)
         classifier.save()
       })
@@ -137,24 +200,21 @@ object combinedPairApp extends App with Logging {
 
       println("testing started ...")
 
-      classifiers.foreach(classifier=>{
+      classifiers.foreach(classifier => {
         classifier.load()
         classifier.test()
       })
+      testTriplet(isTrain)
+      //TRPairConstraintClassifier.test()
+      //LMPairConstraintClassifier.test()
 
-      TRPairConstraintClassifier.test()
-      LMPairConstraintClassifier.test()
     }
   }
 
   lazy val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
 
   def populateData(isTrain: Boolean, populateRelations: Boolean = false) = {
-    val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
-
-    val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
-    reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
-
+    val reader: NlpXmlReader = getXmlReader(isTrain)
     val documentList = reader.getDocuments()
     val sentenceList = reader.getSentences()
     val imageList = if (isTrain) CLEFDataSet.trainingImages else CLEFDataSet.testImages
@@ -167,7 +227,7 @@ object combinedPairApp extends App with Logging {
     segments.populate(segmentList, isTrain)
     segmentRelations.populate(relationList, isTrain)
 
-    val tokenInstances = if(isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
+    val tokenInstances = if (isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
 
     reader.addPropertiesFromTag("TRAJECTOR", tokenInstances.toList, XmlMatchings.xmlHeadwordMatching)
     reader.addPropertiesFromTag("LANDMARK", tokenInstances.toList, XmlMatchings.xmlHeadwordMatching)
@@ -175,11 +235,9 @@ object combinedPairApp extends App with Logging {
 
     if (populateRelations) {
 
-      // read TRAJECTOR/LANDMARK elements as document and find empty ones: elements with `start` == -1
-      reader.setDocumentTagName("TRAJECOTR")
-      val nullTrajectorIds = reader.getDocuments().filter(_.getStart == -1).map(_.getId)
-      reader.setDocumentTagName("LANDMARK")
-      val nullLandmarkIds = reader.getDocuments().filter(_.getStart == -1).map(_.getId)
+      // read TRAJECTOR/LANDMARK elements and find empty ones: elements with `start` == -1
+      val nullTrajectorIds = reader.getTagAsNlpBaseElement("TRAJECTOR").filter(_.getStart == -1).map(_.getId)
+      val nullLandmarkIds = reader.getTagAsNlpBaseElement("LANDMARK").filter(_.getStart == -1).map(_.getId)
 
       // create pairs which first argument is trajector and second is indicator
       val goldTrajectorRelations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
@@ -216,6 +274,13 @@ object combinedPairApp extends App with Logging {
     else {
       (0, 0)
     }
+  }
+
+  private def getXmlReader(isTrain: Boolean) = {
+    val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
+    val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
+    reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
+    reader
   }
 
   def isGold(goldRelations: List[Relation], r: Relation, firstArgName: String): Boolean = {

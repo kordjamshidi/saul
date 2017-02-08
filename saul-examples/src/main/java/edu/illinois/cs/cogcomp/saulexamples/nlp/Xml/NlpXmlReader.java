@@ -1,13 +1,15 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ * <p>
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.Xml;
 
 import edu.illinois.cs.cogcomp.saul.util.ProgressBar;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.*;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.RelationEval;
 import org.apache.commons.lang.time.StopWatch;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -133,6 +135,14 @@ public class NlpXmlReader {
                 e.setAttribute("id", getAttribute(e, propertyName));
             }
         }
+    }
+
+    public List<NlpBaseElement> getTagAsNlpBaseElement(String tagName, String... addPropertiesFromTag) {
+        String docTag = getDocumentTagName();
+        setDocumentTagName(tagName);
+        List<NlpBaseElement> result = getElementList(getDocumentTagName(), null, NlpBaseElementTypes.Document);
+        setDocumentTagName(docTag);
+        return result;
     }
 
     public List<Document> getDocuments(String... addPropertiesFromTag) {
