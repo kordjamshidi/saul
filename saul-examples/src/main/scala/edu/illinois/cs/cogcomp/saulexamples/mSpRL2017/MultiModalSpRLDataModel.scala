@@ -150,6 +150,18 @@ object MultiModalSpRLDataModel extends DataModel {
     }
   }
 
+  val isTrajectorCandidate = property(textRelations) {
+    r: Relation =>  getArguments(r)._1.containsProperty("TR-Candidate")
+  }
+
+  val isLandmarkCandidate = property(textRelations) {
+    r: Relation =>  getArguments(r)._1.containsProperty("LM-Candidate")
+  }
+
+  val isIndicatorCandidate = property(textRelations) {
+    r: Relation =>  getArguments(r)._1.containsProperty("SP-Candidate")
+  }
+
   val relationWordForm = property(textRelations) {
     r: Relation =>
       val (first, second) = getArguments(r)

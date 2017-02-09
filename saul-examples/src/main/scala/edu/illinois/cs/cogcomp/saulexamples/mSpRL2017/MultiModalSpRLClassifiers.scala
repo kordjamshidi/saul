@@ -19,7 +19,8 @@ object MultiModalSpRLClassifiers {
     isTokenAnImageConcept, nearestSegmentConceptVector, tokenVector)
 
   private val relationFeatures = List(relationWordForm, relationPos, relationSemanticRole, relationDependencyRelation,
-    relationSubCategorization, relationSpatialContext, relationIsTokenAnImageConcept, relationTokensVector, distance, before)
+    relationSubCategorization, relationSpatialContext, relationIsTokenAnImageConcept, relationTokensVector, distance, before,
+    isTrajectorCandidate, isLandmarkCandidate, isIndicatorCandidate)
 
   object ImageSVMClassifier extends Learnable(segments) {
     def label = segmentLabel

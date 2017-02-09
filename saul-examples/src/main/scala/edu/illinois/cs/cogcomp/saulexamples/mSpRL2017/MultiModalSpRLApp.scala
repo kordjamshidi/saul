@@ -6,6 +6,8 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
+import java.io._
+
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
@@ -20,6 +22,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{Relati
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.SPATIALINDICATOR
 
 import scala.collection.JavaConversions._
+import scala.io.Source
 
 object imageApp extends App {
 
@@ -116,7 +119,7 @@ object combinedPairApp extends App with Logging {
     LandmarkPairClassifier
   )
 
-  //runClassifiers(true)
+  runClassifiers(true)
   runClassifiers(false)
 
   private def testTriplet(isTrain: Boolean): Unit = {
@@ -132,7 +135,7 @@ object combinedPairApp extends App with Logging {
           trajectorPairs.flatMap(tr => landmarkPairs.map(lm => getRelationEval(tr, sp, lm))).toList
         }
         else {
-          List()//trajectorPairs.map(t => getRelationEval(t, sp, null)).toList
+          List() //trajectorPairs.map(t => getRelationEval(t, sp, null)).toList
         }
       }
       else {
@@ -182,9 +185,7 @@ object combinedPairApp extends App with Logging {
   }
 
   private def runClassifiers(isTrain: Boolean) = {
-    val (missingTr, missingLm) = populateData(isTrain, true)
-    println("Missing trajector relations count: " + missingTr)
-    println("Missing landmark relations count: " + missingLm)
+    populateData(isTrain, true)
 
     classifiers.foreach(_.modelDir = "models/mSpRL/spatialRole/")
 
@@ -211,9 +212,11 @@ object combinedPairApp extends App with Logging {
     }
   }
 
-  lazy val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
-
   def populateData(isTrain: Boolean, populateRelations: Boolean = false) = {
+    val trTag = "TRAJECTOR"
+    val lmTag = "LANDMARK"
+    val spTag = "SPATIALINDICATOR"
+    val relationTag = "RELATION"
     val reader: NlpXmlReader = getXmlReader(isTrain)
     val documentList = reader.getDocuments()
     val sentenceList = reader.getSentences()
@@ -227,65 +230,176 @@ object combinedPairApp extends App with Logging {
     segments.populate(segmentList, isTrain)
     segmentRelations.populate(relationList, isTrain)
 
-    val tokenInstances = if (isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
+    val tokenInstances = if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList
 
-    reader.addPropertiesFromTag("TRAJECTOR", tokenInstances.toList, XmlMatchings.xmlHeadwordMatching)
-    reader.addPropertiesFromTag("LANDMARK", tokenInstances.toList, XmlMatchings.xmlHeadwordMatching)
-    reader.addPropertiesFromTag("SPATIALINDICATOR", tokenInstances.toList, XmlMatchings.xmlHeadwordMatching)
+    reader.addPropertiesFromTag(trTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
+    reader.addPropertiesFromTag(lmTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
+    reader.addPropertiesFromTag(spTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
 
     if (populateRelations) {
 
       // read TRAJECTOR/LANDMARK elements and find empty ones: elements with `start` == -1
-      val nullTrajectorIds = reader.getTagAsNlpBaseElement("TRAJECTOR").filter(_.getStart == -1).map(_.getId)
-      val nullLandmarkIds = reader.getTagAsNlpBaseElement("LANDMARK").filter(_.getStart == -1).map(_.getId)
+      val nullTrajectorIds = reader.getTagAsNlpBaseElement(trTag).filter(_.getStart == -1).map(_.getId)
+      val nullLandmarkIds = reader.getTagAsNlpBaseElement(lmTag).filter(_.getStart == -1).map(_.getId)
 
-      // create pairs which first argument is trajector and second is indicator
-      val goldTrajectorRelations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id")
+      // create pairs which first argument is trajector and second is indicator, and remove duplicates
+      val goldTrajectorRelations = reader.getRelations(relationTag, "trajector_id", "spatial_indicator_id")
         .filter(x => !nullTrajectorIds.contains(x.getArgumentId(0)))
+        .groupBy(x => x.getArgumentId(0) + "_" + x.getArgumentId(1))
+        .map { case (_, list) => list.head }
         .toList
 
-      // create pairs which first argument is landmark and second is indicator
-      val goldLandmarkRelations = reader.getRelations("RELATION", "landmark_id", "spatial_indicator_id")
+      // create pairs which first argument is landmark and second is indicator, and remove duplicates
+      val goldLandmarkRelations = reader.getRelations(relationTag, "landmark_id", "spatial_indicator_id")
         .filter(x => !nullLandmarkIds.contains(x.getArgumentId(0)))
+        .groupBy(x => x.getArgumentId(0) + "_" + x.getArgumentId(1))
+        .map { case (_, list) => list.head }
         .toList
 
-      val firstArgCandidates = tokenInstances.filter(x => getPos(x).head.contains("NN") || getPos(x).head.contains("PRP")).toList
-      val spCandidates = tokenInstances.filter(x => getPos(x).head.contains("IN") || Dictionaries.isPreposition(x.getText)).toList
+      val trPosTagLex = getRolePosTagLexicon(trTag, 10, isTrain)
+      val trCandidates = tokenInstances.filter(x => trPosTagLex.exists(y => pos(x).contains(y)))
+      trCandidates.foreach(_.addPropertyValue("TR-Candidate", "true"))
+      reportStats(tokenInstances, trCandidates, trTag)
+
+      val lmPosTagLex = getRolePosTagLexicon(lmTag, 10, isTrain)
+      val lmCandidates = tokenInstances.filter(x => lmPosTagLex.contains(pos(x)))
+      lmCandidates.foreach(_.addPropertyValue("LM-Candidate", "true"))
+      reportStats(tokenInstances, lmCandidates, lmTag)
+
+      val firstArgCandidates = trCandidates.toSet.union(lmCandidates.toSet).toList
+
+      val spLex = getSpatialIndicatorLexicon(2, isTrain)
+      val spPosTagLex = getRolePosTagLexicon(spTag, 10, isTrain)
+      val spCandidates = tokenInstances
+        .filter(x => spLex.contains(x.getText.toLowerCase) ||
+          spPosTagLex.contains(pos(x)) ||
+          Dictionaries.isPreposition(x.getText)
+        )
+      spCandidates.foreach(_.addPropertyValue("SP-Candidate", "true"))
+      reportStats(tokenInstances, spCandidates, spTag)
 
       val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
 
-      candidateRelations.foreach(r => {
-        val relationType = if (isGold(goldTrajectorRelations, r, "TRAJECTOR_id")) {
-          "TR-SP"
-        } else if (isGold(goldLandmarkRelations, r, "LANDMARK_id")) {
-          "LM-SP"
+      candidateRelations.foreach(_.setProperty("RelationType", "None"))
+
+      goldLandmarkRelations.foreach(r => {
+        val c = candidateRelations
+          .find(x => x.getArgument(0).getPropertyValues(s"${lmTag}_id").contains(r.getArgumentId(0)) &&
+            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
+
+        if (c.nonEmpty) {
+          if (c.get.getProperty("RelationType") == "LM-SP") {
+            println(s"warning: candidate already marked as LM-SP via ${c.get.getId}. duplicate relation: ${r.getId}")
+          } else {
+            c.get.setProperty("RelationType", "LM-SP")
+            c.get.setId(r.getId)
+          }
         } else {
-          "None"
+          println(s"cannot find LM-SP candidate relation for ${r.getId}")
         }
-        r.setProperty("RelationType", relationType)
+      })
+
+      goldTrajectorRelations.foreach(r => {
+        val c = candidateRelations
+          .find(x => x.getArgument(0).getPropertyValues(s"${trTag}_id").contains(r.getArgumentId(0)) &&
+            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
+
+        if (c.nonEmpty) {
+          if (c.get.getProperty("RelationType") == "TR-SP") {
+            println(s"warning: candidate already marked as TR-SP via ${c.get.getId}. duplicate relation: ${r.getId}")
+          } else {
+            if (c.get.getProperty("RelationType") == "TR-SP") {
+              println(s"warning: overriding LM-SP relation ${c.get.getId} by TR-SP relation: ${r.getId}")
+            }
+            c.get.setProperty("RelationType", "TR-SP")
+            c.get.setId(r.getId)
+          }
+        } else {
+          println(s"cannot find TR-SP candidate relation for ${r.getId}")
+        }
       })
 
       textRelations.populate(candidateRelations, isTrain)
 
       val missedTrSp = goldTrajectorRelations.size - candidateRelations.count(_.getProperty("RelationType") == "TR-SP")
+      println("actual TR-SP:" + goldTrajectorRelations.size)
+      println("Missing TR-SP in the candidates: " + missedTrSp)
+      val missingTrRelations = goldTrajectorRelations
+        .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "TR-SP" && x.getId == r.getId))
+        .map(_.getId)
+      println("missing relations from TR-SP: " + missingTrRelations)
+
       val missedLmSp = goldLandmarkRelations.size - candidateRelations.count(_.getProperty("RelationType") == "LM-SP")
-      (missedTrSp, missedLmSp)
-    }
-    else {
-      (0, 0)
+      println("actual LM-SP:" + goldLandmarkRelations.size)
+      println("Missing LM-SP in the candidates: " + missedLmSp)
+      val missingLmRelations = goldLandmarkRelations
+        .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "LM-SP" && x.getId == r.getId))
+        .map(_.getId)
+      println("missing relations from LM-SP: " + missingLmRelations)
     }
   }
 
+  private def reportStats(tokenInstances: List[Token], candidates: List[Token], tagName: String) = {
+    val actual = tokenInstances.map(_.getPropertyValues(s"${tagName}_id").size()).sum
+    val missingTokens = tokenInstances.diff(candidates).map(_.getText.toLowerCase())
+    val missing = actual - candidates.map(_.getPropertyValues(s"${tagName}_id").size()).sum
+
+    println(s"Actual ${tagName}: $actual")
+    println(s"Missing ${tagName} in the candidates: $missing ($missingTokens)")
+  }
+
+  private def getRolePosTagLexicon(tagName: String, minFreq: Int, isTrain: Boolean): List[String] = {
+    val lexFile = new File(s"data/mSprl/${tagName.toLowerCase}PosTag.lex")
+    if (isTrain) {
+      val posTagLex = tokens.getTrainingInstances.filter(x => x.containsProperty(s"${tagName.toUpperCase}_id"))
+        .map(x => pos(x)).groupBy(x => x).map { case (key, list) => (key, list.size) }.filter(_._2 >= minFreq)
+        .keys.toList
+      val writer = new PrintWriter(lexFile)
+      posTagLex.foreach(p => writer.println(p))
+      writer.close()
+      posTagLex
+    } else {
+      if (!lexFile.exists())
+        throw new IOException(s"cannot find ${lexFile.getAbsolutePath} file")
+      Source.fromFile(lexFile).getLines().toList
+    }
+  }
+
+  private def getSpatialIndicatorLexicon(minFreq: Int, isTrain: Boolean): List[String] = {
+    val lexFile = new File("data/mSprl/spatialIndicator.lex")
+    if (isTrain) {
+      val sps = tokens.getTrainingInstances.filter(_.containsProperty("SPATIALINDICATOR_id"))
+        .groupBy(_.getText.toLowerCase).map { case (key, list) => (key, list.size, list) }.filter(_._2 >= minFreq)
+      val prepositionLex = sps.map(_._1).toList
+      val writer = new PrintWriter(lexFile)
+      prepositionLex.foreach(p => writer.println(p))
+      writer.close()
+      prepositionLex
+    } else {
+      if (!lexFile.exists())
+        throw new IOException(s"cannot find ${lexFile.getAbsolutePath} file")
+      Source.fromFile(lexFile).getLines().toList
+    }
+  }
+
+  private lazy val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
+  private lazy val trainReader = createXmlReader(true)
+  private lazy val testReader = createXmlReader(false)
+
   private def getXmlReader(isTrain: Boolean) = {
+    if (isTrain) trainReader else testReader
+  }
+
+  private def createXmlReader(isTrain: Boolean) = {
     val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
     val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
     reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
     reader
   }
 
-  def isGold(goldRelations: List[Relation], r: Relation, firstArgName: String): Boolean = {
-    goldRelations.exists(x =>
-      r.getArgument(0).getPropertyValues(firstArgName).contains(x.getArgumentId(0)) &&
+  def findGold(goldRelations: List[Relation], r: Relation, firstArgTag: String): Option[Relation] = {
+    goldRelations.find(x =>
+      r.getArgument(0).getPropertyValues(s"${firstArgTag}_id").contains(x.getArgumentId(0)) &&
         r.getArgument(1).getPropertyValues("SPATIALINDICATOR_id").contains(x.getArgumentId(1))
     )
   }
