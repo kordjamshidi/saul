@@ -6,6 +6,8 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
+import java.io._
+
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
@@ -20,6 +22,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{Relati
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.SPATIALINDICATOR
 
 import scala.collection.JavaConversions._
+import scala.io.Source
 
 object imageApp extends App {
 
@@ -116,7 +119,7 @@ object combinedPairApp extends App with Logging {
     LandmarkPairClassifier
   )
 
-  //runClassifiers(true)
+  runClassifiers(true)
   runClassifiers(false)
 
   private def testTriplet(isTrain: Boolean): Unit = {
@@ -132,7 +135,7 @@ object combinedPairApp extends App with Logging {
           trajectorPairs.flatMap(tr => landmarkPairs.map(lm => getRelationEval(tr, sp, lm))).toList
         }
         else {
-          List()//trajectorPairs.map(t => getRelationEval(t, sp, null)).toList
+          List() //trajectorPairs.map(t => getRelationEval(t, sp, null)).toList
         }
       }
       else {
@@ -211,8 +214,6 @@ object combinedPairApp extends App with Logging {
     }
   }
 
-  lazy val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
-
   def populateData(isTrain: Boolean, populateRelations: Boolean = false) = {
     val reader: NlpXmlReader = getXmlReader(isTrain)
     val documentList = reader.getDocuments()
@@ -249,13 +250,32 @@ object combinedPairApp extends App with Logging {
         .filter(x => !nullLandmarkIds.contains(x.getArgumentId(0)))
         .toList
 
-      val firstArgCandidates = tokenInstances.filter(x => getPos(x).head.contains("NN") || getPos(x).head.contains("PRP")).toList
-      val spCandidates = tokenInstances.filter(x => getPos(x).head.contains("IN") || Dictionaries.isPreposition(x.getText)).toList
+      val trPosTagLex = getRolePosTagLexicon("TRAJECTOR", 1, isTrain)
+      val lmPosTagLex = getRolePosTagLexicon("LANDMARK", 1, isTrain)
+
+      val trCandidates = tokenInstances.filter(x => trPosTagLex.contains(pos(x))).toList
+      trCandidates.foreach(_.addPropertyValue("TR-Candidate", "true"))
+
+      val lmCandidates = tokenInstances.filter(x => lmPosTagLex.contains(pos(x))).toList
+      lmCandidates.foreach(_.addPropertyValue("LM-Candidate", "true"))
+
+      val firstArgCandidates = trCandidates.toSet.union(lmCandidates.toSet).toList
+
+      val spLex = getSpatialIndicatorLexicon(1, isTrain)
+      val spPosTagLex = List("IN", "TO")
+      getRolePosTagLexicon("SPATIALINDICATOR", 10, isTrain)
+      val spCandidates = tokenInstances
+        .filter(x => spLex.contains(x.getText.toLowerCase) ||
+          spPosTagLex.contains(pos(x)) ||
+          Dictionaries.isPreposition(x.getText)
+        ).toList
 
       val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
 
       candidateRelations.foreach(r => {
         val relationType = if (isGold(goldTrajectorRelations, r, "TRAJECTOR_id")) {
+          if (isGold(goldLandmarkRelations, r, "LANDMARK_id"))
+            println("warning a pair is TR-SP and LM-SP at the same time, considered TR-SP")
           "TR-SP"
         } else if (isGold(goldLandmarkRelations, r, "LANDMARK_id")) {
           "LM-SP"
@@ -276,7 +296,49 @@ object combinedPairApp extends App with Logging {
     }
   }
 
+  private def getRolePosTagLexicon(tagName: String, minFreq: Int, isTrain: Boolean): List[String] = {
+    val lexFile = new File(s"data/mSprl/${tagName.toLowerCase}PosTag.lex")
+    if (isTrain) {
+      val posTagLex = tokens.getTrainingInstances.filter(x => x.containsProperty(s"${tagName.toUpperCase}_id"))
+        .map(x => pos(x)).groupBy(x => x).map { case (key, list) => (key, list.size) }.filter(_._2 >= minFreq)
+        .keys.toList
+      val writer = new PrintWriter(lexFile)
+      posTagLex.foreach(p => writer.println(p))
+      writer.close()
+      posTagLex
+    } else {
+      if (!lexFile.exists())
+        throw new IOException(s"cannot find ${lexFile.getAbsolutePath} file")
+      Source.fromFile(lexFile).getLines().toList
+    }
+  }
+
+  private def getSpatialIndicatorLexicon(minFreq: Int, isTrain: Boolean): List[String] = {
+    val lexFile = new File("data/mSprl/spatialIndicator.lex")
+    if (isTrain) {
+      val sps = tokens.getTrainingInstances.filter(_.containsProperty("SPATIALINDICATOR_id"))
+        .groupBy(_.getText.toLowerCase).map { case (key, list) => (key, list.size, list) }.filter(_._2 >= minFreq)
+      val prepositionLex = sps.map(_._1).toList
+      val writer = new PrintWriter(lexFile)
+      prepositionLex.foreach(p => writer.println(p))
+      writer.close()
+      prepositionLex
+    } else {
+      if (!lexFile.exists())
+        throw new IOException(s"cannot find ${lexFile.getAbsolutePath} file")
+      Source.fromFile(lexFile).getLines().toList
+    }
+  }
+
+  private lazy val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
+  private lazy val trainReader = createXmlReader(true)
+  private lazy val testReader = createXmlReader(false)
+
   private def getXmlReader(isTrain: Boolean) = {
+    if (isTrain) trainReader else testReader
+  }
+
+  private def createXmlReader(isTrain: Boolean) = {
     val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
     val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
     reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
