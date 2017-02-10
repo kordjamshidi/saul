@@ -17,7 +17,7 @@ object SentenceLevelConstraints {
       (sentences(s) ~> sentenceToToken <~ relationToFirstArgument).foreach
       {
         x=>
-        a= a and (((TrajectorPairClassifier on x) is "TR_SP") ==>
+        a= a and (((TrajectorPairClassifier on x) is "TR-SP") ==>
         (TrajectorRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Trajector") and
         (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator"))
      }
@@ -30,7 +30,7 @@ object SentenceLevelConstraints {
       a = new FirstOrderConstant(true)
       (sentences(s) ~> sentenceToToken <~ relationToFirstArgument).foreach{
         x=>
-      ((LandmarkPairClassifier on s) is "LM_SP") ==>
+      ((LandmarkPairClassifier on s) is "LM-SP") ==>
         (LandmarkRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Landmark") and
         (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator")
   }
