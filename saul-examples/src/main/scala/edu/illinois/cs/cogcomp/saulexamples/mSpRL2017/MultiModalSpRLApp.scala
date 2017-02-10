@@ -119,7 +119,7 @@ object combinedPairApp extends App with Logging {
     LandmarkPairClassifier
   )
 
-  runClassifiers(true)
+ // runClassifiers(true)
   runClassifiers(false)
 
   private def testTriplet(isTrain: Boolean): Unit = {
@@ -319,7 +319,7 @@ object combinedPairApp extends App with Logging {
         }
       })
 
-      textRelations.populate(candidateRelations, isTrain)
+      pairs.populate(candidateRelations, isTrain)
 
       val missedTrSp = goldTrajectorRelations.size - candidateRelations.count(_.getProperty("RelationType") == "TR-SP")
       println("actual TR-SP:" + goldTrajectorRelations.size)
