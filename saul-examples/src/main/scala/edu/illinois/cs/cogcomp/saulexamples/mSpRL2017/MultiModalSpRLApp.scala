@@ -19,7 +19,6 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluator}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.SPATIALINDICATOR
 import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 
 import scala.collection.JavaConversions._
@@ -66,8 +65,8 @@ object combinedPairApp extends App with Logging {
   val spTag = "SPATIALINDICATOR"
   val relationTag = "RELATION"
   val classifiers = List(
-    //TrajectorRoleClassifier,
-    //LandmarkRoleClassifier,
+    TrajectorRoleClassifier,
+    LandmarkRoleClassifier,
     IndicatorRoleClassifier,
     TrajectorPairClassifier,
     LandmarkPairClassifier
