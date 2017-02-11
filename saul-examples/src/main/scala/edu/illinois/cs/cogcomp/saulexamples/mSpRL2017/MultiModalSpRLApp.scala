@@ -10,7 +10,7 @@ import java.io._
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{ LMPairConstraintClassifier, TRPairConstraintClassifier }
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
@@ -18,9 +18,8 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluator}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.SPATIALINDICATOR
-import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{ RelationEval, RelationsEvalDocument, SpRLEvaluator }
+import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
 
 import scala.collection.JavaConversions._
 import scala.io.Source
@@ -37,7 +36,6 @@ object imageApp extends App {
   images.populate(imageListTrain)
   segments.populate(segmentListTrain)
   segmentRelations.populate(relationListTrain)
-
 
   val imageListTest = CLEFDataset.testImages
   val segementListTest = CLEFDataset.testSegments
@@ -66,8 +64,8 @@ object combinedPairApp extends App with Logging {
   val spTag = "SPATIALINDICATOR"
   val relationTag = "RELATION"
   val classifiers = List(
-    //TrajectorRoleClassifier,
-    //LandmarkRoleClassifier,
+    TrajectorRoleClassifier,
+    LandmarkRoleClassifier,
     IndicatorRoleClassifier,
     TrajectorPairClassifier,
     LandmarkPairClassifier
@@ -91,8 +89,7 @@ object combinedPairApp extends App with Logging {
         classifier.learn(50)
         classifier.save()
       })
-    }
-    else {
+    } else {
 
       println("testing started ...")
 
@@ -101,8 +98,8 @@ object combinedPairApp extends App with Logging {
         classifier.test()
       })
       testTriplet(isTrain, proportion)
-      //TRPairConstraintClassifier.test()
-      //LMPairConstraintClassifier.test()
+      TRPairConstraintClassifier.test()
+      LMPairConstraintClassifier.test()
 
     }
   }
@@ -151,12 +148,10 @@ object combinedPairApp extends App with Logging {
         val landmarkPairs = pairs.filter(r => LandmarkPairClassifier(r) == "LM-SP") ~> relationToFirstArgument
         if (landmarkPairs.nonEmpty) {
           trajectorPairs.flatMap(tr => landmarkPairs.map(lm => getRelationEval(Some(tr), Some(sp), Some(lm)))).toList
-        }
-        else {
+        } else {
           List() //trajectorPairs.map(tr => getRelationEval(Some(tr), Some(sp), None)).toList
         }
-      }
-      else {
+      } else {
         List()
       }
     })
@@ -294,8 +289,7 @@ object combinedPairApp extends App with Logging {
     val spCandidates = tokenInstances
       .filter(x => spLex.contains(x.getText.toLowerCase) ||
         spPosTagLex.contains(pos(x)) ||
-        Dictionaries.isPreposition(x.getText)
-      )
+        Dictionaries.isPreposition(x.getText))
     reportRoleStats(tokenInstances, spCandidates, spTag)
     spCandidates
   }
@@ -431,7 +425,7 @@ object combinedPairApp extends App with Logging {
   }
 
   private def reportRelationStats(candidateRelations: List[Relation], goldTrajectorRelations: List[Relation],
-                                  goldLandmarkRelations: List[Relation]): Unit = {
+    goldLandmarkRelations: List[Relation]): Unit = {
 
     val missedTrSp = goldTrajectorRelations.size - candidateRelations.count(_.getProperty("RelationType") == "TR-SP")
     println("actual TR-SP:" + goldTrajectorRelations.size)
@@ -520,5 +514,4 @@ object combinedPairApp extends App with Logging {
     (offset + p.getStart, offset + p.getEnd)
   }
 }
-
 
