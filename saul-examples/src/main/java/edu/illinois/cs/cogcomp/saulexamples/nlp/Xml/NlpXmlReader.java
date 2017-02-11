@@ -1,14 +1,14 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ * <p>
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.Xml;
 
 import edu.illinois.cs.cogcomp.saul.util.ProgressBar;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.*;
-import org.apache.commons.lang.time.StopWatch;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -135,6 +135,14 @@ public class NlpXmlReader {
         }
     }
 
+    public List<NlpBaseElement> getTagAsNlpBaseElement(String tagName, String... addPropertiesFromTag) {
+        String docTag = getDocumentTagName();
+        setDocumentTagName(tagName);
+        List<NlpBaseElement> result = getElementList(getDocumentTagName(), null, NlpBaseElementTypes.Document);
+        setDocumentTagName(docTag);
+        return result;
+    }
+
     public List<Document> getDocuments(String... addPropertiesFromTag) {
         return getElementList(getDocumentTagName(), null, NlpBaseElementTypes.Document, addPropertiesFromTag);
     }
@@ -193,18 +201,18 @@ public class NlpXmlReader {
         System.out.println("Adding properties from '" + tagName + "' ...");
         ProgressBar progress = new ProgressBar(list.size());
         progress.progress();
-        String currentDocumentId = null;
+        String currentParentId = null;
         NodeList matchingNodes = null;
         List<Element> xmlElements = new ArrayList<>();
         List<SpanBasedElement> elementContainers = new ArrayList<>();
         for (T e : list) {
-            String documentId = getDocumentId(e);
-            if (documentId == null) {
-                System.out.println("document id is null. This can affect the matching of the tags!");
+            String parentId = getParentId(e);
+            if (parentId == null) {
+                System.out.println(getParentName(e) + " id is null. This can affect the matching of the tags!");
             }
-            if (currentDocumentId != documentId) {
-                currentDocumentId = documentId;
-                matchingNodes = getNodes(tagName, documentId);
+            if (currentParentId != parentId) {
+                currentParentId = parentId;
+                matchingNodes = getNodes(tagName, parentId);
                 elementContainers.clear();
                 xmlElements.clear();
                 for (int j = 0; j < matchingNodes.getLength(); j++) {
@@ -229,16 +237,29 @@ public class NlpXmlReader {
         progress.finish();
     }
 
-    private <T extends NlpBaseElement> String getDocumentId(T e) {
+    private <T extends NlpBaseElement> String getParentId(T e) {
         switch (e.getType()) {
             case Document:
                 break;
             case Sentence:
                 return ((Sentence) e).getDocument().getId();
             case Phrase:
-                return ((Phrase) e).getDocument().getId();
+                return ((Phrase) e).getSentence().getId();
             case Token:
-                return ((Token) e).getDocument().getId();
+                return ((Token) e).getSentence().getId();
+        }
+        return null;
+    }
+
+    private <T extends NlpBaseElement> String getParentName(T e) {
+        switch (e.getType()) {
+            case Document:
+                return "";
+            case Sentence:
+                return "document";
+            case Phrase:
+            case Token:
+                return "sentence";
         }
         return null;
     }

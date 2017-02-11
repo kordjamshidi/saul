@@ -19,7 +19,8 @@ object MultiModalSpRLClassifiers {
     isTokenAnImageConcept, nearestSegmentConceptVector, tokenVector)
 
   private val relationFeatures = List(relationWordForm, relationPos, relationSemanticRole, relationDependencyRelation,
-    relationSubCategorization, relationSpatialContext, relationIsTokenAnImageConcept, relationTokensVector, distance, before)
+    relationSubCategorization, relationSpatialContext, relationIsTokenAnImageConcept, relationTokensVector, distance, before,
+    isTrajectorCandidate, isLandmarkCandidate, isIndicatorCandidate)
 
   object ImageSVMClassifier extends Learnable(segments) {
     def label = segmentLabel
@@ -77,7 +78,7 @@ object MultiModalSpRLClassifiers {
     override def feature = using(tokenFeatures)
   }
 
-  object TrajectorPairClassifier extends Learnable(textRelations) {
+  object TrajectorPairClassifier extends Learnable(pairs) {
     def label = isTrajectorRelation
 
     override lazy val classifier = new SparseNetworkLearner()
@@ -85,7 +86,7 @@ object MultiModalSpRLClassifiers {
     override def feature = using(relationFeatures)
   }
 
-  object LandmarkPairClassifier extends Learnable(textRelations) {
+  object LandmarkPairClassifier extends Learnable(pairs) {
     def label = isLandmarkRelation
 
     override lazy val classifier = new SparseNetworkLearner()

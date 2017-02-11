@@ -20,11 +20,12 @@ object MultiModalSpRLDataModel extends DataModel {
   val documents = node[Document]
   val sentences = node[Sentence]
   val tokens = node[Token]
-  val textRelations = node[Relation]
+  val pairs = node[Relation]
 
   val images = node[Image]
   val segments = node[Segment]
   val segmentRelations = node[SegmentRelation]
+
 
   /*
   Edges
@@ -32,13 +33,15 @@ object MultiModalSpRLDataModel extends DataModel {
   val documentToSentence = edge(documents, sentences)
   documentToSentence.addSensor(documentToSentenceMatching _)
 
+  val sentenceToRelations =edge(sentences,pairs)
+
   val sentenceToToken = edge(sentences, tokens)
   sentenceToToken.addSensor(sentenceToTokenGenerating _)
 
-  val relationToFirstArgument = edge(textRelations, tokens)
+  val relationToFirstArgument = edge(pairs, tokens)
   relationToFirstArgument.addSensor(relationToFirstArgumentMatching _)
 
-  val relationToSecondArgument = edge(textRelations, tokens)
+  val relationToSecondArgument = edge(pairs, tokens)
   relationToSecondArgument.addSensor(relationToSecondArgumentMatching _)
 
   val documentToImage = edge(documents, images)
@@ -136,81 +139,93 @@ object MultiModalSpRLDataModel extends DataModel {
       getWordVector(nearest)
   }
 
-  val isTrajectorRelation = property(textRelations) {
+  val isTrajectorRelation = property(pairs) {
     x: Relation => x.getProperty("RelationType") match {
       case "TR-SP" => "TR-SP"
       case _ => "None"
     }
   }
 
-  val isLandmarkRelation = property(textRelations) {
+  val isLandmarkRelation = property(pairs) {
     x: Relation => x.getProperty("RelationType") match {
       case "LM-SP" => "LM-SP"
       case _ => "None"
     }
   }
 
-  val relationWordForm = property(textRelations) {
+  val isTrajectorCandidate = property(pairs) {
+    r: Relation =>  getArguments(r)._1.containsProperty("TR-Candidate")
+  }
+
+  val isLandmarkCandidate = property(pairs) {
+    r: Relation =>  getArguments(r)._1.containsProperty("LM-Candidate")
+  }
+
+  val isIndicatorCandidate = property(pairs) {
+    r: Relation =>  getArguments(r)._1.containsProperty("SP-Candidate")
+  }
+
+  val relationWordForm = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       wordForm(first) + wordForm(second)
   }
 
-  val relationPos = property(textRelations) {
+  val relationPos = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       pos(first) + pos(second)
   }
 
-  val relationSemanticRole = property(textRelations) {
+  val relationSemanticRole = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       semanticRole(first) + semanticRole(second)
   }
 
-  val relationDependencyRelation = property(textRelations) {
+  val relationDependencyRelation = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       dependencyRelation(first) + dependencyRelation(second)
   }
 
-  val relationSubCategorization = property(textRelations) {
+  val relationSubCategorization = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       subCategorization(first) + subCategorization(second)
   }
 
-  val relationSpatialContext = property(textRelations) {
+  val relationSpatialContext = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       spatialContext(first) + spatialContext(second)
   }
 
-  val relationTokensVector = property(textRelations) {
+  val relationTokensVector = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       tokenVector(first) ++ tokenVector(second)
   }
 
-  val relationNearestSegmentConceptVector = property(textRelations) {
+  val relationNearestSegmentConceptVector = property(pairs) {
     r: Relation =>
       val (first, _) = getArguments(r)
       nearestSegmentConceptVector(first)
   }
 
-  val relationIsTokenAnImageConcept = property(textRelations) {
+  val relationIsTokenAnImageConcept = property(pairs) {
     r: Relation =>
       val (first, _) = getArguments(r)
       isTokenAnImageConcept(first)
   }
 
-  val before = property(textRelations) {
+  val before = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       isBefore(first, second)
   }
 
-  val distance = property(textRelations) {
+  val distance = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
       getTokenDistance(first, second)
@@ -240,7 +255,7 @@ object MultiModalSpRLDataModel extends DataModel {
   /// Helper methods
   ////////////////////////////////////////////////////////////////////
   def getArguments(r: Relation): (Token, Token) = {
-    ((textRelations(r) ~> relationToFirstArgument).head, (textRelations(r) ~> relationToSecondArgument).head)
+    ((pairs(r) ~> relationToFirstArgument).head, (pairs(r) ~> relationToSecondArgument).head)
   }
 
   private def getSegmentConcepts(t: Token) = {
