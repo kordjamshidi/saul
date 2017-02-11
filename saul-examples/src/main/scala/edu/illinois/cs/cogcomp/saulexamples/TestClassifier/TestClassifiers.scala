@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.TestClassifier
 
-import edu.illinois.cs.cogcomp.lbjava.learn.{SparseNetworkLearner, SparsePerceptron, SupportVectorMachine}
+import edu.illinois.cs.cogcomp.lbjava.learn.{ SparseNetworkLearner, SparsePerceptron, SupportVectorMachine }
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import TestClassifierDataModel._
 
