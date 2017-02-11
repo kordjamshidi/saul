@@ -313,7 +313,7 @@ object combinedPairApp extends App with Logging {
 
     val trPosTagLex = List("NN", "JJR", "PRP$", "VBG", "JJ", "NNP", "NNS", "CD", "VBN", "VBD")
     //getRolePosTagLexicon(tokenInstances, trTag, 5, isTrain)
-    val trCandidates = tokenInstances.filter(x => trPosTagLex.contains(pos(x)))
+    val trCandidates = tokenInstances.filter(x => trPosTagLex.exists(y => pos(x).contains(y)))
     reportRoleStats(tokenInstances, trCandidates, trTag)
     trCandidates
   }
