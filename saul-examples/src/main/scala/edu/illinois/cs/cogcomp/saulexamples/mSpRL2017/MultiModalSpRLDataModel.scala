@@ -32,7 +32,7 @@ object MultiModalSpRLDataModel extends DataModel {
   documentToSentence.addSensor(documentToSentenceMatching _)
 
   val sentenceToRelations = edge(sentences, pairs)
-  sentenceToRelations.addSensor(sentenceToRelationMatching _)
+  //sentenceToRelations.addSensor(sentenceToRelationMatching _)
 
   val sentenceToToken = edge(sentences, tokens)
   sentenceToToken.addSensor(sentenceToTokenGenerating _)
