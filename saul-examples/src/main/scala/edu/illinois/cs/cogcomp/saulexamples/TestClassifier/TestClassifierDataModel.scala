@@ -16,12 +16,12 @@ object TestClassifierDataModel extends DataModel {
   }
   val boolValue = property(tcData)("true", "false") {
     x: TestClassifierData =>
-    {
-      if (x.bVal.equals("1"))
-        "true"
-      else
-        "false"
-    }
+      {
+        if (x.bVal.equals("1"))
+          "true"
+        else
+          "false"
+      }
   }
 
   val intValue = property(tcData) {

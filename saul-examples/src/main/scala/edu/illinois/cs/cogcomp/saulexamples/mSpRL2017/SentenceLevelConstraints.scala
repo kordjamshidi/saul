@@ -1,26 +1,24 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.lbjava.infer.{FirstOrderConstant, FirstOrderConstraint}
+import edu.illinois.cs.cogcomp.lbjava.infer.{ FirstOrderConstant, FirstOrderConstraint }
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Relation, Sentence}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Relation, Sentence }
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
-/**
-  * Created by parisakordjamshidi on 2/9/17.
+/** Created by parisakordjamshidi on 2/9/17.
   */
 object SentenceLevelConstraints {
   val integrityTR = ConstrainedClassifier.constraint[Sentence] {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToToken <~ relationToFirstArgument).foreach
-      {
-        x=>
-        a= a and (((TrajectorPairClassifier on x) is "TR-SP") ==>
-        (TrajectorRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Trajector") and
-        (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator"))
-     }
+      (sentences(s) ~> sentenceToToken <~ relationToFirstArgument).foreach {
+        x =>
+          a = a and (((TrajectorPairClassifier on x) is "TR-SP") ==>
+            (TrajectorRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Trajector") and
+            (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator"))
+      }
       a
   }
 
@@ -28,13 +26,13 @@ object SentenceLevelConstraints {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToToken <~ relationToFirstArgument).foreach{
-        x=>
-      ((LandmarkPairClassifier on s) is "LM-SP") ==>
-        (LandmarkRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Landmark") and
-        (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator")
-  }
-  a
+      (sentences(s) ~> sentenceToToken <~ relationToFirstArgument).foreach {
+        x =>
+          a = a and ((LandmarkPairClassifier on x) is "LM-SP") ==>
+            (LandmarkRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Landmark") and
+            (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator")
+      }
+      a
   }
 
   val allConstraints = ConstrainedClassifier.constraint[Sentence] {
@@ -42,6 +40,16 @@ object SentenceLevelConstraints {
     x: Sentence => integrityLM(x) and integrityTR(x)
   }
 
+  val multiLablePair = ConstrainedClassifier.constraint[Sentence] {
+    var a: FirstOrderConstraint = null
+    s: Sentence =>
+      a = new FirstOrderConstant(true)
+      (sentences(s) ~> sentenceToRelations).foreach {
+        x: Relation =>
+          a = a and (((LandmarkPairClassifier on x) is "LM-SP") ==> ((TrajectorPairClassifier on x) isNot "TR-SP"))
+      }
+      a
+  }
   //if there exists a trajector or a landmark in the sentence then there should exist an indicator in the sentence too.
   //if there is an indicator in the sentence then there should be a relation in the sentence, though the roles can be null.
   //a pair w1-w2 can be only tr-sp or lm-sp not both at the same time.

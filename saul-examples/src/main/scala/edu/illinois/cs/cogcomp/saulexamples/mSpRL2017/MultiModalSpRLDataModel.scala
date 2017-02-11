@@ -7,10 +7,9 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
-import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
+import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
 
-/**
-  * Created by Taher on 2017-01-11.
+/** Created by Taher on 2017-01-11.
   */
 object MultiModalSpRLDataModel extends DataModel {
 
@@ -26,14 +25,14 @@ object MultiModalSpRLDataModel extends DataModel {
   val segments = node[Segment]
   val segmentRelations = node[SegmentRelation]
 
-
   /*
   Edges
    */
   val documentToSentence = edge(documents, sentences)
   documentToSentence.addSensor(documentToSentenceMatching _)
 
-  val sentenceToRelations =edge(sentences,pairs)
+  val sentenceToRelations = edge(sentences, pairs)
+  sentenceToRelations.addSensor(sentenceToRelationMatching _)
 
   val sentenceToToken = edge(sentences, tokens)
   sentenceToToken.addSensor(sentenceToTokenGenerating _)
@@ -140,29 +139,31 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val isTrajectorRelation = property(pairs) {
-    x: Relation => x.getProperty("RelationType") match {
-      case "TR-SP" => "TR-SP"
-      case _ => "None"
-    }
+    x: Relation =>
+      x.getProperty("RelationType") match {
+        case "TR-SP" => "TR-SP"
+        case _ => "None"
+      }
   }
 
   val isLandmarkRelation = property(pairs) {
-    x: Relation => x.getProperty("RelationType") match {
-      case "LM-SP" => "LM-SP"
-      case _ => "None"
-    }
+    x: Relation =>
+      x.getProperty("RelationType") match {
+        case "LM-SP" => "LM-SP"
+        case _ => "None"
+      }
   }
 
   val isTrajectorCandidate = property(pairs) {
-    r: Relation =>  getArguments(r)._1.containsProperty("TR-Candidate")
+    r: Relation => getArguments(r)._1.containsProperty("TR-Candidate")
   }
 
   val isLandmarkCandidate = property(pairs) {
-    r: Relation =>  getArguments(r)._1.containsProperty("LM-Candidate")
+    r: Relation => getArguments(r)._1.containsProperty("LM-Candidate")
   }
 
   val isIndicatorCandidate = property(pairs) {
-    r: Relation =>  getArguments(r)._1.containsProperty("SP-Candidate")
+    r: Relation => getArguments(r)._1.containsProperty("SP-Candidate")
   }
 
   val relationWordForm = property(pairs) {
@@ -264,7 +265,6 @@ object MultiModalSpRLDataModel extends DataModel {
         if (!phraseConceptToWord.contains(x.getSegmentConcept))
           x.getSegmentConcept
         else
-          phraseConceptToWord(x.getSegmentConcept)
-      )
+          phraseConceptToWord(x.getSegmentConcept))
   }
 }

@@ -2,8 +2,8 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import java.io.File
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Relation, Token}
-import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Document, Relation, Token }
+import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 
 import scala.collection.immutable.HashMap
@@ -13,16 +13,15 @@ object MultiModalSpRLSensors {
 
   private lazy val word2Vec = WordVectorSerializer.loadGoogleModel(new File("data/GoogleNews-vectors-negative300.bin"), true)
 
-  def getWord2VectorSimilarity(w1: String, w2:String) = {
+  def getWord2VectorSimilarity(w1: String, w2: String) = {
     word2Vec.similarity(w1, w2)
   }
 
   def getWordVector(w: String): List[Double] = {
     val v = word2Vec.getWordVector(w)
-    if(v == null){
+    if (v == null) {
       List.fill(300)(0.0)
-    }
-    else {
+    } else {
       v.toList
     }
   }

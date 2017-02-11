@@ -12,8 +12,8 @@ object TestClassifierApp extends App {
   tcData.populate(trainData)
   tcData.populate(testData, false)
 
-//  TestClassifierSVM.learn(5)
-//  TestClassifierSVM.test()
+  //  TestClassifierSVM.learn(5)
+  //  TestClassifierSVM.test()
 
   TestClassifierSN2.learn(5)
   TestClassifierSN2.test()
