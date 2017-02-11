@@ -42,10 +42,6 @@ object LanguageBaseTypeSensors extends Logging {
     s.getId == p.getSentence.getId
   }
 
-  def sentenceToRelationsMatching(s: Sentence, r: Relation): Boolean = {
-    s.getId == r.
-  }
-
   def phraseToTokenGenerating(p: Phrase): Seq[Token] = {
     getTokens(p)
   }
