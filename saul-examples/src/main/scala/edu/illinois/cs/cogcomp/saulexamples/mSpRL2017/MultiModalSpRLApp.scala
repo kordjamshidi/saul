@@ -66,8 +66,8 @@ object combinedPairApp extends App with Logging {
   val spTag = "SPATIALINDICATOR"
   val relationTag = "RELATION"
   val classifiers = List(
-    //TrajectorRoleClassifier,
-    //LandmarkRoleClassifier,
+    TrajectorRoleClassifier,
+    LandmarkRoleClassifier,
     IndicatorRoleClassifier,
     TrajectorPairClassifier,
     LandmarkPairClassifier
@@ -76,7 +76,7 @@ object combinedPairApp extends App with Logging {
   import MultiModalSpRLDataModel._
   import DataProportion._
 
-  runClassifiers(true, Train)
+  //runClassifiers(true, Train)
   runClassifiers(false, Test)
 
   private def runClassifiers(isTrain: Boolean, proportion: DataProportion) = {
@@ -98,11 +98,11 @@ object combinedPairApp extends App with Logging {
 
       classifiers.foreach(classifier => {
         classifier.load()
-        classifier.test()
+       // classifier.test()
       })
-      testTriplet(isTrain, proportion)
-      //TRPairConstraintClassifier.test()
-      //LMPairConstraintClassifier.test()
+     // testTriplet(isTrain, proportion)
+      TRPairConstraintClassifier.test()
+      LMPairConstraintClassifier.test()
 
     }
   }

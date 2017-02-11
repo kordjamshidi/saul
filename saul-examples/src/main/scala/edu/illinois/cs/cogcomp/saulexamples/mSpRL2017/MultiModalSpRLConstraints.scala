@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Relation
 import MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers.{TrajectorPairClassifier, _}
 
 import scala.collection.JavaConversions._
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
@@ -27,8 +27,15 @@ object MultiModalSpRLConstraints {
         (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator")
   }
 
-  val allConstraints = ConstrainedClassifier.constraint[Relation] {
-    x: Relation => integrityLM(x) and integrityTR(x)
+  val multiLablePair = ConstrainedClassifier.constraint[Relation] {
+    x: Relation =>
+      ((LandmarkPairClassifier on x) is "LM-SP") ==>  ((TrajectorPairClassifier on x) isNot "TR-SP")
   }
+
+  val allConstraints = ConstrainedClassifier.constraint[Relation] {
+    x: Relation => integrityLM(x) and integrityTR(x) and multiLablePair(x)
+  }
+
+
 
 }

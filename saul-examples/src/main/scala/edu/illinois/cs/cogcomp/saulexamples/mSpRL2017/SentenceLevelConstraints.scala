@@ -42,4 +42,10 @@ object SentenceLevelConstraints {
     x: Sentence => integrityLM(x) and integrityTR(x)
   }
 
+  //if there exists a trajector or a landmark in the sentence then there should exist an indicator in the sentence too.
+  //if there is an indicator in the sentence then there should be a relation in the sentence, though the roles can be null.
+  //a pair w1-w2 can be only tr-sp or lm-sp not both at the same time.
+  // if w1-w2 is tr-sp then w1-x should not be tr-sp for all x!=w2
+  //if w1-w2 is lm-sp then w1-x should not be lm-sp for all x!=w2
+
 }

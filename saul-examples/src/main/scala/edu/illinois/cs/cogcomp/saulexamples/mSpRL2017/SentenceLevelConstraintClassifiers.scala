@@ -17,7 +17,7 @@ object SentenceLevelConstraintClassifiers {
   object TRPairConstraintClassifier extends ConstrainedClassifier[Relation,Sentence](TrajectorPairClassifier) {
     def subjectTo = allConstraints
     override val solver = erSolver
-    override val pathToHead = Some(sentences ~> sentenceToToken <~ relationToFirstArgument)
+    //override val pathToHead = Some(sentences ~> sentenceToToken <~ relationToFirstArgument)
     //Some(sentenceToToken ~> -relationToFirstArgument)//(sentenceToToken)<~relationToFirstArg)
   }
   object LMPairConstraintClassifier extends ConstrainedClassifier[Relation, Sentence](LandmarkPairClassifier) {
