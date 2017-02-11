@@ -8,10 +8,10 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp
 
 import java.util.Properties
 
-import edu.illinois.cs.cogcomp.core.datastructures.{ ViewNames, _ }
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation, TokenLabelView, TreeView }
+import edu.illinois.cs.cogcomp.core.datastructures.{ViewNames, _}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
 import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
-import edu.illinois.cs.cogcomp.edison.features.factory.{ SubcategorizationFrame, WordFeatureExtractorFactory }
+import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saul.util.Logging
@@ -56,6 +56,22 @@ object LanguageBaseTypeSensors extends Logging {
 
   def sentenceToTokenMatching(s: Sentence, t: Token): Boolean = {
     s.getId == t.getSentence.getId
+  }
+
+  def documentToRelationMatching(d: Document, r: Relation): Boolean = {
+    r.getParent != null && d.getId == getDocument(r.getParent).getId
+  }
+
+  def sentenceToRelationMatching(s: Sentence, r: Relation): Boolean = {
+    r.getParent != null && s.getId == getSentence(r.getParent).getId
+  }
+
+  def phraseToRelationMatching(p: Phrase, r: Relation): Boolean = {
+    r.getParent != null && p.getId == getPhrase(r.getParent).getId
+  }
+
+  def relationToTokenMatching(r: Relation, t: Token): Boolean = {
+    r.getArgumentIds.contains(t.getId)
   }
 
   def getPos(e: NlpBaseElement): Seq[String] = {
@@ -196,6 +212,14 @@ object LanguageBaseTypeSensors extends Logging {
     ta.getView(dependencyView).asInstanceOf[TreeView].getRelations.asScala
   }
 
+  private def getPhrase(e: NlpBaseElement) = e match {
+    case p: Phrase => p
+    case t: Token => t.getPhrase
+    case _ =>
+      logger.warn("cannot use 'getPhrase' for document or Sentence type.")
+      null
+  }
+
   private def getSentence(e: NlpBaseElement) = e match {
     case s: Sentence => s
     case p: Phrase => p.getSentence
@@ -203,6 +227,11 @@ object LanguageBaseTypeSensors extends Logging {
     case _ =>
       logger.warn("cannot use 'getSentence' for document type.")
       null
+  }
+
+  private def getDocument(e: NlpBaseElement) = e match {
+    case x: Document => x
+    case _ => getSentence(e).getDocument
   }
 
   private def getPhrases(sentence: Sentence): Seq[Phrase] = {

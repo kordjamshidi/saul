@@ -38,6 +38,7 @@ public class NlpXmlReader {
     private String endTagName = "end";
     private String textTagName = "text";
     private String idTagName = "id";
+    private NlpBaseElementTypes relationParent = NlpBaseElementTypes.Sentence;
 
     public NlpXmlReader(String path, String documentTagName, String sentenceTagName, String phraseTagName, String tokenTagName) {
         this(new File(path), documentTagName, sentenceTagName, phraseTagName, tokenTagName);
@@ -274,7 +275,22 @@ public class NlpXmlReader {
         for (int i = 0; i < argumentIds.length; i++) {
             r.setArgumentId(i, r.getProperty(argumentIds[i]));
         }
+        r.setParent(getNlpBaseElement(getAncestorElement(e, getRelationParentTagName()), relationParent));
         return r;
+    }
+
+    private String getRelationParentTagName() {
+        switch (relationParent) {
+            case Document:
+                return getDocumentTagName();
+            case Sentence:
+                return getSentenceTagName();
+            case Phrase:
+                return getPhraseTagName();
+            case Token:
+                return getTokenTagName();
+        }
+        return "";
     }
 
     private <T extends NlpBaseElement> List<T> getElementList(String tagName, String parentId, NlpBaseElementTypes type, String... addPropertiesFromTag) {
@@ -430,5 +446,13 @@ public class NlpXmlReader {
         if (innerElement.getLength() > 0 && innerElement.item(0).getParentNode() == e)
             return innerElement.item(0).getTextContent();
         return null;
+    }
+
+    public NlpBaseElementTypes getRelationParent() {
+        return relationParent;
+    }
+
+    public void setRelationParent(NlpBaseElementTypes relationParent) {
+        this.relationParent = relationParent;
     }
 }
