@@ -118,9 +118,11 @@ public class NlpXmlReaderTest {
 
         assertEquals("Relations count", 8, relations.size());
         assertEquals("first doc relations count", 3, doc1Relations.size());
+        assertEquals("first relation parent id", "s601", relations.get(0).getParent().getId());
         assertEquals("first relation trajector id", "T1", relations.get(0).getProperty("trajector_id"));
         assertEquals("first relation sparial indicator id", "S1", relations.get(0).getProperty("spatial_indicator_id"));
         assertEquals("first relation RCC8_value", "behind", relations.get(0).getProperty("RCC8_value"));
+        assertEquals("fourth relation parent id", "s603", relations.get(3).getParent().getId());
     }
 
     private String getResourcePath(String relativePath) {

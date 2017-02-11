@@ -14,6 +14,7 @@ import java.util.*;
  */
 public class Relation {
     private String id;
+    private NlpBaseElement parent;
     private Map<String, String> properties = new HashMap<>();
     private Map<Integer, String> argumentIds = new HashMap<>();
     private Map<Integer, NlpBaseElement> arguments = new HashMap<>();
@@ -89,5 +90,13 @@ public class Relation {
                 return false;
         }
         return true;
+    }
+
+    public NlpBaseElement getParent() {
+        return parent;
+    }
+
+    public void setParent(NlpBaseElement parent) {
+        this.parent = parent;
     }
 }
