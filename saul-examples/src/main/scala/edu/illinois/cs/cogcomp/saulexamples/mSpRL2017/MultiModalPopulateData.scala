@@ -53,7 +53,7 @@ object MultiModalPopulateData {
     val lmCandidates = getLandmarkCandidates(tokenInstances, isTrain)
     lmCandidates.foreach(_.addPropertyValue("LM-Candidate", "true"))
 
-    val firstArgCandidates = trCandidates.toSet.union(lmCandidates.toSet).toList
+    val firstArgCandidates = null :: trCandidates.toSet.union(lmCandidates.toSet).toList
 
     val spCandidates = getIndicatorCandidates(tokenInstances, isTrain)
     spCandidates.foreach(_.addPropertyValue("SP-Candidate", "true"))
@@ -82,8 +82,11 @@ object MultiModalPopulateData {
 
     goldTrajectorRelations.foreach(r => {
       val c = candidateRelations
-        .find(x => x.getArgument(0).getPropertyValues(s"${trTag}_id").contains(r.getArgumentId(0)) &&
-          x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
+        .find(x =>
+          ((r.getArgumentId(0) == null && x.getArgumentId(0) == null) ||
+            (x.getArgumentId(0) != null && x.getArgument(0).getPropertyValues(s"${trTag}_id").contains(r.getArgumentId(0)))
+            ) &&
+            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
 
       if (c.nonEmpty) {
         if (c.get.getProperty("RelationType") == "TR-SP") {
@@ -105,8 +108,11 @@ object MultiModalPopulateData {
 
     goldLandmarkRelations.foreach(r => {
       val c = candidateRelations
-        .find(x => x.getArgument(0).getPropertyValues(s"${lmTag}_id").contains(r.getArgumentId(0)) &&
-          x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
+        .find(x =>
+          ((r.getArgumentId(0) == null && x.getArgumentId(0) == null) ||
+            (x.getArgumentId(0) != null && x.getArgument(0).getPropertyValues(s"${lmTag}_id").contains(r.getArgumentId(0)))
+            ) &&
+            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
 
       if (c.nonEmpty) {
         if (c.get.getProperty("RelationType") == "LM-SP") {
@@ -160,22 +166,24 @@ object MultiModalPopulateData {
 
     // create pairs which first argument is landmark and second is indicator, and remove duplicates
     val nullLandmarkIds = getTags(lmTag, proportion).filter(_.getStart == -1).map(_.getId)
-    getRelations("landmark_id", "spatial_indicator_id", proportion)
-      .filter(x => !nullLandmarkIds.contains(x.getArgumentId(0)))
+    val relations = getRelations("landmark_id", "spatial_indicator_id", proportion)
       .groupBy(x => x.getArgumentId(0) + "_" + x.getArgumentId(1))
       .map { case (_, list) => list.head }
       .toList
+    relations.foreach(r => if (nullLandmarkIds.contains(r.getArgumentId(0))) r.setArgumentId(0, null))
+    relations
   }
 
   private def getGoldTrajectorPairs(proportion: DataProportion): List[Relation] = {
 
     // create pairs which first argument is trajector and second is indicator, and remove duplicates
     val nullTrajectorIds = getTags(trTag, proportion).filter(_.getStart == -1).map(_.getId)
-    getRelations("trajector_id", "spatial_indicator_id", proportion)
-      .filter(x => !nullTrajectorIds.contains(x.getArgumentId(0)))
+    val relations = getRelations("trajector_id", "spatial_indicator_id", proportion)
       .groupBy(x => x.getArgumentId(0) + "_" + x.getArgumentId(1))
       .map { case (_, list) => list.head }
       .toList
+    relations.foreach(r => if (nullTrajectorIds.contains(r.getArgumentId(0))) r.setArgumentId(0, null))
+    relations
   }
 
   private def getRelations(firstArgId: String, secondArgId: String, proportion: DataProportion): List[Relation] = {
