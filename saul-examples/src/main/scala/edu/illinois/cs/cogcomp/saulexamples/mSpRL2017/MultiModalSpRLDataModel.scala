@@ -169,37 +169,37 @@ object MultiModalSpRLDataModel extends DataModel {
   val relationWordForm = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      wordForm(first) + wordForm(second)
+      wordForm(first) + "::" + wordForm(second)
   }
 
   val relationPos = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      pos(first) + pos(second)
+      pos(first) + "::" + pos(second)
   }
 
   val relationSemanticRole = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      semanticRole(first) + semanticRole(second)
+      semanticRole(first) + "::" + semanticRole(second)
   }
 
   val relationDependencyRelation = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      dependencyRelation(first) + dependencyRelation(second)
+      dependencyRelation(first) + "::" + dependencyRelation(second)
   }
 
   val relationSubCategorization = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      subCategorization(first) + subCategorization(second)
+      subCategorization(first) + "::" + subCategorization(second)
   }
 
   val relationSpatialContext = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      spatialContext(first) + spatialContext(second)
+      spatialContext(first) + "::" + spatialContext(second)
   }
 
   val relationTokensVector = property(pairs) {

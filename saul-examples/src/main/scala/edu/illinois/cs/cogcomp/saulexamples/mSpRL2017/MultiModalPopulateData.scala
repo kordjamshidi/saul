@@ -23,7 +23,9 @@ object DataProportion extends Enumeration {
 }
 
 object MultiModalPopulateData {
+
   import DataProportion._
+
   val trTag = "TRAJECTOR"
   val lmTag = "LANDMARK"
   val spTag = "SPATIALINDICATOR"
@@ -263,27 +265,27 @@ object MultiModalPopulateData {
     val missing = actual - candidates.map(_.getPropertyValues(s"${tagName}_id").size()).sum
 
     println(s"Actual ${tagName}: $actual")
-    println(s"Missing ${tagName} in the candidates: $missing ($missingTokens)")
+    println(s"Missing ${tagName} in the candidates: $missing (${missingTokens.mkString(", ")})")
   }
 
   private def reportRelationStats(candidateRelations: List[Relation], goldTrajectorRelations: List[Relation],
                                   goldLandmarkRelations: List[Relation]): Unit = {
 
     val missedTrSp = goldTrajectorRelations.size - candidateRelations.count(_.getProperty("RelationType") == "TR-SP")
-    println("actual TR-SP:" + goldTrajectorRelations.size)
-    println("Missing TR-SP in the candidates: " + missedTrSp)
+    println(s"actual TR-SP: ${goldTrajectorRelations.size}")
+    println(s"Missing TR-SP in the candidates: $missedTrSp")
     val missingTrRelations = goldTrajectorRelations
       .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "TR-SP" && x.getId == r.getId))
       .map(_.getId)
-    println("missing relations from TR-SP: " + missingTrRelations)
+    println(s"missing relations from TR-SP: (${missingTrRelations.mkString(", ")})")
 
     val missedLmSp = goldLandmarkRelations.size - candidateRelations.count(_.getProperty("RelationType") == "LM-SP")
-    println("actual LM-SP:" + goldLandmarkRelations.size)
-    println("Missing LM-SP in the candidates: " + missedLmSp)
+    println(s"actual LM-SP: ${goldLandmarkRelations.size}")
+    println(s"Missing LM-SP in the candidates: $missedLmSp")
     val missingLmRelations = goldLandmarkRelations
       .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "LM-SP" && x.getId == r.getId))
       .map(_.getId)
-    println("missing relations from LM-SP: " + missingLmRelations)
+    println(s"missing relations from LM-SP: (${missingLmRelations.mkString(",")})")
   }
 
   private def getRolePosTagLexicon(tokenInstances: List[Token], tagName: String, minFreq: Int, isTrain: Boolean): List[String] = {
