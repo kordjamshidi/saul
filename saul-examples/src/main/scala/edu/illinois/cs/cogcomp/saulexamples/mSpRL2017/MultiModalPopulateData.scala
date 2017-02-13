@@ -39,6 +39,7 @@ object MultiModalPopulateData {
     documents.populate(getDocumentList(proportion), isTrain)
     sentences.populate(getSentenceList(proportion), isTrain)
     val tokenInstances = if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList
+    tokens.populate(List(dummyToken), isTrain)
 
     if (populateImageData) {
       images.populate(getImageList(proportion), isTrain)
@@ -59,8 +60,18 @@ object MultiModalPopulateData {
     spCandidates.foreach(_.addPropertyValue("SP-Candidate", "true"))
 
     val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
+    candidateRelations.filter(_.getArgumentId(0) == null).foreach(x => {
+      x.setArgumentId(0, dummyToken.getId)
+      x.setArgument(0, dummyToken)
+    })
 
     setRelationTypes(candidateRelations, proportion)
+
+    def getArg(i: Int, r: Relation) = r.getArgument(i).getText.toLowerCase
+
+    val writer = new PrintWriter("RoleCandidates.txt")
+    candidateRelations.foreach(x => writer.println(s"(${getArg(0, x)}, ${getArg(1, x)}) -> ${x.getProperty("RelationType")}"))
+    writer.close()
 
     pairs.populate(candidateRelations, isTrain)
   }
@@ -83,10 +94,9 @@ object MultiModalPopulateData {
     goldTrajectorRelations.foreach(r => {
       val c = candidateRelations
         .find(x =>
-          ((r.getArgumentId(0) == null && x.getArgumentId(0) == null) ||
-            (x.getArgumentId(0) != null && x.getArgument(0).getPropertyValues(s"${trTag}_id").contains(r.getArgumentId(0)))
-            ) &&
-            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
+          x.getArgument(0).getPropertyValues(s"${trTag}_id").contains(r.getArgumentId(0)) &&
+            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1))
+        )
 
       if (c.nonEmpty) {
         if (c.get.getProperty("RelationType") == "TR-SP") {
@@ -109,10 +119,9 @@ object MultiModalPopulateData {
     goldLandmarkRelations.foreach(r => {
       val c = candidateRelations
         .find(x =>
-          ((r.getArgumentId(0) == null && x.getArgumentId(0) == null) ||
-            (x.getArgumentId(0) != null && x.getArgument(0).getPropertyValues(s"${lmTag}_id").contains(r.getArgumentId(0)))
-            ) &&
-            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
+          x.getArgument(0).getPropertyValues(s"${lmTag}_id").contains(r.getArgumentId(0)) &&
+            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1))
+        )
 
       if (c.nonEmpty) {
         if (c.get.getProperty("RelationType") == "LM-SP") {
@@ -129,13 +138,8 @@ object MultiModalPopulateData {
 
   def getIndicatorCandidates(tokenInstances: List[Token], isTrain: Boolean): List[Token] = {
 
-    val spLex = List("behind", "standing", "underneath", "in", "below", "outside", "before", "lying", "walking",
-      "above", "to", "around", "at", "through", "distant", "over", "on", "leaning", "with", "from", "next", "leading",
-      "under", "between", "sitting", "along", "inside", "of", "right", "attached", "left", "lined", "close",
-      "supported", "side", "goes", "surrounded")
-    //getSpatialIndicatorLexicon(tokenInstances, 2, isTrain)
-    val spPosTagLex = List("IN", "VBG", "JJ", "TO")
-    // getRolePosTagLexicon(tokenInstances, spTag, 10, isTrain)
+    val spLex = getSpatialIndicatorLexicon(tokenInstances, 0, false)
+    val spPosTagLex = List("IN", "TO")
     val spCandidates = tokenInstances
       .filter(x => spLex.contains(x.getText.toLowerCase) ||
         spPosTagLex.contains(pos(x)) ||
@@ -170,7 +174,7 @@ object MultiModalPopulateData {
       .groupBy(x => x.getArgumentId(0) + "_" + x.getArgumentId(1))
       .map { case (_, list) => list.head }
       .toList
-    relations.foreach(r => if (nullLandmarkIds.contains(r.getArgumentId(0))) r.setArgumentId(0, null))
+    relations.foreach(r => if (nullLandmarkIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyToken.getId))
     relations
   }
 
@@ -182,7 +186,7 @@ object MultiModalPopulateData {
       .groupBy(x => x.getArgumentId(0) + "_" + x.getArgumentId(1))
       .map { case (_, list) => list.head }
       .toList
-    relations.foreach(r => if (nullTrajectorIds.contains(r.getArgumentId(0))) r.setArgumentId(0, null))
+    relations.foreach(r => if (nullTrajectorIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyToken.getId))
     relations
   }
 
@@ -272,6 +276,7 @@ object MultiModalPopulateData {
     val missingTokens = instances.toSet.diff(candidates.toSet).toList.map(_.getText.toLowerCase())
     val missing = actual - candidates.map(_.getPropertyValues(s"${tagName}_id").size()).sum
 
+    println(s"Candidate ${tagName}: ${candidates.size}")
     println(s"Actual ${tagName}: $actual")
     println(s"Missing ${tagName} in the candidates: $missing (${missingTokens.mkString(", ")})")
   }
@@ -293,13 +298,13 @@ object MultiModalPopulateData {
     val missingLmRelations = goldLandmarkRelations
       .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "LM-SP" && x.getId == r.getId))
       .map(_.getId)
-    println(s"missing relations from LM-SP: (${missingLmRelations.mkString(",")})")
+    println(s"missing relations from LM-SP: (${missingLmRelations.mkString(", ")})")
   }
 
-  private def getRolePosTagLexicon(tokenInstances: List[Token], tagName: String, minFreq: Int, isTrain: Boolean): List[String] = {
+  private def getRolePosTagLexicon(tokenInstances: List[Token], tagName: String, minFreq: Int, generate: Boolean): List[String] = {
 
     val lexFile = new File(s"data/mSprl/${tagName.toLowerCase}PosTag.lex")
-    if (isTrain) {
+    if (generate) {
       val posTagLex = tokenInstances.filter(x => x.containsProperty(s"${tagName.toUpperCase}_id"))
         .map(x => pos(x)).groupBy(x => x).map { case (key, list) => (key, list.size) }.filter(_._2 >= minFreq)
         .keys.toList
@@ -314,10 +319,10 @@ object MultiModalPopulateData {
     }
   }
 
-  private def getSpatialIndicatorLexicon(tokenInstances: List[Token], minFreq: Int, isTrain: Boolean): List[String] = {
+  private def getSpatialIndicatorLexicon(tokenInstances: List[Token], minFreq: Int, generate: Boolean): List[String] = {
 
     val lexFile = new File("data/mSprl/spatialIndicator.lex")
-    if (isTrain) {
+    if (generate) {
       val sps = tokenInstances.filter(_.containsProperty("SPATIALINDICATOR_id"))
         .groupBy(_.getText.toLowerCase).map { case (key, list) => (key, list.size, list) }.filter(_._2 >= minFreq)
       val prepositionLex = sps.map(_._1).toList

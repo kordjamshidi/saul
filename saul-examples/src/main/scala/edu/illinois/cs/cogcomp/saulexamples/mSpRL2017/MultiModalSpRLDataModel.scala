@@ -7,11 +7,17 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
-import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
+import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 
 /** Created by Taher on 2017-01-11.
   */
 object MultiModalSpRLDataModel extends DataModel {
+
+  val dummyToken = new Token()
+  dummyToken.setText("[[None]]")
+  dummyToken.setId("[[dummy]]")
+  dummyToken.addPropertyValue("TRAJECTOR_id", dummyToken.getId)
+  dummyToken.addPropertyValue("LANDMARK_id", dummyToken.getId)
 
   /*
   Nodes
@@ -57,7 +63,7 @@ object MultiModalSpRLDataModel extends DataModel {
    */
   val trajectorRole = property(tokens) {
     x: Token =>
-      if (x.containsProperty("TRAJECTOR_id"))
+      if (x.containsProperty("TRAJECTOR_id") && x != dummyToken)
         "Trajector"
       else
         "None"
@@ -65,7 +71,7 @@ object MultiModalSpRLDataModel extends DataModel {
 
   val landmarkRole = property(tokens) {
     x: Token =>
-      if (x.containsProperty("LANDMARK_id"))
+      if (x.containsProperty("LANDMARK_id") && x != dummyToken)
         "Landmark"
       else
         "None"
@@ -81,9 +87,9 @@ object MultiModalSpRLDataModel extends DataModel {
 
   val spatialRole = property(tokens) {
     x: Token =>
-      if (x.containsProperty("TRAJECTOR_id"))
+      if (x.containsProperty("TRAJECTOR_id") && x != dummyToken)
         "Trajector"
-      else if (x.containsProperty("LANDMARK_id"))
+      else if (x.containsProperty("LANDMARK_id") && x != dummyToken)
         "Landmark"
       else if (x.containsProperty("SPATIALINDICATOR_id"))
         "Indicator"
@@ -92,11 +98,11 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val wordForm = property(tokens) {
-    x: Token => x.getText
+    x: Token => if (x != dummyToken) x.getText.toLowerCase else ""
   }
 
   val pos = property(tokens) {
-    x: Token => getPos(x).mkString
+    x: Token => if (x != dummyToken) getPos(x).mkString else ""
   }
 
   val semanticRole = property(tokens) {
@@ -104,16 +110,18 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val dependencyRelation = property(tokens) {
-    x: Token => getDependencyRelation(x)
+    x: Token => if (x != dummyToken) getDependencyRelation(x) else ""
   }
 
   val subCategorization = property(tokens) {
-    x: Token => getSubCategorization(x)
+    x: Token => if (x != dummyToken) getSubCategorization(x) else ""
   }
 
   val spatialContext = property(tokens) {
     x: Token =>
-      if (!Dictionaries.isSpatial(x.getText))
+      if (x == dummyToken)
+        ""
+      else if (!Dictionaries.isSpatial(x.getText))
         "0"
       else if (getWindow(x, 0, 5).count(w => Dictionaries.isSpatial(w)) > 1)
         "1"
@@ -122,20 +130,28 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val tokenVector = property(tokens) {
-    x: Token => getWordVector(x.getText.toLowerCase)
+    x: Token => if (x != dummyToken) getWordVector(x.getText.toLowerCase) else getWordVector(null)
   }
 
   val isTokenAnImageConcept = property(tokens) {
     t: Token =>
-      getSegmentConcepts(t)
-        .exists(x => getWord2VectorSimilarity(t.getText.toLowerCase, x) > 0.6).toString
+      if (t != dummyToken) {
+        getSegmentConcepts(t)
+          .exists(x => getWord2VectorSimilarity(t.getText.toLowerCase, x) > 0.6).toString
+      } else {
+        ""
+      }
   }
 
   val nearestSegmentConceptVector = property(tokens) {
     t: Token =>
-      val concepts = getSegmentConcepts(t).map(x => (x, getWord2VectorSimilarity(t.getText.toLowerCase, x)))
-      val (nearest, _) = if (concepts.isEmpty) ("", 0) else concepts.maxBy(x => x._2)
-      getWordVector(nearest)
+      if (t != dummyToken) {
+        val concepts = getSegmentConcepts(t).map(x => (x, getWord2VectorSimilarity(t.getText.toLowerCase, x)))
+        val (nearest, _) = if (concepts.isEmpty) ("", 0) else concepts.maxBy(x => x._2)
+        getWordVector(nearest)
+      } else {
+        getWordVector(null)
+      }
   }
 
   val isTrajectorRelation = property(pairs) {
@@ -155,102 +171,75 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val isTrajectorCandidate = property(pairs) {
-    r: Relation => getArguments(r)._1 != null && getArguments(r)._1.containsProperty("TR-Candidate")
+    r: Relation => getArguments(r)._1.containsProperty("TR-Candidate")
   }
 
   val isLandmarkCandidate = property(pairs) {
-    r: Relation => getArguments(r)._1 != null && getArguments(r)._1.containsProperty("LM-Candidate")
+    r: Relation => getArguments(r)._1.containsProperty("LM-Candidate")
   }
 
   val isIndicatorCandidate = property(pairs) {
-    r: Relation => getArguments(r)._1 != null && getArguments(r)._1.containsProperty("SP-Candidate")
+    r: Relation => getArguments(r)._1.containsProperty("SP-Candidate")
   }
 
   val relationWordForm = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
-        wordForm(second)
-      else
-        wordForm(first) + "::" + wordForm(second)
+      wordForm(first) + "::" + wordForm(second)
   }
 
   val relationPos = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
-        pos(second)
-      else
-        pos(first) + "::" + pos(second)
+      pos(first) + "::" + pos(second)
   }
 
   val relationSemanticRole = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
-        semanticRole(second)
-      else
-        semanticRole(first) + "::" + semanticRole(second)
+      semanticRole(first) + "::" + semanticRole(second)
   }
 
   val relationDependencyRelation = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
-        dependencyRelation(second)
-      else
-        dependencyRelation(first) + "::" + dependencyRelation(second)
+      dependencyRelation(first) + "::" + dependencyRelation(second)
   }
 
   val relationSubCategorization = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
-        subCategorization(second)
-      else
-        subCategorization(first) + "::" + subCategorization(second)
+      subCategorization(first) + "::" + subCategorization(second)
   }
 
   val relationSpatialContext = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
-        spatialContext(second)
-      else
-        spatialContext(first) + "::" + spatialContext(second)
+      spatialContext(first) + "::" + spatialContext(second)
   }
 
   val relationTokensVector = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
-        getWordVector(null) ++ tokenVector(second)
-      else
-        tokenVector(first) ++ tokenVector(second)
+      tokenVector(first) ++ tokenVector(second)
   }
 
   val relationNearestSegmentConceptVector = property(pairs) {
     r: Relation =>
       val (first, _) = getArguments(r)
-      if (first == null)
-        getWordVector(null)
-      else
-        nearestSegmentConceptVector(first)
+      nearestSegmentConceptVector(first)
   }
 
   val relationIsTokenAnImageConcept = property(pairs) {
     r: Relation =>
       val (first, _) = getArguments(r)
-      if (first == null)
-        ""
-      else
-        isTokenAnImageConcept(first)
+      isTokenAnImageConcept(first)
   }
 
   val before = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
+      if (first == dummyToken)
         ""
       else
         isBefore(first, second).toString
@@ -259,7 +248,7 @@ object MultiModalSpRLDataModel extends DataModel {
   val distance = property(pairs) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      if (first == null)
+      if (first == dummyToken)
         -1
       else
         getTokenDistance(first, second)
@@ -289,8 +278,7 @@ object MultiModalSpRLDataModel extends DataModel {
   /// Helper methods
   ////////////////////////////////////////////////////////////////////
   def getArguments(r: Relation): (Token, Token) = {
-    val first = pairs(r) ~> relationToFirstArgument
-    (if (first.nonEmpty) first.head else null, (pairs(r) ~> relationToSecondArgument).head)
+    ((pairs(r) ~> relationToFirstArgument).head, (pairs(r) ~> relationToSecondArgument).head)
   }
 
   private def getSegmentConcepts(t: Token) = {
