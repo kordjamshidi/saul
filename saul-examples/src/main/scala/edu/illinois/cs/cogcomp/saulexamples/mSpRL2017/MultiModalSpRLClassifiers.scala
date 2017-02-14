@@ -23,7 +23,7 @@ object FeatureSets extends Enumeration {
 object MultiModalSpRLClassifiers {
   var featureSet = FeatureSets.WordEmbeddingPlusImage
 
-  private val tokenFeatures =
+  private def tokenFeatures =
     List(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext) ++
       (featureSet match {
         case FeatureSets.WordEmbedding => List(tokenVector)
@@ -31,7 +31,7 @@ object MultiModalSpRLClassifiers {
         case _ => List[Property[Token]]()
       })
 
-  private val relationFeatures = List(relationWordForm, relationPos, relationSemanticRole, relationDependencyRelation,
+  private def relationFeatures = List(relationWordForm, relationPos, relationSemanticRole, relationDependencyRelation,
     relationSubCategorization, relationSpatialContext, distance, before, isTrajectorCandidate, isLandmarkCandidate,
     isIndicatorCandidate) ++
     (featureSet match {
