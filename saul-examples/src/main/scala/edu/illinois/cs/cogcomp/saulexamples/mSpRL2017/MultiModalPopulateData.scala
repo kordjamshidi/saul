@@ -34,18 +34,18 @@ object MultiModalPopulateData {
   private lazy val trainReader = createXmlReader(true)
   private lazy val testReader = createXmlReader(false)
 
-  def populateData(isTrain: Boolean, proportion: DataProportion, populateImageData: Boolean = true) = {
+  def populateData(isTrain: Boolean, proportion: DataProportion, populateNullPairs: Boolean = true) = {
 
     documents.populate(getDocumentList(proportion), isTrain)
     sentences.populate(getSentenceList(proportion), isTrain)
     val tokenInstances = if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList
-    tokens.populate(List(dummyToken), isTrain)
-
-    if (populateImageData) {
-      images.populate(getImageList(proportion), isTrain)
-      segments.populate(getSegmentList(proportion), isTrain)
-      segmentRelations.populate(getImageRelationList(proportion), isTrain)
+    if (populateNullPairs) {
+      tokens.populate(List(dummyToken), isTrain)
     }
+    images.populate(getImageList(proportion), isTrain)
+    segments.populate(getSegmentList(proportion), isTrain)
+    segmentRelations.populate(getImageRelationList(proportion), isTrain)
+
     setTokenRoles(tokenInstances, proportion)
 
     val trCandidates = getTrajectorCandidates(tokenInstances, isTrain)
@@ -54,32 +54,42 @@ object MultiModalPopulateData {
     val lmCandidates = getLandmarkCandidates(tokenInstances, isTrain)
     lmCandidates.foreach(_.addPropertyValue("LM-Candidate", "true"))
 
-    val firstArgCandidates = null :: trCandidates.toSet.union(lmCandidates.toSet).toList
-
     val spCandidates = getIndicatorCandidates(tokenInstances, isTrain)
     spCandidates.foreach(_.addPropertyValue("SP-Candidate", "true"))
 
+    val firstArgCandidates = if (populateNullPairs) {
+      null :: trCandidates.toSet.union(lmCandidates.toSet).toList
+    }
+    else {
+      trCandidates.toSet.union(lmCandidates.toSet).toList
+    }
     val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
-    candidateRelations.filter(_.getArgumentId(0) == null).foreach(x => {
-      x.setArgumentId(0, dummyToken.getId)
-      x.setArgument(0, dummyToken)
-    })
 
-    setRelationTypes(candidateRelations, proportion)
-
-    def getArg(i: Int, r: Relation) = r.getArgument(i).getText.toLowerCase
-
-    val writer = new PrintWriter("RoleCandidates.txt")
-    candidateRelations.foreach(x => writer.println(s"(${getArg(0, x)}, ${getArg(1, x)}) -> ${x.getProperty("RelationType")}"))
-    writer.close()
-
+    if (populateNullPairs) {
+      // replace null arguments with dummy token
+      candidateRelations.filter(_.getArgumentId(0) == null).foreach(x => {
+        x.setArgumentId(0, dummyToken.getId)
+        x.setArgument(0, dummyToken)
+      })
+    }
+    setRelationTypes(candidateRelations, proportion, populateNullPairs)
+    saveCandidateList(proportion, candidateRelations)
     pairs.populate(candidateRelations, isTrain)
   }
 
-  private def setRelationTypes(candidateRelations: List[Relation], proportion: DataProportion): Unit = {
+  private def saveCandidateList(proportion: DataProportion, candidateRelations: List[Relation]) = {
 
-    val goldTrajectorRelations = getGoldTrajectorPairs(proportion)
-    val goldLandmarkRelations = getGoldLandmarkPairs(proportion)
+    def getArg(i: Int, r: Relation) = r.getArgument(i).getText.toLowerCase
+
+    val writer = new PrintWriter(s"data/mSprl/results/RoleCandidates-${proportion}.txt")
+    candidateRelations.foreach(x => writer.println(s"(${getArg(0, x)}, ${getArg(1, x)}) -> ${x.getProperty("RelationType")}"))
+    writer.close()
+  }
+
+  private def setRelationTypes(candidateRelations: List[Relation], proportion: DataProportion, populateNullPairs: Boolean): Unit = {
+
+    val goldTrajectorRelations = getGoldTrajectorPairs(proportion, populateNullPairs)
+    val goldLandmarkRelations = getGoldLandmarkPairs(proportion, populateNullPairs)
 
     candidateRelations.foreach(_.setProperty("RelationType", "None"))
 
@@ -166,7 +176,7 @@ object MultiModalPopulateData {
     trCandidates
   }
 
-  private def getGoldLandmarkPairs(proportion: DataProportion): List[Relation] = {
+  private def getGoldLandmarkPairs(proportion: DataProportion, populateNullPairs: Boolean): List[Relation] = {
 
     // create pairs which first argument is landmark and second is indicator, and remove duplicates
     val nullLandmarkIds = getTags(lmTag, proportion).filter(_.getStart == -1).map(_.getId)
@@ -174,11 +184,15 @@ object MultiModalPopulateData {
       .groupBy(x => x.getArgumentId(0) + "_" + x.getArgumentId(1))
       .map { case (_, list) => list.head }
       .toList
-    relations.foreach(r => if (nullLandmarkIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyToken.getId))
-    relations
+    if (populateNullPairs) {
+      relations.foreach(r => if (nullLandmarkIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyToken.getId))
+      relations
+    } else {
+      relations.filterNot(r => nullLandmarkIds.contains(r.getArgumentId(0)))
+    }
   }
 
-  private def getGoldTrajectorPairs(proportion: DataProportion): List[Relation] = {
+  private def getGoldTrajectorPairs(proportion: DataProportion, populateNullPairs: Boolean): List[Relation] = {
 
     // create pairs which first argument is trajector and second is indicator, and remove duplicates
     val nullTrajectorIds = getTags(trTag, proportion).filter(_.getStart == -1).map(_.getId)
@@ -186,8 +200,12 @@ object MultiModalPopulateData {
       .groupBy(x => x.getArgumentId(0) + "_" + x.getArgumentId(1))
       .map { case (_, list) => list.head }
       .toList
-    relations.foreach(r => if (nullTrajectorIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyToken.getId))
-    relations
+    if (populateNullPairs) {
+      relations.foreach(r => if (nullTrajectorIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyToken.getId))
+      relations
+    } else {
+      relations.filterNot(r => nullTrajectorIds.contains(r.getArgumentId(0)))
+    }
   }
 
   private def getRelations(firstArgId: String, secondArgId: String, proportion: DataProportion): List[Relation] = {
