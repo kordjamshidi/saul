@@ -24,21 +24,23 @@ object MultiModalSpRLClassifiers {
   var featureSet = FeatureSets.WordEmbeddingPlusImage
 
   private def tokenFeatures =
-    List(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext) ++
-      (featureSet match {
-        case FeatureSets.WordEmbedding => List(tokenVector)
-        case FeatureSets.WordEmbeddingPlusImage => List(tokenVector, isTokenAnImageConcept, nearestSegmentConceptVector)
-        case _ => List[Property[Token]]()
-      })
+    List(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext)
+//  ++
+//      (featureSet match {
+//        case FeatureSets.WordEmbedding => List(tokenVector)
+//        case FeatureSets.WordEmbeddingPlusImage => List(tokenVector, isTokenAnImageConcept, nearestSegmentConceptVector)
+//        case _ => List[Property[Token]]()
+//      })
 
   private def relationFeatures = List(relationWordForm, relationPos, relationSemanticRole, relationDependencyRelation,
     relationSubCategorization, relationSpatialContext, distance, before, isTrajectorCandidate, isLandmarkCandidate,
-    isIndicatorCandidate) ++
-    (featureSet match {
-      case FeatureSets.WordEmbedding => List(relationTokensVector)
-      case FeatureSets.WordEmbeddingPlusImage => List(relationTokensVector, relationNearestSegmentConceptVector, relationIsTokenAnImageConcept)
-      case _ => List[Property[Relation]]()
-    })
+    isIndicatorCandidate)
+//  ++
+//    (featureSet match {
+//      case FeatureSets.WordEmbedding => List(relationTokensVector)
+//      case FeatureSets.WordEmbeddingPlusImage => List(relationTokensVector, relationNearestSegmentConceptVector, relationIsTokenAnImageConcept)
+//      case _ => List[Property[Relation]]()
+//    })
 
   object ImageSVMClassifier extends Learnable(segments) {
     def label = segmentLabel
