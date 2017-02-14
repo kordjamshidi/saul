@@ -9,6 +9,9 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval;
 import edu.illinois.cs.cogcomp.lbjava.classify.TestDiscrete;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.FilterOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +21,12 @@ import java.util.List;
 public class SpRLEvaluator {
 
     public void printEvaluation(List<SpRLEvaluation> eval) {
+        printEvaluation(System.out, eval);
+    }
 
-        System.out.printf("%-20s %-10s %-10s %-10s %-10s %-10s\n",
+    public static void printEvaluation(OutputStream outputStream, List<SpRLEvaluation> eval) {
+        PrintStream out = new PrintStream(outputStream);
+        out.printf("%-20s %-10s %-10s %-10s %-10s %-10s\n",
                 "label",
                 "Precision",
                 "Recall",
@@ -27,9 +34,9 @@ public class SpRLEvaluator {
                 "LCount",
                 "PCount"
         );
-        System.out.println(StringUtils.repeat("-", 75));
+        out.println(StringUtils.repeat("-", 75));
         for (SpRLEvaluation e : eval) {
-            System.out.printf("%-20s %-10.3f %-10.3f %-10.3f %-10d %-10d\n",
+            out.printf("%-20s %-10.3f %-10.3f %-10.3f %-10d %-10d\n",
                     e.getLabel(),
                     e.getPrecision(),
                     e.getRecall(),
@@ -38,7 +45,7 @@ public class SpRLEvaluator {
                     e.getPredictedCount()
             );
         }
-        System.out.println(StringUtils.repeat("-", 75));
+        out.println(StringUtils.repeat("-", 75));
     }
 
     public List<SpRLEvaluation> evaluateRoles(RolesEvalDocument actual, RolesEvalDocument predicted) {
