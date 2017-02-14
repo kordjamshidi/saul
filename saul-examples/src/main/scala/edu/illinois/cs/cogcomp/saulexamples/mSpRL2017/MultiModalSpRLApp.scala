@@ -6,17 +6,20 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
+import java.io.{File, FileOutputStream}
+
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluator}
-
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluation, SpRLEvaluator}
 import MultiModalSpRLDataModel._
 import DataProportion._
 import MultiModalPopulateData._
+import edu.illinois.cs.cogcomp.saul.classifier.Results
+import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
 
@@ -50,6 +53,8 @@ object imageApp extends App {
 
 object combinedPairApp extends App with Logging {
 
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbeddingPlusImage
+
   val classifiers = List(
     TrajectorRoleClassifier,
     LandmarkRoleClassifier,
@@ -62,9 +67,12 @@ object combinedPairApp extends App with Logging {
   runClassifiers(false, Test)
 
   private def runClassifiers(isTrain: Boolean, proportion: DataProportion) = {
-    populateData(isTrain, proportion)
 
-    classifiers.foreach(_.modelDir = "models/mSpRL/spatialRole/")
+    val resultsDir = s"data/mSpRL/results/$featureSet/"
+    FileUtils.forceMkdir(new File(resultsDir))
+
+    populateData(isTrain, proportion)
+    classifiers.foreach(_.modelDir = s"models/mSpRL/$featureSet/")
 
     if (isTrain) {
       println("training started ...")
@@ -79,16 +87,26 @@ object combinedPairApp extends App with Logging {
 
       classifiers.foreach(classifier => {
         classifier.load()
-        classifier.test()
+        val results = classifier.test()
+        saveResults(s"$resultsDir/${classifier.getClassSimpleNameForClassifier}.txt", convertToEval(results))
       })
-      testTriplet(isTrain, proportion)
-      TRPairConstraintClassifier.test()
-      LMPairConstraintClassifier.test()
+      val results = testTriplet(isTrain, proportion, x => TrajectorPairClassifier(x), x => LandmarkPairClassifier(x))
+      saveResults(s"$resultsDir/triplet.txt", results)
 
+      val trResults = TRPairConstraintClassifier.test()
+      saveResults(s"$resultsDir/TRPair-Constrained.txt", convertToEval(trResults))
+
+      val lmResults = LMPairConstraintClassifier.test()
+      saveResults(s"$resultsDir/LMPair-Constrained.txt", convertToEval(lmResults))
+
+      val constrainedResults = testTriplet(isTrain, proportion, x => TRPairConstraintClassifier(x), x => LMPairConstraintClassifier(x))
+      saveResults(s"$resultsDir/triplet-constrained.txt", constrainedResults)
     }
   }
 
-  private def testTriplet(isTrain: Boolean, proportion: DataProportion): Unit = {
+  private def testTriplet(isTrain: Boolean, proportion: DataProportion,
+                          trClassifier: Relation => String,
+                          lmClassifier: Relation => String): Seq[SpRLEvaluation] = {
 
     val tokenInstances = if (isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
     val indicators = tokenInstances.filter(t => IndicatorRoleClassifier(t) == "Indicator").toList
@@ -96,9 +114,9 @@ object combinedPairApp extends App with Logging {
 
     val relations = indicators.flatMap(sp => {
       val pairs = tokens(sp) <~ relationToSecondArgument
-      val trajectorPairs = pairs.filter(r => TrajectorPairClassifier(r) == "TR-SP") ~> relationToFirstArgument
+      val trajectorPairs = pairs.filter(r => trClassifier(r) == "TR-SP") ~> relationToFirstArgument
       if (trajectorPairs.nonEmpty) {
-        val landmarkPairs = pairs.filter(r => LandmarkPairClassifier(r) == "LM-SP") ~> relationToFirstArgument
+        val landmarkPairs = pairs.filter(r => lmClassifier(r) == "LM-SP") ~> relationToFirstArgument
         if (landmarkPairs.nonEmpty) {
           trajectorPairs.flatMap(tr => landmarkPairs.map(lm => getRelationEval(Some(tr), Some(sp), Some(lm)))).toList
         } else {
@@ -113,6 +131,16 @@ object combinedPairApp extends App with Logging {
     val evaluator = new SpRLEvaluator()
     val results = evaluator.evaluateRelations(actualRelations, predictedRelations)
     evaluator.printEvaluation(results)
+    results
+  }
+
+  private def convertToEval(r: Results) = r.perLabel
+    .map(x => new SpRLEvaluation(x.label, x.precision, x.recall, x.f1, x.labeledSize, x.predictedSize))
+
+  private def saveResults(path: String, results: Seq[SpRLEvaluation]) = {
+    val writer = new FileOutputStream(path)
+    SpRLEvaluator.printEvaluation(writer, results)
+    writer.close()
   }
 
   private def getActualRelationEvalsPhraseBased(isTrain: Boolean): List[RelationEval] = {

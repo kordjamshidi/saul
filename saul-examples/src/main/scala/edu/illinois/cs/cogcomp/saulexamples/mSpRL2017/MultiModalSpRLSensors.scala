@@ -18,6 +18,8 @@ object MultiModalSpRLSensors {
   }
 
   def getWordVector(w: String): List[Double] = {
+    if(w == null)
+      return List.fill(300)(0.0)
     val v = word2Vec.getWordVector(w)
     if (v == null) {
       List.fill(300)(0.0)
