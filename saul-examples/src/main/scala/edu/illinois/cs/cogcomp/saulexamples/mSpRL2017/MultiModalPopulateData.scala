@@ -80,7 +80,7 @@ object MultiModalPopulateData {
     def getArg(i: Int, r: Relation) = r.getArgument(i).getText.toLowerCase
 
     def print(r: Relation) = {
-      MultiModalSpRLClassifiers.relationFeatures
+      MultiModalSpRLClassifiers.relationFeatures(FeatureSets.BaseLine)
         .map(prop => printVal(prop(r))).mkString(" | ")
     }
 

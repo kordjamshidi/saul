@@ -76,15 +76,12 @@ object combinedPairApp extends App with Logging {
 
     if (isTrain) {
       println("training started ...")
-
       classifiers.foreach(classifier => {
         classifier.learn(50)
         classifier.save()
       })
     } else {
-
       println("testing started ...")
-
       classifiers.foreach(classifier => {
         classifier.load()
         val results = classifier.test()
@@ -209,18 +206,22 @@ object combinedPairApp extends App with Logging {
 
   private def getRelationEval(tr: Option[Token], sp: Option[Token], lm: Option[Token]): RelationEval = {
     val offset = sp.get.getSentence.getStart
-    val lmStart = if (lm.nonEmpty) offset + lm.get.getStart else -1
-    val lmEnd = if (lm.nonEmpty) offset + lm.get.getEnd else -1
-    val trStart = if (tr.nonEmpty) offset + tr.get.getStart else -1
-    val trEnd = if (tr.nonEmpty) offset + tr.get.getEnd else -1
+    val lmStart = if (notNull(lm)) offset + lm.get.getStart else -1
+    val lmEnd = if (notNull(lm)) offset + lm.get.getEnd else -1
+    val trStart = if (notNull(tr)) offset + tr.get.getStart else -1
+    val trEnd = if (notNull(tr)) offset + tr.get.getEnd else -1
     val spStart = offset + sp.get.getStart
     val spEnd = offset + sp.get.getEnd
     new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
   }
 
+  private def notNull(t: Option[Token]) = {
+    t.nonEmpty && t.get.getId != dummyToken.getId && t.get.getStart >= 0
+  }
+
   private def getHeadSpan(p: Phrase): (Int, Int) = {
     if (p.getStart == -1)
-      return (0, 0)
+      return (-1, -1)
 
     val offset = p.getSentence.getStart + p.getStart
     val (_, trHeadStart, trHeadEnd) = getHeadword(p.getText)
@@ -230,7 +231,7 @@ object combinedPairApp extends App with Logging {
 
   private def getSpan(p: Phrase): (Int, Int) = {
     if (p.getStart == -1)
-      return (0, 0)
+      return (-1, -1)
 
     val offset = p.getSentence.getStart
 
