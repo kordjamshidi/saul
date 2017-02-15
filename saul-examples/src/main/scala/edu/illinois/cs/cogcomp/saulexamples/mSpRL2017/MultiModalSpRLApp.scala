@@ -130,9 +130,9 @@ object combinedPairApp extends App with Logging {
 
     val relations = indicators.flatMap(sp => {
       val pairs = tokens(sp) <~ relationToSecondArgument
-      val trajectorPairs = pairs.filter(r => trClassifier(r) == "TR-SP") ~> relationToFirstArgument
+      val trajectorPairs = (pairs.filter(r => trClassifier(r) == "TR-SP") ~> relationToFirstArgument).groupBy(x => x).keys
       if (trajectorPairs.nonEmpty) {
-        val landmarkPairs = pairs.filter(r => lmClassifier(r) == "LM-SP") ~> relationToFirstArgument
+        val landmarkPairs = (pairs.filter(r => lmClassifier(r) == "LM-SP") ~> relationToFirstArgument).groupBy(x => x).keys
         if (landmarkPairs.nonEmpty) {
           trajectorPairs.flatMap(tr => landmarkPairs.map(lm => getRelationEval(Some(tr), Some(sp), Some(lm)))).toList
         } else {
@@ -151,7 +151,7 @@ object combinedPairApp extends App with Logging {
   }
 
   private def convertToEval(r: Results) = r.perLabel
-    .map(x => new SpRLEvaluation(x.label, x.precision, x.recall, x.f1, x.labeledSize, x.predictedSize))
+    .map(x => new SpRLEvaluation(x.label, x.precision * 100, x.recall * 100, x.f1 * 100, x.labeledSize, x.predictedSize))
 
   private def saveResults(path: String, results: Seq[SpRLEvaluation]) = {
     val writer = new FileOutputStream(path)
