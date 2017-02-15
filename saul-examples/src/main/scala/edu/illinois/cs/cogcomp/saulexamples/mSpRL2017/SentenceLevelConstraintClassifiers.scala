@@ -35,5 +35,4 @@ object SentenceLevelConstraintClassifiers {
     override val solver = erSolver
     override val pathToHead = Some(-sentenceToToken)
   }
-
 }

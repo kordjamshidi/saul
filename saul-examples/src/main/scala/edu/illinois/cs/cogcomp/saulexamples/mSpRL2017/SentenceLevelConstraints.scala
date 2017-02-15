@@ -90,7 +90,7 @@ object SentenceLevelConstraints {
 
   val allConstraints = ConstrainedClassifier.constraint[Sentence] {
 
-    x: Sentence => integrityLM(x) and integrityTR(x) and multiLabelPair(x)
+    x: Sentence => integrityLM(x) and integrityTR(x) and multiLabelPair(x) and boostIndicator(x) and boostPairs(x)
   }
 
 
