@@ -38,7 +38,8 @@ object MultiModalPopulateData {
 
     documents.populate(getDocumentList(proportion), isTrain)
     sentences.populate(getSentenceList(proportion), isTrain)
-    val tokenInstances = if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList
+    val tokenInstances = (if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList)
+      .filter(_.getId != dummyToken.getId)
     if (populateNullPairs) {
       tokens.populate(List(dummyToken), isTrain)
     }
@@ -57,12 +58,9 @@ object MultiModalPopulateData {
     val spCandidates = getIndicatorCandidates(tokenInstances, isTrain)
     spCandidates.foreach(_.addPropertyValue("SP-Candidate", "true"))
 
-    val firstArgCandidates = if (populateNullPairs) {
-      null :: trCandidates.toSet.union(lmCandidates.toSet).toList
-    }
-    else {
-      trCandidates.toSet.union(lmCandidates.toSet).toList
-    }
+    val firstArgCandidates = (if (populateNullPairs) List(null) else List()) ++
+      tokenInstances.filter(x => x.containsProperty("TR-Candidate") || x.containsProperty("LM-Candidate"))
+
     val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
 
     if (populateNullPairs) {
@@ -73,16 +71,30 @@ object MultiModalPopulateData {
       })
     }
     setRelationTypes(candidateRelations, proportion, populateNullPairs)
-    saveCandidateList(proportion, candidateRelations)
     pairs.populate(candidateRelations, isTrain)
+    saveCandidateList(proportion, candidateRelations)
   }
 
   private def saveCandidateList(proportion: DataProportion, candidateRelations: List[Relation]) = {
 
     def getArg(i: Int, r: Relation) = r.getArgument(i).getText.toLowerCase
 
+    def print(r: Relation) = {
+      MultiModalSpRLClassifiers.relationFeatures
+        .map(prop => printVal(prop(r))).mkString(" | ")
+    }
+
+    def printVal(v: Any) = {
+      v match {
+        case x: List[_] => x.mkString(", ")
+        case _ => v.toString
+      }
+    }
+
     val writer = new PrintWriter(s"data/mSprl/results/RoleCandidates-${proportion}.txt")
-    candidateRelations.foreach(x => writer.println(s"(${getArg(0, x)}, ${getArg(1, x)}) -> ${x.getProperty("RelationType")}"))
+    candidateRelations.foreach(x =>
+      writer.println(s"(${getArg(0, x)}, ${getArg(1, x)})[${print(x)}] -> ${x.getProperty("RelationType")}")
+    )
     writer.close()
   }
 
@@ -112,7 +124,7 @@ object MultiModalPopulateData {
         if (c.get.getProperty("RelationType") == "TR-SP") {
           println(s"warning: candidate already marked as TR-SP via ${c.get.getId}. duplicate relation: ${r.getId}")
         } else {
-          if (c.get.getProperty("RelationType") == "TR-SP") {
+          if (c.get.getProperty("RelationType") == "LM-SP") {
             println(s"warning: overriding LM-SP relation ${c.get.getId} by TR-SP relation: ${r.getId}")
           }
           c.get.setProperty("RelationType", "TR-SP")
@@ -137,6 +149,9 @@ object MultiModalPopulateData {
         if (c.get.getProperty("RelationType") == "LM-SP") {
           println(s"warning: candidate already marked as LM-SP via ${c.get.getId}. duplicate relation: ${r.getId}")
         } else {
+          if (c.get.getProperty("RelationType") == "TR-SP") {
+            println(s"warning: overriding TR-SP relation ${c.get.getId} by LM-SP relation: ${r.getId}")
+          }
           c.get.setProperty("RelationType", "LM-SP")
           c.get.setId(r.getId)
         }
