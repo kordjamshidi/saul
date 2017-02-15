@@ -93,6 +93,8 @@ object combinedPairApp extends App with Logging {
       val results = testTriplet(isTrain, proportion, x => TrajectorPairClassifier(x), x => LandmarkPairClassifier(x))
       saveResults(s"$resultsDir/triplet.txt", results)
 
+ /*Pair level constraints
+ * */
       val trResults = TRPairConstraintClassifier.test()
       saveResults(s"$resultsDir/TRPair-Constrained.txt", convertToEval(trResults))
 
@@ -101,6 +103,20 @@ object combinedPairApp extends App with Logging {
 
       val constrainedResults = testTriplet(isTrain, proportion, x => TRPairConstraintClassifier(x), x => LMPairConstraintClassifier(x))
       saveResults(s"$resultsDir/triplet-constrained.txt", constrainedResults)
+
+      /*Sentence level constraints
+     * */
+
+
+      val trSentenceResults = SentenceLevelConstraintClassifiers.TRPairConstraintClassifier.test()
+      saveResults(s"$resultsDir/TRPair-SentenceConstrained.txt", convertToEval(trSentenceResults))
+
+      val lmSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
+      saveResults(s"$resultsDir/LMPair-SentenceConstrained.txt", convertToEval(lmSentenceResults))
+
+      val constrainedSentenceResults = testTriplet(isTrain, proportion, x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x), x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
+      saveResults(s"$resultsDir/triplet-SentenceConstrained.txt", constrainedSentenceResults)
+
     }
   }
 
