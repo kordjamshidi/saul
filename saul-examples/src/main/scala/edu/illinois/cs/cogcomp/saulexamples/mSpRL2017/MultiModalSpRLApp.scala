@@ -87,42 +87,64 @@ object combinedPairApp extends App with Logging {
         val results = classifier.test()
         saveResults(s"$resultsDir/${classifier.getClassSimpleNameForClassifier}.txt", convertToEval(results))
       })
-      val results = testTriplet(isTrain, proportion, x => TrajectorPairClassifier(x), x => LandmarkPairClassifier(x))
+      val results = testTriplet(isTrain, proportion,
+        x => TrajectorPairClassifier(x),
+        x => LandmarkPairClassifier(x),
+        x => IndicatorRoleClassifier(x)
+      )
       saveResults(s"$resultsDir/triplet.txt", results)
 
- /*Pair level constraints
- * */
+      /*Pair level constraints
+      * */
       val trResults = TRPairConstraintClassifier.test()
       saveResults(s"$resultsDir/TRPair-Constrained.txt", convertToEval(trResults))
 
       val lmResults = LMPairConstraintClassifier.test()
       saveResults(s"$resultsDir/LMPair-Constrained.txt", convertToEval(lmResults))
 
-      val constrainedResults = testTriplet(isTrain, proportion, x => TRPairConstraintClassifier(x), x => LMPairConstraintClassifier(x))
+      val constrainedResults = testTriplet(isTrain, proportion,
+        x => TRPairConstraintClassifier(x),
+        x => LMPairConstraintClassifier(x),
+        x => IndicatorRoleClassifier(x)
+      )
       saveResults(s"$resultsDir/triplet-constrained.txt", constrainedResults)
 
       /*Sentence level constraints
      * */
 
+      val trSentenceResults = SentenceLevelConstraintClassifiers.TRConstraintClassifier.test()
+      saveResults(s"$resultsDir/TR-SentenceConstrained.txt", convertToEval(trSentenceResults))
 
-      val trSentenceResults = SentenceLevelConstraintClassifiers.TRPairConstraintClassifier.test()
-      saveResults(s"$resultsDir/TRPair-SentenceConstrained.txt", convertToEval(trSentenceResults))
+      val lmSentenceResults = SentenceLevelConstraintClassifiers.LMConstraintClassifier.test()
+      saveResults(s"$resultsDir/LM-SentenceConstrained.txt", convertToEval(lmSentenceResults))
 
-      val lmSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
-      saveResults(s"$resultsDir/LMPair-SentenceConstrained.txt", convertToEval(lmSentenceResults))
+      val spSentenceResults = SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier.test()
+      saveResults(s"$resultsDir/SP-SentenceConstrained.txt", convertToEval(spSentenceResults))
 
-      val constrainedSentenceResults = testTriplet(isTrain, proportion, x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x), x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
-      saveResults(s"$resultsDir/triplet-SentenceConstrained.txt", constrainedSentenceResults)
+      val trPairSentenceResults = SentenceLevelConstraintClassifiers.TRPairConstraintClassifier.test()
+      saveResults(s"$resultsDir/TRPair-SentenceConstrained.txt", convertToEval(trPairSentenceResults))
+
+      val lmPairSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
+      saveResults(s"$resultsDir/LMPair-SentenceConstrained.txt", convertToEval(lmPairSentenceResults))
+
+      val constrainedPairSentenceResults = testTriplet(isTrain, proportion,
+        x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
+        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x),
+        x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x)
+      )
+      saveResults(s"$resultsDir/triplet-SentenceConstrained.txt", constrainedPairSentenceResults)
 
     }
   }
 
   private def testTriplet(isTrain: Boolean, proportion: DataProportion,
                           trClassifier: Relation => String,
-                          lmClassifier: Relation => String): Seq[SpRLEvaluation] = {
+                          lmClassifier: Relation => String,
+                          spClassifier: Token => String
+                         ): Seq[SpRLEvaluation] = {
 
     val tokenInstances = if (isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
-    val indicators = tokenInstances.filter(t => IndicatorRoleClassifier(t) == "Indicator").toList
+    val indicators = tokenInstances.filter(t => spClassifier(t) == "Indicator").toList
       .sortBy(x => x.getSentence.getStart + x.getStart)
 
     val relations = indicators.flatMap(sp => {
