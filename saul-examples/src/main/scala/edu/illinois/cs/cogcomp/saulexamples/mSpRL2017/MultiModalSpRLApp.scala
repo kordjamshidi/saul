@@ -76,56 +76,75 @@ object combinedPairApp extends App with Logging {
 
     if (isTrain) {
       println("training started ...")
-
       classifiers.foreach(classifier => {
         classifier.learn(50)
         classifier.save()
       })
     } else {
-
       println("testing started ...")
-
       classifiers.foreach(classifier => {
         classifier.load()
         val results = classifier.test()
         saveResults(s"$resultsDir/${classifier.getClassSimpleNameForClassifier}.txt", convertToEval(results))
       })
-      val results = testTriplet(isTrain, proportion, x => TrajectorPairClassifier(x), x => LandmarkPairClassifier(x))
+      val results = testTriplet(isTrain, proportion,
+        x => TrajectorPairClassifier(x),
+        x => LandmarkPairClassifier(x),
+        x => IndicatorRoleClassifier(x)
+      )
       saveResults(s"$resultsDir/triplet.txt", results)
 
- /*Pair level constraints
- * */
+      /*Pair level constraints
+      * */
       val trResults = TRPairConstraintClassifier.test()
       saveResults(s"$resultsDir/TRPair-Constrained.txt", convertToEval(trResults))
 
       val lmResults = LMPairConstraintClassifier.test()
       saveResults(s"$resultsDir/LMPair-Constrained.txt", convertToEval(lmResults))
 
-      val constrainedResults = testTriplet(isTrain, proportion, x => TRPairConstraintClassifier(x), x => LMPairConstraintClassifier(x))
+      val constrainedResults = testTriplet(isTrain, proportion,
+        x => TRPairConstraintClassifier(x),
+        x => LMPairConstraintClassifier(x),
+        x => IndicatorRoleClassifier(x)
+      )
       saveResults(s"$resultsDir/triplet-constrained.txt", constrainedResults)
 
       /*Sentence level constraints
      * */
 
+      val trSentenceResults = SentenceLevelConstraintClassifiers.TRConstraintClassifier.test()
+      saveResults(s"$resultsDir/TR-SentenceConstrained.txt", convertToEval(trSentenceResults))
 
-      val trSentenceResults = SentenceLevelConstraintClassifiers.TRPairConstraintClassifier.test()
-      saveResults(s"$resultsDir/TRPair-SentenceConstrained.txt", convertToEval(trSentenceResults))
+      val lmSentenceResults = SentenceLevelConstraintClassifiers.LMConstraintClassifier.test()
+      saveResults(s"$resultsDir/LM-SentenceConstrained.txt", convertToEval(lmSentenceResults))
 
-      val lmSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
-      saveResults(s"$resultsDir/LMPair-SentenceConstrained.txt", convertToEval(lmSentenceResults))
+      val spSentenceResults = SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier.test()
+      saveResults(s"$resultsDir/SP-SentenceConstrained.txt", convertToEval(spSentenceResults))
 
-      val constrainedSentenceResults = testTriplet(isTrain, proportion, x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x), x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
-      saveResults(s"$resultsDir/triplet-SentenceConstrained.txt", constrainedSentenceResults)
+      val trPairSentenceResults = SentenceLevelConstraintClassifiers.TRPairConstraintClassifier.test()
+      saveResults(s"$resultsDir/TRPair-SentenceConstrained.txt", convertToEval(trPairSentenceResults))
+
+      val lmPairSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
+      saveResults(s"$resultsDir/LMPair-SentenceConstrained.txt", convertToEval(lmPairSentenceResults))
+
+      val constrainedPairSentenceResults = testTriplet(isTrain, proportion,
+        x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
+        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x),
+        x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x)
+      )
+      saveResults(s"$resultsDir/triplet-SentenceConstrained.txt", constrainedPairSentenceResults)
 
     }
   }
 
   private def testTriplet(isTrain: Boolean, proportion: DataProportion,
                           trClassifier: Relation => String,
-                          lmClassifier: Relation => String): Seq[SpRLEvaluation] = {
+                          lmClassifier: Relation => String,
+                          spClassifier: Token => String
+                         ): Seq[SpRLEvaluation] = {
 
     val tokenInstances = if (isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
-    val indicators = tokenInstances.filter(t => IndicatorRoleClassifier(t) == "Indicator").toList
+    val indicators = tokenInstances.filter(t => spClassifier(t) == "Indicator").toList
       .sortBy(x => x.getSentence.getStart + x.getStart)
 
     val relations = indicators.flatMap(sp => {
@@ -209,18 +228,22 @@ object combinedPairApp extends App with Logging {
 
   private def getRelationEval(tr: Option[Token], sp: Option[Token], lm: Option[Token]): RelationEval = {
     val offset = sp.get.getSentence.getStart
-    val lmStart = if (lm.nonEmpty) offset + lm.get.getStart else -1
-    val lmEnd = if (lm.nonEmpty) offset + lm.get.getEnd else -1
-    val trStart = if (tr.nonEmpty) offset + tr.get.getStart else -1
-    val trEnd = if (tr.nonEmpty) offset + tr.get.getEnd else -1
+    val lmStart = if (notNull(lm)) offset + lm.get.getStart else -1
+    val lmEnd = if (notNull(lm)) offset + lm.get.getEnd else -1
+    val trStart = if (notNull(tr)) offset + tr.get.getStart else -1
+    val trEnd = if (notNull(tr)) offset + tr.get.getEnd else -1
     val spStart = offset + sp.get.getStart
     val spEnd = offset + sp.get.getEnd
     new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
   }
 
+  private def notNull(t: Option[Token]) = {
+    t.nonEmpty && t.get.getId != dummyToken.getId && t.get.getStart >= 0
+  }
+
   private def getHeadSpan(p: Phrase): (Int, Int) = {
     if (p.getStart == -1)
-      return (0, 0)
+      return (-1, -1)
 
     val offset = p.getSentence.getStart + p.getStart
     val (_, trHeadStart, trHeadEnd) = getHeadword(p.getText)
@@ -230,7 +253,7 @@ object combinedPairApp extends App with Logging {
 
   private def getSpan(p: Phrase): (Int, Int) = {
     if (p.getStart == -1)
-      return (0, 0)
+      return (-1, -1)
 
     val offset = p.getSentence.getStart
 
