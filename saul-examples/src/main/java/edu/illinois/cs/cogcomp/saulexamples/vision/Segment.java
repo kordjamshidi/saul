@@ -7,6 +7,9 @@
 package edu.illinois.cs.cogcomp.saulexamples.vision;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Umar Manzoor on 29/12/2016.
  */
@@ -16,14 +19,17 @@ public class Segment {
     private String segmentFeatures;
     private String segmentConcept;
     private String imageId;
+    private List<String> ontologyConcepts= new ArrayList<>();
     public double[] features;
-    public Segment(String ImageId, int segmentId, int segmentCode, String segmentFeatures, String segmentConcept)
+
+    public Segment(String ImageId, int segmentId, int segmentCode, String segmentFeatures, String segmentConcept, List<String> ontologyConcepts)
     {
         this.imageId = ImageId;
         this.segmentId = segmentId;
         this.segmentCode = segmentCode;
         this.segmentFeatures = segmentFeatures;
         this.segmentConcept = segmentConcept;
+        this.ontologyConcepts = ontologyConcepts;
     }
 
     public String getAssociatedImageID()
@@ -49,6 +55,11 @@ public class Segment {
     public String getSegmentConcept()
     {
         return segmentConcept;
+    }
+
+    public List<String> getOntologyConcepts()
+    {
+        return ontologyConcepts;
     }
 
     @Override
