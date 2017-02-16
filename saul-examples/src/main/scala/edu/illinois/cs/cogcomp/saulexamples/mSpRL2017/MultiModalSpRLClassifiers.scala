@@ -13,6 +13,7 @@ import weka.classifiers.`lazy`.IBk
 import weka.classifiers.bayes.NaiveBayes
 import MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.FeatureSets.FeatureSets
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Relation, Token}
 
 object FeatureSets extends Enumeration {
@@ -23,7 +24,9 @@ object FeatureSets extends Enumeration {
 object MultiModalSpRLClassifiers {
   var featureSet = FeatureSets.WordEmbeddingPlusImage
 
-  private def tokenFeatures =
+  def tokenFeatures: List[Property[Token]] = tokenFeatures(featureSet)
+
+  def tokenFeatures(featureSet: FeatureSets): List[Property[Token]] =
     List(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext) ++
       (featureSet match {
         case FeatureSets.WordEmbedding => List(tokenVector)
@@ -31,14 +34,17 @@ object MultiModalSpRLClassifiers {
         case _ => List[Property[Token]]()
       })
 
-  private def relationFeatures = List(relationWordForm, relationPos, relationSemanticRole, relationDependencyRelation,
-    relationSubCategorization, relationSpatialContext, distance, before, isTrajectorCandidate, isLandmarkCandidate,
-    isIndicatorCandidate) ++
-    (featureSet match {
-      case FeatureSets.WordEmbedding => List(relationTokensVector)
-      case FeatureSets.WordEmbeddingPlusImage => List(relationTokensVector, relationNearestSegmentConceptVector, relationIsTokenAnImageConcept)
-      case _ => List[Property[Relation]]()
-    })
+  def relationFeatures: List[Property[Relation]] = relationFeatures(featureSet)
+
+  def relationFeatures(featureSet: FeatureSets): List[Property[Relation]] =
+    List(relationWordForm, relationPos, relationSemanticRole, relationDependencyRelation,
+      relationSubCategorization, relationSpatialContext, distance, before, isTrajectorCandidate, isLandmarkCandidate,
+      isIndicatorCandidate) ++
+      (featureSet match {
+        case FeatureSets.WordEmbedding => List(relationTokensVector)
+        case FeatureSets.WordEmbeddingPlusImage => List(relationTokensVector, relationNearestSegmentConceptVector, relationIsTokenAnImageConcept)
+        case _ => List[Property[Relation]]()
+      })
 
   object ImageSVMClassifier extends Learnable(segments) {
     def label = segmentLabel

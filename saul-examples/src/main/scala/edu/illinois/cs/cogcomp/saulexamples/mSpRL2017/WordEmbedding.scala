@@ -3,6 +3,8 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import java.io.File
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
+import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors.phraseConceptToWord
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.{ClefDocument, SpRLDataReader}
 import org.apache.commons.io.{FileUtils, IOUtils}
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
@@ -24,6 +26,7 @@ object WordEmbedding extends App with Logging {
 
 
   private def load() = WordVectorSerializer.readWord2VecModel("data/clef.bin")
+
   private def build() = {
     val iter = new CustomSentenceIterator("data/SpRL/CLEF/texts/", ".eng")
     iter.setPreProcessor(new SentencePreProcessor() {
@@ -50,10 +53,23 @@ object WordEmbedding extends App with Logging {
 class CustomSentenceIterator(corpusPath: String, extension: String) extends BaseSentenceIterator {
 
   private val reader = new SpRLDataReader(corpusPath, classOf[ClefDocument], extension)
+  private val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", true)
+  val segments = CLEFDataSet.trainingSegments ++ CLEFDataSet.testSegments
   reader.readData()
   private val docs = reader.documents
-  private val lines = docs.flatMap(_.getDescription.split(";").map(_.trim)).filter(_ != "")
+  val docTexts = docs.map(x => {
+    val imageText = segments.filter(s => x.getImage.endsWith("/" + s.getAssociatedImageID + ".jpg"))
+      .flatMap(x => List(getConceptWord(x.getSegmentConcept), x.getSegmentConcept)).distinct.mkString(" ")
+    x.getDescription.split(";").map(_.trim).mkString(" ") + imageText
+  })
+  private val lines = docTexts.filter(_ != "")
   private var iter = lines.toIterator
+
+  private def getConceptWord(x: String) =
+    if (!phraseConceptToWord.contains(x))
+      x
+    else
+      phraseConceptToWord(x)
 
   override def nextSentence(): String = {
     val line = this.iter.next
