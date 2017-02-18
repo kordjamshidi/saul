@@ -6,10 +6,13 @@
   */
 package edu.illinois.cs.cogcomp.saul.datamodel.property
 
+import java.io.PrintStream
 import java.util
 
-import edu.illinois.cs.cogcomp.lbjava.classify.{ Classifier, FeatureVector }
+import edu.illinois.cs.cogcomp.lbjava.classify.{Classifier, FeatureVector, ScoreSet}
+import edu.illinois.cs.cogcomp.lbjava.learn.Learner
 import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
+import edu.illinois.cs.cogcomp.saul.lbjrelated.LBJLearnerEquivalent
 
 import scala.reflect.ClassTag
 
@@ -43,4 +46,19 @@ object Property {
 
   /** Transfer a properties to a lbj classifier. */
   def convertToClassifier[T](property: Property[T]): Classifier = new LBPClassifier[T](property)
+
+  def convertToLBJLearnerEquivalent[T](property: Property[T]) = new LBJLearnerEquivalent {
+    override val classifier: Learner = new Learner {
+      private val classifier = new LBPClassifier[T](property)
+
+      override def classify(exampleFeatures: Array[Int], exampleValues: Array[Double]): FeatureVector =
+        classifier.classify(exampleFeatures, exampleValues)
+
+      override def scores(exampleFeatures: Array[Int], exampleValues: Array[Double]): ScoreSet = ???
+
+      override def write(out: PrintStream): Unit = ???
+
+      override def learn(exampleFeatures: Array[Int], exampleValues: Array[Double], exampleLabels: Array[Int], labelValues: Array[Double]): Unit = ???
+    }
+  }
 }
