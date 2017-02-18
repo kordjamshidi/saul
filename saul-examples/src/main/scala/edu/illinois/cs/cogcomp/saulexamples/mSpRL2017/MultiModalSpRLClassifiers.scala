@@ -99,7 +99,7 @@ object MultiModalSpRLClassifiers {
 
     override lazy val classifier = new SparseNetworkLearner()
 
-    override def feature = using(tokenFeatures)
+    override def feature = using(tokenFeatures(FeatureSets.BaseLine))
   }
 
   object TrajectorPairClassifier extends Learnable(pairs) {
