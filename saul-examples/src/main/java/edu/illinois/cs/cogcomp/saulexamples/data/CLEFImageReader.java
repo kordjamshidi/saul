@@ -1,9 +1,9 @@
 /** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ *
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.data;
 
 import java.io.BufferedReader;
@@ -21,6 +21,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader;
 
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Document;
 
+import java.io.PrintWriter;
 /**
  * Reads CLEF Image dataset, given a directory
  * @author Umar Manzoor
@@ -43,6 +44,7 @@ public class CLEFImageReader
     public List<SegmentRelation> testRelations;
 
     private Hashtable<Integer, String> MapCode2Concept = new Hashtable<Integer, String>();
+    private Hashtable<String, String> segmentOntology = new Hashtable<String, String>();
 
     public CLEFImageReader(String directory, Boolean readFullData) throws IOException {
         File d = new File(directory);
@@ -152,6 +154,10 @@ public class CLEFImageReader
                 getImages(imageFolder);
 
                 //Load all segments
+                String ontologyfile = mainFolder + "/ontology_path.txt";
+                getSegmentsOntology(ontologyfile);
+
+                //Load all segments
                 String file = mainFolder + "/features.txt";
                 getSegments(file);
 
@@ -202,13 +208,25 @@ public class CLEFImageReader
                     int segmentId = Integer.parseInt(segmentInfo[1]);
                     int segmentCode = Integer.parseInt(segmentInfo[3]);
                     String segmentConcept = MappingCode2Concept(segmentCode);
+
+                    String key = imageId + "-" + segmentId;
+                    String[] ontology=(segmentOntology.get(key)).split("->");
+                    List<String> ontologyConcepts = new ArrayList<>();
+                    for (int i=ontology.length-1; i>=0; i--) {
+                        String o = ontology[i].trim();
+                        if(!o.equals("")&&!o.equals("entity")&&!o.equals(segmentConcept))
+                            ontologyConcepts.add(o);
+                    }
+                    
                     if (segmentConcept != null) {
                         String segmentFeatures = segmentInfo[2];
                         segmentFeatures = segmentFeatures.trim().replaceAll(" +", " ");
-                        if (trainingData.contains(imageId))
-                            trainingSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept));
-                        else if (testData.contains(imageId))
-                            testSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept));
+                        if (trainingData.contains(imageId)) {
+                            trainingSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept, ontologyConcepts));
+                        }
+                        else if (testData.contains(imageId)) {
+                            testSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept, ontologyConcepts));
+                        }
                     }
                 }
             }
@@ -235,7 +253,6 @@ public class CLEFImageReader
                 double[][] topo = ((MLDouble) matFileReader.getMLArray("topo")).getArray();
                 double[][] xRels = ((MLDouble) matFileReader.getMLArray("x_rels")).getArray();
                 double[][] yRels = ((MLDouble) matFileReader.getMLArray("y_rels")).getArray();
-
                 /**************************************************/
                 // Exemptional case
                 // Sometimes mat file is returning only one value
@@ -251,51 +268,56 @@ public class CLEFImageReader
                                 val = (int) topo[x][y];
                                 if (val == 1)
                                     rel = "adjacent";
-                                else if (val == 2)
-                                    rel = "disjoint";
+//                              ****** Ignoring as not required in mSpRL
+//                                else if (val == 2)
+//                                    rel = "disjoint";
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(imgId)) {
-                                    //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
-                                }
-                                else if (testData.contains(imgId)) {
-                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                if(rel!=null) {
+                                    if (trainingData.contains(imgId)) {
+                                        //Creating new Relation between segments
+                                        trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    } else if (testData.contains(imgId)) {
+                                        testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    }
                                 }
                                 val = (int) xRels[x][y];
                                 if (val == 3)
                                     rel = "beside";
-                                else if (val == 4)
-                                    rel = "x-aligned";
+//                              ****** Ignoring as not required in mSpRL
+//                                else if (val == 4)
+//                                    rel = "x-aligned";
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(imgId)) {
-                                    //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                if(rel!=null) {
+                                    if (trainingData.contains(imgId)) {
+                                        //Creating new Relation between segments
+                                        trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    } else if (testData.contains(imgId)) {
+                                        testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    }
                                 }
-                                else if (testData.contains(imgId)) {
-                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
-                                }
-
 
                                 val = (int) yRels[x][y];
                                 if (val == 5)
                                     rel = "above";
                                 else if (val == 6)
                                     rel = "below";
-                                else if (val == 7)
-                                    rel = "y-aligned";
+//                               ****** Ignoring as not required in mSpRL
+//                                else if (val == 7)
+//                                    rel = "y-aligned";
                                 else
                                     rel = null;
 
-                                if(trainingData.contains(imgId)) {
-                                    //Creating new Relation between segments
-                                    trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
-                                }
-                                else if (testData.contains(imgId)) {
-                                    testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                if(rel!=null) {
+                                    if (trainingData.contains(imgId)) {
+                                        //Creating new Relation between segments
+                                        trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    } else if (testData.contains(imgId)) {
+                                        testRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
+                                    }
                                 }
                             }
                         }
@@ -384,6 +406,27 @@ public class CLEFImageReader
                     trainingData.add(Integer.toString(imageId));
                 else
                     testData.add(Integer.toString(imageId));
+            }
+        }
+    }
+
+    /*******************************************************/
+    // Loading Segments Ontology
+    /*******************************************************/
+    private void getSegmentsOntology(String file) throws IOException
+    {
+        File d = new File(file);
+
+        if (d.exists()) {
+
+            String line;
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            while ((line = reader.readLine()) != null) {
+                String[] segmentOntologyInfo = line.split("\\t");
+                if(segmentOntologyInfo.length==3) {
+                    String key = segmentOntologyInfo[0] + "-" + Integer.parseInt(segmentOntologyInfo[1]);
+                    segmentOntology.put(key, segmentOntologyInfo[2].replaceAll("_",""));
+                }
             }
         }
     }
