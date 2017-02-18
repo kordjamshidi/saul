@@ -8,8 +8,9 @@ package edu.illinois.cs.cogcomp.saul.datamodel.property
 
 import java.util
 
-import edu.illinois.cs.cogcomp.lbjava.classify.{ Classifier, FeatureVector }
+import edu.illinois.cs.cogcomp.lbjava.classify.{Classifier, FeatureVector}
 import edu.illinois.cs.cogcomp.saul.datamodel.node.Node
+import edu.illinois.cs.cogcomp.saul.lbjrelated.LBJLearnerEquivalent
 
 import scala.reflect.ClassTag
 
@@ -43,4 +44,8 @@ object Property {
 
   /** Transfer a properties to a lbj classifier. */
   def convertToClassifier[T](property: Property[T]): Classifier = new LBPClassifier[T](property)
+
+  def convertToLBJLearnerEquivalent[T](property: Property[T]) = new LBJLearnerEquivalent {
+    override val classifier: Classifier = convertToClassifier(property)
+  }
 }
