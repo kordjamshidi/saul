@@ -53,7 +53,7 @@ object imageApp extends App {
 
 object combinedPairApp extends App with Logging {
 
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbeddingPlusImage
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
 
   val classifiers = List(
     TrajectorRoleClassifier,
