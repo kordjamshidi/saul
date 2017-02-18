@@ -51,15 +51,15 @@ object SentenceLevelConstraints {
     //if there exists a trajector or a landmark in the sentence then there should exist an indicator in the sentence too.
     s : Sentence =>
       (((sentences(s) ~> sentenceToToken).toList._exists{x: Token => TrajectorRoleClassifier on x  is "Trajector"}) or
-        ((sentences(s) ~> sentenceToToken).toList._exists{x: Token => TrajectorRoleClassifier on x  is "Landmard"})) ==>
-        ( (sentences(s) ~> sentenceToToken).toList._exists{x: Token => TrajectorRoleClassifier on x  is "Indicator"})
+        ((sentences(s) ~> sentenceToToken).toList._exists{x: Token => LandmarkRoleClassifier on x  is "Landmard"})) ==>
+        ( (sentences(s) ~> sentenceToToken).toList._exists{x: Token => IndicatorRoleClassifier on x  is "Indicator"})
   }
 
 
   val boostPairs = ConstrainedClassifier.constraint[Sentence] {
     //if there is an indicator in the sentence then there should be a relation in the sentence, though the roles can be null.
     s : Sentence =>
-      (((sentences(s) ~> sentenceToToken).toList._exists{x: Token => TrajectorRoleClassifier on x  is "Indicator"}) ==>
+      (((sentences(s) ~> sentenceToToken).toList._exists{x: Token => IndicatorRoleClassifier on x  is "Indicator"}) ==>
         ((sentences(s) ~> sentenceToRelations).toList._exists{x: Relation => TrajectorPairClassifier on x  is "TR-SP"})) and
         ( (sentences(s) ~> sentenceToRelations).toList._exists{x: Relation => LandmarkPairClassifier on x  is "LM-SP"})
   }

@@ -9,7 +9,7 @@ package edu.illinois.cs.cogcomp.saulexamples.DrugResponse
 import edu.illinois.cs.cogcomp.saul.classifier.ClassifierUtils
 import edu.illinois.cs.cogcomp.saul.datamodel.node.Path
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.DrugResponse.Classifiers.DrugResponseRegressor
+import edu.illinois.cs.cogcomp.saulexamples.DrugResponse.Classifiers.{DrugResponseRegressor, dResponseClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.DrugResponse.KnowEngDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.DrugResponse.Queries._
 import edu.illinois.cs.cogcomp.saulexamples.bioInformatics._
@@ -17,9 +17,9 @@ import edu.illinois.cs.cogcomp.saulexamples.bioInformatics._
 import scala.collection.JavaConversions._
 /** Created by Parisa on 6/25/15.
   */
-object myApp extends Logging {
+object myApp extends Logging with App{
 
-  def main(args: Array[String]): Unit = {
+  //def mainf(args: Array[String]): Unit = {
 
     val patients_data = new Sample_Reader("./data/biology/individual_samples.txt").patientCollection
     val patient_drug_data = new drugExampleReader().pdReader("./data/biology/auc_response.txt").filter(x => x.drugId == "D_0")
@@ -52,8 +52,10 @@ object myApp extends Logging {
     //first find all distinct pathways from the list of pathways that are in the list of pathways for each gene
     //then define a new regressor per pathway
     val myLearners = (genes() prop gene_KEGG).flatten.toList.distinct.map(pathwayX => new DrugResponseRegressor(pathwayX))
+    ClassifierUtils.TrainClassifiers(10,myLearners)
 
     ClassifierUtils.TestClassifiers(myLearners)
+
     myLearners.foreach(_.testContinuous())
 
     //myLearners.map(x => x.test()) //.SortwithAccuracy()
@@ -71,13 +73,13 @@ object myApp extends Logging {
 
     genes(Path.findPath(genes().head, genes, genes().head).asInstanceOf[Seq[Gene]]) prop gene_GoTerm
 
-    // dResponseClassifier.learn(1)
+     dResponseClassifier.learn(1)
 
     //dResponseClassifier.testContinuos(patient_drug_data)
     //DrugResponseRegressor.learn(1)
 
     //DrugResponseRegressor.testContinuos(patientDrug.getTrainingInstances)
     logger.info("finished!")
-  }
+  //}
 
 }
