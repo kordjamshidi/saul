@@ -63,7 +63,7 @@ object combinedPairApp extends App with Logging {
     LandmarkPairClassifier
   )
 
-  //runClassifiers(true, Train)
+  runClassifiers(true, Train)
   runClassifiers(false, Test)
 
   private def runClassifiers(isTrain: Boolean, proportion: DataProportion) = {
