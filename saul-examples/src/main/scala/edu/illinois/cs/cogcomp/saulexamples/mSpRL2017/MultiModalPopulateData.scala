@@ -19,7 +19,7 @@ import scala.io.Source
   */
 object DataProportion extends Enumeration {
   type DataProportion = Value
-  val Train, Test, Both = Value
+  val Train, Test, Both, JoinTrain = Value
 }
 
 object MultiModalPopulateData {
