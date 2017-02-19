@@ -25,7 +25,7 @@ public class SpRLEvaluator {
     }
 
     public static void printEvaluation(OutputStream outputStream, List<SpRLEvaluation> eval) {
-        PrintStream out = new PrintStream(outputStream);
+        PrintStream out = new PrintStream(outputStream, true);
         out.printf("%-20s %-10s %-10s %-10s %-10s %-10s\n",
                 "label",
                 "Precision",

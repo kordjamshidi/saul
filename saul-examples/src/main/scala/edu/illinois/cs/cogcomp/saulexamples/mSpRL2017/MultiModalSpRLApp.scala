@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{File, FileOutputStream}
+import java.io.{File, FileOutputStream, PrintStream, PrintWriter}
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
@@ -53,7 +53,7 @@ object imageApp extends App {
 
 object combinedPairApp extends App with Logging {
 
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbeddingPlusImage
 
   val classifiers = List(
     TrajectorRoleClassifier,
@@ -63,12 +63,12 @@ object combinedPairApp extends App with Logging {
     LandmarkPairClassifier
   )
 
-  runClassifiers(true, Train)
+  //runClassifiers(true, Train)
   runClassifiers(false, Test)
 
   private def runClassifiers(isTrain: Boolean, proportion: DataProportion) = {
 
-    val resultsDir = s"data/mSpRL/results/$featureSet/"
+    val resultsDir = s"data/mSpRL/results/"
     FileUtils.forceMkdir(new File(resultsDir))
 
     populateData(isTrain, proportion)
@@ -82,58 +82,60 @@ object combinedPairApp extends App with Logging {
       })
     } else {
       println("testing started ...")
+      val stream = new FileOutputStream(s"$resultsDir/$featureSet.txt")
       classifiers.foreach(classifier => {
         classifier.load()
         val results = classifier.test()
-        saveResults(s"$resultsDir/${classifier.getClassSimpleNameForClassifier}.txt", convertToEval(results))
+        saveResults(stream, s"${classifier.getClassSimpleNameForClassifier}", convertToEval(results))
       })
       val results = testTriplet(isTrain, proportion,
         x => TrajectorPairClassifier(x),
         x => LandmarkPairClassifier(x),
         x => IndicatorRoleClassifier(x)
       )
-      saveResults(s"$resultsDir/triplet.txt", results)
+      saveResults(stream, "triplet", results)
 
       /*Pair level constraints
       * */
       val trResults = TRPairConstraintClassifier.test()
-      saveResults(s"$resultsDir/TRPair-Constrained.txt", convertToEval(trResults))
+      saveResults(stream, "TRPair-Constrained", convertToEval(trResults))
 
       val lmResults = LMPairConstraintClassifier.test()
-      saveResults(s"$resultsDir/LMPair-Constrained.txt", convertToEval(lmResults))
+      saveResults(stream, s"LMPair-Constrained", convertToEval(lmResults))
 
       val constrainedResults = testTriplet(isTrain, proportion,
         x => TRPairConstraintClassifier(x),
         x => LMPairConstraintClassifier(x),
         x => IndicatorRoleClassifier(x)
       )
-      saveResults(s"$resultsDir/triplet-constrained.txt", constrainedResults)
+      saveResults(stream, s"triplet-constrained", constrainedResults)
 
       /*Sentence level constraints
      * */
 
       val trSentenceResults = SentenceLevelConstraintClassifiers.TRConstraintClassifier.test()
-      saveResults(s"$resultsDir/TR-SentenceConstrained.txt", convertToEval(trSentenceResults))
+      saveResults(stream, "TR-SentenceConstrained", convertToEval(trSentenceResults))
 
       val lmSentenceResults = SentenceLevelConstraintClassifiers.LMConstraintClassifier.test()
-      saveResults(s"$resultsDir/LM-SentenceConstrained.txt", convertToEval(lmSentenceResults))
+      saveResults(stream, "LM-SentenceConstrained", convertToEval(lmSentenceResults))
 
       val spSentenceResults = SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier.test()
-      saveResults(s"$resultsDir/SP-SentenceConstrained.txt", convertToEval(spSentenceResults))
+      saveResults(stream, "SP-SentenceConstrained", convertToEval(spSentenceResults))
 
       val trPairSentenceResults = SentenceLevelConstraintClassifiers.TRPairConstraintClassifier.test()
-      saveResults(s"$resultsDir/TRPair-SentenceConstrained.txt", convertToEval(trPairSentenceResults))
+      saveResults(stream, "TRPair-SentenceConstrained", convertToEval(trPairSentenceResults))
 
       val lmPairSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
-      saveResults(s"$resultsDir/LMPair-SentenceConstrained.txt", convertToEval(lmPairSentenceResults))
+      saveResults(stream, "LMPair-SentenceConstrained", convertToEval(lmPairSentenceResults))
 
       val constrainedPairSentenceResults = testTriplet(isTrain, proportion,
         x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x)
       )
-      saveResults(s"$resultsDir/triplet-SentenceConstrained.txt", constrainedPairSentenceResults)
+      saveResults(stream, "triplet-SentenceConstrained", constrainedPairSentenceResults)
 
+      stream.close()
     }
   }
 
@@ -172,10 +174,13 @@ object combinedPairApp extends App with Logging {
   private def convertToEval(r: Results) = r.perLabel
     .map(x => new SpRLEvaluation(x.label, x.precision * 100, x.recall * 100, x.f1 * 100, x.labeledSize, x.predictedSize))
 
-  private def saveResults(path: String, results: Seq[SpRLEvaluation]) = {
-    val writer = new FileOutputStream(path)
-    SpRLEvaluator.printEvaluation(writer, results)
-    writer.close()
+  private def saveResults(stream: FileOutputStream, caption: String, results: Seq[SpRLEvaluation]) = {
+    val writer = new PrintStream(stream, true)
+    writer.println("===========================================================================")
+    writer.println(s" ${caption}")
+    writer.println("---------------------------------------------------------------------------")
+    SpRLEvaluator.printEvaluation(stream, results)
+    writer.println()
   }
 
   private def getActualRelationEvalsPhraseBased(isTrain: Boolean): List[RelationEval] = {
