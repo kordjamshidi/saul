@@ -19,7 +19,7 @@ object MultiModalSpRLDataModel extends DataModel {
   dummyToken.addPropertyValue("TRAJECTOR_id", dummyToken.getId)
   dummyToken.addPropertyValue("LANDMARK_id", dummyToken.getId)
 
-  val useVectorAverages = true
+  var useVectorAverages = true
 
   /*
   Nodes

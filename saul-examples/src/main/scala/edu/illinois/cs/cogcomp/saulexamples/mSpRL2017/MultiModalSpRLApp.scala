@@ -27,6 +27,7 @@ import scala.util.control.Breaks._
 object MultiModalSpRLApp extends App with Logging {
 
   MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
+  MultiModalSpRLDataModel.useVectorAverages = false
 
   val classifiers = List(
     TrajectorRoleClassifier,
@@ -184,7 +185,7 @@ object MultiModalSpRLApp extends App with Logging {
     val fp = predicted.filterNot(x => tp.exists(_._2 == x._1))
     val fn = actual.filterNot(x => tp.exists(_._1 == x._1))
     actual.foreach(x => {
-      x._1.getArguments.foreach(a => a.setText(a.getPropertyFirstValue("head"))) // convert phrase text to headword
+      x._1.getArguments.foreach(a => a.setText(a.getPropertyFirstValue("headWord"))) // convert phrase text to headword
     })
 
     var writer = new PrintWriter(s"$resultsDir/${featureSet}_triplet-fp.txt")
@@ -215,8 +216,8 @@ object MultiModalSpRLApp extends App with Logging {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
         list.foreach { case (a, p) =>
-          val actualArgs = a.getArguments.map(_.asInstanceOf[Phrase]).toList
-          val predictedArgs = p.getArguments.map(_.asInstanceOf[Phrase]).toList
+          val actualArgs = a.getArguments.toList
+          val predictedArgs = p.getArguments.toList
           writer.println(s"${a.getId} : ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
             s"${actualArgs(2).getText}   ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
             s"${actualArgs(2).getText}")
@@ -292,6 +293,9 @@ object MultiModalSpRLApp extends App with Logging {
         val (trStart: Int, trEnd: Int) = getHeadSpan(tr)
         val (spStart: Int, spEnd: Int) = getHeadSpan(sp)
         val (lmStart: Int, lmEnd: Int) = getHeadSpan(lm)
+        r.setArgument(0, tr)
+        r.setArgument(1, sp)
+        r.setArgument(2, lm)
         (r, new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd))
       }).toList
     }
@@ -324,12 +328,12 @@ object MultiModalSpRLApp extends App with Logging {
 
   private def getHeadSpan(p: Phrase): (Int, Int) = {
     if (p.getStart == -1)
-      return (-1, -1)
+      return ( -1, -1)
 
     val offset = p.getSentence.getStart + p.getStart
-    val (_, trHeadStart, trHeadEnd) = getHeadword(p.getText)
-
-    (offset + trHeadStart, offset + trHeadEnd)
+    val (text, headStart, headEnd) = getHeadword(p.getText)
+    p.addPropertyValue("headWord", text)
+    (offset + headStart, offset + headEnd)
   }
 
   private def getSpan(p: Phrase): (Int, Int) = {

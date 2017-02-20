@@ -282,7 +282,7 @@ object MultiModalPopulateData {
   def getImageRelationList(proportion: DataProportion): List[SegmentRelation] = {
 
     proportion match {
-      case Train => CLEFDataSet.trainingRelations.toList
+      case Train | ValidationTest | ValidationTrain => CLEFDataSet.trainingRelations.toList
       case Test => CLEFDataSet.testRelations.toList
       case All => CLEFDataSet.trainingRelations.toList ++ CLEFDataSet.testRelations
     }
@@ -291,7 +291,7 @@ object MultiModalPopulateData {
   def getSegmentList(proportion: DataProportion): List[Segment] = {
 
     proportion match {
-      case Train => CLEFDataSet.trainingSegments.toList
+      case Train | ValidationTest | ValidationTrain => CLEFDataSet.trainingSegments.toList
       case Test => CLEFDataSet.testSegments.toList
       case All => CLEFDataSet.trainingSegments.toList ++ CLEFDataSet.testSegments
     }
@@ -300,7 +300,7 @@ object MultiModalPopulateData {
   def getImageList(proportion: DataProportion): List[Image] = {
 
     proportion match {
-      case Train => CLEFDataSet.trainingImages.toList
+      case Train | ValidationTest | ValidationTrain => CLEFDataSet.trainingImages.toList
       case Test => CLEFDataSet.testImages.toList
       case All => CLEFDataSet.trainingImages.toList ++ CLEFDataSet.testImages
     }
@@ -384,7 +384,7 @@ object MultiModalPopulateData {
   }
 
   private def createXmlReader(proportion: DataProportion): NlpXmlReader = {
-    val path = dataDir + (proportion match {
+    val path = dataDir + "sprl2017_" + (proportion match {
       case Train => "train.xml"
       case ValidationTrain => "validation_train.xml"
       case ValidationTest => "validation_test.xml"
