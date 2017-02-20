@@ -19,7 +19,7 @@ import scala.io.Source
   */
 object DataProportion extends Enumeration {
   type DataProportion = Value
-  val Train, Test, Both, JoinTrain = Value
+  val Train, ValidationTrain, ValidationTest, Test, All = Value
 }
 
 object MultiModalPopulateData {
@@ -30,9 +30,12 @@ object MultiModalPopulateData {
   val lmTag = "LANDMARK"
   val spTag = "SPATIALINDICATOR"
   val relationTag = "RELATION"
-  private lazy val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
-  private lazy val trainReader = createXmlReader(true)
-  private lazy val testReader = createXmlReader(false)
+  private val dataDir = "data/mSprl/saiapr_tc-12/"
+  private lazy val CLEFDataSet = new CLEFImageReader(dataDir, false)
+  private lazy val trainReader = createXmlReader(Train)
+  private lazy val testReader = createXmlReader(Test)
+  private lazy val validationTestReader = createXmlReader(ValidationTest)
+  private lazy val validationTrainReader = createXmlReader(ValidationTrain)
 
   def populateData(isTrain: Boolean, proportion: DataProportion, populateNullPairs: Boolean = true) = {
 
@@ -225,53 +228,54 @@ object MultiModalPopulateData {
 
   private def getRelations(firstArgId: String, secondArgId: String, proportion: DataProportion): List[Relation] = {
     proportion match {
-      case Train => getXmlReader(true).getRelations(relationTag, firstArgId, secondArgId).toList
-      case Test => getXmlReader(false).getRelations(relationTag, firstArgId, secondArgId).toList
-      case Both => getXmlReader(true).getRelations(relationTag, firstArgId, secondArgId).toList ++
-        getXmlReader(false).getRelations(relationTag, firstArgId, secondArgId)
+      case All => getXmlReader(Train).getRelations(relationTag, firstArgId, secondArgId).toList ++
+        getXmlReader(Test).getRelations(relationTag, firstArgId, secondArgId)
+
+      case x => getXmlReader(x).getRelations(relationTag, firstArgId, secondArgId).toList
     }
   }
 
   private def getTags(tag: String, proportion: DataProportion): List[NlpBaseElement] = {
 
     proportion match {
-      case Train => getXmlReader(true).getTagAsNlpBaseElement(tag).toList
-      case Test => getXmlReader(false).getTagAsNlpBaseElement(tag).toList
-      case Both => getXmlReader(true).getTagAsNlpBaseElement(tag).toList ++
-        getXmlReader(false).getTagAsNlpBaseElement(tag)
+      case All => getXmlReader(Train).getTagAsNlpBaseElement(tag).toList ++
+        getXmlReader(Test).getTagAsNlpBaseElement(tag)
+
+      case x => getXmlReader(x).getTagAsNlpBaseElement(tag).toList
     }
   }
 
   def setTokenRoles(tokenInstances: List[Token], proportion: DataProportion): Unit = {
 
-    if (proportion != Test) {
-      getXmlReader(true).addPropertiesFromTag(trTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
-      getXmlReader(true).addPropertiesFromTag(lmTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
-      getXmlReader(true).addPropertiesFromTag(spTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
+    def setTokenRole(tokenInstances: List[Token], proportion: DataProportion, tag: String) = {
+      proportion match {
+        case All =>
+          getXmlReader(Train).addPropertiesFromTag(tag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
+          getXmlReader(Test).addPropertiesFromTag(tag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
+
+        case x =>
+          getXmlReader(x).addPropertiesFromTag(tag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
+      }
     }
 
-    if (proportion != Train) {
-      getXmlReader(false).addPropertiesFromTag(trTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
-      getXmlReader(false).addPropertiesFromTag(lmTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
-      getXmlReader(false).addPropertiesFromTag(spTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
-    }
+    setTokenRole(tokenInstances, proportion, trTag)
+    setTokenRole(tokenInstances, proportion, lmTag)
+    setTokenRole(tokenInstances, proportion, spTag)
   }
 
   def getSentenceList(proportion: DataProportion): List[Sentence] = {
 
     proportion match {
-      case Train => getXmlReader(true).getSentences().toList
-      case Test => getXmlReader(false).getSentences().toList
-      case Both => getXmlReader(true).getSentences().toList ++ getXmlReader(false).getSentences()
+      case All => getXmlReader(Train).getSentences().toList ++ getXmlReader(Test).getSentences()
+      case x => getXmlReader(x).getSentences().toList
     }
   }
 
   def getDocumentList(proportion: DataProportion): List[Document] = {
 
     proportion match {
-      case Train => getXmlReader(true).getDocuments().toList
-      case Test => getXmlReader(false).getDocuments().toList
-      case Both => getXmlReader(true).getDocuments().toList ++ getXmlReader(false).getDocuments()
+      case All => getXmlReader(Train).getDocuments().toList ++ getXmlReader(Test).getDocuments()
+      case x => getXmlReader(x).getDocuments().toList
     }
   }
 
@@ -280,7 +284,7 @@ object MultiModalPopulateData {
     proportion match {
       case Train => CLEFDataSet.trainingRelations.toList
       case Test => CLEFDataSet.testRelations.toList
-      case Both => CLEFDataSet.trainingRelations.toList ++ CLEFDataSet.testRelations
+      case All => CLEFDataSet.trainingRelations.toList ++ CLEFDataSet.testRelations
     }
   }
 
@@ -289,7 +293,7 @@ object MultiModalPopulateData {
     proportion match {
       case Train => CLEFDataSet.trainingSegments.toList
       case Test => CLEFDataSet.testSegments.toList
-      case Both => CLEFDataSet.trainingSegments.toList ++ CLEFDataSet.testSegments
+      case All => CLEFDataSet.trainingSegments.toList ++ CLEFDataSet.testSegments
     }
   }
 
@@ -298,7 +302,7 @@ object MultiModalPopulateData {
     proportion match {
       case Train => CLEFDataSet.trainingImages.toList
       case Test => CLEFDataSet.testImages.toList
-      case Both => CLEFDataSet.trainingImages.toList ++ CLEFDataSet.testImages
+      case All => CLEFDataSet.trainingImages.toList ++ CLEFDataSet.testImages
     }
   }
 
@@ -370,12 +374,22 @@ object MultiModalPopulateData {
     }
   }
 
-  def getXmlReader(isTrain: Boolean): NlpXmlReader = {
-    if (isTrain) trainReader else testReader
+  def getXmlReader(proportion: DataProportion): NlpXmlReader = {
+    proportion match {
+      case Train => trainReader
+      case Test => testReader
+      case ValidationTrain => validationTrainReader
+      case ValidationTest => validationTestReader
+    }
   }
 
-  private def createXmlReader(isTrain: Boolean): NlpXmlReader = {
-    val path = if (isTrain) "data/SpRL/2017/clef/train/sprl2017_train.xml" else "data/SpRL/2017/clef/gold/sprl2017_gold.xml"
+  private def createXmlReader(proportion: DataProportion): NlpXmlReader = {
+    val path = dataDir + (proportion match {
+      case Train => "train.xml"
+      case ValidationTrain => "validation_train.xml"
+      case ValidationTest => "validation_test.xml"
+      case Test => "gold.xml"
+    })
     val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
     reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
     reader

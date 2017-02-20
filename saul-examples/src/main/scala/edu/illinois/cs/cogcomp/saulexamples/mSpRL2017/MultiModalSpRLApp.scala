@@ -6,55 +6,25 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{File, FileOutputStream, PrintStream, PrintWriter}
+import java.io.{File, FileOutputStream, PrintStream}
 
+import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.DataProportion._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluation, SpRLEvaluator}
-import MultiModalSpRLDataModel._
-import DataProportion._
-import MultiModalPopulateData._
-import edu.illinois.cs.cogcomp.saul.classifier.{JointTrainSparseNetwork, Results}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SemanticRoleLabeling.SRLConstrainedClassifiers.argTypeConstraintClassifier
 import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
 
-object imageApp extends App {
+object MultiModalSpRLApp extends App with Logging {
 
-  val readFullData = false
-  val CLEFDataset = new CLEFImageReader("data/mSprl/saiapr_tc-12", readFullData)
-
-  val imageListTrain = CLEFDataset.trainingImages
-  val segmentListTrain = CLEFDataset.trainingSegments
-  val relationListTrain = CLEFDataset.trainingRelations
-
-  images.populate(imageListTrain)
-  segments.populate(segmentListTrain)
-  segmentRelations.populate(relationListTrain)
-
-  val imageListTest = CLEFDataset.testImages
-  val segementListTest = CLEFDataset.testSegments
-  val relationListTest = CLEFDataset.testRelations
-
-  images.populate(imageListTest, false)
-  segments.populate(segementListTest, false)
-  segmentRelations.populate(relationListTest, false)
-
-  ImageSVMClassifier.learn(5)
-  ImageSVMClassifier.test(segementListTest)
-
-  ImageClassifierWeka.learn(5)
-  ImageClassifierWeka.test(segementListTest)
-}
-
-object combinedPairApp extends App with Logging {
-
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbeddingPlusImage
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
 
   val classifiers = List(
     TrajectorRoleClassifier,
@@ -64,20 +34,8 @@ object combinedPairApp extends App with Logging {
     LandmarkPairClassifier
   )
 
-  runClassifiers(true, Train)
-  runClassifiers(false, Test)
-
-  val constrainedCLassifieList =  List(
-    SentenceLevelConstraintClassifiers.TRConstraintClassifier,
-    SentenceLevelConstraintClassifiers.LMConstraintClassifier,
-    SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier,
-    SentenceLevelConstraintClassifiers.TRPairConstraintClassifier,
-    SentenceLevelConstraintClassifiers.LMPairConstraintClassifier)
-
-/*train classifier jointly*/
-  JointTrainSparseNetwork(sentences, constrainedCLassifieList, 30, init = true)
-/*test the same list of constrainedclassifiers as before*/
-
+  runClassifiers(true, ValidationTrain)
+  runClassifiers(false, ValidationTest)
 
   private def runClassifiers(isTrain: Boolean, proportion: DataProportion) = {
 
@@ -157,6 +115,18 @@ object combinedPairApp extends App with Logging {
     }
   }
 
+  //  val constrainedClassifiers =  List(
+  //    SentenceLevelConstraintClassifiers.TRConstraintClassifier,
+  //    SentenceLevelConstraintClassifiers.LMConstraintClassifier,
+  //    SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier,
+  //    SentenceLevelConstraintClassifiers.TRPairConstraintClassifier,
+  //    SentenceLevelConstraintClassifiers.LMPairConstraintClassifier)
+
+  /*train classifier jointly*/
+  // JointTrainSparseNetwork(sentences, constrainedClassifieList, 30, init = true)
+  /*test the same list of constrainedclassifiers as before*/
+
+
   private def testTriplet(isTrain: Boolean, proportion: DataProportion,
                           trClassifier: Relation => String,
                           lmClassifier: Relation => String,
@@ -182,7 +152,7 @@ object combinedPairApp extends App with Logging {
       }
     })
     val predictedRelations = new RelationsEvalDocument(relations)
-    val actualRelations = new RelationsEvalDocument(getActualRelationEvalsTokenBased(isTrain))
+    val actualRelations = new RelationsEvalDocument(getActualRelationEvalsTokenBased(proportion))
     val evaluator = new SpRLEvaluator()
     val results = evaluator.evaluateRelations(actualRelations, predictedRelations)
     evaluator.printEvaluation(results)
@@ -201,52 +171,68 @@ object combinedPairApp extends App with Logging {
     writer.println()
   }
 
-  private def getActualRelationEvalsPhraseBased(isTrain: Boolean): List[RelationEval] = {
-    val reader = getXmlReader(isTrain)
-    val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
+  private def getActualRelationEvalsPhraseBased(proportion: DataProportion): List[RelationEval] = {
 
-    reader.setPhraseTagName("TRAJECTOR")
-    val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
+    def get(proportion: DataProportion) = {
+      val reader = getXmlReader(proportion)
+      val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
-    reader.setPhraseTagName("LANDMARK")
-    val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
+      reader.setPhraseTagName("TRAJECTOR")
+      val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
 
-    reader.setPhraseTagName("SPATIALINDICATOR")
-    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+      reader.setPhraseTagName("LANDMARK")
+      val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
 
-    relations.map(r => {
-      val tr = trajectors(r.getArgumentId(0))
-      val sp = indicators(r.getArgumentId(1))
-      val lm = landmarks(r.getArgumentId(2))
-      val (trStart: Int, trEnd: Int) = getSpan(tr)
-      val (spStart: Int, spEnd: Int) = getSpan(sp)
-      val (lmStart: Int, lmEnd: Int) = getSpan(lm)
-      new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
-    }).toList
+      reader.setPhraseTagName("SPATIALINDICATOR")
+      val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+      relations.map(r => {
+        val tr = trajectors(r.getArgumentId(0))
+        val sp = indicators(r.getArgumentId(1))
+        val lm = landmarks(r.getArgumentId(2))
+        val (trStart: Int, trEnd: Int) = getSpan(tr)
+        val (spStart: Int, spEnd: Int) = getSpan(sp)
+        val (lmStart: Int, lmEnd: Int) = getSpan(lm)
+        new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+      }).toList
+    }
+
+    proportion match {
+      case All => get(Train) ++ get(Test)
+      case x => get(x)
+    }
   }
 
-  private def getActualRelationEvalsTokenBased(isTrain: Boolean): List[RelationEval] = {
-    val reader = getXmlReader(isTrain)
-    val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
+  private def getActualRelationEvalsTokenBased(proportion: DataProportion): List[RelationEval] = {
 
-    reader.setPhraseTagName("TRAJECTOR")
-    val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
+    def get(proportion: DataProportion) = {
+      val reader = getXmlReader(proportion)
+      val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
-    reader.setPhraseTagName("LANDMARK")
-    val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
+      reader.setPhraseTagName("TRAJECTOR")
+      val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
 
-    reader.setPhraseTagName("SPATIALINDICATOR")
-    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+      reader.setPhraseTagName("LANDMARK")
+      val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
 
-    relations.map(r => {
-      val tr = trajectors(r.getArgumentId(0))
-      val sp = indicators(r.getArgumentId(1))
-      val lm = landmarks(r.getArgumentId(2))
-      val (trStart: Int, trEnd: Int) = getHeadSpan(tr)
-      val (spStart: Int, spEnd: Int) = getHeadSpan(sp)
-      val (lmStart: Int, lmEnd: Int) = getHeadSpan(lm)
-      new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
-    }).toList
+      reader.setPhraseTagName("SPATIALINDICATOR")
+      val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+      relations.map(r => {
+        val tr = trajectors(r.getArgumentId(0))
+        val sp = indicators(r.getArgumentId(1))
+        val lm = landmarks(r.getArgumentId(2))
+        val (trStart: Int, trEnd: Int) = getHeadSpan(tr)
+        val (spStart: Int, spEnd: Int) = getHeadSpan(sp)
+        val (lmStart: Int, lmEnd: Int) = getHeadSpan(lm)
+        new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+      }).toList
+    }
+
+    proportion match {
+      case All => get(Train) ++ get(Test)
+      case x => get(x)
+    }
   }
 
   private def getRelationEval(tr: Option[Token], sp: Option[Token], lm: Option[Token]): RelationEval = {
