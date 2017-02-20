@@ -19,6 +19,8 @@ object MultiModalSpRLDataModel extends DataModel {
   dummyToken.addPropertyValue("TRAJECTOR_id", dummyToken.getId)
   dummyToken.addPropertyValue("LANDMARK_id", dummyToken.getId)
 
+  val useVectorAverages = true
+
   /*
   Nodes
    */
@@ -130,14 +132,14 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val tokenVector = property(tokens) {
-    x: Token => if (x != dummyToken) getGoogleWordVector(x.getText.toLowerCase) else getGoogleWordVector(null)
+    x: Token => if (x != dummyToken) getVector(x.getText.toLowerCase) else getVector(null)
   }
 
   val isTokenAnImageConcept = property(tokens) {
     t: Token =>
       if (t != dummyToken) {
         getSegmentConcepts(t)
-          .exists(x => getGoogleSimilarity(t.getText.toLowerCase, x) > 0.6).toString
+          .exists(x => getSimilarity(t.getText.toLowerCase, x) > 0.6).toString
       } else {
         ""
       }
@@ -146,11 +148,11 @@ object MultiModalSpRLDataModel extends DataModel {
   val nearestSegmentConceptVector = property(tokens) {
     t: Token =>
       if (t != dummyToken) {
-        val concepts = getSegmentConcepts(t).map(x => (x, getGoogleSimilarity(t.getText.toLowerCase, x)))
+        val concepts = getSegmentConcepts(t).map(x => (x, getSimilarity(t.getText.toLowerCase, x)))
         val (nearest, _) = if (concepts.isEmpty) ("", 0) else concepts.maxBy(x => x._2)
-        getGoogleWordVector(nearest)
+        getVector(nearest)
       } else {
-        getGoogleWordVector(null)
+        getVector(null)
       }
   }
 
@@ -277,7 +279,23 @@ object MultiModalSpRLDataModel extends DataModel {
   ////////////////////////////////////////////////////////////////////
   /// Helper methods
   ////////////////////////////////////////////////////////////////////
-  def getArguments(r: Relation): (Token, Token) = {
+  private def getVector(w: String): List[Double] = {
+    if (useVectorAverages) {
+      getAverage(getGoogleWordVector(w), getClefWordVector(w))
+    } else {
+      getGoogleWordVector(w)
+    }
+  }
+
+  private def getSimilarity(w1: String, w2: String): Double = {
+    if (useVectorAverages) {
+      (getGoogleSimilarity(w1, w2) + getClefSimilarity(w1, w2)) / 2.0
+    } else {
+      getGoogleSimilarity(w1, w2)
+    }
+  }
+
+  private def getArguments(r: Relation): (Token, Token) = {
     ((pairs(r) ~> relationToFirstArgument).head, (pairs(r) ~> relationToSecondArgument).head)
   }
 

@@ -15,7 +15,7 @@ object MultiModalSpRLSensors {
   private lazy val googleWord2Vec = WordVectorSerializer.loadGoogleModel(new File("data/GoogleNews-vectors-negative300.bin"), true)
   private lazy val clefWord2Vec = WordVectorSerializer.readWord2VecModel("data/clef.bin")
 
-  def getWord2VectorSimilarity(w2v: Word2Vec, w1: String, w2: String) = {
+  def getWord2VectorSimilarity(w2v: Word2Vec, w1: String, w2: String): Double = {
     if (w2v.getVocab.containsWord(w1) && w2v.getVocab.containsWord(w2))
       w2v.similarity(w1, w2)
     else
@@ -33,13 +33,13 @@ object MultiModalSpRLSensors {
     }
   }
 
-  def getAverageSimilarity(w1: String, w2: String) = (googleWord2Vec.similarity(w1, w2) + getClefSimilarity(w1, w2)) / 2
+  def getAverageSimilarity(w1: String, w2: String): Double = (googleWord2Vec.similarity(w1, w2) + getClefSimilarity(w1, w2)) / 2
 
-  def getGoogleSimilarity(w1: String, w2: String) = googleWord2Vec.similarity(w1, w2)
+  def getGoogleSimilarity(w1: String, w2: String): Double = getWord2VectorSimilarity(googleWord2Vec, w1, w2)
 
   def getGoogleWordVector(w: String): List[Double] = getWordVector(googleWord2Vec, w)
 
-  def getClefSimilarity(w1: String, w2: String) = clefWord2Vec.similarity(w1, w2)
+  def getClefSimilarity(w1: String, w2: String): Double = getWord2VectorSimilarity(clefWord2Vec, w1, w2)
 
   def getClefWordVector(w: String): List[Double] = getWordVector(clefWord2Vec, w)
 

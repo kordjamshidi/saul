@@ -71,8 +71,13 @@ object combinedPairApp extends App with Logging {
     val resultsDir = s"data/mSpRL/results/"
     FileUtils.forceMkdir(new File(resultsDir))
 
+    val suffix = if (useVectorAverages) "_vecAvg" else ""
+
     populateData(isTrain, proportion)
-    classifiers.foreach(_.modelDir = s"models/mSpRL/$featureSet/")
+    classifiers.foreach(x => {
+      x.modelDir = s"models/mSpRL/$featureSet/"
+      x.modelSuffix = suffix
+    })
 
     if (isTrain) {
       println("training started ...")
@@ -82,7 +87,7 @@ object combinedPairApp extends App with Logging {
       })
     } else {
       println("testing started ...")
-      val stream = new FileOutputStream(s"$resultsDir/$featureSet.txt")
+      val stream = new FileOutputStream(s"$resultsDir/$featureSet$suffix.txt")
       classifiers.foreach(classifier => {
         classifier.load()
         val results = classifier.test()
