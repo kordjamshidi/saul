@@ -18,7 +18,8 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{Relati
 import MultiModalSpRLDataModel._
 import DataProportion._
 import MultiModalPopulateData._
-import edu.illinois.cs.cogcomp.saul.classifier.Results
+import edu.illinois.cs.cogcomp.saul.classifier.{JointTrainSparseNetwork, Results}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SemanticRoleLabeling.SRLConstrainedClassifiers.argTypeConstraintClassifier
 import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
@@ -65,6 +66,18 @@ object combinedPairApp extends App with Logging {
 
   runClassifiers(true, Train)
   runClassifiers(false, Test)
+
+  val constrainedCLassifieList =  List(
+    SentenceLevelConstraintClassifiers.TRConstraintClassifier,
+    SentenceLevelConstraintClassifiers.LMConstraintClassifier,
+    SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier,
+    SentenceLevelConstraintClassifiers.TRPairConstraintClassifier,
+    SentenceLevelConstraintClassifiers.LMPairConstraintClassifier)
+
+/*train classifier jointly*/
+  JointTrainSparseNetwork(sentences, constrainedCLassifieList, 30, init = true)
+/*test the same list of constrainedclassifiers as before*/
+
 
   private def runClassifiers(isTrain: Boolean, proportion: DataProportion) = {
 
