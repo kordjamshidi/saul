@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{File, FileOutputStream, PrintStream}
+import java.io.{File, FileOutputStream, PrintStream, PrintWriter}
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saul.util.Logging
@@ -21,6 +21,8 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{Relati
 import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
+import scala.util.control.Breaks._
 
 object MultiModalSpRLApp extends App with Logging {
 
@@ -64,7 +66,7 @@ object MultiModalSpRLApp extends App with Logging {
         val results = classifier.test()
         saveResults(stream, s"${classifier.getClassSimpleNameForClassifier}", convertToEval(results))
       })
-      val results = testTriplet(isTrain, proportion,
+      val results = testTriplet(resultsDir, isTrain, proportion,
         x => TrajectorPairClassifier(x),
         x => LandmarkPairClassifier(x),
         x => IndicatorRoleClassifier(x)
@@ -79,7 +81,7 @@ object MultiModalSpRLApp extends App with Logging {
       val lmResults = LMPairConstraintClassifier.test()
       saveResults(stream, s"LMPair-Constrained", convertToEval(lmResults))
 
-      val constrainedResults = testTriplet(isTrain, proportion,
+      val constrainedResults = testTriplet(resultsDir, isTrain, proportion,
         x => TRPairConstraintClassifier(x),
         x => LMPairConstraintClassifier(x),
         x => IndicatorRoleClassifier(x)
@@ -104,7 +106,7 @@ object MultiModalSpRLApp extends App with Logging {
       val lmPairSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
       saveResults(stream, "LMPair-SentenceConstrained", convertToEval(lmPairSentenceResults))
 
-      val constrainedPairSentenceResults = testTriplet(isTrain, proportion,
+      val constrainedPairSentenceResults = testTriplet(resultsDir, isTrain, proportion,
         x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x)
@@ -127,7 +129,9 @@ object MultiModalSpRLApp extends App with Logging {
   /*test the same list of constrainedclassifiers as before*/
 
 
-  private def testTriplet(isTrain: Boolean, proportion: DataProportion,
+  private def testTriplet(resultsDir: String,
+                          isTrain: Boolean,
+                          proportion: DataProportion,
                           trClassifier: Relation => String,
                           lmClassifier: Relation => String,
                           spClassifier: Token => String
@@ -137,7 +141,7 @@ object MultiModalSpRLApp extends App with Logging {
     val indicators = tokenInstances.filter(t => spClassifier(t) == "Indicator").toList
       .sortBy(x => x.getSentence.getStart + x.getStart)
 
-    val relations = indicators.flatMap(sp => {
+    val predicted = indicators.flatMap(sp => {
       val pairs = tokens(sp) <~ relationToSecondArgument
       val trajectorPairs = (pairs.filter(r => trClassifier(r) == "TR-SP") ~> relationToFirstArgument).groupBy(x => x).keys
       if (trajectorPairs.nonEmpty) {
@@ -151,12 +155,75 @@ object MultiModalSpRLApp extends App with Logging {
         List()
       }
     })
-    val predictedRelations = new RelationsEvalDocument(relations)
-    val actualRelations = new RelationsEvalDocument(getActualRelationEvalsTokenBased(proportion))
+    val actual = getActualRelationEvalsTokenBased(proportion)
+    reportRelationResults(resultsDir, actual, predicted)
+
     val evaluator = new SpRLEvaluator()
-    val results = evaluator.evaluateRelations(actualRelations, predictedRelations)
+    val actualEval = new RelationsEvalDocument(actual.map(_._2))
+    val predictedEval = new RelationsEvalDocument(predicted.map(_._2))
+    val results = evaluator.evaluateRelations(actualEval, predictedEval)
     evaluator.printEvaluation(results)
     results
+  }
+
+  private def reportRelationResults(resultsDir: String,
+                                    actual: List[(Relation, RelationEval)],
+                                    predicted: List[(Relation, RelationEval)]
+                                   ) = {
+    val tp = ListBuffer[(Relation, Relation)]()
+    actual.zipWithIndex.foreach { case (a, i) =>
+      breakable {
+        predicted.zipWithIndex.foreach { case (p, j) =>
+          if (a._2.isEqual(p._2)) {
+            tp += ((a._1, p._1))
+            break()
+          }
+        }
+      }
+    }
+    val fp = predicted.filterNot(x => tp.exists(_._2 == x._1))
+    val fn = actual.filterNot(x => tp.exists(_._1 == x._1))
+    actual.foreach(x => {
+      x._1.getArguments.foreach(a => a.setText(a.getPropertyFirstValue("head"))) // convert phrase text to headword
+    })
+
+    var writer = new PrintWriter(s"$resultsDir/${featureSet}_triplet-fp.txt")
+    fp.groupBy(_._1.getArgument(1).asInstanceOf[Token].getDocument.getId).toList.sortBy(_._1).foreach {
+      case (key, list) => {
+        writer.println(s"===================================== ${key} ==================================")
+        list.foreach { case (r, _) =>
+          writer.println(s"${r.getArgument(0).getText} -> ${r.getArgument(1).getText} -> ${r.getArgument(2).getText}")
+        }
+      }
+    }
+    writer.close()
+
+    writer = new PrintWriter(s"$resultsDir/${featureSet}_triplet-fn.txt")
+    fn.groupBy(_._1.getArgument(1).asInstanceOf[Phrase].getDocument.getId).toList.sortBy(_._1).foreach {
+      case (key, list) => {
+        writer.println(s"===================================== ${key} ==================================")
+        list.foreach { case (r, _) =>
+          val args = r.getArguments.map(_.asInstanceOf[Phrase]).toList
+          writer.println(s"${r.getId} : ${args(0).getText} -> ${args(1).getText} -> ${args(2).getText}")
+        }
+      }
+    }
+    writer.close()
+
+    writer = new PrintWriter(s"$resultsDir/${featureSet}_triplet-tp.txt")
+    tp.groupBy(_._1.getArgument(1).asInstanceOf[Phrase].getDocument.getId).toList.sortBy(_._1).foreach {
+      case (key, list) => {
+        writer.println(s"===================================== ${key} ==================================")
+        list.foreach { case (a, p) =>
+          val actualArgs = a.getArguments.map(_.asInstanceOf[Phrase]).toList
+          val predictedArgs = p.getArguments.map(_.asInstanceOf[Phrase]).toList
+          writer.println(s"${a.getId} : ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
+            s"${actualArgs(2).getText}   ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
+            s"${actualArgs(2).getText}")
+        }
+      }
+    }
+    writer.close()
   }
 
   private def convertToEval(r: Results) = r.perLabel
@@ -203,7 +270,7 @@ object MultiModalSpRLApp extends App with Logging {
     }
   }
 
-  private def getActualRelationEvalsTokenBased(proportion: DataProportion): List[RelationEval] = {
+  private def getActualRelationEvalsTokenBased(proportion: DataProportion): List[(Relation, RelationEval)] = {
 
     def get(proportion: DataProportion) = {
       val reader = getXmlReader(proportion)
@@ -225,7 +292,7 @@ object MultiModalSpRLApp extends App with Logging {
         val (trStart: Int, trEnd: Int) = getHeadSpan(tr)
         val (spStart: Int, spEnd: Int) = getHeadSpan(sp)
         val (lmStart: Int, lmEnd: Int) = getHeadSpan(lm)
-        new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+        (r, new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd))
       }).toList
     }
 
@@ -235,7 +302,7 @@ object MultiModalSpRLApp extends App with Logging {
     }
   }
 
-  private def getRelationEval(tr: Option[Token], sp: Option[Token], lm: Option[Token]): RelationEval = {
+  private def getRelationEval(tr: Option[Token], sp: Option[Token], lm: Option[Token]): (Relation, RelationEval) = {
     val offset = sp.get.getSentence.getStart
     val lmStart = if (notNull(lm)) offset + lm.get.getStart else -1
     val lmEnd = if (notNull(lm)) offset + lm.get.getEnd else -1
@@ -243,7 +310,12 @@ object MultiModalSpRLApp extends App with Logging {
     val trEnd = if (notNull(tr)) offset + tr.get.getEnd else -1
     val spStart = offset + sp.get.getStart
     val spEnd = offset + sp.get.getEnd
-    new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+    val r = new Relation()
+    r.setArgument(0, if (tr.nonEmpty) tr.get else dummyToken)
+    r.setArgument(1, sp.get)
+    r.setArgument(2, if (lm.nonEmpty) lm.get else dummyToken)
+    val eval = new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+    (r, eval)
   }
 
   private def notNull(t: Option[Token]) = {
