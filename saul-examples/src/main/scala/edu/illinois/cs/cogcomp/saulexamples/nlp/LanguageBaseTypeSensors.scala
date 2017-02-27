@@ -34,6 +34,10 @@ object LanguageBaseTypeSensors extends Logging {
     d.getId == s.getDocument.getId
   }
 
+  def documentToSentenceGenerating(d: Document): Seq[Sentence] = {
+    getSentences(d)
+  }
+
   def sentenceToPhraseGenerating(s: Sentence): Seq[Phrase] = {
     getPhrases(s)
   }
@@ -232,6 +236,13 @@ object LanguageBaseTypeSensors extends Logging {
   private def getDocument(e: NlpBaseElement) = e match {
     case x: Document => x
     case _ => getSentence(e).getDocument
+  }
+
+  private def getSentences(document: Document): Seq[Sentence] = {
+    val ta = as.createBasicTextAnnotation("", document.getId, document.getText)
+    ta.sentences().asScala.map(x =>
+      new Sentence(document, document.getId + "_" + x.getSentenceId, x.getSentenceConstituent.getStartCharOffset,
+        x.getSentenceConstituent.getEndCharOffset, x.getText))
   }
 
   private def getPhrases(sentence: Sentence): Seq[Phrase] = {

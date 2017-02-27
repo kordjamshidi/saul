@@ -5,13 +5,13 @@ import java.io.{File, IOException, PrintWriter}
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getCandidateRelations
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{documentToSentenceGenerating, getCandidateRelations}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
-import scala.collection.JavaConversions._
 
+import scala.collection.JavaConversions._
 import scala.io.Source
 
 /**
@@ -37,20 +37,53 @@ object MultiModalPopulateData {
   private lazy val validationTestReader = createXmlReader(ValidationTest)
   private lazy val validationTrainReader = createXmlReader(ValidationTrain)
 
-  def populateData(isTrain: Boolean, proportion: DataProportion, populateNullPairs: Boolean = true) = {
+  def populateDataFromAnnotatedCorpus(isTrain: Boolean,
+                                      proportion: DataProportion,
+                                      populateImages: Boolean = false,
+                                      populateNullPairs: Boolean = true
+                                     ): Unit = {
 
     documents.populate(getDocumentList(proportion), isTrain)
     sentences.populate(getSentenceList(proportion), isTrain)
     val tokenInstances = (if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList)
       .filter(_.getId != dummyToken.getId)
-    if (populateNullPairs) {
-      tokens.populate(List(dummyToken), isTrain)
+
+    setTokenRoles(tokenInstances, proportion)
+    populatePairData(isTrain, populateNullPairs)
+    if(populateImages) {
+      populateImageData(isTrain, proportion)
     }
+    val relations = if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList
+    setRelationTypes(relations, proportion, populateNullPairs)
+    saveCandidateList(proportion, relations)
+  }
+
+  def populateDataFromRawDocuments(documentList: List[Document],
+                                   populateImages: Boolean = false,
+                                   populateNullPairs: Boolean = true
+                                  ):Unit = {
+    val isTrain = false
+    documents.populate(documentList, isTrain)
+    sentences.populate(documentList.flatMap(d=> documentToSentenceGenerating(d)), isTrain)
+    populatePairData(isTrain, populateNullPairs)
+    if(populateImages) {
+      populateImageData(isTrain, All)
+    }
+  }
+
+  private def populateImageData(isTrain: Boolean, proportion: DataProportion) = {
     images.populate(getImageList(proportion), isTrain)
     segments.populate(getSegmentList(proportion), isTrain)
     segmentRelations.populate(getImageRelationList(proportion), isTrain)
+  }
 
-    setTokenRoles(tokenInstances, proportion)
+  private def populatePairData(isTrain: Boolean, populateNullPairs: Boolean): Unit = {
+
+    val tokenInstances = (if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList)
+      .filter(_.getId != dummyToken.getId)
+    if (populateNullPairs) {
+      tokens.populate(List(dummyToken), isTrain)
+    }
 
     val trCandidates = getTrajectorCandidates(tokenInstances, isTrain)
     trCandidates.foreach(_.addPropertyValue("TR-Candidate", "true"))
@@ -73,9 +106,7 @@ object MultiModalPopulateData {
         x.setArgument(0, dummyToken)
       })
     }
-    setRelationTypes(candidateRelations, proportion, populateNullPairs)
     pairs.populate(candidateRelations, isTrain)
-    saveCandidateList(proportion, candidateRelations)
   }
 
   private def saveCandidateList(proportion: DataProportion, candidateRelations: List[Relation]) = {
