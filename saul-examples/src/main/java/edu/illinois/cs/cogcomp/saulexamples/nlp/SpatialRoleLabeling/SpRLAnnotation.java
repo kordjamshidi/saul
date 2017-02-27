@@ -17,5 +17,7 @@ public interface SpRLAnnotation {
     void setStart(Integer x);
     void setEnd(Integer x);
     String getText();
+    void setText(String text);
     String getId();
+    void setId(String id);
 }
