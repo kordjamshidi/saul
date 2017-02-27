@@ -14,15 +14,15 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.sentence
 object DataExplorationApp extends App with Logging {
 
   val proportion = ValidationTest
-  val documentList = getDocumentList(proportion).take(10)
-  val sentenceList = getSentenceList(proportion).filter(s => documentList.exists(_.getId == s.getDocument.getId))
+  val documentList = getDocumentFromXML(proportion).take(10)
+  val sentenceList = getSentenceFromXML(proportion).filter(s => documentList.exists(_.getId == s.getDocument.getId))
   val imageList = getImageList(proportion)
     .filter(i => documentList.exists(_.getPropertyFirstValue("IMAGE").endsWith("/" + i.getLabel)))
   val segmentList = getSegmentList(proportion).filter(s => imageList.exists(_.getId == s.getAssociatedImageID))
   val imageRelationList = getImageRelationList(proportion).filter(r => imageList.exists(_.getId == r.getImageId))
 
   val tokens = sentenceList.flatMap(sentenceToTokenGenerating)
-  setTokenRoles(tokens, proportion)
+  setTokenRolesFromXML(tokens, proportion)
   val trCandidates = getTrajectorCandidates(tokens, true)
   val lmCandidates = getLandmarkCandidates(tokens, true)
   val spCandidates = getIndicatorCandidates(tokens, true)

@@ -49,23 +49,23 @@ object SpRLDataModel extends DataModel {
   }
 
   // Basic Features
-  val BF1 = property(relations) {
+  val TrajectorText = property(relations) {
     x: SpRLRelation => x.getTrajector.getText
   }
 
-  val BF2 = property(relations) {
+  val LandmarkText = property(relations) {
     x: SpRLRelation => if (x.landmarkIsDefined) x.getLandmark.getText else undefined
   }
 
-  val BF3 = property(relations) {
+  val SpText = property(relations) {
     x: SpRLRelation => x.getSpatialIndicator.getText
   }
 
-  val BF4 = property(relations) {
+  val TrLemma = property(relations) {
     x: SpRLRelation => getLemma(x.getTrajector.getFirstConstituent)
   }
 
-  val BF5 = property(relations) {
+  val LmLemma = property(relations) {
     x: SpRLRelation => if (x.landmarkIsDefined()) getLemma(x.getLandmark.getFirstConstituent) else undefined
   }
 
@@ -100,7 +100,7 @@ object SpRLDataModel extends DataModel {
 
   //Supervised2 features
   val JF2_1 = property(relations) {
-    x: SpRLRelation => BF1(x) + "::" + BF3(x) + "::" + BF2(x)
+    x: SpRLRelation => TrajectorText(x) + "::" + SpText(x) + "::" + LandmarkText(x)
   }
 
   val JF2_2 = property(relations) {
@@ -120,11 +120,11 @@ object SpRLDataModel extends DataModel {
   }
 
   val JF2_4 = property(relations) {
-    x: SpRLRelation => BF3(x) + "::" + BF7(x)
+    x: SpRLRelation => SpText(x) + "::" + BF7(x)
   }
 
   val JF2_5 = property(relations) {
-    x: SpRLRelation => BF1(x)
+    x: SpRLRelation => TrajectorText(x)
   }
 
   val JF2_6 = property(relations) {
@@ -132,7 +132,7 @@ object SpRLDataModel extends DataModel {
   }
 
   val JF2_7 = property(relations) {
-    x: SpRLRelation => BF6(x) + "::" + BF3(x)
+    x: SpRLRelation => BF6(x) + "::" + SpText(x)
   }
 
   val JF2_8 = property(relations) {
@@ -218,7 +218,7 @@ object SpRLDataModel extends DataModel {
   }
 
   val JF2_14 = property(relations) {
-    x: SpRLRelation => BF4(x) + "::" + BF3(x) + "::" + BF5(x)
+    x: SpRLRelation => TrLemma(x) + "::" + SpText(x) + "::" + LmLemma(x)
   }
 
   val JF2_15 = property(relations) {

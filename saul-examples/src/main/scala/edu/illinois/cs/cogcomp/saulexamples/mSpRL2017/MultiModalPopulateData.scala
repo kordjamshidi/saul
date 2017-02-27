@@ -43,20 +43,26 @@ object MultiModalPopulateData {
                                       populateNullPairs: Boolean = true
                                      ): Unit = {
 
-    documents.populate(getDocumentList(proportion), isTrain)
-    sentences.populate(getSentenceList(proportion), isTrain)
-    val tokenInstances = (if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList)
-      .filter(_.getId != dummyToken.getId)
+    documents.populate(getDocumentFromXML(proportion), isTrain)
+    sentences.populate(getSentenceFromXML(proportion), isTrain)
 
-    setTokenRoles(tokenInstances, proportion)
-    populatePairData(isTrain, populateNullPairs)
+    val tokenInstances = (if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList)
+      .filter(_.getId != dummyToken.getId)//?
+
+    setTokenRolesFromXML(tokenInstances, proportion)
+    val candidateRelations = generatePairCandidates(isTrain, populateNullPairs)
+
+    pairs.populate(candidateRelations, isTrain)
+
     if(populateImages) {
       populateImageData(isTrain, proportion)
     }
+
     val relations = if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList
-    setRelationTypes(relations, proportion, populateNullPairs)
+    setRelationTypesFromXML(relations, proportion, populateNullPairs)
     saveCandidateList(proportion, relations)
   }
+
 
   def populateDataFromRawDocuments(documentList: List[Document],
                                    populateImages: Boolean = false,
@@ -65,7 +71,9 @@ object MultiModalPopulateData {
     val isTrain = false
     documents.populate(documentList, isTrain)
     sentences.populate(documentList.flatMap(d=> documentToSentenceGenerating(d)), isTrain)
-    populatePairData(isTrain, populateNullPairs)
+    val candidateRelations= generatePairCandidates(isTrain, populateNullPairs)
+    pairs.populate(candidateRelations, isTrain)
+
     if(populateImages) {
       populateImageData(isTrain, All)
     }
@@ -77,7 +85,7 @@ object MultiModalPopulateData {
     segmentRelations.populate(getImageRelationList(proportion), isTrain)
   }
 
-  private def populatePairData(isTrain: Boolean, populateNullPairs: Boolean): Unit = {
+  private def generatePairCandidates(isTrain: Boolean, populateNullPairs: Boolean): List[Relation] = {
 
     val tokenInstances = (if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList)
       .filter(_.getId != dummyToken.getId)
@@ -106,7 +114,7 @@ object MultiModalPopulateData {
         x.setArgument(0, dummyToken)
       })
     }
-    pairs.populate(candidateRelations, isTrain)
+    candidateRelations
   }
 
   private def saveCandidateList(proportion: DataProportion, candidateRelations: List[Relation]) = {
@@ -132,7 +140,7 @@ object MultiModalPopulateData {
     writer.close()
   }
 
-  private def setRelationTypes(candidateRelations: List[Relation], proportion: DataProportion, populateNullPairs: Boolean): Unit = {
+  private def setRelationTypesFromXML(candidateRelations: List[Relation], proportion: DataProportion, populateNullPairs: Boolean): Unit = {
 
     val goldTrajectorRelations = getGoldTrajectorPairs(proportion, populateNullPairs)
     val goldLandmarkRelations = getGoldLandmarkPairs(proportion, populateNullPairs)
@@ -276,7 +284,7 @@ object MultiModalPopulateData {
     }
   }
 
-  def setTokenRoles(tokenInstances: List[Token], proportion: DataProportion): Unit = {
+  def setTokenRolesFromXML(tokenInstances: List[Token], proportion: DataProportion): Unit = {
 
     def setTokenRole(tokenInstances: List[Token], proportion: DataProportion, tag: String) = {
       proportion match {
@@ -294,7 +302,7 @@ object MultiModalPopulateData {
     setTokenRole(tokenInstances, proportion, spTag)
   }
 
-  def getSentenceList(proportion: DataProportion): List[Sentence] = {
+  def getSentenceFromXML(proportion: DataProportion): List[Sentence] = {
 
     proportion match {
       case All => getXmlReader(Train).getSentences().toList ++ getXmlReader(Test).getSentences()
@@ -302,7 +310,7 @@ object MultiModalPopulateData {
     }
   }
 
-  def getDocumentList(proportion: DataProportion): List[Document] = {
+  def getDocumentFromXML(proportion: DataProportion): List[Document] = {
 
     proportion match {
       case All => getXmlReader(Train).getDocuments().toList ++ getXmlReader(Test).getDocuments()
