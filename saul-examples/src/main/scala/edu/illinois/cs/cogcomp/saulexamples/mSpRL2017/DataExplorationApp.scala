@@ -1,11 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.util
-
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import DataProportion._
-import MultiModalPopulateData._
-import MultiModalSpRLSensors._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion.ValidationTest
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{MultiModalCandidateGenerator, MultiModalImageReader, MultiModalXmlReader}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.sentenceToTokenGenerating
 
 /**
@@ -13,19 +10,22 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.sentence
   */
 object DataExplorationApp extends App with Logging {
 
+  private val dataDir = "data/mSprl/saiapr_tc-12/"
   val proportion = ValidationTest
-  val documentList = getDocumentFromXML(proportion).take(10)
-  val sentenceList = getSentenceFromXML(proportion).filter(s => documentList.exists(_.getId == s.getDocument.getId))
-  val imageList = getImageList(proportion)
+  val xmlReader = new MultiModalXmlReader(dataDir, proportion)
+  val imageReader = new MultiModalImageReader(dataDir, proportion)
+  val documentList = xmlReader.getDocuments.take(10)
+  val sentenceList = xmlReader.getSentences.filter(s => documentList.exists(_.getId == s.getDocument.getId))
+  val imageList = imageReader.getImageList
     .filter(i => documentList.exists(_.getPropertyFirstValue("IMAGE").endsWith("/" + i.getLabel)))
-  val segmentList = getSegmentList(proportion).filter(s => imageList.exists(_.getId == s.getAssociatedImageID))
-  val imageRelationList = getImageRelationList(proportion).filter(r => imageList.exists(_.getId == r.getImageId))
+  val segmentList = imageReader.getSegmentList.filter(s => imageList.exists(_.getId == s.getAssociatedImageID))
+  val imageRelationList = imageReader.getImageRelationList.filter(r => imageList.exists(_.getId == r.getImageId))
 
   val tokens = sentenceList.flatMap(sentenceToTokenGenerating)
-  setTokenRolesFromXML(tokens, proportion)
-  val trCandidates = getTrajectorCandidates(tokens, true)
-  val lmCandidates = getLandmarkCandidates(tokens, true)
-  val spCandidates = getIndicatorCandidates(tokens, true)
+  xmlReader.setTokenRoles(tokens)
+  val trCandidates = MultiModalCandidateGenerator.getTrajectorCandidates(tokens, true)
+  val lmCandidates = MultiModalCandidateGenerator.getLandmarkCandidates(tokens, true)
+  val spCandidates = MultiModalCandidateGenerator.getIndicatorCandidates(tokens, true)
 
 //  println(trCandidates)
   imageList.foreach(i => println(i.getId))

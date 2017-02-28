@@ -1,12 +1,10 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Relation
-import MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers.{ TrajectorPairClassifier, _ }
-
-import scala.collection.JavaConversions._
-import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
+import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Relation
 
 /** Created by parisakordjamshidi on 2/4/17.
   */

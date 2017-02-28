@@ -1,12 +1,9 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.File
-
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors.phraseConceptToWord
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.{ClefDocument, SpRLDataReader}
-import org.apache.commons.io.{FileUtils, IOUtils}
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 import org.deeplearning4j.text.sentenceiterator._
@@ -18,7 +15,7 @@ import scala.collection.JavaConversions._
 /**
   * Created by Taher on 2017-02-12.
   */
-object WordEmbedding extends App with Logging {
+object WordEmbeddingApp extends App with Logging {
 
   val vec = build()
   //val vec = load()

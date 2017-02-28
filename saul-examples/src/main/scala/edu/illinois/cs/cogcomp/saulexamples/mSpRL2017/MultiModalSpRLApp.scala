@@ -9,14 +9,13 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import java.io.{File, FileOutputStream}
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.DataProportion._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, MultiModalImageReader, MultiModalXmlReader, ReportHelper}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import org.apache.commons.io.FileUtils
-
-import scala.collection.JavaConversions._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 
 object MultiModalSpRLApp extends App with Logging {
 
@@ -30,18 +29,24 @@ object MultiModalSpRLApp extends App with Logging {
     TrajectorPairClassifier,
     LandmarkPairClassifier
   )
+  val resultsDir = s"data/mSpRL/results/"
+  val dataDir = "data/mSprl/saiapr_tc-12/"
+  FileUtils.forceMkdir(new File(resultsDir))
+
+  val suffix = if (useVectorAverages) "_vecAvg" else ""
 
   runClassifiers(true, ValidationTrain)
   runClassifiers(false, ValidationTest)
 
   private def runClassifiers(isTrain: Boolean, proportion: DataProportion) = {
 
-    val resultsDir = s"data/mSpRL/results/"
-    FileUtils.forceMkdir(new File(resultsDir))
+    lazy val xmlReader = new MultiModalXmlReader(dataDir, proportion)
+    lazy val imageReader = new MultiModalImageReader(dataDir, proportion)
 
-    val suffix = if (useVectorAverages) "_vecAvg" else ""
+    populateDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, featureSet == FeatureSets.WordEmbeddingPlusImage)
+    ReportHelper.saveCandidateList(isTrain,
+      if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList)
 
-    populateDataFromAnnotatedCorpus(isTrain, proportion, featureSet == FeatureSets.WordEmbeddingPlusImage)
     classifiers.foreach(x => {
       x.modelDir = s"models/mSpRL/$featureSet/"
       x.modelSuffix = suffix
@@ -59,60 +64,54 @@ object MultiModalSpRLApp extends App with Logging {
       classifiers.foreach(classifier => {
         classifier.load()
         val results = classifier.test()
-        TripletClassifierUtils.saveResults(stream, s"${classifier.getClassSimpleNameForClassifier}",
-          TripletClassifierUtils.convertToEval(results))
+        ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}", results)
       })
-      val results = TripletClassifierUtils.test(resultsDir, isTrain,
+      val results = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain,
         proportion, x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),
         x => LandmarkPairClassifier(x)
       )
-      TripletClassifierUtils.saveResults(stream, "triplet", results)
+      ReportHelper.saveEvalResults(stream, "triplet", results)
 
       /*Pair level constraints
       * */
       val trResults = TRPairConstraintClassifier.test()
-      TripletClassifierUtils.saveResults(stream, "TRPair-Constrained", TripletClassifierUtils.convertToEval(trResults))
+      ReportHelper.saveEvalResults(stream, "TRPair-Constrained", trResults)
 
       val lmResults = LMPairConstraintClassifier.test()
-      TripletClassifierUtils.saveResults(stream, s"LMPair-Constrained", TripletClassifierUtils.convertToEval(lmResults))
+      ReportHelper.saveEvalResults(stream, s"LMPair-Constrained", lmResults)
 
-      val constrainedResults = TripletClassifierUtils.test(resultsDir, isTrain, proportion,
+      val constrainedResults = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain, proportion,
         x => TRPairConstraintClassifier(x),
         x => IndicatorRoleClassifier(x),
         x => LMPairConstraintClassifier(x)
       )
-      TripletClassifierUtils.saveResults(stream, s"triplet-constrained", constrainedResults)
+      ReportHelper.saveEvalResults(stream, s"triplet-constrained", constrainedResults)
 
       /*Sentence level constraints
      * */
 
       val trSentenceResults = SentenceLevelConstraintClassifiers.TRConstraintClassifier.test()
-      TripletClassifierUtils.saveResults(stream, "TR-SentenceConstrained",
-        TripletClassifierUtils.convertToEval(trSentenceResults))
+      ReportHelper.saveEvalResults(stream, "TR-SentenceConstrained", trSentenceResults)
 
       val lmSentenceResults = SentenceLevelConstraintClassifiers.LMConstraintClassifier.test()
-      TripletClassifierUtils.saveResults(stream, "LM-SentenceConstrained",
-        TripletClassifierUtils.convertToEval(lmSentenceResults))
+      ReportHelper.saveEvalResults(stream, "LM-SentenceConstrained", lmSentenceResults)
 
       val spSentenceResults = SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier.test()
-      TripletClassifierUtils.saveResults(stream, "SP-SentenceConstrained",
-        TripletClassifierUtils.convertToEval(spSentenceResults))
+      ReportHelper.saveEvalResults(stream, "SP-SentenceConstrained", spSentenceResults)
 
       val trPairSentenceResults = SentenceLevelConstraintClassifiers.TRPairConstraintClassifier.test()
-      TripletClassifierUtils.saveResults(stream, "TRPair-SentenceConstrained",
-        TripletClassifierUtils.convertToEval(trPairSentenceResults))
+      ReportHelper.saveEvalResults(stream, "TRPair-SentenceConstrained", trPairSentenceResults)
 
       val lmPairSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
-      TripletClassifierUtils.saveResults(stream, "LMPair-SentenceConstrained",
-        TripletClassifierUtils.convertToEval(lmPairSentenceResults))
+      ReportHelper.saveEvalResults(stream, "LMPair-SentenceConstrained", lmPairSentenceResults)
 
-      val constrainedPairSentenceResults = TripletClassifierUtils.test(resultsDir, isTrain,
+      val constrainedPairSentenceResults = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain,
         proportion, x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x)
       )
-      TripletClassifierUtils.saveResults(stream, "triplet-SentenceConstrained", constrainedPairSentenceResults)
+      ReportHelper.saveEvalResults(stream, "triplet-SentenceConstrained", constrainedPairSentenceResults)
 
       stream.close()
     }
