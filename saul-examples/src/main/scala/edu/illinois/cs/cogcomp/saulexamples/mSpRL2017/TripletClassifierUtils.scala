@@ -3,9 +3,8 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import java.io.{FileOutputStream, PrintStream, PrintWriter}
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.DataProportion.{All, DataProportion, Test, Train}
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData.getXmlReader
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers.featureSet
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{XmlReaderHelper, ReportHelper}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation, Token}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getHeadword
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluation, SpRLEvaluator}
@@ -22,7 +21,9 @@ object TripletClassifierUtils {
   import MultiModalSpRLDataModel._
 
   def test(
+            dataDir: String,
             resultsDir: String,
+            resultsFilePrefix: String,
             isTrain: Boolean,
             proportion: DataProportion,
             trClassifier: (Relation) => String,
@@ -31,8 +32,8 @@ object TripletClassifierUtils {
           ): Seq[SpRLEvaluation] = {
 
     val predicted: List[(Relation, RelationEval)] = predictWithEval(trClassifier, spClassifier, lmClassifier, isTrain)
-    val actual = getActualRelationEvalsTokenBased(proportion)
-    reportRelationResults(resultsDir, actual, predicted)
+    val actual = getActualRelationEvalsTokenBased(dataDir, proportion)
+    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix, actual, predicted)
 
     val evaluator = new SpRLEvaluator()
     val actualEval = new RelationsEvalDocument(actual.map(_._2))
@@ -49,6 +50,7 @@ object TripletClassifierUtils {
                isTrain: Boolean = false
              ): List[Relation] = predictWithEval(trClassifier, spClassifier, lmClassifier, isTrain).map(_._1)
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private def predictWithEval(
                                trClassifier: (Relation) => String,
                                spClassifier: (Token) => String,
@@ -75,143 +77,57 @@ object TripletClassifierUtils {
     })
   }
 
-  def reportRelationResults(resultsDir: String,
-                            actual: List[(Relation, RelationEval)],
-                            predicted: List[(Relation, RelationEval)]
-                           ): Unit = {
-    val tp = ListBuffer[(Relation, Relation)]()
-    actual.zipWithIndex.foreach { case (a, i) =>
-      breakable {
-        predicted.zipWithIndex.foreach { case (p, j) =>
-          if (a._2.isEqual(p._2)) {
-            tp += ((a._1, p._1))
-            break()
-          }
-        }
-      }
-    }
-    val fp = predicted.filterNot(x => tp.exists(_._2 == x._1))
-    val fn = actual.filterNot(x => tp.exists(_._1 == x._1))
-    actual.foreach(x => {
-      x._1.getArguments.foreach(a => a.setText(a.getPropertyFirstValue("headWord"))) // convert phrase text to headword
-    })
+  private def getActualRelationEvalsPhraseBased(dataDir: String, proportion: DataProportion): List[RelationEval] = {
 
-    var writer = new PrintWriter(s"$resultsDir/${featureSet}_triplet-fp.txt")
-    fp.groupBy(_._1.getArgument(1).asInstanceOf[Token].getDocument.getId).toList.sortBy(_._1).foreach {
-      case (key, list) => {
-        writer.println(s"===================================== ${key} ==================================")
-        list.foreach { case (r, _) =>
-          writer.println(s"${r.getArgument(0).getText} -> ${r.getArgument(1).getText} -> ${r.getArgument(2).getText}")
-        }
-      }
-    }
-    writer.close()
+    val reader = new XmlReaderHelper(dataDir, proportion).reader
+    val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
-    writer = new PrintWriter(s"$resultsDir/${featureSet}_triplet-fn.txt")
-    fn.groupBy(_._1.getArgument(1).asInstanceOf[Phrase].getDocument.getId).toList.sortBy(_._1).foreach {
-      case (key, list) => {
-        writer.println(s"===================================== ${key} ==================================")
-        list.foreach { case (r, _) =>
-          val args = r.getArguments.map(_.asInstanceOf[Phrase]).toList
-          writer.println(s"${r.getId} : ${args(0).getText} -> ${args(1).getText} -> ${args(2).getText}")
-        }
-      }
-    }
-    writer.close()
+    reader.setPhraseTagName("TRAJECTOR")
+    val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
 
-    writer = new PrintWriter(s"$resultsDir/${featureSet}_triplet-tp.txt")
-    tp.groupBy(_._1.getArgument(1).asInstanceOf[Phrase].getDocument.getId).toList.sortBy(_._1).foreach {
-      case (key, list) => {
-        writer.println(s"===================================== ${key} ==================================")
-        list.foreach { case (a, p) =>
-          val actualArgs = a.getArguments.toList
-          val predictedArgs = p.getArguments.toList
-          writer.println(s"${a.getId} : ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
-            s"${actualArgs(2).getText}   ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
-            s"${actualArgs(2).getText}")
-        }
-      }
-    }
-    writer.close()
+    reader.setPhraseTagName("LANDMARK")
+    val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName("SPATIALINDICATOR")
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    relations.map(r => {
+      val tr = trajectors(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      val lm = landmarks(r.getArgumentId(2))
+      val (trStart: Int, trEnd: Int) = getSpan(tr)
+      val (spStart: Int, spEnd: Int) = getSpan(sp)
+      val (lmStart: Int, lmEnd: Int) = getSpan(lm)
+      new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+    }).toList
   }
 
-  def saveResults(stream: FileOutputStream, caption: String, results: Seq[SpRLEvaluation]): Unit = {
-    val writer = new PrintStream(stream, true)
-    writer.println("===========================================================================")
-    writer.println(s" ${caption}")
-    writer.println("---------------------------------------------------------------------------")
-    SpRLEvaluator.printEvaluation(stream, results)
-    writer.println()
-  }
+  private def getActualRelationEvalsTokenBased(dataDir:String, proportion: DataProportion): List[(Relation, RelationEval)] = {
 
-  def convertToEval(r: Results): Seq[SpRLEvaluation] = r.perLabel
-    .map(x => new SpRLEvaluation(x.label, x.precision * 100, x.recall * 100, x.f1 * 100, x.labeledSize, x.predictedSize))
+    val reader = new XmlReaderHelper(dataDir, proportion).reader
+    val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
-  private def getActualRelationEvalsPhraseBased(proportion: DataProportion): List[RelationEval] = {
+    reader.setPhraseTagName("TRAJECTOR")
+    val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
 
-    def get(proportion: DataProportion) = {
-      val reader = getXmlReader(proportion)
-      val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
+    reader.setPhraseTagName("LANDMARK")
+    val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
 
-      reader.setPhraseTagName("TRAJECTOR")
-      val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
+    reader.setPhraseTagName("SPATIALINDICATOR")
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
 
-      reader.setPhraseTagName("LANDMARK")
-      val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
-
-      reader.setPhraseTagName("SPATIALINDICATOR")
-      val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
-
-      relations.map(r => {
-        val tr = trajectors(r.getArgumentId(0))
-        val sp = indicators(r.getArgumentId(1))
-        val lm = landmarks(r.getArgumentId(2))
-        val (trStart: Int, trEnd: Int) = getSpan(tr)
-        val (spStart: Int, spEnd: Int) = getSpan(sp)
-        val (lmStart: Int, lmEnd: Int) = getSpan(lm)
-        new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
-      }).toList
-    }
-
-    proportion match {
-      case All => get(Train) ++ get(Test)
-      case x => get(x)
-    }
-  }
-
-  private def getActualRelationEvalsTokenBased(proportion: DataProportion): List[(Relation, RelationEval)] = {
-
-    def get(proportion: DataProportion) = {
-      val reader = getXmlReader(proportion)
-      val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
-
-      reader.setPhraseTagName("TRAJECTOR")
-      val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
-
-      reader.setPhraseTagName("LANDMARK")
-      val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
-
-      reader.setPhraseTagName("SPATIALINDICATOR")
-      val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
-
-      relations.map(r => {
-        val tr = trajectors(r.getArgumentId(0))
-        val sp = indicators(r.getArgumentId(1))
-        val lm = landmarks(r.getArgumentId(2))
-        val (trStart: Int, trEnd: Int) = getHeadSpan(tr)
-        val (spStart: Int, spEnd: Int) = getHeadSpan(sp)
-        val (lmStart: Int, lmEnd: Int) = getHeadSpan(lm)
-        r.setArgument(0, tr)
-        r.setArgument(1, sp)
-        r.setArgument(2, lm)
-        (r, new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd))
-      }).toList
-    }
-
-    proportion match {
-      case All => get(Train) ++ get(Test)
-      case x => get(x)
-    }
+    relations.map(r => {
+      val tr = trajectors(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      val lm = landmarks(r.getArgumentId(2))
+      val (trStart: Int, trEnd: Int) = getHeadSpan(tr)
+      val (spStart: Int, spEnd: Int) = getHeadSpan(sp)
+      val (lmStart: Int, lmEnd: Int) = getHeadSpan(lm)
+      r.setArgument(0, tr)
+      r.setArgument(1, sp)
+      r.setArgument(2, lm)
+      (r, new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd))
+    }).toList
   }
 
   private def getRelationEval(tr: Option[Token], sp: Option[Token], lm: Option[Token]): (Relation, RelationEval) = {

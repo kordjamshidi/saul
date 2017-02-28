@@ -8,18 +8,14 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.lbjava.learn.{SparseNetworkLearner, SupportVectorMachine}
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
+import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.FeatureSets
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.FeatureSets.FeatureSets
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Relation, Token}
 import weka.classifiers.`lazy`.IBk
 import weka.classifiers.bayes.NaiveBayes
-import MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.FeatureSets.FeatureSets
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Relation, Token}
-
-object FeatureSets extends Enumeration {
-  type FeatureSets = Value
-  val BaseLine, WordEmbedding, WordEmbeddingPlusImage = Value
-}
 
 object MultiModalSpRLClassifiers {
   var featureSet = FeatureSets.WordEmbeddingPlusImage
