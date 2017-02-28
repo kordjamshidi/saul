@@ -14,8 +14,8 @@ import scala.collection.JavaConversions._
 object MultiModalPopulateData {
 
   def populateDataFromAnnotatedCorpus(
-                                       xmlReader: MultiModalXmlReader,
-                                       imageReader: MultiModalImageReader,
+                                       xmlReader: XmlReaderHelper,
+                                       imageReader: ImageReaderHelper,
                                        isTrain: Boolean,
                                        populateImages: Boolean = false,
                                        populateNullPairs: Boolean = true
@@ -29,7 +29,7 @@ object MultiModalPopulateData {
 
     xmlReader.setTokenRoles(tokenInstances)
 
-    val candidateRelations = MultiModalCandidateGenerator.generatePairCandidates(isTrain, populateNullPairs)
+    val candidateRelations = CandidateGenerator.generatePairCandidates(isTrain, populateNullPairs)
     pairs.populate(candidateRelations, isTrain)
 
     if (populateImages) {
@@ -48,7 +48,7 @@ object MultiModalPopulateData {
     val isTrain = false
     documents.populate(documentList, isTrain)
     sentences.populate(documentList.flatMap(d => documentToSentenceGenerating(d)), isTrain)
-    val candidateRelations = MultiModalCandidateGenerator.generatePairCandidates(isTrain, populateNullPairs)
+    val candidateRelations = CandidateGenerator.generatePairCandidates(isTrain, populateNullPairs)
     pairs.populate(candidateRelations, isTrain)
   }
 }

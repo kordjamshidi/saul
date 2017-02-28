@@ -10,7 +10,7 @@ import java.io.{File, FileOutputStream}
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, MultiModalImageReader, MultiModalXmlReader, ReportHelper}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ImageReaderHelper, XmlReaderHelper, ReportHelper}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
@@ -40,8 +40,8 @@ object MultiModalSpRLApp extends App with Logging {
 
   private def runClassifiers(isTrain: Boolean, proportion: DataProportion) = {
 
-    lazy val xmlReader = new MultiModalXmlReader(dataDir, proportion)
-    lazy val imageReader = new MultiModalImageReader(dataDir, proportion)
+    lazy val xmlReader = new XmlReaderHelper(dataDir, proportion)
+    lazy val imageReader = new ImageReaderHelper(dataDir, proportion)
 
     populateDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, featureSet == FeatureSets.WordEmbeddingPlusImage)
     ReportHelper.saveCandidateList(isTrain,

@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
 /**
   * Created by taher on 2017-02-28.
   */
-class MultiModalImageReader(dataDir: String, proportion: DataProportion) {
+class ImageReaderHelper(dataDir: String, proportion: DataProportion) {
 
   lazy val reader = new CLEFImageReader(dataDir, false)
 

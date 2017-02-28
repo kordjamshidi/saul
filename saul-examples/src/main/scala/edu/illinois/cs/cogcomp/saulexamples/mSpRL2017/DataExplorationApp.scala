@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion.ValidationTest
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{MultiModalCandidateGenerator, MultiModalImageReader, MultiModalXmlReader}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{CandidateGenerator, ImageReaderHelper, XmlReaderHelper}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.sentenceToTokenGenerating
 
 /**
@@ -12,8 +12,8 @@ object DataExplorationApp extends App with Logging {
 
   private val dataDir = "data/mSprl/saiapr_tc-12/"
   val proportion = ValidationTest
-  val xmlReader = new MultiModalXmlReader(dataDir, proportion)
-  val imageReader = new MultiModalImageReader(dataDir, proportion)
+  val xmlReader = new XmlReaderHelper(dataDir, proportion)
+  val imageReader = new ImageReaderHelper(dataDir, proportion)
   val documentList = xmlReader.getDocuments.take(10)
   val sentenceList = xmlReader.getSentences.filter(s => documentList.exists(_.getId == s.getDocument.getId))
   val imageList = imageReader.getImageList
@@ -23,9 +23,9 @@ object DataExplorationApp extends App with Logging {
 
   val tokens = sentenceList.flatMap(sentenceToTokenGenerating)
   xmlReader.setTokenRoles(tokens)
-  val trCandidates = MultiModalCandidateGenerator.getTrajectorCandidates(tokens, true)
-  val lmCandidates = MultiModalCandidateGenerator.getLandmarkCandidates(tokens, true)
-  val spCandidates = MultiModalCandidateGenerator.getIndicatorCandidates(tokens, true)
+  val trCandidates = CandidateGenerator.getTrajectorCandidates(tokens, true)
+  val lmCandidates = CandidateGenerator.getLandmarkCandidates(tokens, true)
+  val spCandidates = CandidateGenerator.getIndicatorCandidates(tokens, true)
 
 //  println(trCandidates)
   imageList.foreach(i => println(i.getId))

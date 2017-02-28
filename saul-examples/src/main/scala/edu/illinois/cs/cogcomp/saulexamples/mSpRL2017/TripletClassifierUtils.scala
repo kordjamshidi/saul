@@ -4,7 +4,7 @@ import java.io.{FileOutputStream, PrintStream, PrintWriter}
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{MultiModalXmlReader, ReportHelper}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{XmlReaderHelper, ReportHelper}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation, Token}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getHeadword
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluation, SpRLEvaluator}
@@ -79,7 +79,7 @@ object TripletClassifierUtils {
 
   private def getActualRelationEvalsPhraseBased(dataDir: String, proportion: DataProportion): List[RelationEval] = {
 
-    val reader = new MultiModalXmlReader(dataDir, proportion).reader
+    val reader = new XmlReaderHelper(dataDir, proportion).reader
     val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
     reader.setPhraseTagName("TRAJECTOR")
@@ -104,7 +104,7 @@ object TripletClassifierUtils {
 
   private def getActualRelationEvalsTokenBased(dataDir:String, proportion: DataProportion): List[(Relation, RelationEval)] = {
 
-    val reader = new MultiModalXmlReader(dataDir, proportion).reader
+    val reader = new XmlReaderHelper(dataDir, proportion).reader
     val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
     reader.setPhraseTagName("TRAJECTOR")

@@ -12,7 +12,7 @@ import scala.io.Source
 /**
   * Created by taher on 2017-02-28.
   */
-object MultiModalCandidateGenerator {
+object CandidateGenerator {
 
   def generatePairCandidates(isTrain: Boolean, populateNullPairs: Boolean): List[Relation] = {
 
