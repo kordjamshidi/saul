@@ -61,13 +61,20 @@ object MultiModalSpRLApp extends App with Logging {
     } else {
       println("testing started ...")
       val stream = new FileOutputStream(s"$resultsDir/$featureSet$suffix.txt")
+      val allCandidateResults = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain, proportion,
+        _ => "TR-SP",
+        _ => "Indicator",
+        _ => "LM-SP"
+      )
+      ReportHelper.saveEvalResults(stream, "triplet-all-candidates", allCandidateResults)
+
       classifiers.foreach(classifier => {
         classifier.load()
         val results = classifier.test()
         ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}", results)
       })
-      val results = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain,
-        proportion, x => TrajectorPairClassifier(x),
+      val results = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain, proportion,
+        x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),
         x => LandmarkPairClassifier(x)
       )

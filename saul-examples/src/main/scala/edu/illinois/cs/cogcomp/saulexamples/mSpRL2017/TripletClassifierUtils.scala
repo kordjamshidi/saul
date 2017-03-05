@@ -4,8 +4,8 @@ import java.io.{FileOutputStream, PrintStream, PrintWriter}
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{XmlReaderHelper, ReportHelper}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation, Token}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ReportHelper, XmlReaderHelper}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation, Token}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getHeadword
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluation, SpRLEvaluator}
 
@@ -58,7 +58,7 @@ object TripletClassifierUtils {
                                isTrain: Boolean
                              ): List[(Relation, RelationEval)] = {
     val tokenInstances = if (isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
-    val indicators = tokenInstances.filter(t => spClassifier(t) == "Indicator").toList
+    val indicators = tokenInstances.filter(t => t.getId != dummyToken.getId && spClassifier(t) == "Indicator").toList
       .sortBy(x => x.getSentence.getStart + x.getStart)
 
     indicators.flatMap(sp => {
@@ -102,7 +102,7 @@ object TripletClassifierUtils {
     }).toList
   }
 
-  private def getActualRelationEvalsTokenBased(dataDir:String, proportion: DataProportion): List[(Relation, RelationEval)] = {
+  private def getActualRelationEvalsTokenBased(dataDir: String, proportion: DataProportion): List[(Relation, RelationEval)] = {
 
     val reader = new XmlReaderHelper(dataDir, proportion).reader
     val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
@@ -130,8 +130,11 @@ object TripletClassifierUtils {
     }).toList
   }
 
-  private def getRelationEval(tr: Option[Token], sp: Option[Token], lm: Option[Token]): (Relation, RelationEval) = {
-    val offset = sp.get.getSentence.getStart
+  private def getRelationEval(tr: Option[NlpBaseElement], sp: Option[NlpBaseElement], lm: Option[NlpBaseElement]): (Relation, RelationEval) = {
+    val offset = sp.get match {
+      case x: Token => x.getSentence.getStart
+      case x: Phrase => x.getSentence.getStart
+    }
     val lmStart = if (notNull(lm)) offset + lm.get.getStart else -1
     val lmEnd = if (notNull(lm)) offset + lm.get.getEnd else -1
     val trStart = if (notNull(tr)) offset + tr.get.getStart else -1
@@ -149,7 +152,7 @@ object TripletClassifierUtils {
     (r, eval)
   }
 
-  private def notNull(t: Option[Token]) = {
+  private def notNull(t: Option[NlpBaseElement]) = {
     t.nonEmpty && t.get.getId != dummyToken.getId && t.get.getStart >= 0
   }
 
