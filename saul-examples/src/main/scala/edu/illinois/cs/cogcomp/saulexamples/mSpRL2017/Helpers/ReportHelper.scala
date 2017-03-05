@@ -4,8 +4,8 @@ import java.io.{FileOutputStream, PrintStream, PrintWriter}
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation, Token}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, SpRLEvaluation, SpRLEvaluator}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation, Token}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{EvalComparer, RelationEval, SpRLEvaluation, SpRLEvaluator}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
@@ -19,13 +19,14 @@ object ReportHelper {
   def reportRelationResults(resultsDir: String,
                             resultFilePrefix: String,
                             actual: List[(Relation, RelationEval)],
-                            predicted: List[(Relation, RelationEval)]
+                            predicted: List[(Relation, RelationEval)],
+                            comparer: EvalComparer
                            ): Unit = {
     val tp = ListBuffer[(Relation, Relation)]()
-    actual.zipWithIndex.foreach { case (a, i) =>
+    actual.foreach { a =>
       breakable {
-        predicted.zipWithIndex.foreach { case (p, j) =>
-          if (a._2.isEqual(p._2)) {
+        predicted.foreach { p =>
+          if (comparer.isEqual(a._2, p._2)) {
             tp += ((a._1, p._1))
             break()
           }
@@ -34,12 +35,9 @@ object ReportHelper {
     }
     val fp = predicted.filterNot(x => tp.exists(_._2 == x._1))
     val fn = actual.filterNot(x => tp.exists(_._1 == x._1))
-    actual.foreach(x => {
-      x._1.getArguments.foreach(a => a.setText(a.getPropertyFirstValue("headWord"))) // convert phrase text to headword
-    })
 
     var writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}_triplet-fp.txt")
-    fp.groupBy(_._1.getArgument(1).asInstanceOf[Token].getDocument.getId).toList.sortBy(_._1).foreach {
+    fp.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
         list.foreach { case (r, _) =>
@@ -50,11 +48,11 @@ object ReportHelper {
     writer.close()
 
     writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}_triplet-fn.txt")
-    fn.groupBy(_._1.getArgument(1).asInstanceOf[Phrase].getDocument.getId).toList.sortBy(_._1).foreach {
+    fn.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
         list.foreach { case (r, _) =>
-          val args = r.getArguments.map(_.asInstanceOf[Phrase]).toList
+          val args = r.getArguments.toList
           writer.println(s"${r.getId} : ${args(0).getText} -> ${args(1).getText} -> ${args(2).getText}")
         }
       }
@@ -62,7 +60,7 @@ object ReportHelper {
     writer.close()
 
     writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}_triplet-tp.txt")
-    tp.groupBy(_._1.getArgument(1).asInstanceOf[Phrase].getDocument.getId).toList.sortBy(_._1).foreach {
+    tp.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
         list.foreach { case (a, p) =>
@@ -113,7 +111,7 @@ object ReportHelper {
     writer.println()
   }
 
-  def reportRoleStats(tokenInstances: List[Token], candidates: List[Token], tagName: String): Unit = {
+  def reportRoleStats(tokenInstances: List[NlpBaseElement], candidates: List[NlpBaseElement], tagName: String): Unit = {
 
     val instances = tokenInstances.filter(_.containsProperty(s"${tagName}_id"))
     val actual = instances.map(_.getPropertyValues(s"${tagName}_id").size()).sum
@@ -147,4 +145,12 @@ object ReportHelper {
 
   private def convertToEval(r: Results): Seq[SpRLEvaluation] = r.perLabel
     .map(x => new SpRLEvaluation(x.label, x.precision * 100, x.recall * 100, x.f1 * 100, x.labeledSize, x.predictedSize))
+
+  private def getDocumentId(e: NlpBaseElement) = {
+    e match {
+      case x: Token => x.getDocument.getId
+      case x: Phrase => x.getDocument.getId
+      case _ => e.asInstanceOf[Token].getDocument.getId
+    }
+  }
 }

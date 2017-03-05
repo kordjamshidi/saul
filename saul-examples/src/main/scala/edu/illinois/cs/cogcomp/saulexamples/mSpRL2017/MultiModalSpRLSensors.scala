@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import java.io.File
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Relation, Token}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Phrase, Relation, Token}
 import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
@@ -53,12 +53,12 @@ object MultiModalSpRLSensors {
     (r.getFirstSegmentId == s.getSegmentId || r.getSecondSegmentId == s.getSegmentId) && (r.getImageId == s.getAssociatedImageID)
   }
 
-  def relationToFirstArgumentMatching(r: Relation, t: Token): Boolean = {
-    r.getArgumentId(0) == t.getId
+  def relationToFirstArgumentMatching(r: Relation, p: Phrase): Boolean = {
+    r.getArgumentId(0) == p.getId
   }
 
-  def relationToSecondArgumentMatching(r: Relation, t: Token): Boolean = {
-    r.getArgumentId(1) == t.getId
+  def relationToSecondArgumentMatching(r: Relation, p: Phrase): Boolean = {
+    r.getArgumentId(1) == p.getId
   }
 
   def documentToImageMatching(d: Document, i: Image): Boolean = {

@@ -103,6 +103,10 @@ public class RelationEval implements SpRLEval {
         return sp.contains(p.sp) && tr.contains(p.tr) && lm.contains(p.lm);
     }
 
+    public boolean overlaps(RelationEval p) {
+        return sp.overlaps(p.sp) && tr.overlaps(p.tr) && lm.overlaps(p.lm);
+    }
+
     @Override
     public boolean isEqual(SpRLEval b) {
         if (b == null)

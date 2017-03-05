@@ -17,7 +17,7 @@ object XmlMatchings {
   val phraseHeadwordMatching = new ISpanElementMatching {
 
     override def matches(xmlElement: ISpanElement, element: ISpanElement) = {
-      if (xmlElement.isPartOf(element)) {
+      if (xmlElement.overlaps(element)) {
         val p = element.asInstanceOf[Phrase]
         val head = getHeadword(p)
         xmlElement.contains(head)

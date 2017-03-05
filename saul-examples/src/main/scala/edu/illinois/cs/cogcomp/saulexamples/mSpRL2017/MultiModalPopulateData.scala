@@ -24,10 +24,10 @@ object MultiModalPopulateData {
     documents.populate(xmlReader.getDocuments, isTrain)
     sentences.populate(xmlReader.getSentences, isTrain)
 
-    val tokenInstances = (if (isTrain) tokens.getTrainingInstances.toList else tokens.getTestingInstances.toList)
-      .filter(_.getId != dummyToken.getId)
+    val phraseInstances = (if (isTrain) phrases.getTrainingInstances.toList else phrases.getTestingInstances.toList)
+      .filter(_.getId != dummyPhrase.getId)
 
-    xmlReader.setTokenRoles(tokenInstances)
+    xmlReader.setRoles(phraseInstances)
 
     val candidateRelations = CandidateGenerator.generatePairCandidates(isTrain, populateNullPairs)
     pairs.populate(candidateRelations, isTrain)

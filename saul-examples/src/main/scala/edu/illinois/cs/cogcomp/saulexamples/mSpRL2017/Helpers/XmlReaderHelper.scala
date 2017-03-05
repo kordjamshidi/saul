@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.dummyToken
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.dummyPhrase
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
@@ -92,7 +92,7 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
       .map { case (_, list) => list.head }
       .toList
     if (populateNullPairs) {
-      relations.foreach(r => if (nullLandmarkIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyToken.getId))
+      relations.foreach(r => if (nullLandmarkIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyPhrase.getId))
       relations
     } else {
       relations.filterNot(r => nullLandmarkIds.contains(r.getArgumentId(0)))
@@ -108,7 +108,7 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
       .map { case (_, list) => list.head }
       .toList
     if (populateNullPairs) {
-      relations.foreach(r => if (nullTrajectorIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyToken.getId))
+      relations.foreach(r => if (nullTrajectorIds.contains(r.getArgumentId(0))) r.setArgumentId(0, dummyPhrase.getId))
       relations
     } else {
       relations.filterNot(r => nullTrajectorIds.contains(r.getArgumentId(0)))
@@ -123,10 +123,14 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
     reader.getTagAsNlpBaseElement(tag).toList
   }
 
-  def setTokenRoles(tokenInstances: List[Token]): Unit = {
-    reader.addPropertiesFromTag(trTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
-    reader.addPropertiesFromTag(lmTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
-    reader.addPropertiesFromTag(spTag, tokenInstances, XmlMatchings.xmlHeadwordMatching)
+  def setRoles(tokenInstances: List[NlpBaseElement]): Unit = {
+    val matching = tokenInstances match{
+      case _: List[Token] => XmlMatchings.phraseHeadwordMatching
+      case _: List[Phrase] => XmlMatchings.xmlHeadwordMatching
+    }
+    reader.addPropertiesFromTag(trTag, tokenInstances, matching)
+    reader.addPropertiesFromTag(lmTag, tokenInstances, matching)
+    reader.addPropertiesFromTag(spTag, tokenInstances, matching)
   }
 
   def getSentences: List[Sentence] = {

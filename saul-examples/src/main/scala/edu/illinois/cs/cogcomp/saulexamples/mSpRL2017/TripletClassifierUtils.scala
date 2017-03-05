@@ -7,7 +7,7 @@ import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ReportHelper, XmlReaderHelper}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation, Token}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getHeadword
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{RelationEval, RelationsEvalDocument, SpRLEvaluation, SpRLEvaluator}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
@@ -27,18 +27,23 @@ object TripletClassifierUtils {
             isTrain: Boolean,
             proportion: DataProportion,
             trClassifier: (Relation) => String,
-            spClassifier: (Token) => String,
+            spClassifier: (Phrase) => String,
             lmClassifier: (Relation) => String
           ): Seq[SpRLEvaluation] = {
 
     val predicted: List[(Relation, RelationEval)] = predictWithEval(trClassifier, spClassifier, lmClassifier, isTrain)
-    val actual = getActualRelationEvalsTokenBased(dataDir, proportion)
-    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix, actual, predicted)
+    val actual = getActualRelationEvalsPhraseBased(dataDir, proportion)
+
+    val comparer = new EvalComparer {
+      override def isEqual(a: SpRLEval, b: SpRLEval) = a.asInstanceOf[RelationEval].overlaps(b.asInstanceOf[RelationEval])
+    }
+
+    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix, actual, predicted, comparer)
 
     val evaluator = new SpRLEvaluator()
     val actualEval = new RelationsEvalDocument(actual.map(_._2))
     val predictedEval = new RelationsEvalDocument(predicted.map(_._2))
-    val results = evaluator.evaluateRelations(actualEval, predictedEval)
+    val results = evaluator.evaluateRelations(actualEval, predictedEval, comparer)
     evaluator.printEvaluation(results)
     results
   }
@@ -46,23 +51,23 @@ object TripletClassifierUtils {
   def predict(
                trClassifier: Relation => String,
                lmClassifier: Relation => String,
-               spClassifier: (Token) => String,
+               spClassifier: (Phrase) => String,
                isTrain: Boolean = false
              ): List[Relation] = predictWithEval(trClassifier, spClassifier, lmClassifier, isTrain).map(_._1)
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private def predictWithEval(
                                trClassifier: (Relation) => String,
-                               spClassifier: (Token) => String,
+                               spClassifier: (Phrase) => String,
                                lmClassifier: (Relation) => String,
                                isTrain: Boolean
                              ): List[(Relation, RelationEval)] = {
-    val tokenInstances = if (isTrain) tokens.getTrainingInstances else tokens.getTestingInstances
-    val indicators = tokenInstances.filter(t => t.getId != dummyToken.getId && spClassifier(t) == "Indicator").toList
+    val instances = if (isTrain) phrases.getTrainingInstances else phrases.getTestingInstances
+    val indicators = instances.filter(t => t.getId != dummyPhrase.getId && spClassifier(t) == "Indicator").toList
       .sortBy(x => x.getSentence.getStart + x.getStart)
 
     indicators.flatMap(sp => {
-      val pairs = tokens(sp) <~ relationToSecondArgument
+      val pairs = phrases(sp) <~ relationToSecondArgument
       val trajectorPairs = (pairs.filter(r => trClassifier(r) == "TR-SP") ~> relationToFirstArgument).groupBy(x => x).keys
       if (trajectorPairs.nonEmpty) {
         val landmarkPairs = (pairs.filter(r => lmClassifier(r) == "LM-SP") ~> relationToFirstArgument).groupBy(x => x).keys
@@ -77,7 +82,7 @@ object TripletClassifierUtils {
     })
   }
 
-  private def getActualRelationEvalsPhraseBased(dataDir: String, proportion: DataProportion): List[RelationEval] = {
+  private def getActualRelationEvalsPhraseBased(dataDir: String, proportion: DataProportion): List[(Relation, RelationEval)] = {
 
     val reader = new XmlReaderHelper(dataDir, proportion).reader
     val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
@@ -98,7 +103,10 @@ object TripletClassifierUtils {
       val (trStart: Int, trEnd: Int) = getSpan(tr)
       val (spStart: Int, spEnd: Int) = getSpan(sp)
       val (lmStart: Int, lmEnd: Int) = getSpan(lm)
-      new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+      r.setArgument(0, tr)
+      r.setArgument(1, sp)
+      r.setArgument(2, lm)
+      (r, new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd))
     }).toList
   }
 
@@ -142,18 +150,18 @@ object TripletClassifierUtils {
     val spStart = offset + sp.get.getStart
     val spEnd = offset + sp.get.getEnd
     val r = new Relation()
-    r.setArgument(0, if (tr.nonEmpty) tr.get else dummyToken)
+    r.setArgument(0, if (tr.nonEmpty) tr.get else dummyPhrase)
     r.setArgumentId(0, r.getArgument(0).getId)
     r.setArgument(1, sp.get)
     r.setArgumentId(1, r.getArgument(1).getId)
-    r.setArgument(2, if (lm.nonEmpty) lm.get else dummyToken)
+    r.setArgument(2, if (lm.nonEmpty) lm.get else dummyPhrase)
     r.setArgumentId(2, r.getArgument(2).getId)
     val eval = new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
     (r, eval)
   }
 
   private def notNull(t: Option[NlpBaseElement]) = {
-    t.nonEmpty && t.get.getId != dummyToken.getId && t.get.getStart >= 0
+    t.nonEmpty && t.get.getId != dummyPhrase.getId && t.get.getStart >= 0
   }
 
   private def getHeadSpan(p: Phrase): (Int, Int) = {
@@ -161,8 +169,7 @@ object TripletClassifierUtils {
       return (-1, -1)
 
     val offset = p.getSentence.getStart + p.getStart
-    val (text, headStart, headEnd) = getHeadword(p.getText)
-    p.addPropertyValue("headWord", text)
+    val (_, headStart, headEnd) = getHeadword(p.getText)
     (offset + headStart, offset + headEnd)
   }
 

@@ -13,21 +13,21 @@ import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.FeatureSets
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.FeatureSets.FeatureSets
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Relation, Token}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import weka.classifiers.`lazy`.IBk
 import weka.classifiers.bayes.NaiveBayes
 
 object MultiModalSpRLClassifiers {
   var featureSet = FeatureSets.WordEmbeddingPlusImage
 
-  def tokenFeatures: List[Property[Token]] = tokenFeatures(featureSet)
+  def phraseFeatures: List[Property[Phrase]] = phraseFeatures(featureSet)
 
-  def tokenFeatures(featureSet: FeatureSets): List[Property[Token]] =
+  def phraseFeatures(featureSet: FeatureSets): List[Property[Phrase]] =
     List(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext) ++
       (featureSet match {
         case FeatureSets.WordEmbedding => List(tokenVector)
         case FeatureSets.WordEmbeddingPlusImage => List(tokenVector, isTokenAnImageConcept, nearestSegmentConceptVector)
-        case _ => List[Property[Token]]()
+        case _ => List[Property[Phrase]]()
       })
 
   def relationFeatures: List[Property[Relation]] = relationFeatures(featureSet)
@@ -66,36 +66,36 @@ object MultiModalSpRLClassifiers {
     override def feature = using(segmentFeatures)
   }
 
-  object SpatialRoleClassifier extends Learnable(tokens) {
+  object SpatialRoleClassifier extends Learnable(phrases) {
     def label = spatialRole
 
     override lazy val classifier = new SparseNetworkLearner()
 
-    override def feature = using(tokenFeatures)
+    override def feature = using(phraseFeatures)
   }
 
-  object TrajectorRoleClassifier extends Learnable(tokens) {
+  object TrajectorRoleClassifier extends Learnable(phrases) {
     def label = trajectorRole
 
     override lazy val classifier = new SparseNetworkLearner()
 
-    override def feature = using(tokenFeatures)
+    override def feature = using(phraseFeatures)
   }
 
-  object LandmarkRoleClassifier extends Learnable(tokens) {
+  object LandmarkRoleClassifier extends Learnable(phrases) {
     def label = landmarkRole
 
     override lazy val classifier = new SparseNetworkLearner()
 
-    override def feature = using(tokenFeatures)
+    override def feature = using(phraseFeatures)
   }
 
-  object IndicatorRoleClassifier extends Learnable(tokens) {
+  object IndicatorRoleClassifier extends Learnable(phrases) {
     def label = indicatorRole
 
     override lazy val classifier = new SparseNetworkLearner()
 
-    override def feature = using(tokenFeatures(FeatureSets.BaseLine))
+    override def feature = using(phraseFeatures(FeatureSets.BaseLine))
   }
 
   object TrajectorPairClassifier extends Learnable(pairs) {
