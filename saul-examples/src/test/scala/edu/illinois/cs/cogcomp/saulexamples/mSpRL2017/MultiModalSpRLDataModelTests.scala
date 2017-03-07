@@ -29,9 +29,9 @@ class MultiModalSpRLDataModelTests extends FlatSpec with Matchers {
   segmentRelations.populate(CLEFDataSet.testRelations)
   sentences.populate(sentenceList)
 
-  reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, XmlMatchings.phraseHeadwordMatching)
-  reader.addPropertiesFromTag("LANDMARK", phrases().toList, XmlMatchings.phraseHeadwordMatching)
-  reader.addPropertiesFromTag("SPATIALINDICATOR", phrases().toList, XmlMatchings.phraseHeadwordMatching)
+  reader.addPropertiesFromTag("TRAJECTOR", phrases().toList, XmlMatchings.xmlContainsElementHeadwordMatching)
+  reader.addPropertiesFromTag("LANDMARK", phrases().toList, XmlMatchings.xmlContainsElementHeadwordMatching)
+  reader.addPropertiesFromTag("SPATIALINDICATOR", phrases().toList, XmlMatchings.xmlContainsElementHeadwordMatching)
 
   s"text features for '${sentences().head.getText}'" should "be correct." in {
     val sentenceList = sentences().toList

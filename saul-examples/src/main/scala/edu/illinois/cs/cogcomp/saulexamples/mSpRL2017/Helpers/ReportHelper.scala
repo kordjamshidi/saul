@@ -67,8 +67,8 @@ object ReportHelper {
           val actualArgs = a.getArguments.toList
           val predictedArgs = p.getArguments.toList
           writer.println(s"${a.getId} : ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
-            s"${actualArgs(2).getText}   ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
-            s"${actualArgs(2).getText}")
+            s"${actualArgs(2).getText}   ${predictedArgs(0).getText} -> ${predictedArgs(1).getText} -> " +
+            s"${predictedArgs(2).getText}")
         }
       }
     }
@@ -111,11 +111,11 @@ object ReportHelper {
     writer.println()
   }
 
-  def reportRoleStats(tokenInstances: List[NlpBaseElement], candidates: List[NlpBaseElement], tagName: String): Unit = {
+  def reportRoleStats(instances: List[NlpBaseElement], candidates: List[NlpBaseElement], tagName: String): Unit = {
 
-    val instances = tokenInstances.filter(_.containsProperty(s"${tagName}_id"))
-    val actual = instances.map(_.getPropertyValues(s"${tagName}_id").size()).sum
-    val missingTokens = instances.toSet.diff(candidates.toSet).toList.map(_.getText.toLowerCase())
+    val roleInstances = instances.filter(_.containsProperty(s"${tagName}_id"))
+    val actual = roleInstances.map(_.getPropertyValues(s"${tagName}_id").size()).sum
+    val missingTokens = roleInstances.toSet.diff(candidates.toSet).toList.map(_.getText.toLowerCase())
     val missing = actual - candidates.map(_.getPropertyValues(s"${tagName}_id").size()).sum
 
     println(s"Candidate ${tagName}: ${candidates.size}")

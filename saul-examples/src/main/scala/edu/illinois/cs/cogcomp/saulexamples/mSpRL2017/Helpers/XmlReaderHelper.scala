@@ -123,14 +123,16 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
     reader.getTagAsNlpBaseElement(tag).toList
   }
 
-  def setRoles(tokenInstances: List[NlpBaseElement]): Unit = {
-    val matching = tokenInstances match{
-      case _: List[Token] => XmlMatchings.phraseHeadwordMatching
-      case _: List[Phrase] => XmlMatchings.xmlHeadwordMatching
+  def setRoles(instances: List[NlpBaseElement]): Unit = {
+    if(instances.isEmpty)
+      return
+    val matching = instances.head match{
+      case _: Token => XmlMatchings.elementContainsXmlHeadwordMatching
+      case _: Phrase => XmlMatchings.xmlContainsElementHeadwordMatching
     }
-    reader.addPropertiesFromTag(trTag, tokenInstances, matching)
-    reader.addPropertiesFromTag(lmTag, tokenInstances, matching)
-    reader.addPropertiesFromTag(spTag, tokenInstances, matching)
+    reader.addPropertiesFromTag(trTag, instances, matching)
+    reader.addPropertiesFromTag(lmTag, instances, matching)
+    reader.addPropertiesFromTag(spTag, instances, matching)
   }
 
   def getSentences: List[Sentence] = {
