@@ -68,6 +68,13 @@ object MultiModalSpRLApp extends App with Logging {
       )
       ReportHelper.saveEvalResults(stream, "triplet-all-candidates", allCandidateResults)
 
+      val groundTruthResults = TripletClassifierUtils.test(dataDir, resultsDir, "ground-truth", isTrain, proportion,
+        r => isTrajectorRelation(r),
+        t => indicatorRole(t),
+        r => isLandmarkRelation(r)
+      )
+      ReportHelper.saveEvalResults(stream, "triplet-ground-truth", groundTruthResults)
+
       classifiers.foreach(classifier => {
         classifier.load()
         val results = classifier.test()
