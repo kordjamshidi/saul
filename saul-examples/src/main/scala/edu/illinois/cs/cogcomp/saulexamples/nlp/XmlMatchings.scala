@@ -14,12 +14,14 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml._
   */
 object XmlMatchings {
 
-  val phraseHeadwordMatching = new ISpanElementMatching {
+  val xmlContainsElementHeadwordMatching = new ISpanElementMatching {
 
     override def matches(xmlElement: ISpanElement, element: ISpanElement) = {
-      if (xmlElement.isPartOf(element)) {
-        val p = element.asInstanceOf[Phrase]
-        val head = getHeadword(p)
+      if (xmlElement.overlaps(element)) {
+        val head = element match {
+          case p: Phrase => getHeadword(p)
+          case _ => element
+        }
         xmlElement.contains(head)
       } else {
         false
@@ -27,10 +29,10 @@ object XmlMatchings {
     }
   }
 
-  val xmlHeadwordMatching = new ISpanElementMatching {
+  val elementContainsXmlHeadwordMatching = new ISpanElementMatching {
 
     override def matches(xmlElement: ISpanElement, element: ISpanElement) = {
-      if (xmlElement.contains(element)) {
+      if (xmlElement.overlaps(element)) {
         val (_, start, end) = getHeadword(xmlElement.getText)
         element.getStart <= start + xmlElement.getStart && element.getEnd >= end + xmlElement.getStart
       } else {

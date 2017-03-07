@@ -5,7 +5,7 @@ import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLConstraints._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.{relationToFirstArgument, relationToSecondArgument}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Relation, Token}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation, Token}
 /** Created by parisakordjamshidi on 2/4/17.
   */
 object MultiModalConstrainedClassifiers {
@@ -23,19 +23,19 @@ object MultiModalConstrainedClassifiers {
     //override val pathToHead = Some()
   }
 
-  object LMConstraintClassifier extends ConstrainedClassifier[Token, Relation](LandmarkRoleClassifier) {
+  object LMConstraintClassifier extends ConstrainedClassifier[Phrase, Relation](LandmarkRoleClassifier) {
     def subjectTo = allConstraints
     override val solver = erSolver
     override val pathToHead = Some(-relationToFirstArgument)
   }
 
-  object TRConstraintClassifier extends ConstrainedClassifier[Token, Relation](TrajectorRoleClassifier) {
+  object TRConstraintClassifier extends ConstrainedClassifier[Phrase, Relation](TrajectorRoleClassifier) {
     def subjectTo = allConstraints
     override val solver = erSolver
     override val pathToHead = Some(-relationToFirstArgument)
   }
 
-  object IndicatorConstraintClassifier extends ConstrainedClassifier[Token, Relation](IndicatorRoleClassifier) {
+  object IndicatorConstraintClassifier extends ConstrainedClassifier[Phrase, Relation](IndicatorRoleClassifier) {
     def subjectTo = allConstraints
     override val solver = erSolver
     override val pathToHead = Some(-relationToSecondArgument)

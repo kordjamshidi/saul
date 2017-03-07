@@ -8,10 +8,10 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp
 
 import java.util.Properties
 
-import edu.illinois.cs.cogcomp.core.datastructures.{ ViewNames, _ }
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation, TokenLabelView, TreeView }
+import edu.illinois.cs.cogcomp.core.datastructures.{ViewNames, _}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
 import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
-import edu.illinois.cs.cogcomp.edison.features.factory.{ SubcategorizationFrame, WordFeatureExtractorFactory }
+import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saul.util.Logging
@@ -51,7 +51,10 @@ object LanguageBaseTypeSensors extends Logging {
   }
 
   def phraseToTokenMatching(p: Phrase, t: Token): Boolean = {
-    p.getId == t.getPhrase.getId
+    if (t.getPhrase != null)
+      p.getId == t.getPhrase.getId
+    else
+      p.contains(t)
   }
 
   def sentenceToTokenGenerating(s: Sentence): Seq[Token] = {
@@ -138,11 +141,11 @@ object LanguageBaseTypeSensors extends Logging {
     }
   }
 
-  def isBefore(t1: Token, t2: Token): Boolean = {
+  def isBefore(t1: NlpBaseElement, t2: NlpBaseElement): Boolean = {
     getStartTokenId(t1) < getStartTokenId(t2)
   }
 
-  def getTokenDistance(t1: Token, t2: Token): Int = {
+  def getTokenDistance(t1: NlpBaseElement, t2: NlpBaseElement): Int = {
     Math.abs(getStartTokenId(t1) - getStartTokenId(t2))
   }
 
@@ -254,6 +257,8 @@ object LanguageBaseTypeSensors extends Logging {
 
   private def getTokens(e: NlpBaseElement): Seq[Token] = {
     val ta = getTextAnnotation(e)
+    if (ta == null)
+      return Seq()
     val v = ta.getView(ViewNames.TOKENS)
     val (startId: Int, endId: Int) = getTextAnnotationSpan(e)
     v.getConstituentsCoveringSpan(startId, endId + 1).asScala.map(x =>
@@ -272,6 +277,8 @@ object LanguageBaseTypeSensors extends Logging {
 
   private def getElementConstituents(e: NlpBaseElement): Seq[Constituent] = {
     val s = getSentence(e)
+    if (s == null)
+      return Seq()
     val ta = getTextAnnotation(s)
     val v = ta.getView(ViewNames.TOKENS)
     val startId = ta.getTokenIdFromCharacterOffset(e.getStart)
@@ -281,6 +288,8 @@ object LanguageBaseTypeSensors extends Logging {
 
   private def getTextAnnotation(e: NlpBaseElement): TextAnnotation = {
     val sentence = getSentence(e)
+    if (sentence == null)
+      return null
     if (!sentenceById.contains(sentence.getId)) {
       val ta = TextAnnotationFactory.createTextAnnotation(as, sentence.getDocument.getId, sentence.getId, sentence.getText)
       sentenceById.put(sentence.getId, ta)

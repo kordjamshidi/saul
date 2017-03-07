@@ -3,7 +3,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion.ValidationTest
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{CandidateGenerator, ImageReaderHelper, XmlReaderHelper}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.sentenceToTokenGenerating
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 
 /**
   * Created by Taher on 2017-02-12.
@@ -21,11 +21,11 @@ object DataExplorationApp extends App with Logging {
   val segmentList = imageReader.getSegmentList.filter(s => imageList.exists(_.getId == s.getAssociatedImageID))
   val imageRelationList = imageReader.getImageRelationList.filter(r => imageList.exists(_.getId == r.getImageId))
 
-  val tokens = sentenceList.flatMap(sentenceToTokenGenerating)
-  xmlReader.setTokenRoles(tokens)
-  val trCandidates = CandidateGenerator.getTrajectorCandidates(tokens, true)
-  val lmCandidates = CandidateGenerator.getLandmarkCandidates(tokens, true)
-  val spCandidates = CandidateGenerator.getIndicatorCandidates(tokens, true)
+  val phrases = sentenceList.flatMap(sentenceToPhraseGenerating)
+  xmlReader.setRoles(phrases)
+  val trCandidates = CandidateGenerator.getTrajectorCandidates(phrases, true)
+  val lmCandidates = CandidateGenerator.getLandmarkCandidates(phrases, true)
+  val spCandidates = CandidateGenerator.getIndicatorCandidates(phrases, true)
 
 //  println(trCandidates)
   imageList.foreach(i => println(i.getId))

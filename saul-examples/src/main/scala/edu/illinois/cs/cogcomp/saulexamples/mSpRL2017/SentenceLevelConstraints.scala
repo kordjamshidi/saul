@@ -4,8 +4,8 @@ import edu.illinois.cs.cogcomp.lbjava.infer.{FirstOrderConstant, FirstOrderConst
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Relation, Sentence, Token}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.{sentenceToPhrase, _}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation, Sentence, Token}
 
 /** Created by parisakordjamshidi on 2/9/17.
   */
@@ -14,7 +14,7 @@ object SentenceLevelConstraints {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToToken <~ relationToFirstArgument).foreach {
+      (sentences(s) ~> sentenceToPhrase <~ relationToFirstArgument).foreach {
         x =>
           a = a and (((TrajectorPairClassifier on x) is "TR-SP") ==>
             (TrajectorRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Trajector") and
@@ -27,7 +27,7 @@ object SentenceLevelConstraints {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToToken <~ relationToFirstArgument).foreach {
+      (sentences(s) ~> sentenceToPhrase <~ relationToFirstArgument).foreach {
         x =>
           a = a and ((LandmarkPairClassifier on x) is "LM-SP") ==>
             (LandmarkRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Landmark") and
@@ -52,16 +52,16 @@ object SentenceLevelConstraints {
   val boostIndicator = ConstrainedClassifier.constraint[Sentence] {
     //if there exists a trajector or a landmark in the sentence then there should exist an indicator in the sentence too.
     s: Sentence =>
-      (((sentences(s) ~> sentenceToToken).toList._exists { x: Token => TrajectorRoleClassifier on x is "Trajector" }) or
-        ((sentences(s) ~> sentenceToToken).toList._exists { x: Token => LandmarkRoleClassifier on x is "Landmark" })) ==>
-        ((sentences(s) ~> sentenceToToken).toList._exists { x: Token => IndicatorRoleClassifier on x is "Indicator" })
+      (((sentences(s) ~> sentenceToPhrase).toList._exists { x: Phrase => TrajectorRoleClassifier on x is "Trajector" }) or
+        ((sentences(s) ~> sentenceToPhrase).toList._exists { x: Phrase => LandmarkRoleClassifier on x is "Landmark" })) ==>
+        ((sentences(s) ~> sentenceToPhrase).toList._exists { x: Phrase => IndicatorRoleClassifier on x is "Indicator" })
   }
 
 
   val boostPairs = ConstrainedClassifier.constraint[Sentence] {
     //if there is an indicator in the sentence then there should be a relation in the sentence, though the roles can be null.
     s: Sentence =>
-      (((sentences(s) ~> sentenceToToken).toList._exists { x: Token => IndicatorRoleClassifier on x is "Indicator" }) ==>
+      (((sentences(s) ~> sentenceToPhrase).toList._exists { x: Phrase => IndicatorRoleClassifier on x is "Indicator" }) ==>
         ((sentences(s) ~> sentenceToRelations).toList._exists { x: Relation => TrajectorPairClassifier on x is "TR-SP" })) and
         ((sentences(s) ~> sentenceToRelations).toList._exists { x: Relation => LandmarkPairClassifier on x is "LM-SP" })
   }

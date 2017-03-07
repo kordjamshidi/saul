@@ -1,9 +1,10 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ * <p>
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval;
 
 import edu.illinois.cs.cogcomp.lbjava.classify.TestDiscrete;
@@ -49,32 +50,42 @@ public class SpRLEvaluator {
     }
 
     public List<SpRLEvaluation> evaluateRoles(RolesEvalDocument actual, RolesEvalDocument predicted) {
+        return evaluateRoles(actual, predicted, new DefaultComparer());
+    }
+
+    public List<SpRLEvaluation> evaluateRoles(RolesEvalDocument actual, RolesEvalDocument predicted, EvalComparer comparer) {
 
         List<SpRLEvaluation> evaluations = new ArrayList<>();
 
-        evaluations.add(evaluate("SP", actual.getSpatialIndicators(), predicted.getSpatialIndicators()));
-        evaluations.add(evaluate("TR", actual.getTrajectors(), predicted.getTrajectors()));
-        evaluations.add(evaluate("LM", actual.getLandmarks(), predicted.getLandmarks()));
+        evaluations.add(evaluate("SP", actual.getSpatialIndicators(), predicted.getSpatialIndicators(), comparer));
+        evaluations.add(evaluate("TR", actual.getTrajectors(), predicted.getTrajectors(), comparer));
+        evaluations.add(evaluate("LM", actual.getLandmarks(), predicted.getLandmarks(), comparer));
 
         return evaluations;
     }
 
-    public List<SpRLEvaluation> evaluateRelations(RelationsEvalDocument actual, RelationsEvalDocument predicted){
+    public List<SpRLEvaluation> evaluateRelations(RelationsEvalDocument actual, RelationsEvalDocument predicted) {
+        return evaluateRelations(actual, predicted, new DefaultComparer());
+    }
+
+    public List<SpRLEvaluation> evaluateRelations(RelationsEvalDocument actual, RelationsEvalDocument predicted,
+                                                  EvalComparer comparer) {
 
         List<SpRLEvaluation> evaluations = new ArrayList<>();
-        evaluations.add(evaluate("Relation", actual.getRelations(), predicted.getRelations()));
+        evaluations.add(evaluate("Relation", actual.getRelations(), predicted.getRelations(), comparer));
 
         return evaluations;
     }
 
-    private <T extends SpRLEval> SpRLEvaluation evaluate(String label, List<T> actual, List<T> predicted) {
+    private <T extends SpRLEval> SpRLEvaluation evaluate(String label, List<T> actual, List<T> predicted,
+                                                         EvalComparer comparer) {
         int tp = 0;
         String positive = "+", negative = "-";
         TestDiscrete tester = new TestDiscrete();
 
         for (T a : actual) {
             for (T p : predicted) {
-                if (a.isEqual(p)) {
+                if (comparer.isEqual(a, p)) {
                     tester.reportPrediction(positive, positive);
                     tp++;
                     break;// count each actual occurrence no more than once
