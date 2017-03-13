@@ -1,16 +1,15 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
-import java.io.{File, IOException, PrintWriter}
+import java.io.{ File, IOException, PrintWriter }
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation, Token}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{getCandidateRelations, getPos}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ NlpBaseElement, Phrase, Relation, Token }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{ getCandidateRelations, getPos }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
 
 import scala.io.Source
 
-/**
-  * Created by taher on 2017-02-28.
+/** Created by taher on 2017-02-28.
   */
 object CandidateGenerator {
 

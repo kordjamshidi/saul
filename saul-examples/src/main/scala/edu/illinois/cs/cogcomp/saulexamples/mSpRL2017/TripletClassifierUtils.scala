@@ -1,35 +1,34 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{FileOutputStream, PrintStream, PrintWriter}
+import java.io.{ FileOutputStream, PrintStream, PrintWriter }
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ReportHelper, XmlReaderHelper}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation, Token}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ ReportHelper, XmlReaderHelper }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ NlpBaseElement, Phrase, Relation, Token }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.getHeadword
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
-import scala.util.control.Breaks.{break, breakable}
+import scala.util.control.Breaks.{ break, breakable }
 
-/**
-  * Created by taher on 2017-02-26.
+/** Created by taher on 2017-02-26.
   */
 object TripletClassifierUtils {
 
   import MultiModalSpRLDataModel._
 
   def test(
-            dataDir: String,
-            resultsDir: String,
-            resultsFilePrefix: String,
-            isTrain: Boolean,
-            proportion: DataProportion,
-            trClassifier: (Relation) => String,
-            spClassifier: (Phrase) => String,
-            lmClassifier: (Relation) => String
-          ): Seq[SpRLEvaluation] = {
+    dataDir: String,
+    resultsDir: String,
+    resultsFilePrefix: String,
+    isTrain: Boolean,
+    proportion: DataProportion,
+    trClassifier: (Relation) => String,
+    spClassifier: (Phrase) => String,
+    lmClassifier: (Relation) => String
+  ): Seq[SpRLEvaluation] = {
 
     val predicted: List[(Relation, RelationEval)] = predictWithEval(trClassifier, spClassifier, lmClassifier, isTrain)
     val actual = getActualRelationEvalsPhraseBased(dataDir, proportion)
@@ -49,19 +48,19 @@ object TripletClassifierUtils {
   }
 
   def predict(
-               trClassifier: Relation => String,
-               lmClassifier: Relation => String,
-               spClassifier: (Phrase) => String,
-               isTrain: Boolean = false
-             ): List[Relation] = predictWithEval(trClassifier, spClassifier, lmClassifier, isTrain).map(_._1)
+    trClassifier: Relation => String,
+    lmClassifier: Relation => String,
+    spClassifier: (Phrase) => String,
+    isTrain: Boolean = false
+  ): List[Relation] = predictWithEval(trClassifier, spClassifier, lmClassifier, isTrain).map(_._1)
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private def predictWithEval(
-                               trClassifier: (Relation) => String,
-                               spClassifier: (Phrase) => String,
-                               lmClassifier: (Relation) => String,
-                               isTrain: Boolean
-                             ): List[(Relation, RelationEval)] = {
+    trClassifier: (Relation) => String,
+    spClassifier: (Phrase) => String,
+    lmClassifier: (Relation) => String,
+    isTrain: Boolean
+  ): List[(Relation, RelationEval)] = {
     val instances = if (isTrain) phrases.getTrainingInstances else phrases.getTestingInstances
     val indicators = instances.filter(t => t.getId != dummyPhrase.getId && spClassifier(t) == "Indicator").toList
       .sortBy(x => x.getSentence.getStart + x.getStart)

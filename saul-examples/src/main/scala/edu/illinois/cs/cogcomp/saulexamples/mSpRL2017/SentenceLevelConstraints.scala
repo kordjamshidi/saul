@@ -1,11 +1,11 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.lbjava.infer.{FirstOrderConstant, FirstOrderConstraint}
+import edu.illinois.cs.cogcomp.lbjava.infer.{ FirstOrderConstant, FirstOrderConstraint }
 import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saul.constraint.ConstraintTypeConversion._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.{sentenceToPhrase, _}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation, Sentence, Token}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.{ sentenceToPhrase, _ }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Phrase, Relation, Sentence, Token }
 
 /** Created by parisakordjamshidi on 2/9/17.
   */
@@ -57,7 +57,6 @@ object SentenceLevelConstraints {
         ((sentences(s) ~> sentenceToPhrase).toList._exists { x: Phrase => IndicatorRoleClassifier on x is "Indicator" })
   }
 
-
   val boostPairs = ConstrainedClassifier.constraint[Sentence] {
     //if there is an indicator in the sentence then there should be a relation in the sentence, though the roles can be null.
     s: Sentence =>
@@ -94,6 +93,5 @@ object SentenceLevelConstraints {
 
     x: Sentence => integrityLM(x) and integrityTR(x) and multiLabelPair(x) and boostIndicator(x) //and boostPairs(x)
   }
-
 
 }

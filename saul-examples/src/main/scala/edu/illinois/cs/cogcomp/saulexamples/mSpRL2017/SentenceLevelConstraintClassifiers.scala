@@ -5,7 +5,7 @@ import edu.illinois.cs.cogcomp.saul.classifier.ConstrainedClassifier
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.SentenceLevelConstraints._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Relation, Sentence, Phrase}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Relation, Sentence, Phrase }
 
 /** Created by parisakordjamshidi on 2/9/17.
   */

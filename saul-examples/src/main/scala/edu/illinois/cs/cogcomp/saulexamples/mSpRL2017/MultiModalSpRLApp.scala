@@ -6,12 +6,12 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{File, FileOutputStream}
+import java.io.{ File, FileOutputStream }
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ImageReaderHelper, XmlReaderHelper, ReportHelper}
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ FeatureSets, ImageReaderHelper, XmlReaderHelper, ReportHelper }
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{ LMPairConstraintClassifier, TRPairConstraintClassifier }
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
@@ -44,8 +44,10 @@ object MultiModalSpRLApp extends App with Logging {
     lazy val imageReader = new ImageReaderHelper(dataDir, proportion)
 
     populateDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, featureSet == FeatureSets.WordEmbeddingPlusImage)
-    ReportHelper.saveCandidateList(isTrain,
-      if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList)
+    ReportHelper.saveCandidateList(
+      isTrain,
+      if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList
+    )
 
     classifiers.foreach(x => {
       x.modelDir = s"models/mSpRL/$featureSet/"
@@ -64,15 +66,13 @@ object MultiModalSpRLApp extends App with Logging {
       val allCandidateResults = TripletClassifierUtils.test(dataDir, resultsDir, "all-candidates", isTrain, proportion,
         _ => "TR-SP",
         _ => "Indicator",
-        _ => "LM-SP"
-      )
+        _ => "LM-SP")
       ReportHelper.saveEvalResults(stream, "triplet-all-candidates", allCandidateResults)
 
       val groundTruthResults = TripletClassifierUtils.test(dataDir, resultsDir, "ground-truth", isTrain, proportion,
         r => isTrajectorRelation(r),
         t => indicatorRole(t),
-        r => isLandmarkRelation(r)
-      )
+        r => isLandmarkRelation(r))
       ReportHelper.saveEvalResults(stream, "triplet-ground-truth", groundTruthResults)
 
       classifiers.foreach(classifier => {
@@ -83,8 +83,7 @@ object MultiModalSpRLApp extends App with Logging {
       val results = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain, proportion,
         x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),
-        x => LandmarkPairClassifier(x)
-      )
+        x => LandmarkPairClassifier(x))
       ReportHelper.saveEvalResults(stream, "triplet", results)
 
       /*Pair level constraints
@@ -98,8 +97,7 @@ object MultiModalSpRLApp extends App with Logging {
       val constrainedResults = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain, proportion,
         x => TRPairConstraintClassifier(x),
         x => IndicatorRoleClassifier(x),
-        x => LMPairConstraintClassifier(x)
-      )
+        x => LMPairConstraintClassifier(x))
       ReportHelper.saveEvalResults(stream, s"triplet-constrained", constrainedResults)
 
       /*Sentence level constraints
@@ -123,8 +121,7 @@ object MultiModalSpRLApp extends App with Logging {
       val constrainedPairSentenceResults = TripletClassifierUtils.test(dataDir, resultsDir, featureSet.toString, isTrain,
         proportion, x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x),
-        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x)
-      )
+        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
       ReportHelper.saveEvalResults(stream, "triplet-SentenceConstrained", constrainedPairSentenceResults)
 
       stream.close()

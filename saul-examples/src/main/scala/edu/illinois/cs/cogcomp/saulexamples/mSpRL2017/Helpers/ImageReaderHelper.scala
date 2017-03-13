@@ -2,12 +2,11 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
+import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
 
 import scala.collection.JavaConversions._
 
-/**
-  * Created by taher on 2017-02-28.
+/** Created by taher on 2017-02-28.
   */
 class ImageReaderHelper(dataDir: String, proportion: DataProportion) {
 

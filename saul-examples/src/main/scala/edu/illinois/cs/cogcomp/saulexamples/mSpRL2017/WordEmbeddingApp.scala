@@ -3,7 +3,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors.phraseConceptToWord
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.{ClefDocument, SpRLDataReader}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.{ ClefDocument, SpRLDataReader }
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 import org.deeplearning4j.text.sentenceiterator._
@@ -12,15 +12,13 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
 
 import scala.collection.JavaConversions._
 
-/**
-  * Created by Taher on 2017-02-12.
+/** Created by Taher on 2017-02-12.
   */
 object WordEmbeddingApp extends App with Logging {
 
   val vec = build()
   //val vec = load()
   println(vec.wordsNearest("girl", 5))
-
 
   private def load() = WordVectorSerializer.readWord2VecModel("data/clef.bin")
 
