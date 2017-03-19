@@ -154,12 +154,15 @@ object LanguageBaseTypeSensors extends Logging {
       List.empty
     } else {
       crossProduct(argumentInstances.seq.toList)
+        // don't consider elements that are from different parents(sentences)
         .filter(args => args.filter(_ != null).groupBy {
           case x: Token => x.getSentence.getId
           case x: Phrase => x.getSentence.getId
           case x: Sentence => x.getDocument.getId
           case _ => null
-        }.size <= 1 && args.filter(_ != null).groupBy(_.getId).size == args.count(_ != null))
+        }.size <= 1 && args.filter(_ != null)
+          .groupBy(_.getId).size == args.count(_ != null) // distinct arguments
+        )
         .map(args => {
           val r = new Relation()
           args.zipWithIndex.filter(x => x._1 != null).foreach {
