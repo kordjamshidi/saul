@@ -6,14 +6,13 @@ import edu.illinois.cs.cogcomp.core.utilities.XmlModel
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.FeatureSets
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, NlpBaseElement, Sentence, Token}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{LANDMARK, RELATION, SPATIALINDICATOR, TRAJECTOR}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Document, NlpBaseElement, Sentence, Token }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{ LANDMARK, RELATION, SPATIALINDICATOR, TRAJECTOR }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling._
 
 import scala.collection.JavaConversions._
 
-/**
-  * Created by taher on 2017-02-24.
+/** Created by taher on 2017-02-24.
   */
 object SpRLApp extends App with Logging {
 

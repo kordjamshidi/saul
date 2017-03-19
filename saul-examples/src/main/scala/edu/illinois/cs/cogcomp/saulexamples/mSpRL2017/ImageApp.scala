@@ -1,14 +1,12 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers.{ImageClassifierWeka, ImageSVMClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers.{ ImageClassifierWeka, ImageSVMClassifier }
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 
 import scala.collection.JavaConversions._
 
-
-/**
-  * Created by Taher on 2017-02-20.
+/** Created by Taher on 2017-02-20.
   */
 object ImageApp extends App {
 

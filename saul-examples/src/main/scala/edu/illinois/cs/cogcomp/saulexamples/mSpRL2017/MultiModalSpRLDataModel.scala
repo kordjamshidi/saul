@@ -7,7 +7,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
-import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
+import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
 
 /** Created by Taher on 2017-01-11.
   */
@@ -107,11 +107,11 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val wordForm = property(phrases, cache = true) {
-    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => t.getText.toLowerCase).mkString("|") else ""
+    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => t.getText.toLowerCase).mkString("|") else "None"
   }
 
   val pos = property(phrases, cache = true) {
-    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getPos(t).mkString).mkString("|") else ""
+    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getPos(t).mkString).mkString("|") else "None"
   }
 
   val semanticRole = property(phrases) {
@@ -119,18 +119,18 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val dependencyRelation = property(phrases, cache = true) {
-    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getDependencyRelation(t)).mkString("|") else ""
+    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getDependencyRelation(t)).mkString("|") else "None"
   }
 
   val subCategorization = property(phrases, cache = true) {
-    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getSubCategorization(t)).mkString("|") else ""
+    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getSubCategorization(t)).mkString("|") else "None"
   }
 
   val spatialContext = property(phrases, cache = true) {
     x: Phrase =>
-      val head = if(x == dummyPhrase) null else getHeadword(x)
+      val head = if (x == dummyPhrase) null else getHeadword(x)
       if (x == dummyPhrase)
-        ""
+        "None"
       else if (!Dictionaries.isSpatial(head.getText))
         "0"
       else if (getWindow(head, 0, 5).count(w => Dictionaries.isSpatial(w)) > 1)

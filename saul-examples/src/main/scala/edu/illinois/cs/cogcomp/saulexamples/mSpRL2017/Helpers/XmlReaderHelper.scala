@@ -8,8 +8,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 
 import scala.collection.JavaConversions._
 
-/**
-  * Created by taher on 2017-02-28.
+/** Created by taher on 2017-02-28.
   */
 class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
 
@@ -39,8 +38,7 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
       val c = candidateRelations
         .find(x =>
           x.getArgument(0).getPropertyValues(s"${trTag}_id").contains(r.getArgumentId(0)) &&
-            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1))
-        )
+            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
 
       if (c.nonEmpty) {
         if (c.get.getProperty("RelationType") == "TR-SP") {
@@ -64,8 +62,7 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
       val c = candidateRelations
         .find(x =>
           x.getArgument(0).getPropertyValues(s"${lmTag}_id").contains(r.getArgumentId(0)) &&
-            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1))
-        )
+            x.getArgument(1).getPropertyValues(s"${spTag}_id").contains(r.getArgumentId(1)))
 
       if (c.nonEmpty) {
         if (c.get.getProperty("RelationType") == "LM-SP") {
@@ -124,9 +121,9 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
   }
 
   def setRoles(instances: List[NlpBaseElement]): Unit = {
-    if(instances.isEmpty)
+    if (instances.isEmpty)
       return
-    val matching = instances.head match{
+    val matching = instances.head match {
       case _: Token => XmlMatchings.elementContainsXmlHeadwordMatching
       case _: Phrase => XmlMatchings.xmlContainsElementHeadwordMatching
     }

@@ -2,8 +2,8 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import java.io.File
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Phrase, Relation, Token}
-import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Document, Phrase, Relation, Token }
+import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 
@@ -43,7 +43,7 @@ object MultiModalSpRLSensors {
 
   def getClefWordVector(w: String): List[Double] = getWordVector(clefWord2Vec, w)
 
-  def getAverage(a: List[Double]*): List[Double] = a.head.zipWithIndex.map { case (_, i) => a.map(_ (i)).sum / a.size }
+  def getAverage(a: List[Double]*): List[Double] = a.head.zipWithIndex.map { case (_, i) => a.map(_(i)).sum / a.size }
 
   def imageToSegmentMatching(i: Image, s: Segment): Boolean = {
     i.getId == s.getAssociatedImageID

@@ -3,23 +3,22 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{documentToSentenceGenerating}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{ documentToSentenceGenerating }
 
 import scala.collection.JavaConversions._
 
-/**
-  * Created by Taher on 2017-02-12.
+/** Created by Taher on 2017-02-12.
   */
 
 object MultiModalPopulateData {
 
   def populateDataFromAnnotatedCorpus(
-                                       xmlReader: XmlReaderHelper,
-                                       imageReader: ImageReaderHelper,
-                                       isTrain: Boolean,
-                                       populateImages: Boolean = false,
-                                       populateNullPairs: Boolean = true
-                                     ): Unit = {
+    xmlReader: XmlReaderHelper,
+    imageReader: ImageReaderHelper,
+    isTrain: Boolean,
+    populateImages: Boolean = false,
+    populateNullPairs: Boolean = true
+  ): Unit = {
 
     documents.populate(xmlReader.getDocuments, isTrain)
     sentences.populate(xmlReader.getSentences, isTrain)
@@ -41,7 +40,6 @@ object MultiModalPopulateData {
     val relations = if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList
     xmlReader.setRelationTypes(relations, populateNullPairs)
   }
-
 
   def populateDataFromPlainTextDocuments(documentList: List[Document], populateNullPairs: Boolean = true): Unit = {
 

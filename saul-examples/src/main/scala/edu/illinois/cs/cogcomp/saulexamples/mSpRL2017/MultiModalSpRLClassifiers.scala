@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.lbjava.learn.{SparseNetworkLearner, SupportVectorMachine}
+import edu.illinois.cs.cogcomp.lbjava.learn.{ SparseAveragedPerceptron, SparseNetworkLearner, SupportVectorMachine }
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
@@ -77,7 +77,12 @@ object MultiModalSpRLClassifiers {
   object TrajectorRoleClassifier extends Learnable(phrases) {
     def label = trajectorRole
 
-    override lazy val classifier = new SparseNetworkLearner()
+    override lazy val classifier = new SparseNetworkLearner {
+      val p = new SparseAveragedPerceptron.Parameters()
+      p.learningRate = .1
+      p.thickness = 2
+      baseLTU = new SparseAveragedPerceptron(p)
+    }
 
     override def feature = using(phraseFeatures)
   }
@@ -85,7 +90,13 @@ object MultiModalSpRLClassifiers {
   object LandmarkRoleClassifier extends Learnable(phrases) {
     def label = landmarkRole
 
-    override lazy val classifier = new SparseNetworkLearner()
+    override lazy val classifier = new SparseNetworkLearner {
+      val p = new SparseAveragedPerceptron.Parameters()
+      p.learningRate = .1
+      p.thickness = 2
+      baseLTU = new SparseAveragedPerceptron(p)
+
+    }
 
     override def feature = using(phraseFeatures)
   }
@@ -93,7 +104,12 @@ object MultiModalSpRLClassifiers {
   object IndicatorRoleClassifier extends Learnable(phrases) {
     def label = indicatorRole
 
-    override lazy val classifier = new SparseNetworkLearner()
+    override lazy val classifier = new SparseNetworkLearner {
+      val p = new SparseAveragedPerceptron.Parameters()
+      p.learningRate = .1
+      p.thickness = 2
+      baseLTU = new SparseAveragedPerceptron(p)
+    }
 
     override def feature = using(phraseFeatures(FeatureSets.BaseLine))
   }
@@ -101,7 +117,14 @@ object MultiModalSpRLClassifiers {
   object TrajectorPairClassifier extends Learnable(pairs) {
     def label = isTrajectorRelation
 
-    override lazy val classifier = new SparseNetworkLearner()
+    override lazy val classifier = new SparseNetworkLearner {
+      val p = new SparseAveragedPerceptron.Parameters()
+      p.learningRate = .1
+      p.positiveThickness = 2
+      p.negativeThickness = 1
+      //p.thickness = 4
+      baseLTU = new SparseAveragedPerceptron(p)
+    }
 
     override def feature = using(relationFeatures)
   }
@@ -109,7 +132,13 @@ object MultiModalSpRLClassifiers {
   object LandmarkPairClassifier extends Learnable(pairs) {
     def label = isLandmarkRelation
 
-    override lazy val classifier = new SparseNetworkLearner()
+    override lazy val classifier = new SparseNetworkLearner {
+      val p = new SparseAveragedPerceptron.Parameters()
+      p.learningRate = .1
+      p.positiveThickness = 4
+      p.negativeThickness = 1
+      baseLTU = new SparseAveragedPerceptron(p)
+    }
 
     override def feature = using(relationFeatures)
   }

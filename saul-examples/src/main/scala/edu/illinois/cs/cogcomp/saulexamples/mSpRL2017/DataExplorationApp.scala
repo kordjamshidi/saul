@@ -2,11 +2,10 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion.ValidationTest
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{CandidateGenerator, ImageReaderHelper, XmlReaderHelper}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ CandidateGenerator, ImageReaderHelper, XmlReaderHelper }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 
-/**
-  * Created by Taher on 2017-02-12.
+/** Created by Taher on 2017-02-12.
   */
 object DataExplorationApp extends App with Logging {
 
@@ -27,9 +26,9 @@ object DataExplorationApp extends App with Logging {
   val lmCandidates = CandidateGenerator.getLandmarkCandidates(phrases, true)
   val spCandidates = CandidateGenerator.getIndicatorCandidates(phrases, true)
 
-//  println(trCandidates)
+  //  println(trCandidates)
   imageList.foreach(i => println(i.getId))
-/*
+  /*
   val trlmCandidatesImage = segmentList.map(_.getSegmentConcept)
 
   var concept = ""
