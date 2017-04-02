@@ -8,10 +8,10 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp
 
 import java.util.Properties
 
-import edu.illinois.cs.cogcomp.core.datastructures.{ ViewNames, _ }
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation, TokenLabelView, TreeView }
+import edu.illinois.cs.cogcomp.core.datastructures.{ViewNames, _}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
 import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
-import edu.illinois.cs.cogcomp.edison.features.factory.{ SubcategorizationFrame, WordFeatureExtractorFactory }
+import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saul.util.Logging
@@ -86,6 +86,12 @@ object LanguageBaseTypeSensors extends Logging {
     constituents.map(x => WordFeatureExtractorFactory.pos.getFeatures(x).asScala.mkString)
   }
 
+  def getPhrasePos(p: Phrase): String = {
+    val ta = getTextAnnotation(p)
+    val v = ta.getView(ViewNames.SHALLOW_PARSE)
+    v.getLabelsCoveringSpan(getStartTokenId(p), getEndTokenId(p) + 1).asScala.head
+  }
+
   def getLemma(e: NlpBaseElement): Seq[String] = {
     val constituents = getElementConstituents(e)
     constituents.map(x => WordFeatureExtractorFactory.lemma.getFeatures(x).asScala.mkString)
@@ -156,13 +162,13 @@ object LanguageBaseTypeSensors extends Logging {
       crossProduct(argumentInstances.seq.toList)
         // don't consider elements that are from different parents(sentences)
         .filter(args => args.filter(_ != null).groupBy {
-          case x: Token => x.getSentence.getId
-          case x: Phrase => x.getSentence.getId
-          case x: Sentence => x.getDocument.getId
-          case _ => null
-        }.size <= 1 && args.filter(_ != null)
-          .groupBy(_.getId).size == args.count(_ != null) // distinct arguments
-          )
+        case x: Token => x.getSentence.getId
+        case x: Phrase => x.getSentence.getId
+        case x: Sentence => x.getDocument.getId
+        case _ => null
+      }.size <= 1 && args.filter(_ != null)
+        .groupBy(_.getId).size == args.count(_ != null) // distinct arguments
+      )
         .map(args => {
           val r = new Relation()
           args.zipWithIndex.filter(x => x._1 != null).foreach {
