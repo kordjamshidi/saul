@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
 
 /** Created by taher on 2017-02-28.
   */
-class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
+class SpRLXmlReader(dataDir: String, proportion: DataProportion) {
 
   val trTag = "TRAJECTOR"
   val lmTag = "LANDMARK"
@@ -152,5 +152,4 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
     reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
     reader
   }
-
 }

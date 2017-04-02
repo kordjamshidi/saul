@@ -1,10 +1,18 @@
 # NLP Xml Reader
 An [Xml reader](NlpXmlReader.java) that facilitates reading data from xml files into Saul's NLP 
 [BaseTypes](../BaseTypes/BaseTyps.md).
+The current `` BaseTypes `` include ``"DOCUMENT"`, `"SENTENCE"`, `"PHRASE"`, and `"TOKEN"``.
+
+Assuming that the above mentioned tagnames have been used in the annotated input XML file, the reader can be called via 
+
+``new NlpXmlReader("xml_file.xml")``.
 
 ##Tag Names
-The reader uses `"DOCUMENT"`, `"SENTENCE"`, `"PHRASE"`, and `"TOKEN"` as default tag names 
-for the corresponding base types. You can change them either by the constructor:
+
+The defaul input XML tags that is `"DOCUMENT"`, `"SENTENCE"`, `"PHRASE"`, and `"TOKEN"` can have different tag names in the input file, however, in this case 
+ we will need to indicate the actual tagnames for the corresponding BaseTypes.
+ 
+  We can change them either by the constructor:
 ```java
   NlpXmlReader reader = new NlpXmlReader("xml_file.xml", "Doc_Tag", "Sentence_Tag", "Phrase_Tag", "TokenTag")
 ```

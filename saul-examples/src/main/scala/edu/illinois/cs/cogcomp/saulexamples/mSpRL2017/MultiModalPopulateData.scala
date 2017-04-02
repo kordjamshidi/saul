@@ -13,11 +13,11 @@ import scala.collection.JavaConversions._
 object MultiModalPopulateData {
 
   def populateDataFromAnnotatedCorpus(
-    xmlReader: XmlReaderHelper,
-    imageReader: ImageReaderHelper,
-    isTrain: Boolean,
-    populateImages: Boolean = false,
-    populateNullPairs: Boolean = true
+                                       xmlReader: SpRLXmlReader,
+                                       imageReader: ImageReaderHelper,
+                                       isTrain: Boolean,
+                                       populateImages: Boolean = false,
+                                       populateNullPairs: Boolean = true
   ): Unit = {
 
     documents.populate(xmlReader.getDocuments, isTrain)

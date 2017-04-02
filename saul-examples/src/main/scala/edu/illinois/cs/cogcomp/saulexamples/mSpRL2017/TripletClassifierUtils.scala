@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ReportHelper, XmlReaderHelper}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ReportHelper, SpRLXmlReader}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
 
@@ -66,7 +66,7 @@ object TripletClassifierUtils {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private def getActualRelationEvalsPhraseBased(dataDir: String, proportion: DataProportion): List[Relation] = {
 
-    val reader = new XmlReaderHelper(dataDir, proportion).reader
+    val reader = new SpRLXmlReader(dataDir, proportion).reader
     val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
     reader.setPhraseTagName("TRAJECTOR")
