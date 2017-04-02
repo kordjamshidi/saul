@@ -4,8 +4,9 @@ import java.io.{ FileOutputStream, PrintStream, PrintWriter }
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.dummyPhrase
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ NlpBaseElement, Phrase, Relation, Token }
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{ EvalComparer, RelationEval, SpRLEvaluation, SpRLEvaluator }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
@@ -18,10 +19,13 @@ object ReportHelper {
   def reportRelationResults(
     resultsDir: String,
     resultFilePrefix: String,
-    actual: List[(Relation, RelationEval)],
-    predicted: List[(Relation, RelationEval)],
+    a: List[Relation],
+    p: List[Relation],
     comparer: EvalComparer
-  ): Unit = {
+  ) = {
+    val actual = a.map(r => (r, getRelationEval(r)))
+    val predicted = p.map(r => (r, getRelationEval(r)))
+
     val tp = ListBuffer[(Relation, Relation)]()
     actual.foreach { a =>
       breakable {
@@ -76,6 +80,13 @@ object ReportHelper {
       }
     }
     writer.close()
+
+    val evaluator = new SpRLEvaluator()
+    val actualEval = new RelationsEvalDocument(actual.map(_._2))
+    val predictedEval = new RelationsEvalDocument(predicted.map(_._2))
+    val results = evaluator.evaluateRelations(actualEval, predictedEval, comparer)
+    evaluator.printEvaluation(results)
+    results
   }
 
   def saveCandidateList(isTrain: Boolean, candidateRelations: List[Relation]): Unit = {
@@ -147,6 +158,27 @@ object ReportHelper {
 
   private def convertToEval(r: Results): Seq[SpRLEvaluation] = r.perLabel
     .map(x => new SpRLEvaluation(x.label, x.precision * 100, x.recall * 100, x.f1 * 100, x.labeledSize, x.predictedSize))
+
+  private def getRelationEval(r: Relation): RelationEval = {
+    val tr = r.getArgument(0)
+    val sp = r.getArgument(1)
+    val lm = r.getArgument(2)
+    val offset = sp match {
+      case x: Token => x.getSentence.getStart
+      case x: Phrase => x.getSentence.getStart
+    }
+    val lmStart = if (notNull(lm)) offset + lm.getStart else -1
+    val lmEnd = if (notNull(lm)) offset + lm.getEnd else -1
+    val trStart = if (notNull(tr)) offset + tr.getStart else -1
+    val trEnd = if (notNull(tr)) offset + tr.getEnd else -1
+    val spStart = offset + sp.getStart
+    val spEnd = offset + sp.getEnd
+    new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd)
+  }
+
+  private def notNull(t: NlpBaseElement) = {
+    t != null && t.getId != dummyPhrase.getId && t.getStart >= 0
+  }
 
   private def getDocumentId(e: NlpBaseElement) = {
     e match {

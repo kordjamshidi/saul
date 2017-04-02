@@ -107,11 +107,17 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val wordForm = property(phrases, cache = true) {
-    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => t.getText.toLowerCase).mkString("|") else "None"
+    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).toList.sortBy(_.getStart)
+      .map(t => t.getText.toLowerCase).mkString("|") else "None"
   }
 
   val pos = property(phrases, cache = true) {
-    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getPos(t).mkString).mkString("|") else "None"
+    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).toList.sortBy(_.getStart)
+      .map(t => getPos(t).mkString).mkString("|") else "None"
+  }
+
+  val phrasePos = property(phrases, cache = true) {
+    x: Phrase => if (x != dummyPhrase) getPhrasePos(x) else "None"
   }
 
   val semanticRole = property(phrases) {
@@ -119,11 +125,13 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val dependencyRelation = property(phrases, cache = true) {
-    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getDependencyRelation(t)).mkString("|") else "None"
+    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).toList.sortBy(_.getStart)
+      .map(t => getDependencyRelation(t)).mkString("|") else "None"
   }
 
   val subCategorization = property(phrases, cache = true) {
-    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).map(t => getSubCategorization(t)).mkString("|") else "None"
+    x: Phrase => if (x != dummyPhrase) (phrases(x) ~> phraseToToken).toList.sortBy(_.getStart)
+      .map(t => getSubCategorization(t)).mkString("|") else "None"
   }
 
   val spatialContext = property(phrases, cache = true) {
@@ -204,6 +212,12 @@ object MultiModalSpRLDataModel extends DataModel {
     r: Relation =>
       val (first, second) = getArguments(r)
       pos(first) + "::" + pos(second)
+  }
+
+  val relationPhrasePos = property(pairs, cache = true) {
+    r: Relation =>
+      val (first, second) = getArguments(r)
+      phrasePos(first) + "::" + phrasePos(second)
   }
 
   val relationSemanticRole = property(pairs, cache = true) {
