@@ -1,28 +1,28 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
-import java.io.{FileOutputStream, PrintStream, PrintWriter}
+import java.io.{ FileOutputStream, PrintStream, PrintWriter }
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.dummyPhrase
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation, Token}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ NlpBaseElement, Phrase, Relation, Token }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
-import scala.util.control.Breaks.{break, breakable}
+import scala.util.control.Breaks.{ break, breakable }
 
-/**
-  * Created by taher on 2017-02-28.
+/** Created by taher on 2017-02-28.
   */
 object ReportHelper {
 
-  def reportRelationResults(resultsDir: String,
-                            resultFilePrefix: String,
-                            a: List[Relation],
-                            p: List[Relation],
-                            comparer: EvalComparer
-                           ) = {
+  def reportRelationResults(
+    resultsDir: String,
+    resultFilePrefix: String,
+    a: List[Relation],
+    p: List[Relation],
+    comparer: EvalComparer
+  ) = {
     val actual = a.map(r => (r, getRelationEval(r)))
     val predicted = p.map(r => (r, getRelationEval(r)))
 
@@ -44,8 +44,9 @@ object ReportHelper {
     fp.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
-        list.foreach { case (r, _) =>
-          writer.println(s"${r.getArgument(0).getText} -> ${r.getArgument(1).getText} -> ${r.getArgument(2).getText}")
+        list.foreach {
+          case (r, _) =>
+            writer.println(s"${r.getArgument(0).getText} -> ${r.getArgument(1).getText} -> ${r.getArgument(2).getText}")
         }
       }
     }
@@ -55,9 +56,10 @@ object ReportHelper {
     fn.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
-        list.foreach { case (r, _) =>
-          val args = r.getArguments.toList
-          writer.println(s"${r.getId} : ${args(0).getText} -> ${args(1).getText} -> ${args(2).getText}")
+        list.foreach {
+          case (r, _) =>
+            val args = r.getArguments.toList
+            writer.println(s"${r.getId} : ${args(0).getText} -> ${args(1).getText} -> ${args(2).getText}")
         }
       }
     }
@@ -67,12 +69,13 @@ object ReportHelper {
     tp.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
-        list.foreach { case (a, p) =>
-          val actualArgs = a.getArguments.toList
-          val predictedArgs = p.getArguments.toList
-          writer.println(s"${a.getId} : ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
-            s"${actualArgs(2).getText}   ${predictedArgs(0).getText} -> ${predictedArgs(1).getText} -> " +
-            s"${predictedArgs(2).getText}")
+        list.foreach {
+          case (a, p) =>
+            val actualArgs = a.getArguments.toList
+            val predictedArgs = p.getArguments.toList
+            writer.println(s"${a.getId} : ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
+              s"${actualArgs(2).getText}   ${predictedArgs(0).getText} -> ${predictedArgs(1).getText} -> " +
+              s"${predictedArgs(2).getText}")
         }
       }
     }
@@ -105,8 +108,7 @@ object ReportHelper {
     val name = if (isTrain) "Train" else "Test"
     val writer = new PrintWriter(s"data/mSprl/results/RoleCandidates-${name}.txt")
     candidateRelations.foreach(x =>
-      writer.println(s"(${getArg(0, x)}, ${getArg(1, x)})[${print(x)}] -> ${x.getProperty("RelationType")}")
-    )
+      writer.println(s"(${getArg(0, x)}, ${getArg(1, x)})[${print(x)}] -> ${x.getProperty("RelationType")}"))
     writer.close()
   }
 
@@ -135,7 +137,7 @@ object ReportHelper {
   }
 
   def reportRelationStats(candidateRelations: List[Relation], goldTrajectorRelations: List[Relation],
-                          goldLandmarkRelations: List[Relation]): Unit = {
+    goldLandmarkRelations: List[Relation]): Unit = {
 
     val missedTrSp = goldTrajectorRelations.size - candidateRelations.count(_.getProperty("RelationType") == "TR-SP")
     println(s"actual TR-SP: ${goldTrajectorRelations.size}")

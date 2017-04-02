@@ -162,7 +162,7 @@ object LanguageBaseTypeSensors extends Logging {
           case _ => null
         }.size <= 1 && args.filter(_ != null)
           .groupBy(_.getId).size == args.count(_ != null) // distinct arguments
-        )
+          )
         .map(args => {
           val r = new Relation()
           args.zipWithIndex.filter(x => x._1 != null).foreach {

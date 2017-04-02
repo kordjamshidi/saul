@@ -6,16 +6,17 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{File, FileOutputStream}
+import java.io.{ File, FileOutputStream }
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ImageReaderHelper, XmlReaderHelper, ReportHelper}
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ FeatureSets, ImageReaderHelper, SpRLXmlReader, ReportHelper }
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{ LMPairConstraintClassifier, TRPairConstraintClassifier }
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import org.apache.commons.io.FileUtils
+import mSpRLConfigurator._
 
 object MultiModalSpRLApp extends App with Logging {
 
@@ -29,8 +30,7 @@ object MultiModalSpRLApp extends App with Logging {
     TrajectorPairClassifier,
     LandmarkPairClassifier
   )
-  val resultsDir = s"data/mSpRL/results/"
-  val dataDir = "data/mSprl/saiapr_tc-12/"
+
   FileUtils.forceMkdir(new File(resultsDir))
 
   val suffix = if (useVectorAverages) "_vecAvg" else ""
@@ -40,7 +40,7 @@ object MultiModalSpRLApp extends App with Logging {
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 
-    lazy val xmlReader = new XmlReaderHelper(textDataPath)
+    lazy val xmlReader = new SpRLXmlReader(textDataPath)
     lazy val imageReader = new ImageReaderHelper(dataDir, imageDataProportion)
 
     val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage

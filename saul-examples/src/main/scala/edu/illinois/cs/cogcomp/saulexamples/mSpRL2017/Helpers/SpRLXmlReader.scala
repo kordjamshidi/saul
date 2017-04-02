@@ -10,14 +10,14 @@ import scala.collection.JavaConversions._
 
 /** Created by taher on 2017-02-28.
   */
-class XmlReaderHelper(dataPath: String) {
+class SpRLXmlReader(dataPath: String) {
 
   val trTag = "TRAJECTOR"
   val lmTag = "LANDMARK"
   val spTag = "SPATIALINDICATOR"
   val relationTag = "RELATION"
 
-  lazy val reader: NlpXmlReader = createXmlReader()
+  lazy val reader = createXmlReader()
 
   def setRelationTypes(candidateRelations: List[Relation], populateNullPairs: Boolean): Unit = {
 
