@@ -45,6 +45,9 @@ public class CLEFImageReader
 
     private Hashtable<Integer, String> MapCode2Concept = new Hashtable<Integer, String>();
     private Hashtable<String, String> segmentOntology = new Hashtable<String, String>();
+    private Hashtable<String, String> redefindedRelations = new Hashtable<String, String>();
+
+    PrintWriter printWriterTest;
 
     public CLEFImageReader(String directory, Boolean readFullData) throws IOException {
         File d = new File(directory);
@@ -72,6 +75,8 @@ public class CLEFImageReader
         testRelations = new ArrayList<>();
 
         path = directory;
+        // Load redefined segment relations
+        getRedefinedRelations(directory);
         // Load Concepts
         getConcepts(directory);
         // Load Training
@@ -80,6 +85,9 @@ public class CLEFImageReader
         getTestImages();
         // Load all Images
         getallImages(directory);
+
+        // Print Segments with x-align or y-align relations
+//        printImageInformation();
 
         System.out.println("Total Train Data " + trainingData.size());
 
@@ -114,7 +122,7 @@ public class CLEFImageReader
     /*******************************************************/
     private void getConcepts(String directory) throws IOException
     {
-        String file = directory + "/wlist100.txt";
+        String file = directory + "/wlist.txt";
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
         while ((line = reader.readLine()) != null) {
@@ -124,6 +132,36 @@ public class CLEFImageReader
             }
             else {
                 MapCode2Concept.put(Integer.parseInt(CodesInfo[0]), " ");
+            }
+        }
+    }
+
+    private void getRedefinedRelations(String directory) throws IOException
+    {
+        directory = directory + "/relations";
+        File d = new File(directory);
+
+        if (!d.exists()) {
+            throw new IOException(directory + " does not exist!");
+        }
+
+        if (!d.isDirectory()) {
+            throw new IOException(directory + " is not a directory!");
+        }
+        for (File f : d.listFiles()) {
+            if (f.isFile()) {
+                String name = f.getName();
+                String imageFile = directory + "/" + name;
+                String[] fileName = name.split("-");
+                String[] imageId = fileName[1].split("\\.");
+                String line;
+                BufferedReader reader = new BufferedReader(new FileReader(imageFile));
+                while ((line = reader.readLine()) != null) {
+                    String[] relationInfo = line.split(",");
+                    String key = (imageId[0]).trim() + "-" + (relationInfo[1]).trim() + "-" + (relationInfo[3]).trim() + "-" + (relationInfo[5]).trim();
+                    redefindedRelations.put(key,relationInfo[0]);
+                }
+                reader.close();
             }
         }
     }
@@ -230,6 +268,7 @@ public class CLEFImageReader
                     }
                 }
             }
+            reader.close();
         }
     }
 
@@ -268,9 +307,10 @@ public class CLEFImageReader
                                 val = (int) topo[x][y];
                                 if (val == 1)
                                     rel = "adjacent";
-//                              ****** Ignoring as not required in mSpRL
-//                                else if (val == 2)
-//                                    rel = "disjoint";
+                                else if (val == 2)
+                                    rel = null;
+                                    // Ignoring disjoint relations
+                                    // rel = "disjoint";
                                 else
                                     rel = null;
 
@@ -285,11 +325,11 @@ public class CLEFImageReader
                                 val = (int) xRels[x][y];
                                 if (val == 3)
                                     rel = "beside";
-//                              ****** Ignoring as not required in mSpRL
-//                                else if (val == 4)
-//                                    rel = "x-aligned";
-                                else
-                                    rel = null;
+                                else if (val == 4) {
+                                    // Original "x-aligned"
+                                    String key = imgId + "-" + firstSegmentId + "-" + secondSegmentId + "-" + "x-aligned";
+                                    rel = redefindedRelations.get(key);
+                                }
 
                                 if(rel!=null) {
                                     if (trainingData.contains(imgId)) {
@@ -302,14 +342,18 @@ public class CLEFImageReader
 
                                 val = (int) yRels[x][y];
                                 if (val == 5)
-                                    rel = "above";
-                                else if (val == 6)
-                                    rel = "below";
-//                               ****** Ignoring as not required in mSpRL
-//                                else if (val == 7)
-//                                    rel = "y-aligned";
-                                else
                                     rel = null;
+                                    // Ignoring above relations
+                                    // rel = "above";
+                                else if (val == 6)
+                                    rel = null;
+                                    // Ignoring below relations
+                                    //rel = "below";
+                                else if (val == 7) {
+                                    // Original "y-aligned"
+                                    String key = imgId + "-" + firstSegmentId + "-" + secondSegmentId + "-" + "x-aligned";
+                                    rel = redefindedRelations.get(key);
+                                }
 
                                 if(rel!=null) {
                                     if (trainingData.contains(imgId)) {
@@ -336,7 +380,7 @@ public class CLEFImageReader
             getMatData(trainImage, true);
         }
         else {
-            String trainImage = path + "/sprl2017_train.xml";
+            String trainImage = path + "/sprl2017_validation_train.xml";
             getXMLImages(trainImage, true);
         }
     }
@@ -349,7 +393,7 @@ public class CLEFImageReader
             String testImage = path + "/testing.mat";
             getMatData(testImage, false);
         } else {
-            String testImage = path + "/sprl2017_gold.xml";
+            String testImage = path + "/sprl2017_validation_test.xml";
             getXMLImages(testImage, false);
         }
     }
@@ -429,5 +473,52 @@ public class CLEFImageReader
                 }
             }
         }
+    }
+
+    private void printImageInformation() throws IOException {
+        // Test Images
+        for (Image i : testImages) {
+            String path = "data/mSpRL/results/imagetest/" + i.getId() + ".txt";
+            printWriterTest = new PrintWriter(path);
+            for (SegmentRelation sr : testRelations) {
+                if (i.getId().equals(sr.getImageId())&& (sr.getRelation().equals("x-aligned")||sr.getRelation().equals("y-aligned")))
+                    printWriterTest.println(sr.getFirstSegmentId() + "," + sr.getSecondSegmentId() + "," + sr.getRelation() + "," + getTestSegmentConcept(sr.getImageId(), sr.getFirstSegmentId()) + "," + getTestSegmentConcept(sr.getImageId(), sr.getSecondSegmentId()));
+            }
+            printWriterTest.close();
+        }
+        // Train Images
+        for (Image i : trainingImages) {
+            String path = "data/mSpRL/results/imagetrain/" + i.getId() + ".txt";
+            printWriterTest = new PrintWriter(path);
+            for (SegmentRelation sr : trainingRelations) {
+                if (i.getId().equals(sr.getImageId())&& (sr.getRelation().equals("x-aligned")||sr.getRelation().equals("y-aligned")))
+                    printWriterTest.println(sr.getFirstSegmentId() + "," + sr.getSecondSegmentId() + "," + sr.getRelation() + "," + getTrainSegmentConcept(sr.getImageId(), sr.getFirstSegmentId()) + "," + getTrainSegmentConcept(sr.getImageId(), sr.getSecondSegmentId()));
+            }
+            printWriterTest.close();
+        }
+    }
+
+    private String getTestSegmentConcept(String imageID, int segmentSeq) {
+        String concept = null;
+        for (int i=0; i<testSegments.size(); i++) {
+            Segment s = testSegments.get(i);
+            if (imageID.equals(s.getAssociatedImageID())&& (segmentSeq==s.getSegmentId())) {
+                concept = s.getSegmentConcept();
+                return concept;
+            }
+        }
+        return concept;
+    }
+
+    private String getTrainSegmentConcept(String imageID, int segmentSeq) {
+        String concept = null;
+        for (int i=0; i<trainingSegments.size(); i++) {
+            Segment s = trainingSegments.get(i);
+            if (imageID.equals(s.getAssociatedImageID())&& (segmentSeq==s.getSegmentId())) {
+                concept = s.getSegmentConcept();
+                return concept;
+            }
+        }
+        return concept;
     }
 }
