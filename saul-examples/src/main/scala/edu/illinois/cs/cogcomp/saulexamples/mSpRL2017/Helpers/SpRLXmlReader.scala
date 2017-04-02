@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
 
 /** Created by taher on 2017-02-28.
   */
-class SpRLXmlReader (dataPath: String) {
+class SpRLXmlReader(dataPath: String) {
 
   val trTag = "TRAJECTOR"
   val lmTag = "LANDMARK"
