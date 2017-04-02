@@ -15,18 +15,17 @@ object TripletClassifierUtils {
   import MultiModalSpRLDataModel._
 
   def test(
-            dataDir: String,
+            dataPath: String,
             resultsDir: String,
             resultsFilePrefix: String,
             isTrain: Boolean,
-            proportion: DataProportion,
             trClassifier: (Relation) => String,
             spClassifier: (Phrase) => String,
             lmClassifier: (Relation) => String
           ): Seq[SpRLEvaluation] = {
 
     val predicted: List[Relation] = predict(trClassifier, spClassifier, lmClassifier, isTrain)
-    val actual = getActualRelationEvalsPhraseBased(dataDir, proportion)
+    val actual = getActualRelationEvalsPhraseBased(dataPath)
 
     val comparer = new EvalComparer {
       override def isEqual(a: SpRLEval, b: SpRLEval) = a.asInstanceOf[RelationEval].overlaps(b.asInstanceOf[RelationEval])
@@ -64,9 +63,9 @@ object TripletClassifierUtils {
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  private def getActualRelationEvalsPhraseBased(dataDir: String, proportion: DataProportion): List[Relation] = {
+  private def getActualRelationEvalsPhraseBased(dataPath: String): List[Relation] = {
 
-    val reader = new XmlReaderHelper(dataDir, proportion).reader
+    val reader = new XmlReaderHelper(dataPath).reader
     val relations = reader.getRelations("RELATION", "trajector_id", "spatial_indicator_id", "landmark_id")
 
     reader.setPhraseTagName("TRAJECTOR")

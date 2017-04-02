@@ -10,14 +10,14 @@ import scala.collection.JavaConversions._
 
 /** Created by taher on 2017-02-28.
   */
-class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
+class XmlReaderHelper(dataPath: String) {
 
   val trTag = "TRAJECTOR"
   val lmTag = "LANDMARK"
   val spTag = "SPATIALINDICATOR"
   val relationTag = "RELATION"
 
-  lazy val reader = createXmlReader()
+  lazy val reader: NlpXmlReader = createXmlReader()
 
   def setRelationTypes(candidateRelations: List[Relation], populateNullPairs: Boolean): Unit = {
 
@@ -141,14 +141,7 @@ class XmlReaderHelper(dataDir: String, proportion: DataProportion) {
   }
 
   private def createXmlReader(): NlpXmlReader = {
-    val path = dataDir + "sprl2017_" + (proportion match {
-      case Train => "train.xml"
-      case ValidationTrain => "validation_train.xml"
-      case ValidationTest => "validation_test.xml"
-      case Test => "gold.xml"
-      case All => "all.xml"
-    })
-    val reader = new NlpXmlReader(path, "SCENE", "SENTENCE", null, null)
+    val reader = new NlpXmlReader(dataPath, "SCENE", "SENTENCE", null, null)
     reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
     reader
   }
