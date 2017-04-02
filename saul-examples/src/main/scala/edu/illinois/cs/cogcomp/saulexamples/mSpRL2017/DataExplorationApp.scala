@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion.ValidationTest
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ CandidateGenerator, ImageReaderHelper, XmlReaderHelper }
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ CandidateGenerator, ImageReaderHelper, SpRLXmlReader }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 
 /** Created by Taher on 2017-02-12.
