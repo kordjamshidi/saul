@@ -18,7 +18,6 @@ object TripletClassifierUtils {
     resultsDir: String,
     resultsFilePrefix: String,
     isTrain: Boolean,
-    proportion: DataProportion,
     trClassifier: (Relation) => String,
     spClassifier: (Phrase) => String,
     lmClassifier: (Relation) => String

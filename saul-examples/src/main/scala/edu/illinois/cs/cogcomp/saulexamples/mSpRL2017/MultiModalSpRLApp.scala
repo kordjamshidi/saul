@@ -35,13 +35,13 @@ object MultiModalSpRLApp extends App with Logging {
 
   val suffix = if (useVectorAverages) "_vecAvg" else ""
 
-  runClassifiers(true, dataDir + "sprl2017_validation_train", ValidationTrain)
-  runClassifiers(false, dataDir + "sprl2017_validation_test", ValidationTest)
+  runClassifiers(true, dataPath + "sprl2017_validation_train", ValidationTrain)
+  runClassifiers(false, dataPath + "sprl2017_validation_test", ValidationTest)
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 
     lazy val xmlReader = new SpRLXmlReader(textDataPath)
-    lazy val imageReader = new ImageReaderHelper(dataDir, imageDataProportion)
+    lazy val imageReader = new ImageReaderHelper(dataPath, imageDataProportion)
 
     val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage
     populateDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, populateImages)
