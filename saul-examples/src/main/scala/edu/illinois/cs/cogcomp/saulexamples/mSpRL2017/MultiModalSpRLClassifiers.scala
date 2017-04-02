@@ -23,7 +23,7 @@ object MultiModalSpRLClassifiers {
   def phraseFeatures: List[Property[Phrase]] = phraseFeatures(featureSet)
 
   def phraseFeatures(featureSet: FeatureSets): List[Property[Phrase]] =
-    List(wordForm, pos, semanticRole, dependencyRelation, subCategorization, spatialContext) ++
+    List(wordForm, pos, phrasePos, semanticRole, dependencyRelation, subCategorization, spatialContext) ++
       (featureSet match {
         case FeatureSets.WordEmbedding => List(tokenVector)
         case FeatureSets.WordEmbeddingPlusImage => List(tokenVector, isTokenAnImageConcept, nearestSegmentConceptVector)
@@ -33,7 +33,7 @@ object MultiModalSpRLClassifiers {
   def relationFeatures: List[Property[Relation]] = relationFeatures(featureSet)
 
   def relationFeatures(featureSet: FeatureSets): List[Property[Relation]] =
-    List(relationWordForm, relationPos, relationSemanticRole, relationDependencyRelation,
+    List(relationWordForm, relationPos, relationPhrasePos, relationSemanticRole, relationDependencyRelation,
       relationSubCategorization, relationSpatialContext, distance, before, isTrajectorCandidate, isLandmarkCandidate,
       isIndicatorCandidate) ++
       (featureSet match {

@@ -116,6 +116,10 @@ object MultiModalSpRLDataModel extends DataModel {
       .map(t => getPos(t).mkString).mkString("|") else "None"
   }
 
+  val phrasePos = property(phrases, cache = true) {
+    x: Phrase => if (x != dummyPhrase) getPhrasePos(x) else "None"
+  }
+
   val semanticRole = property(phrases) {
     x: Phrase => "" //getSemanticRole(x)
   }
@@ -208,6 +212,12 @@ object MultiModalSpRLDataModel extends DataModel {
     r: Relation =>
       val (first, second) = getArguments(r)
       pos(first) + "::" + pos(second)
+  }
+
+  val relationPhrasePos = property(pairs, cache = true) {
+    r: Relation =>
+      val (first, second) = getArguments(r)
+      phrasePos(first) + "::" + phrasePos(second)
   }
 
   val relationSemanticRole = property(pairs, cache = true) {
