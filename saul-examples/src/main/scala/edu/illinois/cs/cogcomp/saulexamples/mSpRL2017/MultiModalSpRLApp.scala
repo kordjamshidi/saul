@@ -35,8 +35,8 @@ object MultiModalSpRLApp extends App with Logging {
 
   val suffix = if (useVectorAverages) "_vecAvg" else ""
 
-  runClassifiers(true, dataPath + "sprl2017_validation_train", ValidationTrain)
-  runClassifiers(false, dataPath + "sprl2017_validation_test", ValidationTest)
+  runClassifiers(true, dataPath + "sprl2017_validation_train.xml", ValidationTrain)
+  runClassifiers(false, dataPath + "sprl2017_validation_test.xml", ValidationTest)
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 
