@@ -123,13 +123,10 @@ class SpRLXmlReader(dataPath: String) {
   def setRoles(instances: List[NlpBaseElement]): Unit = {
     if (instances.isEmpty)
       return
-    val matching = instances.head match {
-      case _: Token => XmlMatchings.elementContainsXmlHeadwordMatching
-      case _: Phrase => XmlMatchings.xmlContainsElementHeadwordMatching
-    }
-    reader.addPropertiesFromTag(trTag, instances, matching)
-    reader.addPropertiesFromTag(lmTag, instances, matching)
-    reader.addPropertiesFromTag(spTag, instances, matching)
+
+    reader.addPropertiesFromTag(trTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
+    reader.addPropertiesFromTag(lmTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
+    reader.addPropertiesFromTag(spTag, instances, XmlMatchings.elementContainsXmlPrepositionMatching)
   }
 
   def getSentences: List[Sentence] = {

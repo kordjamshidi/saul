@@ -112,6 +112,12 @@ object LanguageBaseTypeSensors extends Logging {
     new Token(p, p.getId + head.getSpan, head.getStartCharOffset, head.getEndCharOffset, head.toString)
   }
 
+  def getTokens(text: String): List[Token] = {
+    val ta = TextAnnotationFactory.createTextAnnotation(as, "", "", text)
+    ta.getView(ViewNames.TOKENS).getConstituents.asScala.map(x=>
+      new Token(null.asInstanceOf[Sentence], null, x.getStartCharOffset, x.getEndCharOffset, x.toString)).toList
+  }
+
   def getHeadword(text: String): (String, Int, Int) = {
     val ta = TextAnnotationFactory.createTextAnnotation(as, "", "", text)
     val phrase = new Constituent("temp", "", ta, 0, ta.getTokens.length)
