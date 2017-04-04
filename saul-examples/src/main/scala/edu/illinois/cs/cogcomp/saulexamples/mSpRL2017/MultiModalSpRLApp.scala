@@ -130,7 +130,7 @@ object MultiModalSpRLApp extends App with Logging {
   }
 
   //  val constrainedClassifiers =  List(
-  //    SentenceLevelConstraintClassifiers.TRConstraintClassifier,
+  //  SentenceLevelConstraintClassifiers.TRConstraintClassifier,
   //    SentenceLevelConstraintClassifiers.LMConstraintClassifier,
   //    SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier,
   //    SentenceLevelConstraintClassifiers.TRPairConstraintClassifier,
