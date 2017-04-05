@@ -30,7 +30,7 @@ object TripletClassifierUtils {
       override def isEqual(a: SpRLEval, b: SpRLEval) = a.asInstanceOf[RelationEval].overlaps(b.asInstanceOf[RelationEval])
     }
 
-    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix, actual, predicted, comparer)
+    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + "_triplet", actual, predicted, comparer)
   }
 
   def predict(

@@ -40,7 +40,7 @@ object ReportHelper {
     val fp = predicted.filterNot(x => tp.exists(_._2 == x._1))
     val fn = actual.filterNot(x => tp.exists(_._1 == x._1))
 
-    var writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}_triplet-fp.txt")
+    var writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}-fp.txt")
     fp.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
@@ -52,7 +52,7 @@ object ReportHelper {
     }
     writer.close()
 
-    writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}_triplet-fn.txt")
+    writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}-fn.txt")
     fn.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")
@@ -65,7 +65,7 @@ object ReportHelper {
     }
     writer.close()
 
-    writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}_triplet-tp.txt")
+    writer = new PrintWriter(s"$resultsDir/${resultFilePrefix}-tp.txt")
     tp.groupBy(x => getDocumentId(x._1.getArgument(1))).toList.sortBy(_._1).foreach {
       case (key, list) => {
         writer.println(s"===================================== ${key} ==================================")

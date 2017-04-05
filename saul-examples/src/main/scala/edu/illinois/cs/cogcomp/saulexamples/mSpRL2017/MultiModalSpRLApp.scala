@@ -6,12 +6,12 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{ File, FileOutputStream }
+import java.io.{File, FileOutputStream}
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ FeatureSets, ImageReaderHelper, SpRLXmlReader, ReportHelper }
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{ LMPairConstraintClassifier, TRPairConstraintClassifier }
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ImageReaderHelper, SpRLXmlReader, ReportHelper}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
@@ -78,6 +78,12 @@ object MultiModalSpRLApp extends App with Logging {
 
       classifiers.foreach(classifier => {
         classifier.load()
+        if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
+          val predicted = pairs.getTestingInstances.filter(x => classifier(x) != "None").toList
+          val results = PairClassifierUtils.evaluate(predicted, textDataPath, resultsDir, featureSet.toString, isTrain,
+            classifier == TrajectorPairClassifier)
+          ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}-xml", results)
+        }
         val results = classifier.test()
         ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}", results)
       })
