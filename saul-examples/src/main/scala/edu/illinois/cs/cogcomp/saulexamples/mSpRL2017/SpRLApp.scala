@@ -60,7 +60,7 @@ object SpRLApp extends App with Logging {
       new Document(file.getName, -1, -1, text)
     }).toList
 
-    MultiModalPopulateData.populateDataFromPlainTextDocuments(documentList)
+    MultiModalPopulateData.populateDataFromPlainTextDocuments(documentList, x=> IndicatorRoleClassifier(x) == "Indicator")
 
     val relationList = TripletClassifierUtils.predict(
       x => TrajectorPairClassifier(x),

@@ -15,7 +15,7 @@ import scala.io.Source
   */
 object CandidateGenerator {
 
-  def generatePairCandidates(phraseInstances: List[Phrase], populateNullPairs: Boolean): List[Relation] = {
+  def generatePairCandidates(phraseInstances: List[Phrase], populateNullPairs: Boolean, indicatorClassifier: Phrase => Boolean): List[Relation] = {
 
     val trCandidates = getTrajectorCandidates(phraseInstances)
     trCandidates.foreach(_.addPropertyValue("TR-Candidate", "true"))
@@ -23,7 +23,7 @@ object CandidateGenerator {
     val lmCandidates = getLandmarkCandidates(phraseInstances)
     lmCandidates.foreach(_.addPropertyValue("LM-Candidate", "true"))
 
-    val spCandidates = getIndicatorCandidates(phraseInstances)
+    val spCandidates = phraseInstances.filter(indicatorClassifier) // getIndicatorCandidates(phraseInstances)
     spCandidates.foreach(_.addPropertyValue("SP-Candidate", "true"))
 
     val firstArgCandidates = (if (populateNullPairs) List(null) else List()) ++
@@ -43,7 +43,7 @@ object CandidateGenerator {
 
   def getIndicatorCandidates(phrases: List[Phrase]): List[Phrase] = {
 
-    val spLex = spatialIndicatorLexicon
+    val spLex = LexiconHelper.spatialIndicatorLexicon
     val spPosTagLex = List("IN", "TO")
     val spCandidates = phrases
       .filter(x =>
@@ -68,28 +68,6 @@ object CandidateGenerator {
     val trCandidates = phrases.filter(x => trPosTagLex.exists(p => getPos(x).contains(p)))
     ReportHelper.reportRoleStats(phrases, trCandidates, "TRAJECTOR")
     trCandidates
-  }
-
-  def createSpatialIndicatorLexicon(xmlReader: SpRLXmlReader, minFreq: Int = 1): Unit = {
-    val lexFile = new File(mSpRLConfigurator.spatialIndicatorLex)
-    xmlReader.reader.setPhraseTagName("SPATIALINDICATOR")
-    val indicators = xmlReader.reader.getPhrases()
-    val sps = indicators.groupBy(_.getText.toLowerCase)
-      .map { case (key, list) => (key, list.size, list) }
-      .filter(_._2 >= minFreq)
-      .map(_._1)
-
-    val writer = new PrintWriter(lexFile)
-    sps.foreach(p => writer.println(p))
-    writer.close()
-  }
-
-  lazy val spatialIndicatorLexicon: List[String] = {
-
-    val lexFile = new File(mSpRLConfigurator.spatialIndicatorLex)
-    if (!lexFile.exists())
-      throw new IOException(s"cannot find ${lexFile.getAbsolutePath} file")
-    Source.fromFile(lexFile).getLines().toList
   }
 
   private def getRolePosTagLexicon(phrases: List[Phrase], tagName: String, minFreq: Int, generate: Boolean): List[String] = {

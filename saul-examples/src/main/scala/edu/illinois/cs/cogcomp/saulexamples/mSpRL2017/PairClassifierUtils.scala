@@ -26,12 +26,9 @@ object PairClassifierUtils {
     val comparer = new EvalComparer {
       override def isEqual(a: SpRLEval, b: SpRLEval) = a.asInstanceOf[RelationEval].overlaps(b.asInstanceOf[RelationEval])
     }
-    predicted.foreach(x=>{
-      x.setArgument(2, dummyPhrase)
-      x.setArgumentId(2, dummyPhrase.getId)
-    })
-    val name = if(isTrajector) "TrSp" else "LmSp"
-    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + s"_$name", actual, predicted, comparer)
+
+    val name = if (isTrajector) "TrSp" else "LmSp"
+    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + s"_$name", actual, predicted, comparer, 2)
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,15 +45,12 @@ object PairClassifierUtils {
     val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
 
     relations.map(r => {
-      val tr = roles(r.getArgumentId(0))
+      val role = roles(r.getArgumentId(0))
       val sp = indicators(r.getArgumentId(1))
-      r.setArgumentId(2, dummyPhrase.getId)
-      r.setArgument(0, tr)
+      r.setArgument(0, role)
       r.setArgument(1, sp)
-      r.setArgument(2, dummyPhrase)
       r
-    }).groupBy(x => x.getArgumentIds.mkString(",")).map(_._2.head)
-      .filter(_.getArgument(0).getStart != -1).toList // remove duplicates and nulls
+    }).groupBy(x => x.getArgumentIds.mkString(",")).map(_._2.head).toList // remove duplicates and nulls
   }
 
 }

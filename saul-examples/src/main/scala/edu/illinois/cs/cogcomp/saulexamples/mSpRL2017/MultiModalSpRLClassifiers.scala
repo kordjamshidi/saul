@@ -112,7 +112,7 @@ object MultiModalSpRLClassifiers {
       baseLTU = new SparseAveragedPerceptron(p)
     }
 
-    override def feature = using(phraseFeatures(FeatureSets.BaseLine))
+    override def feature = using(phraseFeatures(FeatureSets.BaseLine).filterNot(x=> x == headWordPos || x == headWordFrom))
   }
 
   object TrajectorPairClassifier extends Learnable(pairs) {

@@ -2,7 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import java.io.File
 
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.CandidateGenerator
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{CandidateGenerator, LexiconHelper}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.sentenceToPhraseGenerating
 import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
@@ -48,7 +48,7 @@ object MultiModalSpRLSensors {
   def getAverage(a: List[Double]*): List[Double] = a.head.zipWithIndex.map { case (_, i) => a.map(_ (i)).sum / a.size }
 
   def refinedSentenceToPhraseGenerating(s: Sentence): Seq[Phrase] = {
-    val lex = CandidateGenerator.spatialIndicatorLexicon.filter(l => l.contains(" ") && s.getText.toLowerCase.contains(l))
+    val lex = LexiconHelper.spatialIndicatorLexicon.filter(l => l.contains(" ") && s.getText.toLowerCase.contains(l))
     val phrases = sentenceToPhraseGenerating(s)
     if (lex.nonEmpty) {
       lex.foreach(l => {
