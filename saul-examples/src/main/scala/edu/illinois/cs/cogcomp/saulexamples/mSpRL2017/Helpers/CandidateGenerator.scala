@@ -1,33 +1,29 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
-import java.io.{ File, IOException, PrintWriter }
+import java.io.{File, IOException, PrintWriter}
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ NlpBaseElement, Phrase, Relation, Token }
-import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{ getCandidateRelations, getPos }
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRLConfigurator
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{getCandidateRelations, getPos}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
 
+import scala.collection.JavaConversions._
 import scala.io.Source
 
 /** Created by taher on 2017-02-28.
   */
 object CandidateGenerator {
 
-  def generatePairCandidates(isTrain: Boolean, populateNullPairs: Boolean): List[Relation] = {
+  def generatePairCandidates(phraseInstances: List[Phrase], populateNullPairs: Boolean): List[Relation] = {
 
-    val phraseInstances = (if (isTrain) phrases.getTrainingInstances.toList else phrases.getTestingInstances.toList)
-      .filter(_.getId != dummyPhrase.getId)
-    if (populateNullPairs) {
-      phrases.populate(List(dummyPhrase), isTrain)
-    }
-
-    val trCandidates = getTrajectorCandidates(phraseInstances, isTrain)
+    val trCandidates = getTrajectorCandidates(phraseInstances)
     trCandidates.foreach(_.addPropertyValue("TR-Candidate", "true"))
 
-    val lmCandidates = getLandmarkCandidates(phraseInstances, isTrain)
+    val lmCandidates = getLandmarkCandidates(phraseInstances)
     lmCandidates.foreach(_.addPropertyValue("LM-Candidate", "true"))
 
-    val spCandidates = getIndicatorCandidates(phraseInstances, isTrain)
+    val spCandidates = getIndicatorCandidates(phraseInstances)
     spCandidates.foreach(_.addPropertyValue("SP-Candidate", "true"))
 
     val firstArgCandidates = (if (populateNullPairs) List(null) else List()) ++
@@ -45,34 +41,55 @@ object CandidateGenerator {
     candidateRelations
   }
 
-  def getIndicatorCandidates(phrases: List[Phrase], isTrain: Boolean): List[Phrase] = {
+  def getIndicatorCandidates(phrases: List[Phrase]): List[Phrase] = {
 
-    val spLex = getSpatialIndicatorLexicon(phrases, 0, isTrain)
+    val spLex = spatialIndicatorLexicon
     val spPosTagLex = List("IN", "TO")
     val spCandidates = phrases
-      .filter(x => spLex.contains(x.getText.toLowerCase) ||
-        spPosTagLex.exists(p => getPos(x).contains(p)) ||
-        Dictionaries.isPreposition(x.getText))
+      .filter(x =>
+        spLex.exists(s => x.getText.toLowerCase.matches("(^|.*[^\\w])" + s + "([^\\w].*|$)")) ||
+          spPosTagLex.exists(p => getPos(x).contains(p)) ||
+          Dictionaries.isPreposition(x.getText))
     ReportHelper.reportRoleStats(phrases, spCandidates, "SPATIALINDICATOR")
     spCandidates
   }
 
-  def getLandmarkCandidates(phrases: List[Phrase], isTrain: Boolean): List[Phrase] = {
+  def getLandmarkCandidates(phrases: List[Phrase]): List[Phrase] = {
 
     val lmPosTagLex = List("PRP", "NN", "PRP$", "JJ", "NNS", "CD")
-    //getRolePosTagLexicon(tokenInstances, lmTag, 5, isTrain)
     val lmCandidates = phrases.filter(x => lmPosTagLex.exists(p => getPos(x).contains(p)))
     ReportHelper.reportRoleStats(phrases, lmCandidates, "LANDMARK")
     lmCandidates
   }
 
-  def getTrajectorCandidates(phrases: List[Phrase], isTrain: Boolean): List[Phrase] = {
+  def getTrajectorCandidates(phrases: List[Phrase]): List[Phrase] = {
 
     val trPosTagLex = List("NN", "JJR", "PRP$", "VBG", "JJ", "NNP", "NNS", "CD", "VBN", "VBD")
-    //getRolePosTagLexicon(tokenInstances, trTag, 5, isTrain)
     val trCandidates = phrases.filter(x => trPosTagLex.exists(p => getPos(x).contains(p)))
     ReportHelper.reportRoleStats(phrases, trCandidates, "TRAJECTOR")
     trCandidates
+  }
+
+  def createSpatialIndicatorLexicon(xmlReader: SpRLXmlReader, minFreq: Int = 1): Unit = {
+    val lexFile = new File(mSpRLConfigurator.spatialIndicatorLex)
+    xmlReader.reader.setPhraseTagName("SPATIALINDICATOR")
+    val indicators = xmlReader.reader.getPhrases()
+    val sps = indicators.groupBy(_.getText.toLowerCase)
+      .map { case (key, list) => (key, list.size, list) }
+      .filter(_._2 >= minFreq)
+      .map(_._1)
+
+    val writer = new PrintWriter(lexFile)
+    sps.foreach(p => writer.println(p))
+    writer.close()
+  }
+
+  lazy val spatialIndicatorLexicon: List[String] = {
+
+    val lexFile = new File(mSpRLConfigurator.spatialIndicatorLex)
+    if (!lexFile.exists())
+      throw new IOException(s"cannot find ${lexFile.getAbsolutePath} file")
+    Source.fromFile(lexFile).getLines().toList
   }
 
   private def getRolePosTagLexicon(phrases: List[Phrase], tagName: String, minFreq: Int, generate: Boolean): List[String] = {
@@ -86,24 +103,6 @@ object CandidateGenerator {
       posTagLex.foreach(p => writer.println(p))
       writer.close()
       posTagLex
-    } else {
-      if (!lexFile.exists())
-        throw new IOException(s"cannot find ${lexFile.getAbsolutePath} file")
-      Source.fromFile(lexFile).getLines().toList
-    }
-  }
-
-  private def getSpatialIndicatorLexicon[T <: NlpBaseElement](instances: List[T], minFreq: Int, generate: Boolean): List[String] = {
-
-    val lexFile = new File("data/mSprl/spatialIndicator.lex")
-    if (generate) {
-      val sps = instances.filter(_.containsProperty("SPATIALINDICATOR_id"))
-        .groupBy(_.getText.toLowerCase).map { case (key, list) => (key, list.size, list) }.filter(_._2 >= minFreq)
-      val prepositionLex = sps.map(_._1).toList
-      val writer = new PrintWriter(lexFile)
-      prepositionLex.foreach(p => writer.println(p))
-      writer.close()
-      prepositionLex
     } else {
       if (!lexFile.exists())
         throw new IOException(s"cannot find ${lexFile.getAbsolutePath} file")

@@ -22,9 +22,9 @@ object DataExplorationApp extends App with Logging {
 
   val phrases = sentenceList.flatMap(sentenceToPhraseGenerating)
   xmlReader.setRoles(phrases)
-  val trCandidates = CandidateGenerator.getTrajectorCandidates(phrases, true)
-  val lmCandidates = CandidateGenerator.getLandmarkCandidates(phrases, true)
-  val spCandidates = CandidateGenerator.getIndicatorCandidates(phrases, true)
+  val trCandidates = CandidateGenerator.getTrajectorCandidates(phrases)
+  val lmCandidates = CandidateGenerator.getLandmarkCandidates(phrases)
+  val spCandidates = CandidateGenerator.getIndicatorCandidates(phrases)
 
   //  println(trCandidates)
   imageList.foreach(i => println(i.getId))

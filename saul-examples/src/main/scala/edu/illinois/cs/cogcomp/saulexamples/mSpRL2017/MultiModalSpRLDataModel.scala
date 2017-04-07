@@ -47,7 +47,7 @@ object MultiModalSpRLDataModel extends DataModel {
   //sentenceToToken.addSensor(sentenceToTokenGenerating _)
 
   val sentenceToPhrase = edge(sentences, phrases)
-  sentenceToPhrase.addSensor(sentenceToPhraseGenerating _)
+  sentenceToPhrase.addSensor(refinedSentenceToPhraseGenerating _)
 
   val phraseToToken = edge(phrases, tokens)
   phraseToToken.addSensor(phraseToTokenGenerating _)

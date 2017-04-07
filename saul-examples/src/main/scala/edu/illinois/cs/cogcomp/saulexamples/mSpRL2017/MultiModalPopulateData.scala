@@ -20,15 +20,21 @@ object MultiModalPopulateData {
     populateNullPairs: Boolean = true
   ): Unit = {
 
+    if(isTrain){
+      CandidateGenerator.createSpatialIndicatorLexicon(xmlReader)
+    }
     documents.populate(xmlReader.getDocuments, isTrain)
     sentences.populate(xmlReader.getSentences, isTrain)
+    if (populateNullPairs) {
+      phrases.populate(List(dummyPhrase), isTrain)
+    }
 
     val phraseInstances = (if (isTrain) phrases.getTrainingInstances.toList else phrases.getTestingInstances.toList)
       .filter(_.getId != dummyPhrase.getId)
 
     xmlReader.setRoles(phraseInstances)
 
-    val candidateRelations = CandidateGenerator.generatePairCandidates(isTrain, populateNullPairs)
+    val candidateRelations = CandidateGenerator.generatePairCandidates(phraseInstances, populateNullPairs)
     pairs.populate(candidateRelations, isTrain)
 
     if (populateImages) {
@@ -46,7 +52,10 @@ object MultiModalPopulateData {
     val isTrain = false
     documents.populate(documentList, isTrain)
     sentences.populate(documentList.flatMap(d => documentToSentenceGenerating(d)), isTrain)
-    val candidateRelations = CandidateGenerator.generatePairCandidates(isTrain, populateNullPairs)
+    if (populateNullPairs) {
+      phrases.populate(List(dummyPhrase), isTrain)
+    }
+    val candidateRelations = CandidateGenerator.generatePairCandidates(phrases.getTrainingInstances.toList, populateNullPairs)
     pairs.populate(candidateRelations, isTrain)
   }
 }
