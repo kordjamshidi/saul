@@ -6,7 +6,7 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.lbjava.learn.{ SparseAveragedPerceptron, SparseNetworkLearner, SupportVectorMachine }
+import edu.illinois.cs.cogcomp.lbjava.learn.{SparseAveragedPerceptron, SparseNetworkLearner, SupportVectorMachine}
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
 import edu.illinois.cs.cogcomp.saul.learn.SaulWekaWrapper
@@ -23,7 +23,8 @@ object MultiModalSpRLClassifiers {
   def phraseFeatures: List[Property[Phrase]] = phraseFeatures(featureSet)
 
   def phraseFeatures(featureSet: FeatureSets): List[Property[Phrase]] =
-    List(wordForm, pos, phrasePos, semanticRole, dependencyRelation, subCategorization, spatialContext) ++
+    List(wordForm, headWordFrom, pos, headWordPos, phrasePos, semanticRole, dependencyRelation, subCategorization,
+      spatialContext) ++
       (featureSet match {
         case FeatureSets.WordEmbedding => List(tokenVector)
         case FeatureSets.WordEmbeddingPlusImage => List(tokenVector, isTokenAnImageConcept, nearestSegmentConceptVector)
@@ -33,9 +34,9 @@ object MultiModalSpRLClassifiers {
   def relationFeatures: List[Property[Relation]] = relationFeatures(featureSet)
 
   def relationFeatures(featureSet: FeatureSets): List[Property[Relation]] =
-    List(relationWordForm, relationPos, relationPhrasePos, relationSemanticRole, relationDependencyRelation,
-      relationSubCategorization, relationSpatialContext, distance, before, isTrajectorCandidate, isLandmarkCandidate,
-      isIndicatorCandidate) ++
+    List(relationWordForm, relationHeadWordForm, relationPos, relationHeadWordPos, relationPhrasePos,
+      relationSemanticRole, relationDependencyRelation, relationSubCategorization, relationSpatialContext, distance,
+      before, isTrajectorCandidate, isLandmarkCandidate, isIndicatorCandidate) ++
       (featureSet match {
         case FeatureSets.WordEmbedding => List(relationTokensVector)
         case FeatureSets.WordEmbeddingPlusImage => List(relationTokensVector, relationNearestSegmentConceptVector, relationIsTokenAnImageConcept)

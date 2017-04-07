@@ -3,11 +3,12 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import java.io.File
 
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers.IndicatorRoleClassifier
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
-import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
+import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 
 /** Created by Taher on 2017-01-11.
   */
@@ -116,6 +117,14 @@ object MultiModalSpRLDataModel extends DataModel {
       .map(t => getPos(t).mkString).mkString("|") else "None"
   }
 
+  val headWordFrom =  property(phrases, cache = true) {
+    x: Phrase => if (x != dummyPhrase) getHeadword(x).getText.toLowerCase else "None"
+  }
+
+  val headWordPos =  property(phrases, cache = true) {
+    x: Phrase => if (x != dummyPhrase) getPos(getHeadword(x)).mkString else "None"
+  }
+
   val phrasePos = property(phrases, cache = true) {
     x: Phrase => if (x != dummyPhrase) getPhrasePos(x) else "None"
   }
@@ -208,10 +217,22 @@ object MultiModalSpRLDataModel extends DataModel {
       wordForm(first) + "::" + wordForm(second)
   }
 
+  val relationHeadWordForm = property(pairs, cache = true) {
+    r: Relation =>
+      val (first, second) = getArguments(r)
+      headWordFrom(first) + "::" + headWordFrom(second)
+  }
+
   val relationPos = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
       pos(first) + "::" + pos(second)
+  }
+
+  val relationHeadWordPos = property(pairs, cache = true) {
+    r: Relation =>
+      val (first, second) = getArguments(r)
+      headWordPos(first) + "::" + headWordPos(second)
   }
 
   val relationPhrasePos = property(pairs, cache = true) {
