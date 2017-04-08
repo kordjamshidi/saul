@@ -24,7 +24,7 @@ object MultiModalSpRLClassifiers {
 
   def phraseFeatures(featureSet: FeatureSets): List[Property[Phrase]] =
     List(wordForm, headWordFrom, pos, headWordPos, phrasePos, semanticRole, dependencyRelation, subCategorization,
-      spatialContext) ++
+      spatialContext, headSpatialContext, headDependencyRelation) ++
       (featureSet match {
         case FeatureSets.WordEmbedding => List(tokenVector)
         case FeatureSets.WordEmbeddingPlusImage => List(tokenVector, isTokenAnImageConcept, nearestSegmentConceptVector)
@@ -35,8 +35,8 @@ object MultiModalSpRLClassifiers {
 
   def relationFeatures(featureSet: FeatureSets): List[Property[Relation]] =
     List(relationWordForm, relationHeadWordForm, relationPos, relationHeadWordPos, relationPhrasePos,
-      relationSemanticRole, relationDependencyRelation, relationSubCategorization, relationSpatialContext, distance,
-      before, isTrajectorCandidate, isLandmarkCandidate, isIndicatorCandidate) ++
+      relationSemanticRole, relationDependencyRelation, relationSubCategorization, relationHeadSpatialContext,
+      distance, before, isTrajectorCandidate, isLandmarkCandidate, isIndicatorCandidate) ++
       (featureSet match {
         case FeatureSets.WordEmbedding => List(relationTokensVector)
         case FeatureSets.WordEmbeddingPlusImage => List(relationTokensVector, relationNearestSegmentConceptVector, relationIsTokenAnImageConcept)
@@ -99,7 +99,7 @@ object MultiModalSpRLClassifiers {
 
     }
 
-    override def feature = using(phraseFeatures)
+    override def feature = using(phraseFeatures ++ List(lemma, headWordLemma))
   }
 
   object IndicatorRoleClassifier extends Learnable(phrases) {
@@ -112,7 +112,8 @@ object MultiModalSpRLClassifiers {
       baseLTU = new SparseAveragedPerceptron(p)
     }
 
-    override def feature = using(phraseFeatures(FeatureSets.BaseLine).filterNot(x=> x == headWordPos || x == headWordFrom))
+    override def feature = using(phraseFeatures(FeatureSets.BaseLine)
+      .diff(List(headWordPos, headWordFrom, headDependencyRelation)))
   }
 
   object TrajectorPairClassifier extends Learnable(pairs) {
@@ -127,7 +128,7 @@ object MultiModalSpRLClassifiers {
       baseLTU = new SparseAveragedPerceptron(p)
     }
 
-    override def feature = using(relationFeatures)
+    override def feature = using(relationFeatures ++ List(relationHeadDependencyRelation))
   }
 
   object LandmarkPairClassifier extends Learnable(pairs) {
@@ -141,7 +142,7 @@ object MultiModalSpRLClassifiers {
       baseLTU = new SparseAveragedPerceptron(p)
     }
 
-    override def feature = using(relationFeatures)
+    override def feature = using(relationFeatures ++ List(relationSpatialContext))
   }
 
 }

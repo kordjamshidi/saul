@@ -74,7 +74,7 @@ object MultiModalSpRLApp extends App with Logging {
         var pairsPopulated = false
         if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
           if(!pairsPopulated) {
-            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => IndicatorRoleClassifier(x) == "Indicator")
+            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator")
             ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
             pairsPopulated = true
           }
