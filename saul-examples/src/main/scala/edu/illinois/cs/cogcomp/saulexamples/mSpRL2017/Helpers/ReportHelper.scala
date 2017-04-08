@@ -1,28 +1,29 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
-import java.io.{ FileOutputStream, PrintStream, PrintWriter }
+import java.io.{FileOutputStream, PrintStream, PrintWriter}
 
 import edu.illinois.cs.cogcomp.saul.classifier.Results
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.dummyPhrase
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ NlpBaseElement, Phrase, Relation, Token }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation, Token}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
-import scala.util.control.Breaks.{ break, breakable }
+import scala.util.control.Breaks.{break, breakable}
 
 /** Created by taher on 2017-02-28.
   */
 object ReportHelper {
 
   def reportRelationResults(
-    resultsDir: String,
-    resultFilePrefix: String,
-    a: List[Relation],
-    p: List[Relation],
-    comparer: EvalComparer
-  ) = {
+                             resultsDir: String,
+                             resultFilePrefix: String,
+                             a: List[Relation],
+                             p: List[Relation],
+                             comparer: EvalComparer,
+                             argumentCount: Int
+                           ) = {
     val actual = a.map(r => (r, getRelationEval(r)))
     val predicted = p.map(r => (r, getRelationEval(r)))
 
@@ -46,7 +47,7 @@ object ReportHelper {
         writer.println(s"===================================== ${key} ==================================")
         list.foreach {
           case (r, _) =>
-            writer.println(s"${r.getArgument(0).getText} -> ${r.getArgument(1).getText} -> ${r.getArgument(2).getText}")
+            writer.println(argumentsString(r, argumentCount))
         }
       }
     }
@@ -58,8 +59,7 @@ object ReportHelper {
         writer.println(s"===================================== ${key} ==================================")
         list.foreach {
           case (r, _) =>
-            val args = r.getArguments.toList
-            writer.println(s"${r.getId} : ${args(0).getText} -> ${args(1).getText} -> ${args(2).getText}")
+            writer.println(s"${r.getId} : ${argumentsString(r, argumentCount)}")
         }
       }
     }
@@ -73,9 +73,7 @@ object ReportHelper {
           case (a, p) =>
             val actualArgs = a.getArguments.toList
             val predictedArgs = p.getArguments.toList
-            writer.println(s"${a.getId} : ${actualArgs(0).getText} -> ${actualArgs(1).getText} -> " +
-              s"${actualArgs(2).getText}   ${predictedArgs(0).getText} -> ${predictedArgs(1).getText} -> " +
-              s"${predictedArgs(2).getText}")
+            writer.println(s"${a.getId} : ${argumentsString(a, argumentCount)} == ${argumentsString(p, argumentCount)}")
         }
       }
     }
@@ -137,7 +135,7 @@ object ReportHelper {
   }
 
   def reportRelationStats(candidateRelations: List[Relation], goldTrajectorRelations: List[Relation],
-    goldLandmarkRelations: List[Relation]): Unit = {
+                          goldLandmarkRelations: List[Relation]): Unit = {
 
     val missedTrSp = goldTrajectorRelations.size - candidateRelations.count(_.getProperty("RelationType") == "TR-SP")
     println(s"actual TR-SP: ${goldTrajectorRelations.size}")
@@ -154,6 +152,10 @@ object ReportHelper {
       .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "LM-SP" && x.getId == r.getId))
       .map(_.getId)
     println(s"missing relations from LM-SP: (${missingLmRelations.mkString(", ")})")
+  }
+
+  private def argumentsString(r: Relation, count: Int) = {
+    Range(0, count).map(i => r.getArgument(i).getText).mkString(" -> ")
   }
 
   private def convertToEval(r: Results): Seq[SpRLEvaluation] = r.perLabel

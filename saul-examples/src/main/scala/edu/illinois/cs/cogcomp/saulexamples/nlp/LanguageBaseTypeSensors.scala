@@ -9,13 +9,15 @@ package edu.illinois.cs.cogcomp.saulexamples.nlp
 import java.util.Properties
 
 import edu.illinois.cs.cogcomp.core.datastructures.{ViewNames, _}
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, TokenLabelView, TreeView}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Relation => _, Sentence => _, _}
 import edu.illinois.cs.cogcomp.edison.features.FeatureUtilities
 import edu.illinois.cs.cogcomp.edison.features.factory.{SubcategorizationFrame, WordFeatureExtractorFactory}
+import edu.illinois.cs.cogcomp.edison.features.helpers.PathFeatureHelper
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.nlp.utilities.CollinsHeadFinder
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRLSensors.dependencyView
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -126,18 +128,6 @@ object LanguageBaseTypeSensors extends Logging {
     (head.toString, head.getStartCharOffset, head.getEndCharOffset)
   }
 
-  def getDependencyRelation(t: Token): String = {
-    val relations = getDependencyRelations(getTextAnnotation(t))
-    val root = getDependencyRoot(relations)
-    if (root != null && root.getStartCharOffset == t.getStart)
-      "root"
-    else
-      relations.find(r => r.getTarget.getStartCharOffset == t.getStart) match {
-        case Some(r) => r.getRelationName
-        case _ => ""
-      }
-  }
-
   def getSemanticRole(e: NlpBaseElement): String = {
     val ta = getTextAnnotation(e)
     val view = if (ta.hasView(ViewNames.SRL_VERB)) {
@@ -206,6 +196,56 @@ object LanguageBaseTypeSensors extends Logging {
     val end = Math.min(ta.getTokens.length - 1, id + after)
     ta.getTokens.slice(start, end)
   }
+
+  def getDependencyRelation(t: Token): String = {
+    val relations = getDependencyRelations(getTextAnnotation(t))
+    val root = getDependencyRoot(relations)
+    if (root != null && root.getStartCharOffset == t.getStart)
+      "root"
+    else
+      relations.find(r => r.getTarget.getStartCharOffset == t.getStart) match {
+        case Some(r) => r.getRelationName
+        case _ => ""
+      }
+  }
+
+  def getDependencyPath(t1: Token, t2: Token): String = {
+
+    def getRelationName(relations: List[textannotation.Relation], c1: Constituent, c2: Constituent, dir: String): String = {
+      val r = relations.find(x => (x.getSource == c1 && x.getTarget == c2) || (x.getSource == c2 && x.getTarget == c1))
+      r match {
+        case Some(r) => dir + r.getRelationName
+        case None => ""
+      }
+    }
+
+    val ta = getTextAnnotation(t1)
+    val c1 = ta.getView(dependencyView).getConstituentsCoveringToken(getStartTokenId(t1)).get(0)
+    val c2 = ta.getView(dependencyView).getConstituentsCoveringToken(getStartTokenId(t2)).get(0)
+
+    val parse: TreeView = ta.getView(dependencyView).asInstanceOf[TreeView]
+
+    val relations = parse.getRelations.asScala.toList
+    val paths = PathFeatureHelper.getPathsToCommonAncestor(c1, c2, 400)
+
+    val up = paths.getFirst.asScala.toList
+    val down = paths.getSecond.asScala.toList
+
+    val path: StringBuilder = new StringBuilder
+    var i = 0
+    while (i < up.size - 1) {
+      path.append(getRelationName(relations, up(i), up(i + 1), "↑"))
+      i += 1
+    }
+    i = down.size - 1
+    while (i > 0) {
+      path.append(getRelationName(relations, down(i), down(i - 1), "↓"))
+      i -= 1
+    }
+
+    path.toString.toUpperCase
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////
   /// private methods

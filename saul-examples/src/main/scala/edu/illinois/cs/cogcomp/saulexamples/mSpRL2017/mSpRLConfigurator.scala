@@ -6,4 +6,5 @@ object mSpRLConfigurator {
   val resultsDir = s"data/mSpRL/results/"
   val dataPath = "data/mSprl/saiapr_tc-12/"
   val modelDir = "models/mSpRL/"
+  val spatialIndicatorLex = "data/mSprl/spatialIndicator.lex"
 }

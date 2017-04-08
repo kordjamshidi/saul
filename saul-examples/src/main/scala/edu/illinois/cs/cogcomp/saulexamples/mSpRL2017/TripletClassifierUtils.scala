@@ -30,7 +30,7 @@ object TripletClassifierUtils {
       override def isEqual(a: SpRLEval, b: SpRLEval) = a.asInstanceOf[RelationEval].overlaps(b.asInstanceOf[RelationEval])
     }
 
-    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + "_triplet", actual, predicted, comparer)
+    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + "_triplet", actual, predicted, comparer, 3)
   }
 
   def predict(
@@ -50,7 +50,7 @@ object TripletClassifierUtils {
         val landmarkPairs = (pairs.filter(r => lmClassifier(r) == "LM-SP") ~> relationToFirstArgument).groupBy(x => x).keys
         if (landmarkPairs.nonEmpty) {
           trajectorPairs.flatMap(tr => landmarkPairs.map(lm => createRelation(Some(tr), Some(sp), Some(lm))))
-            .filter(r => r.getArgumentIds.size() == r.getArgumentIds.toList.distinct.size) // distinct arguments
+            .filter(r => r.getArgumentIds.toList.distinct.size == 3) // distinct arguments
             .toList
         } else {
           List()

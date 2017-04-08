@@ -44,11 +44,7 @@ object MultiModalSpRLApp extends App with Logging {
     lazy val imageReader = new ImageReaderHelper(dataPath, imageDataProportion)
 
     val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage
-    populateDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, populateImages)
-    ReportHelper.saveCandidateList(
-      isTrain,
-      if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList
-    )
+    populateRoleDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, populateImages)
 
     classifiers.foreach(x => {
       x.modelDir = s"models/mSpRL/$featureSet/"
@@ -57,13 +53,41 @@ object MultiModalSpRLApp extends App with Logging {
 
     if (isTrain) {
       println("training started ...")
+      var pairsPopulated = false
       classifiers.foreach(classifier => {
+        if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
+          if(!pairsPopulated) {
+            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator")
+            ReportHelper.saveCandidateList(true, pairs.getTrainingInstances.toList)
+            pairsPopulated = true
+          }
+        }
         classifier.learn(50)
         classifier.save()
       })
     } else {
       println("testing started ...")
       val stream = new FileOutputStream(s"$resultsDir/$featureSet$suffix.txt")
+
+      classifiers.foreach(classifier => {
+        classifier.load()
+        var pairsPopulated = false
+        if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
+          if(!pairsPopulated) {
+            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator")
+            ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
+            pairsPopulated = true
+          }
+          val predicted = pairs.getTestingInstances.filter(x => classifier(x) != "None").toList
+          val results = PairClassifierUtils.evaluate(predicted, textDataPath, resultsDir, featureSet.toString, isTrain,
+            classifier == TrajectorPairClassifier)
+          ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}-xml", results)
+          pairsPopulated = true
+        }
+        val results = classifier.test()
+        ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}", results)
+      })
+
       val allCandidateResults = TripletClassifierUtils.test(textDataPath, resultsDir, "all-candidates", isTrain,
         _ => "TR-SP",
         _ => "Indicator",
@@ -76,17 +100,6 @@ object MultiModalSpRLApp extends App with Logging {
         r => isLandmarkRelation(r))
       ReportHelper.saveEvalResults(stream, "triplet-ground-truth", groundTruthResults)
 
-      classifiers.foreach(classifier => {
-        classifier.load()
-        if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
-          val predicted = pairs.getTestingInstances.filter(x => classifier(x) != "None").toList
-          val results = PairClassifierUtils.evaluate(predicted, textDataPath, resultsDir, featureSet.toString, isTrain,
-            classifier == TrajectorPairClassifier)
-          ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}-xml", results)
-        }
-        val results = classifier.test()
-        ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}", results)
-      })
       val results = TripletClassifierUtils.test(textDataPath, resultsDir, featureSet.toString, isTrain,
         x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),

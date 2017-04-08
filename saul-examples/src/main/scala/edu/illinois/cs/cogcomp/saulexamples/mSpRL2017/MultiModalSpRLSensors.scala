@@ -2,8 +2,10 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import java.io.File
 
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Document, Phrase, Relation, Token }
-import edu.illinois.cs.cogcomp.saulexamples.vision.{ Image, Segment, SegmentRelation }
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{CandidateGenerator, LexiconHelper}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.sentenceToPhraseGenerating
+import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 
@@ -43,7 +45,34 @@ object MultiModalSpRLSensors {
 
   def getClefWordVector(w: String): List[Double] = getWordVector(clefWord2Vec, w)
 
-  def getAverage(a: List[Double]*): List[Double] = a.head.zipWithIndex.map { case (_, i) => a.map(_(i)).sum / a.size }
+  def getAverage(a: List[Double]*): List[Double] = a.head.zipWithIndex.map { case (_, i) => a.map(_ (i)).sum / a.size }
+
+  def refinedSentenceToPhraseGenerating(s: Sentence): Seq[Phrase] = {
+    val lex = LexiconHelper.spatialIndicatorLexicon.filter(l => l.contains(" ") && s.getText.toLowerCase.contains(l))
+    val phrases = sentenceToPhraseGenerating(s)
+    if (lex.nonEmpty) {
+      lex.foreach(l => {
+        val span = new SpanBasedElement
+        span.setStart(s.getText.toLowerCase.indexOf(l))
+        span.setEnd(span.getStart + l.length)
+        while (span.getStart >= 0) {
+          val toMerge = phrases.filter(p => span.overlaps(p))
+          if (toMerge.size > 1) {
+            val phrase = toMerge.head
+            phrase.setEnd(toMerge.last.getEnd)
+            phrase.setText(s.getText.substring(phrase.getStart, phrase.getEnd))
+            toMerge.tail.foreach(x=>{
+              x.setStart(-1)
+              x.setEnd(-1)
+            })
+          }
+          span.setStart(s.getText.toLowerCase.indexOf(l, span.getEnd))
+          span.setEnd(span.getStart + l.length)
+        }
+      })
+    }
+    phrases.filter(_.getStart != -1)
+  }
 
   def imageToSegmentMatching(i: Image, s: Segment): Boolean = {
     i.getId == s.getAssociatedImageID
