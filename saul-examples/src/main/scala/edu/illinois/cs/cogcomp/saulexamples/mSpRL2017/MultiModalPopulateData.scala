@@ -19,7 +19,9 @@ object MultiModalPopulateData {
                                            populateImages: Boolean = false,
                                            populateNullPairs: Boolean = true
                                          ): Unit = {
-
+    if (isTrain) {
+      LexiconHelper.createSpatialIndicatorLexicon(xmlReader)
+    }
     documents.populate(xmlReader.getDocuments, isTrain)
     sentences.populate(xmlReader.getSentences, isTrain)
 
@@ -47,9 +49,6 @@ object MultiModalPopulateData {
                                            populateNullPairs: Boolean = true
                                          ): Unit = {
 
-    if (isTrain) {
-      LexiconHelper.createSpatialIndicatorLexicon(xmlReader)
-    }
     val phraseInstances = (if (isTrain) phrases.getTrainingInstances.toList else phrases.getTestingInstances.toList)
       .filter(_.getId != dummyPhrase.getId)
 
