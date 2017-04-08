@@ -252,34 +252,10 @@ object MultiModalSpRLDataModel extends DataModel {
       wordForm(first) + "::" + wordForm(second)
   }
 
-  val relationFirstWord = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      wordForm(first)
-  }
-
-  val relationSecondWord = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      wordForm(second)
-  }
-
   val relationHeadWordForm = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
       headWordFrom(first) + "::" + headWordFrom(second)
-  }
-
-  val relationFirstHeadWord = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      headWordFrom(first)
-  }
-
-  val relationSecondHeadWord = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      headWordFrom(second)
   }
 
   val relationLemma = property(pairs, cache = true) {
@@ -288,34 +264,10 @@ object MultiModalSpRLDataModel extends DataModel {
       lemma(first) + "::" + lemma(second)
   }
 
-  val relationFirstLemma = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      lemma(first)
-  }
-
-  val relationSecondLemma = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      lemma(second)
-  }
-
   val relationHeadWordLemma = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
       headWordLemma(first) + "::" + headWordLemma(second)
-  }
-
-  val relationFirstHeadLemma = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      headWordLemma(first)
-  }
-
-  val relationSecondHeadLemma = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      headWordLemma(second)
   }
 
   val relationPos = property(pairs, cache = true) {
@@ -324,52 +276,16 @@ object MultiModalSpRLDataModel extends DataModel {
       pos(first) + "::" + pos(second)
   }
 
-  val relationFirstPos = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      pos(first)
-  }
-
-  val relationSecondPos = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      pos(second)
-  }
-
   val relationHeadWordPos = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
       headWordPos(first) + "::" + headWordPos(second)
   }
 
-  val relationFirstHeadPos = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      headWordPos(first)
-  }
-
-  val relationSecondHeadPos = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      headWordPos(second)
-  }
-
   val relationPhrasePos = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
       phrasePos(first) + "::" + phrasePos(second)
-  }
-
-  val relationFirstPhrasePos = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      phrasePos(first)
-  }
-
-  val relationSecondPhrasePos = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      phrasePos(second)
   }
 
   val relationSemanticRole = property(pairs, cache = true) {
@@ -384,34 +300,10 @@ object MultiModalSpRLDataModel extends DataModel {
       dependencyRelation(first) + "::" + dependencyRelation(second)
   }
 
-  val relationFirstDependencyRelation = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      dependencyRelation(first)
-  }
-
-  val relationSecondDependencyRelation = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      dependencyRelation(second)
-  }
-
   val relationHeadDependencyRelation = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
       headDependencyRelation(first) + "::" + headDependencyRelation(second)
-  }
-
-  val relationFirstHeadDependency = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      headDependencyRelation(first)
-  }
-
-  val relationSecondHeadDependency = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      headDependencyRelation(second)
   }
 
   val relationSubCategorization = property(pairs, cache = true) {
@@ -420,34 +312,10 @@ object MultiModalSpRLDataModel extends DataModel {
       subCategorization(first) + "::" + subCategorization(second)
   }
 
-  val relationFirstSubCategorization = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      subCategorization(first)
-  }
-
-  val relationSecondSubCategorization = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      subCategorization(second)
-  }
-
   val relationHeadSubCategorization = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
       headSubCategorization(first) + "::" + headSubCategorization(second)
-  }
-
-  val relationFirstHeadSubCategorization = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      headSubCategorization(first)
-  }
-
-  val relationSecondHeadSubCategorization = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      headSubCategorization(second)
   }
 
   val relationSpatialContext = property(pairs, cache = true) {
@@ -456,34 +324,10 @@ object MultiModalSpRLDataModel extends DataModel {
       spatialContext(first) + "::" + spatialContext(second)
   }
 
-  val relationFirstSpatialContext = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      spatialContext(first)
-  }
-
-  val relationSecondSpatialContext = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      spatialContext(second)
-  }
-
   val relationHeadSpatialContext = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
       headSpatialContext(first) + "::" + headSpatialContext(second)
-  }
-
-  val relationFirstHeadSpatialContext = property(pairs, cache = true) {
-    r: Relation =>
-      val (first, _) = getArguments(r)
-      headSpatialContext(first)
-  }
-
-  val relationSecondHeadSpatialContext = property(pairs, cache = true) {
-    r: Relation =>
-      val (_, second) = getArguments(r)
-      headSpatialContext(second)
   }
 
   val relationTokensVector = property(pairs, cache = true) {
