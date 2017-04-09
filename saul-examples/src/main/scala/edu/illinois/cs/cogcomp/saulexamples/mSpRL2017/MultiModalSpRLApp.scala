@@ -35,8 +35,8 @@ object MultiModalSpRLApp extends App with Logging {
 
   val suffix = if (useVectorAverages) "_vecAvg" else ""
 
-  runClassifiers(true, dataPath + "newSprl2017_train.xml", Train)
-  runClassifiers(false, dataPath + "newSprl2017_gold.xml", Test)
+  runClassifiers(true, dataPath + "newSprl2017_validation_train.xml", ValidationTrain)
+  runClassifiers(false, dataPath + "newSprl2017_validation_test.xml", ValidationTest)
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 
@@ -69,9 +69,9 @@ object MultiModalSpRLApp extends App with Logging {
       println("testing started ...")
       val stream = new FileOutputStream(s"$resultsDir/$featureSet$suffix.txt")
 
+      var pairsPopulated = false
       classifiers.foreach(classifier => {
         classifier.load()
-        var pairsPopulated = false
         if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
           if(!pairsPopulated) {
             populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator")
@@ -82,7 +82,6 @@ object MultiModalSpRLApp extends App with Logging {
           val results = PairClassifierUtils.evaluate(predicted, textDataPath, resultsDir, featureSet.toString, isTrain,
             classifier == TrajectorPairClassifier)
           ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}-xml", results)
-          pairsPopulated = true
         }
         val results = classifier.test()
         ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}", results)

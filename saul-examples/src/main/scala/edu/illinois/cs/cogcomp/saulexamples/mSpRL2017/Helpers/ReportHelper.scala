@@ -141,7 +141,7 @@ object ReportHelper {
     println(s"actual TR-SP: ${goldTrajectorRelations.size}")
     println(s"Missing TR-SP in the candidates: $missedTrSp")
     val missingTrRelations = goldTrajectorRelations
-      .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "TR-SP" && x.getId == r.getId))
+      .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "TR-SP" && x.getProperty("ActualId") == r.getId))
       .map(_.getId)
     println(s"missing relations from TR-SP: (${missingTrRelations.mkString(", ")})")
 
@@ -149,13 +149,15 @@ object ReportHelper {
     println(s"actual LM-SP: ${goldLandmarkRelations.size}")
     println(s"Missing LM-SP in the candidates: $missedLmSp")
     val missingLmRelations = goldLandmarkRelations
-      .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "LM-SP" && x.getId == r.getId))
+      .filterNot(r => candidateRelations.exists(x => x.getProperty("RelationType") == "LM-SP" && x.getProperty("ActualId") == r.getId))
       .map(_.getId)
     println(s"missing relations from LM-SP: (${missingLmRelations.mkString(", ")})")
   }
 
   private def argumentsString(r: Relation, count: Int) = {
-    Range(0, count).map(i => r.getArgument(i).getText).mkString(" -> ")
+    Range(0, count)
+      .map(i => r.getArgument(i).getText + "[" + r.getArgument(i).getStart + ":" + r.getArgument(i).getEnd + "]")
+      .mkString(" -> ")
   }
 
   private def convertToEval(r: Results): Seq[SpRLEvaluation] = r.perLabel

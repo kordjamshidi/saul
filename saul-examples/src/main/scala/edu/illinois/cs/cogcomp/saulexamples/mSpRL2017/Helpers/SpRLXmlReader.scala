@@ -48,7 +48,7 @@ class SpRLXmlReader(dataPath: String) {
             println(s"warning: overriding LM-SP relation ${c.get.getId} by TR-SP relation: ${r.getId}")
           }
           c.get.setProperty("RelationType", "TR-SP")
-          c.get.setId(r.getId)
+          c.get.setProperty("ActualId", r.getId)
         }
       } else {
         println(s"cannot find TR-SP candidate relation for ${r.getId}")
@@ -72,7 +72,7 @@ class SpRLXmlReader(dataPath: String) {
             println(s"warning: overriding TR-SP relation ${c.get.getId} by LM-SP relation: ${r.getId}")
           }
           c.get.setProperty("RelationType", "LM-SP")
-          c.get.setId(r.getId)
+          c.get.setProperty("ActualId", r.getId)
         }
       } else {
         println(s"cannot find LM-SP candidate relation for ${r.getId}")
