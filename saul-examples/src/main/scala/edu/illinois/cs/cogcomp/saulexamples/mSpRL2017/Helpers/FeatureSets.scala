@@ -4,5 +4,5 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
   */
 object FeatureSets extends Enumeration {
   type FeatureSets = Value
-  val BaseLine, WordEmbedding, WordEmbeddingPlusImage = Value
+  val BaseLine, WordEmbedding, BaseLineWithImage, WordEmbeddingPlusImage = Value
 }
