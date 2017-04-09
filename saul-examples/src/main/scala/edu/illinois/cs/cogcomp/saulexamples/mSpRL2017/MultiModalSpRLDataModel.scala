@@ -195,12 +195,11 @@ object MultiModalSpRLDataModel extends DataModel {
     x: Phrase => if (x != dummyPhrase) getVector(getHeadword(x).getText.toLowerCase) else getVector(null)
   }
 
-  val isTokenAnImageConcept = property(phrases, cache = true) {
+  val isImageConcept = property(phrases, cache = true) {
     p: Phrase =>
       if (p != dummyPhrase) {
-        val head = getHeadword(p)
-        getSegmentConcepts(head)
-          .exists(x => getSimilarity(head.getText.toLowerCase, x) > 0.6).toString
+        getSegmentConcepts(p)
+          .exists(x => p.getText.toLowerCase.contains(x.toLowerCase.trim)).toString
       } else {
         ""
       }
@@ -210,7 +209,7 @@ object MultiModalSpRLDataModel extends DataModel {
     p: Phrase =>
       if (p != dummyPhrase) {
         val head = getHeadword(p)
-        val concepts = getSegmentConcepts(head).map(x => (x, getSimilarity(head.getText.toLowerCase, x)))
+        val concepts = getSegmentConcepts(p).map(x => (x, getSimilarity(head.getText.toLowerCase, x)))
         val (nearest, _) = if (concepts.isEmpty) ("", 0) else concepts.maxBy(x => x._2)
         getVector(nearest)
       } else {
@@ -342,10 +341,10 @@ object MultiModalSpRLDataModel extends DataModel {
       nearestSegmentConceptVector(first)
   }
 
-  val relationIsTokenAnImageConcept = property(pairs, cache = true) {
+  val relationIsImageConcept = property(pairs, cache = true) {
     r: Relation =>
       val (first, _) = getArguments(r)
-      isTokenAnImageConcept(first)
+      isImageConcept(first)
   }
 
   val before = property(pairs, cache = true) {
@@ -409,8 +408,8 @@ object MultiModalSpRLDataModel extends DataModel {
     ((pairs(r) ~> relationToFirstArgument).head, (pairs(r) ~> relationToSecondArgument).head)
   }
 
-  private def getSegmentConcepts(t: Token) = {
-    ((tokens(t) <~ phraseToToken <~ sentenceToPhrase <~ documentToSentence) ~> documentToImage ~> imageToSegment)
+  private def getSegmentConcepts(p: Phrase) = {
+    ((phrases(p) <~ sentenceToPhrase <~ documentToSentence) ~> documentToImage ~> imageToSegment)
       .map(x =>
         if (!phraseConceptToWord.contains(x.getSegmentConcept))
           x.getSegmentConcept

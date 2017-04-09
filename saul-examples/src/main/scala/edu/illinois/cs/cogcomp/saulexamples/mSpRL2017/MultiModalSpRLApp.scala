@@ -20,7 +20,7 @@ import mSpRLConfigurator._
 
 object MultiModalSpRLApp extends App with Logging {
 
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLineWithImage
   MultiModalSpRLDataModel.useVectorAverages = false
 
   val classifiers = List(
@@ -43,7 +43,7 @@ object MultiModalSpRLApp extends App with Logging {
     lazy val xmlReader = new SpRLXmlReader(textDataPath)
     lazy val imageReader = new ImageReaderHelper(dataPath, imageDataProportion)
 
-    val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage
+    val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage || featureSet == FeatureSets.BaseLineWithImage
     populateRoleDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, populateImages)
 
     classifiers.foreach(x => {
