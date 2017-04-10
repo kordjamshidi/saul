@@ -20,7 +20,7 @@ import mSpRLConfigurator._
 
 object MultiModalSpRLApp extends App with Logging {
 
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLineWithImage
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
   MultiModalSpRLDataModel.useVectorAverages = false
 
   val classifiers = List(

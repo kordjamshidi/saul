@@ -310,7 +310,7 @@ object LanguageBaseTypeSensors extends Logging {
       new Phrase(sentence, generateId(sentence, x), x.getStartCharOffset, x.getEndCharOffset, x.toString))
   }
 
-  private def getTokens(e: NlpBaseElement): Seq[Token] = {
+  def getTokens(e: NlpBaseElement): Seq[Token] = {
     val ta = getTextAnnotation(e)
     if (ta == null)
       return Seq()

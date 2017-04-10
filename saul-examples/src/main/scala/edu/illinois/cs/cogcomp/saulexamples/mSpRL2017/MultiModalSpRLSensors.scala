@@ -1,16 +1,19 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import java.io.File
+import java.util.regex.Pattern
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{CandidateGenerator, LexiconHelper}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.sentenceToPhraseGenerating
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Dictionaries
 import edu.illinois.cs.cogcomp.saulexamples.vision.{Image, Segment, SegmentRelation}
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 
 import scala.collection.immutable.HashMap
 import scala.collection.JavaConversions._
+import scala.util.matching.Regex
 
 object MultiModalSpRLSensors {
 
@@ -48,30 +51,9 @@ object MultiModalSpRLSensors {
   def getAverage(a: List[Double]*): List[Double] = a.head.zipWithIndex.map { case (_, i) => a.map(_ (i)).sum / a.size }
 
   def refinedSentenceToPhraseGenerating(s: Sentence): Seq[Phrase] = {
-    val lex = LexiconHelper.spatialIndicatorLexicon.filter(l => l.contains(" ") && s.getText.toLowerCase.contains(l))
-    val phrases = sentenceToPhraseGenerating(s)
-    if (lex.nonEmpty) {
-      lex.foreach(l => {
-        val span = new SpanBasedElement
-        span.setStart(s.getText.toLowerCase.indexOf(l))
-        span.setEnd(span.getStart + l.length)
-        while (span.getStart >= 0) {
-          val toMerge = phrases.filter(p => span.overlaps(p))
-          if (toMerge.size > 1) {
-            val phrase = toMerge.head
-            phrase.setEnd(toMerge.last.getEnd)
-            phrase.setText(s.getText.substring(phrase.getStart, phrase.getEnd))
-            toMerge.tail.foreach(x=>{
-              x.setStart(-1)
-              x.setEnd(-1)
-            })
-          }
-          span.setStart(s.getText.toLowerCase.indexOf(l, span.getEnd))
-          span.setEnd(span.getStart + l.length)
-        }
-      })
-    }
-    phrases.filter(_.getStart != -1)
+    val phrases = mergeUsingIndicatorLex(s, sentenceToPhraseGenerating(s))
+    //mergeUsingTemplates(s, phrases)
+    phrases
   }
 
   def imageToSegmentMatching(i: Image, s: Segment): Boolean = {
@@ -136,4 +118,58 @@ object MultiModalSpRLSensors {
     "herd-of-mammals" -> "animal",
     "mammal-other" -> "mammal"
   )
+
+
+  private def mergeUsingTemplates(s: Sentence, phrases: Seq[Phrase]): Seq[Phrase] = {
+
+    val pattern = Pattern.compile("(^|[^\\w])(in .+? of)([^\\w]|$)")
+    val matcher = pattern.matcher(s.getText.toLowerCase)
+    while (matcher.find()) {
+      val m = matcher.toMatchResult
+      val span = new SpanBasedElement
+      span.setStart(m.start)
+      span.setEnd(m.end)
+      val toMerge = phrases.filter(p => span.overlaps(p))
+      if (toMerge.length > 1) {
+        val tokens = toMerge.flatMap(getTokens)
+        if (tokens.length < 6 && tokens.exists(t => Dictionaries.isSpatial(t.getText))) {
+          val phrase = toMerge.head
+          phrase.setEnd(toMerge.last.getEnd)
+          phrase.setText(s.getText.substring(phrase.getStart, phrase.getEnd))
+          toMerge.tail.foreach(x => {
+            x.setStart(-1)
+            x.setEnd(-1)
+          })
+        }
+      }
+    }
+    phrases.filter(_.getStart != -1)
+  }
+
+  private def mergeUsingIndicatorLex(s: Sentence, phrases: Seq[Phrase]) = {
+    val lex = LexiconHelper.spatialIndicatorLexicon.filter(l => l.contains(" ") && s.getText.toLowerCase.contains(l))
+    if (lex.nonEmpty) {
+      lex.foreach(l => {
+        val span = new SpanBasedElement
+        span.setStart(s.getText.toLowerCase.indexOf(l))
+        span.setEnd(span.getStart + l.length)
+        while (span.getStart >= 0) {
+          val toMerge = phrases.filter(p => span.overlaps(p))
+          if (toMerge.size > 1) {
+            val phrase = toMerge.head
+            phrase.setEnd(toMerge.last.getEnd)
+            phrase.setText(s.getText.substring(phrase.getStart, phrase.getEnd))
+            toMerge.tail.foreach(x => {
+              x.setStart(-1)
+              x.setEnd(-1)
+            })
+          }
+          span.setStart(s.getText.toLowerCase.indexOf(l, span.getEnd))
+          span.setEnd(span.getStart + l.length)
+        }
+      })
+    }
+    phrases.filter(_.getStart != -1)
+  }
+
 }
