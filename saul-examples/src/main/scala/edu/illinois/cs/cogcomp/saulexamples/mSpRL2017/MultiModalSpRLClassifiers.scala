@@ -27,8 +27,8 @@ object MultiModalSpRLClassifiers {
       spatialContext, headSpatialContext, headDependencyRelation, headSubCategorization) ++
       (featureSet match {
         case FeatureSets.BaseLineWithImage => List(isImageConcept)
-        case FeatureSets.WordEmbedding => List(tokenVector)
-        case FeatureSets.WordEmbeddingPlusImage => List(tokenVector, isImageConcept, nearestSegmentConceptVector)
+        case FeatureSets.WordEmbedding => List(headVector)
+        case FeatureSets.WordEmbeddingPlusImage => List(headVector, nearestSegmentConceptVector)
         case _ => List[Property[Phrase]]()
       })
 

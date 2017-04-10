@@ -191,7 +191,7 @@ object MultiModalSpRLDataModel extends DataModel {
         "2"
   }
 
-  val tokenVector = property(phrases, cache = true) {
+  val headVector = property(phrases, cache = true) {
     x: Phrase => if (x != dummyPhrase) getVector(getHeadword(x).getText.toLowerCase) else getVector(null)
   }
 
@@ -332,7 +332,7 @@ object MultiModalSpRLDataModel extends DataModel {
   val relationTokensVector = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getArguments(r)
-      tokenVector(first) ++ tokenVector(second)
+      headVector(first) ++ headVector(second)
   }
 
   val relationNearestSegmentConceptVector = property(pairs, cache = true) {
