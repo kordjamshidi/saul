@@ -28,7 +28,7 @@ object MultiModalSpRLClassifiers {
       (featureSet match {
         case FeatureSets.BaseLineWithImage => List(isImageConcept)
         case FeatureSets.WordEmbedding => List(headVector)
-        case FeatureSets.WordEmbeddingPlusImage => List(headVector, nearestSegmentConceptVector)
+        case FeatureSets.WordEmbeddingPlusImage => List(headVector, nearestSegmentConceptToHeadVector)
         case _ => List[Property[Phrase]]()
       })
 
@@ -41,7 +41,8 @@ object MultiModalSpRLClassifiers {
       (featureSet match {
         case FeatureSets.BaseLineWithImage => List(relationIsImageConcept)
         case FeatureSets.WordEmbedding => List(relationTokensVector)
-        case FeatureSets.WordEmbeddingPlusImage => List(relationTokensVector, relationNearestSegmentConceptVector, relationIsImageConcept)
+        case FeatureSets.WordEmbeddingPlusImage => List(relationTokensVector, relationNearestSegmentConceptToHeadVector,
+          relationNearestSegmentConceptToPhraseVector, relationIsImageConcept)
         case _ => List[Property[Relation]]()
       })
 
@@ -132,6 +133,7 @@ object MultiModalSpRLClassifiers {
     }
 
     override def feature = (relationFeatures ++ List(relationHeadDependencyRelation, relationHeadSubCategorization))
+      .diff(List(relationNearestSegmentConceptToHeadVector))
   }
 
   object LandmarkPairClassifier extends Learnable(pairs) {
@@ -146,7 +148,7 @@ object MultiModalSpRLClassifiers {
     }
 
     override def feature = (relationFeatures ++ List(relationSpatialContext))
-      .diff(List(relationIsImageConcept))
+      .diff(List(relationIsImageConcept, relationNearestSegmentConceptToPhraseVector))
   }
 
 }

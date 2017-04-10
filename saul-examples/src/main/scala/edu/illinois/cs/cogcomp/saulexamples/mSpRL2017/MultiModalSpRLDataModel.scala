@@ -205,11 +205,24 @@ object MultiModalSpRLDataModel extends DataModel {
       }
   }
 
-  val nearestSegmentConceptVector = property(phrases, cache = true) {
+  val nearestSegmentConceptToHeadVector = property(phrases, cache = true) {
     p: Phrase =>
       if (p != dummyPhrase) {
         val head = getHeadword(p)
         val concepts = getSegmentConcepts(p).map(x => (x, getSimilarity(head.getText.toLowerCase, x)))
+        val (nearest, _) = if (concepts.isEmpty) ("", 0) else concepts.maxBy(x => x._2)
+        getVector(nearest)
+      } else {
+        getVector(null)
+      }
+  }
+
+  val nearestSegmentConceptToPhraseVector = property(phrases, cache = true) {
+    p: Phrase =>
+      if (p != dummyPhrase) {
+        //val head = getHeadword(p)
+        val tokens = getTokens(p)
+        val concepts = getSegmentConcepts(p).flatMap(x => tokens.map(t => (x, getSimilarity(t.getText.toLowerCase, x))))
         val (nearest, _) = if (concepts.isEmpty) ("", 0) else concepts.maxBy(x => x._2)
         getVector(nearest)
       } else {
@@ -335,10 +348,16 @@ object MultiModalSpRLDataModel extends DataModel {
       headVector(first) ++ headVector(second)
   }
 
-  val relationNearestSegmentConceptVector = property(pairs, cache = true) {
+  val relationNearestSegmentConceptToHeadVector = property(pairs, cache = true) {
     r: Relation =>
       val (first, _) = getArguments(r)
-      nearestSegmentConceptVector(first)
+      nearestSegmentConceptToHeadVector(first)
+  }
+
+  val relationNearestSegmentConceptToPhraseVector = property(pairs, cache = true) {
+    r: Relation =>
+      val (first, _) = getArguments(r)
+      nearestSegmentConceptToPhraseVector(first)
   }
 
   val relationIsImageConcept = property(pairs, cache = true) {
