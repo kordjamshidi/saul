@@ -20,7 +20,7 @@ import mSpRLConfigurator._
 
 object MultiModalSpRLApp extends App with Logging {
 
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLineWithImage
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
   MultiModalSpRLDataModel.useVectorAverages = false
 
   val classifiers = List(
@@ -37,8 +37,8 @@ object MultiModalSpRLApp extends App with Logging {
 
   val trainFileName = "newSprl2017_validation_train.xml"
   val testFileName = "newSprl2017_validation_test.xml"
-  //runClassifiers(true, dataPath + trainFileName, Train)
-  runClassifiers(true, dataPath + testFileName, Test)
+  runClassifiers(true, dataPath + trainFileName, Train)
+  runClassifiers(false, dataPath + testFileName, Test)
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 

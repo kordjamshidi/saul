@@ -30,6 +30,7 @@ object CandidateGenerator {
       phraseInstances.filter(x => x.containsProperty("TR-Candidate") || x.containsProperty("LM-Candidate"))
 
     val candidateRelations = getCandidateRelations(firstArgCandidates, spCandidates)
+    candidateRelations.foreach(x => x.setParent(x.getArgument(1).asInstanceOf[Phrase].getSentence))
 
     if (populateNullPairs) {
       // replace null arguments with dummy token
