@@ -4,5 +4,5 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
   */
 object DataProportion extends Enumeration {
   type DataProportion = Value
-  val Train, ValidationTrain, ValidationTest, Test, All = Value
+  val Train, Test, All = Value
 }

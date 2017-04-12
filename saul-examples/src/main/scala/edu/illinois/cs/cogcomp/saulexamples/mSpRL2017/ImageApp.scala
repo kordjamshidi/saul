@@ -11,7 +11,7 @@ import scala.collection.JavaConversions._
 object ImageApp extends App {
 
   val readFullData = false
-  val CLEFDataset = new CLEFImageReader("data/mSprl/saiapr_tc-12", readFullData)
+  val CLEFDataset = new CLEFImageReader("data/mSprl/saiapr_tc-12", "newSprl2017_train", "newSprl2017_gold", readFullData)
 
   val imageListTrain = CLEFDataset.trainingImages
   val segmentListTrain = CLEFDataset.trainingSegments

@@ -1,6 +1,7 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
  * the LICENSE file in the root folder for details. Copyright (c) 2016
- *
+ * <p>
  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
  * http://cogcomp.cs.illinois.edu/
  */
@@ -22,14 +23,16 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.Document;
 
 import java.io.PrintWriter;
+
 /**
  * Reads CLEF Image dataset, given a directory
  * @author Umar Manzoor
  *
  */
-public class CLEFImageReader
-{
+public class CLEFImageReader {
 
+    private final String trainFileName;
+    private final String testFileName;
     private String path;
     private Boolean readFullData;
     private List<String> trainingData;
@@ -49,7 +52,10 @@ public class CLEFImageReader
 
     PrintWriter printWriterTest;
 
-    public CLEFImageReader(String directory, Boolean readFullData) throws IOException {
+    public CLEFImageReader(String directory, String trainFileName, String testFileName, Boolean readFullData) throws IOException {
+
+        this.trainFileName = trainFileName;
+        this.testFileName = testFileName;
         File d = new File(directory);
 
         if (!d.exists()) {
@@ -110,34 +116,32 @@ public class CLEFImageReader
     /*****************************************/
     // Takes object code as input and returns
     // object concept
+
     /*****************************************/
-    private String MappingCode2Concept(int code)
-    {
+    private String MappingCode2Concept(int code) {
         return MapCode2Concept.get(code);
     }
 
     /*******************************************************/
     // Loading Image Codes and its Corresponding Concept
     // Storing information in HashTable for quick retrieval
+
     /*******************************************************/
-    private void getConcepts(String directory) throws IOException
-    {
+    private void getConcepts(String directory) throws IOException {
         String file = directory + "/wlist.txt";
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
         while ((line = reader.readLine()) != null) {
             String[] CodesInfo = line.split("\\t");
-            if(CodesInfo.length>1) {
+            if (CodesInfo.length > 1) {
                 MapCode2Concept.put(Integer.parseInt(CodesInfo[0]), CodesInfo[1]);
-            }
-            else {
+            } else {
                 MapCode2Concept.put(Integer.parseInt(CodesInfo[0]), " ");
             }
         }
     }
 
-    private void getRedefinedRelations(String directory) throws IOException
-    {
+    private void getRedefinedRelations(String directory) throws IOException {
         directory = directory + "/relations";
         File d = new File(directory);
 
@@ -159,7 +163,7 @@ public class CLEFImageReader
                 while ((line = reader.readLine()) != null) {
                     String[] relationInfo = line.split(",");
                     String key = (imageId[0]).trim() + "-" + (relationInfo[1]).trim() + "-" + (relationInfo[3]).trim() + "-" + (relationInfo[5]).trim();
-                    redefindedRelations.put(key,relationInfo[0]);
+                    redefindedRelations.put(key, relationInfo[0]);
                 }
                 reader.close();
             }
@@ -168,9 +172,9 @@ public class CLEFImageReader
 
     /*******************************************************/
     // Load all Images in the CLEF Dataset
+
     /*******************************************************/
-    private void getallImages(String directory) throws IOException
-    {
+    private void getallImages(String directory) throws IOException {
         File d = new File(directory);
 
         if (!d.exists()) {
@@ -180,12 +184,12 @@ public class CLEFImageReader
         if (!d.isDirectory()) {
             throw new IOException(directory + " is not a directory!");
         }
-        int length=0;
+        int length = 0;
 
         for (File f : d.listFiles()) {
             if (f.isDirectory()) {
                 ++length;
-                String mainFolder = directory + "/" +f.getName();
+                String mainFolder = directory + "/" + f.getName();
                 System.out.println(mainFolder);
                 //Load all images
                 String imageFolder = mainFolder + "/images";
@@ -204,24 +208,24 @@ public class CLEFImageReader
                 getSegmentsRelations(spatialRelations);
 
             }
-            if (!readFullData&&length==2)
+            if (!readFullData && length == 2)
                 break;
         }
     }
 
     /*******************************************************/
     // Loading Images
+
     /*******************************************************/
-    private void getImages(String folder)
-    {
+    private void getImages(String folder) {
         File d = new File(folder);
 
         if (d.exists()) {
 
-            for (File f: d.listFiles()){
+            for (File f : d.listFiles()) {
                 String label = f.getName();
                 String[] split = label.split("\\.");
-                if(trainingData.contains(split[0]))
+                if (trainingData.contains(split[0]))
                     trainingImages.add(new Image(label, split[0]));
                 else if (testData.contains(split[0]))
                     testImages.add(new Image(label, split[0]));
@@ -230,9 +234,9 @@ public class CLEFImageReader
     }
     /*******************************************************/
     // Loading Segments
+
     /*******************************************************/
-    private void getSegments(String file) throws IOException
-    {
+    private void getSegments(String file) throws IOException {
         File d = new File(file);
 
         if (d.exists()) {
@@ -241,28 +245,27 @@ public class CLEFImageReader
             BufferedReader reader = new BufferedReader(new FileReader(file));
             while ((line = reader.readLine()) != null) {
                 String[] segmentInfo = line.split("\\t");
-                if(segmentInfo.length==4) {
+                if (segmentInfo.length == 4) {
                     String imageId = segmentInfo[0];
                     int segmentId = Integer.parseInt(segmentInfo[1]);
                     int segmentCode = Integer.parseInt(segmentInfo[3]);
                     String segmentConcept = MappingCode2Concept(segmentCode);
 
                     String key = imageId + "-" + segmentId;
-                    String[] ontology=(segmentOntology.get(key)).split("->");
+                    String[] ontology = (segmentOntology.get(key)).split("->");
                     List<String> ontologyConcepts = new ArrayList<>();
-                    for (int i=ontology.length-1; i>=0; i--) {
+                    for (int i = ontology.length - 1; i >= 0; i--) {
                         String o = ontology[i].trim();
-                        if(!o.equals("")&&!o.equals("entity")&&!o.equals(segmentConcept))
+                        if (!o.equals("") && !o.equals("entity") && !o.equals(segmentConcept))
                             ontologyConcepts.add(o);
                     }
-                    
+
                     if (segmentConcept != null) {
                         String segmentFeatures = segmentInfo[2];
                         segmentFeatures = segmentFeatures.trim().replaceAll(" +", " ");
                         if (trainingData.contains(imageId)) {
                             trainingSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept, ontologyConcepts));
-                        }
-                        else if (testData.contains(imageId)) {
+                        } else if (testData.contains(imageId)) {
                             testSegments.add(new Segment(imageId, segmentId, segmentCode, segmentFeatures, segmentConcept, ontologyConcepts));
                         }
                     }
@@ -274,9 +277,9 @@ public class CLEFImageReader
 
     /*******************************************************/
     // Loading Segment Relations
+
     /*******************************************************/
-    private void getSegmentsRelations(String spatial_rels) throws IOException
-    {
+    private void getSegmentsRelations(String spatial_rels) throws IOException {
         File d = new File(spatial_rels);
 
         if (d.exists()) {
@@ -314,7 +317,7 @@ public class CLEFImageReader
                                 else
                                     rel = null;
 
-                                if(rel!=null) {
+                                if (rel != null) {
                                     if (trainingData.contains(imgId)) {
                                         //Creating new Relation between segments
                                         trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
@@ -331,7 +334,7 @@ public class CLEFImageReader
                                     rel = redefindedRelations.get(key);
                                 }
 
-                                if(rel!=null) {
+                                if (rel != null) {
                                     if (trainingData.contains(imgId)) {
                                         //Creating new Relation between segments
                                         trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
@@ -355,7 +358,7 @@ public class CLEFImageReader
                                     rel = redefindedRelations.get(key);
                                 }
 
-                                if(rel!=null) {
+                                if (rel != null) {
                                     if (trainingData.contains(imgId)) {
                                         //Creating new Relation between segments
                                         trainingRelations.add(new SegmentRelation(imgId, firstSegmentId, secondSegmentId, rel));
@@ -372,28 +375,29 @@ public class CLEFImageReader
 
     /*******************************************************/
     // Loading Training Images
+
     /*******************************************************/
     private void getTrainingImages() throws IOException {
 
-        if(readFullData) {
+        if (readFullData) {
             String trainImage = path + "/training.mat";
             getMatData(trainImage, true);
-        }
-        else {
-            String trainImage = path + "/sprl2017_validation_train.xml";
+        } else {
+            String trainImage = path + "/" + trainFileName;
             getXMLImages(trainImage, true);
         }
     }
 
     /*******************************************************/
     // Loading Testing Images
+
     /*******************************************************/
     private void getTestImages() throws IOException {
         if (readFullData) {
             String testImage = path + "/testing.mat";
             getMatData(testImage, false);
         } else {
-            String testImage = path + "/sprl2017_validation_test.xml";
+            String testImage = path + "/" + testFileName;
             getXMLImages(testImage, false);
         }
     }
@@ -401,6 +405,7 @@ public class CLEFImageReader
     // Loading data from XML file
     // if choose = true, trainData will be populated
     // if choose = false, testData will be populated
+
     /*******************************************************/
     private void getXMLImages(String file, Boolean choose) throws IOException {
 
@@ -409,12 +414,12 @@ public class CLEFImageReader
         if (!f.exists()) {
             throw new IOException(file + " does not exist!");
         }
-        NlpXmlReader reader = new NlpXmlReader(file , "SCENE", "SENTENCE", null, null);
+        NlpXmlReader reader = new NlpXmlReader(file, "SCENE", "SENTENCE", null, null);
         List<Document> documentList = reader.getDocuments();
 
-        for (Document d: documentList){
+        for (Document d : documentList) {
             String name = d.getPropertyFirstValue("IMAGE");
-            String s = name.substring(name.lastIndexOf("/")+1);
+            String s = name.substring(name.lastIndexOf("/") + 1);
             String[] label = s.split("\\.");
             if (choose)
                 trainingData.add(label[0]);
@@ -426,6 +431,7 @@ public class CLEFImageReader
     // Loading data from Mat file
     // if choose = true, trainData will be populated
     // if choose = false, testData will be populated
+
     /*******************************************************/
     private void getMatData(String file, Boolean choose) throws IOException {
 
@@ -438,7 +444,7 @@ public class CLEFImageReader
 
         double[][] data;
 
-        if(choose)
+        if (choose)
             data = ((MLDouble) matReader.getMLArray("training")).getArray();
         else
             data = ((MLDouble) matReader.getMLArray("testing")).getArray();
@@ -446,7 +452,7 @@ public class CLEFImageReader
         if (data.length > 1) {
             for (int i = 0; i < data.length; i++) {
                 int imageId = (int) data[i][0];
-                if(choose)
+                if (choose)
                     trainingData.add(Integer.toString(imageId));
                 else
                     testData.add(Integer.toString(imageId));
@@ -456,9 +462,9 @@ public class CLEFImageReader
 
     /*******************************************************/
     // Loading Segments Ontology
+
     /*******************************************************/
-    private void getSegmentsOntology(String file) throws IOException
-    {
+    private void getSegmentsOntology(String file) throws IOException {
         File d = new File(file);
 
         if (d.exists()) {
@@ -467,9 +473,9 @@ public class CLEFImageReader
             BufferedReader reader = new BufferedReader(new FileReader(file));
             while ((line = reader.readLine()) != null) {
                 String[] segmentOntologyInfo = line.split("\\t");
-                if(segmentOntologyInfo.length==3) {
+                if (segmentOntologyInfo.length == 3) {
                     String key = segmentOntologyInfo[0] + "-" + Integer.parseInt(segmentOntologyInfo[1]);
-                    segmentOntology.put(key, segmentOntologyInfo[2].replaceAll("_",""));
+                    segmentOntology.put(key, segmentOntologyInfo[2].replaceAll("_", ""));
                 }
             }
         }
@@ -481,7 +487,7 @@ public class CLEFImageReader
             String path = "data/mSpRL/results/imagetest/" + i.getId() + ".txt";
             printWriterTest = new PrintWriter(path);
             for (SegmentRelation sr : testRelations) {
-                if (i.getId().equals(sr.getImageId())&& (sr.getRelation().equals("x-aligned")||sr.getRelation().equals("y-aligned")))
+                if (i.getId().equals(sr.getImageId()) && (sr.getRelation().equals("x-aligned") || sr.getRelation().equals("y-aligned")))
                     printWriterTest.println(sr.getFirstSegmentId() + "," + sr.getSecondSegmentId() + "," + sr.getRelation() + "," + getTestSegmentConcept(sr.getImageId(), sr.getFirstSegmentId()) + "," + getTestSegmentConcept(sr.getImageId(), sr.getSecondSegmentId()));
             }
             printWriterTest.close();
@@ -491,7 +497,7 @@ public class CLEFImageReader
             String path = "data/mSpRL/results/imagetrain/" + i.getId() + ".txt";
             printWriterTest = new PrintWriter(path);
             for (SegmentRelation sr : trainingRelations) {
-                if (i.getId().equals(sr.getImageId())&& (sr.getRelation().equals("x-aligned")||sr.getRelation().equals("y-aligned")))
+                if (i.getId().equals(sr.getImageId()) && (sr.getRelation().equals("x-aligned") || sr.getRelation().equals("y-aligned")))
                     printWriterTest.println(sr.getFirstSegmentId() + "," + sr.getSecondSegmentId() + "," + sr.getRelation() + "," + getTrainSegmentConcept(sr.getImageId(), sr.getFirstSegmentId()) + "," + getTrainSegmentConcept(sr.getImageId(), sr.getSecondSegmentId()));
             }
             printWriterTest.close();
@@ -500,9 +506,9 @@ public class CLEFImageReader
 
     private String getTestSegmentConcept(String imageID, int segmentSeq) {
         String concept = null;
-        for (int i=0; i<testSegments.size(); i++) {
+        for (int i = 0; i < testSegments.size(); i++) {
             Segment s = testSegments.get(i);
-            if (imageID.equals(s.getAssociatedImageID())&& (segmentSeq==s.getSegmentId())) {
+            if (imageID.equals(s.getAssociatedImageID()) && (segmentSeq == s.getSegmentId())) {
                 concept = s.getSegmentConcept();
                 return concept;
             }
@@ -512,9 +518,9 @@ public class CLEFImageReader
 
     private String getTrainSegmentConcept(String imageID, int segmentSeq) {
         String concept = null;
-        for (int i=0; i<trainingSegments.size(); i++) {
+        for (int i = 0; i < trainingSegments.size(); i++) {
             Segment s = trainingSegments.get(i);
-            if (imageID.equals(s.getAssociatedImageID())&& (segmentSeq==s.getSegmentId())) {
+            if (imageID.equals(s.getAssociatedImageID()) && (segmentSeq == s.getSegmentId())) {
                 concept = s.getSegmentConcept();
                 return concept;
             }

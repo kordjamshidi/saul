@@ -20,7 +20,7 @@ import mSpRLConfigurator._
 
 object MultiModalSpRLApp extends App with Logging {
 
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbeddingPlusImage
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLineWithImage
   MultiModalSpRLDataModel.useVectorAverages = false
 
   val classifiers = List(
@@ -35,13 +35,15 @@ object MultiModalSpRLApp extends App with Logging {
 
   val suffix = if (useVectorAverages) "_vecAvg" else ""
 
-  runClassifiers(true, dataPath + "newSprl2017_validation_train.xml", ValidationTrain)
-  runClassifiers(false, dataPath + "newSprl2017_validation_test.xml", ValidationTest)
+  val trainFileName = "newSprl2017_validation_train.xml"
+  val testFileName = "newSprl2017_validation_test.xml"
+  //runClassifiers(true, dataPath + trainFileName, Train)
+  runClassifiers(true, dataPath + testFileName, Test)
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 
     lazy val xmlReader = new SpRLXmlReader(textDataPath)
-    lazy val imageReader = new ImageReaderHelper(dataPath, imageDataProportion)
+    lazy val imageReader = new ImageReaderHelper(dataPath,trainFileName, testFileName, imageDataProportion)
 
     val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage || featureSet == FeatureSets.BaseLineWithImage
     populateRoleDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, populateImages)
@@ -56,7 +58,7 @@ object MultiModalSpRLApp extends App with Logging {
       var pairsPopulated = false
       classifiers.foreach(classifier => {
         if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
-          if(!pairsPopulated) {
+          if (!pairsPopulated) {
             populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator")
             ReportHelper.saveCandidateList(true, pairs.getTrainingInstances.toList)
             pairsPopulated = true
@@ -73,7 +75,7 @@ object MultiModalSpRLApp extends App with Logging {
       classifiers.foreach(classifier => {
         classifier.load()
         if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
-          if(!pairsPopulated) {
+          if (!pairsPopulated) {
             populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator")
             ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
             pairsPopulated = true

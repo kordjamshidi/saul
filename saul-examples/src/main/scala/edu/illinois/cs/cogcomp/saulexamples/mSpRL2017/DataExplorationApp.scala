@@ -1,8 +1,8 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion.ValidationTest
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ CandidateGenerator, ImageReaderHelper, SpRLXmlReader }
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion.Test
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{CandidateGenerator, ImageReaderHelper, SpRLXmlReader}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 
 /** Created by Taher on 2017-02-12.
@@ -10,9 +10,9 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors._
 object DataExplorationApp extends App with Logging {
 
   private val dataDir = "data/mSprl/saiapr_tc-12/"
-  val proportion = ValidationTest
+  val proportion = Test
   val xmlReader = new SpRLXmlReader(dataDir + "sprl2017_validation_test")
-  val imageReader = new ImageReaderHelper(dataDir, proportion)
+  val imageReader = new ImageReaderHelper(dataDir, "newSprl2017_validation_train", "newSprl2017_validation_test", proportion)
   val documentList = xmlReader.getDocuments.take(10)
   val sentenceList = xmlReader.getSentences.filter(s => documentList.exists(_.getId == s.getDocument.getId))
   val imageList = imageReader.getImageList

@@ -1,10 +1,10 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Document, Sentence, Token }
-import org.scalatest.{ FlatSpec, Matchers }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Document, Sentence, Token}
+import org.scalatest.{FlatSpec, Matchers}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{ getCandidateRelations, getPos }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{getCandidateRelations, getPos}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 
@@ -14,7 +14,7 @@ import scala.collection.JavaConversions._
   */
 class MultiModalSpRLDataModelTests extends FlatSpec with Matchers {
   val reader = new NlpXmlReader("./saul-examples/src/test/resources/SpRL/2017/test.xml", "SCENE", "SENTENCE", null, null)
-  val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", false)
+  val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", "test.xml", "test.xml", false)
 
   reader.setIdUsingAnotherProperty("SCENE", "DOCNO")
   val documentList = reader.getDocuments()

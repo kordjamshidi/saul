@@ -3,7 +3,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.data.CLEFImageReader
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLSensors.phraseConceptToWord
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.{ ClefDocument, SpRLDataReader }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.{ClefDocument, SpRLDataReader}
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 import org.deeplearning4j.text.sentenceiterator._
@@ -48,7 +48,7 @@ object WordEmbeddingApp extends App with Logging {
 class CustomSentenceIterator(corpusPath: String, extension: String) extends BaseSentenceIterator {
 
   private val reader = new SpRLDataReader(corpusPath, classOf[ClefDocument], extension)
-  private val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", true)
+  private val CLEFDataSet = new CLEFImageReader("data/mSprl/saiapr_tc-12", "newSprl2017_train", "newSprl2017_gold", true)
   val segments = CLEFDataSet.trainingSegments ++ CLEFDataSet.testSegments
   reader.readData()
   private val docs = reader.documents
