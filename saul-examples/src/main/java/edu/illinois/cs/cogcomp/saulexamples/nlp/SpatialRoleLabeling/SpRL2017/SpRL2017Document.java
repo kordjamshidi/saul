@@ -6,6 +6,8 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017;
 
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRLXmlDocument;
+
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.List;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "SpRL")
-public class SpRL2017Document {
+public class SpRL2017Document implements SpRLXmlDocument {
     @XmlElement(name = "SCENE", required = true)
     private List<Scene> Scenes;
 
@@ -29,5 +31,17 @@ public class SpRL2017Document {
 
     public void setScenes(List<Scene> scenes) {
         Scenes = scenes;
+    }
+
+    @XmlTransient
+    protected String filename;
+    @Override
+    public String getFilename() {
+        return filename;
+    }
+
+    @Override
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }
