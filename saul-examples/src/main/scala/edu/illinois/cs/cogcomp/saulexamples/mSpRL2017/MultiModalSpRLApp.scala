@@ -8,15 +8,22 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import java.io.{File, FileOutputStream}
 
+import edu.illinois.cs.cogcomp.core.utilities.XmlModel
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ImageReaderHelper, SpRLXmlReader, ReportHelper}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ImageReaderHelper, ReportHelper, SpRLXmlReader}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.SpRL2017Document
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRLDataReader
 import org.apache.commons.io.FileUtils
+
+import scala.collection.JavaConversions._
 import mSpRLConfigurator._
+
+import scala.util.Random
 
 object MultiModalSpRLApp extends App with Logging {
 
@@ -33,17 +40,20 @@ object MultiModalSpRLApp extends App with Logging {
 
   FileUtils.forceMkdir(new File(resultsDir))
 
-  val suffix = if (useVectorAverages) "_vecAvg" else ""
+  val fold = "fold1"
+  val suffix = if (useVectorAverages) "_vecAvg_" + fold else if (fold == "") "" else s"_$fold"
 
-  val trainFileName = "newSprl2017_validation_train.xml"
-  val testFileName = "newSprl2017_validation_test.xml"
+  val trainFileName = s"${fold}/train.xml"
+  val testFileName = s"${fold}/test.xml"
   runClassifiers(true, dataPath + trainFileName, Train)
   runClassifiers(false, dataPath + testFileName, Test)
+
+  //create10Folds()
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 
     lazy val xmlReader = new SpRLXmlReader(textDataPath)
-    lazy val imageReader = new ImageReaderHelper(dataPath,trainFileName, testFileName, imageDataProportion)
+    lazy val imageReader = new ImageReaderHelper(dataPath, trainFileName, testFileName, imageDataProportion)
 
     val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage || featureSet == FeatureSets.BaseLineWithImage
     populateRoleDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, populateImages)
@@ -59,12 +69,12 @@ object MultiModalSpRLApp extends App with Logging {
       classifiers.foreach(classifier => {
         if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
           if (!pairsPopulated) {
-            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator")
+            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => IndicatorRoleClassifier(x) == "Indicator")
             ReportHelper.saveCandidateList(true, pairs.getTrainingInstances.toList)
             pairsPopulated = true
           }
         }
-        classifier.learn(50)
+        classifier.learn(20)
         classifier.save()
       })
     } else {
@@ -76,7 +86,7 @@ object MultiModalSpRLApp extends App with Logging {
         classifier.load()
         if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
           if (!pairsPopulated) {
-            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator")
+            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => IndicatorRoleClassifier(x) == "Indicator")
             ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
             pairsPopulated = true
           }
@@ -149,16 +159,22 @@ object MultiModalSpRLApp extends App with Logging {
     }
   }
 
-  //  val constrainedClassifiers =  List(
-  //  SentenceLevelConstraintClassifiers.TRConstraintClassifier,
-  //    SentenceLevelConstraintClassifiers.LMConstraintClassifier,
-  //    SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier,
-  //    SentenceLevelConstraintClassifiers.TRPairConstraintClassifier,
-  //    SentenceLevelConstraintClassifiers.LMPairConstraintClassifier)
-
-  /*train classifier jointly*/
-  // JointTrainSparseNetwork(sentences, constrainedClassifieList, 30, init = true)
-  /*test the same list of constrainedclassifiers as before*/
+  private def create10Folds(): Unit = {
+    val reader = new SpRLDataReader(dataPath, classOf[SpRL2017Document])
+    reader.readData()
+    val doc = reader.documents.find(_.getFilename == "newSprl2017_all.xml").get
+    val foldSize = Math.ceil(doc.getScenes.length / 10.0).toInt
+    val folds = doc.getScenes.sortBy(x => Random.nextGaussian()).zipWithIndex.groupBy(x => x._2 / foldSize)
+    folds.foreach(f => {
+      val test = new SpRL2017Document
+      test.setScenes(f._2.map(_._1))
+      val train = new SpRL2017Document
+      train.setScenes(folds.filter(_._1 != f._1).flatMap(_._2.map(_._1)).toList)
+      FileUtils.forceMkdir(new File(dataPath + s"fold${f._1 + 1}"))
+      XmlModel.write(test, dataPath + s"fold${f._1 + 1}/test.xml")
+      XmlModel.write(train, dataPath + s"fold${f._1 + 1}/train.xml")
+    })
+  }
 
 }
 
