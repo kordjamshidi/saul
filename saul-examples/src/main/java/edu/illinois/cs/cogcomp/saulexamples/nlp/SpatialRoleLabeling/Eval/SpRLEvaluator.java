@@ -14,6 +14,8 @@ import java.io.FilterOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -77,38 +79,53 @@ public class SpRLEvaluator {
         return evaluations;
     }
 
-    private <T extends SpRLEval> SpRLEvaluation evaluate(String label, List<T> actual, List<T> predicted,
+    private <T extends SpRLEval> SpRLEvaluation evaluate(String label, List<T> actualList, List<T> predictedList,
                                                          EvalComparer comparer) {
         int tp = 0;
-        String positive = "+", negative = "-";
-        TestDiscrete tester = new TestDiscrete();
+        List<T> actual = distinct(actualList, comparer);
+        List<T> predicted = distinct(predictedList, comparer);
+        int predictedCount = predicted.size();
+        int actualCount = actual.size();
 
-        for (T a : actual) {
+        while (actual.size() > 0) {
+            T a = actual.get(0);
             for (T p : predicted) {
                 if (comparer.isEqual(a, p)) {
-                    tester.reportPrediction(positive, positive);
                     tp++;
-                    break;// count each actual occurrence no more than once
+                    predicted.remove(p);
+                    break;
                 }
             }
+            actual.remove(a);
         }
 
-        int fp = predicted.size() - tp;
-        for (int i = 0; i < fp; i++)
-            tester.reportPrediction(positive, negative);
+        int fp = predictedCount - tp;
+        int fn = actualCount - tp;
+        double precision = (double) tp / (tp + fp) * 100;
+        double recall = (double) tp / (tp + fn) * 100;
+        double f1 = 2 * precision * recall / (precision + recall);
 
-        int fn = actual.size() - tp;
-        for (int i = 0; i < fn; i++)
-            tester.reportPrediction(negative, positive);
 
         return new SpRLEvaluation(
                 label,
-                tester.getPrecision(positive) * 100,
-                tester.getRecall(positive) * 100,
-                tester.getF1(positive) * 100,
-                tester.getLabeled(positive),
-                tester.getPredicted(positive)
+                precision,
+                recall,
+                f1,
+                actualCount,
+                predictedCount
         );
+    }
+
+    private <T extends SpRLEval> List<T> distinct(List<T> l, EvalComparer comparer) {
+        HashSet<T> set = new HashSet<T>();
+        List<T> newList = new ArrayList<T>();
+        set.add(l.get(0));
+        for (T i : l) {
+            if (!set.contains(i))
+                set.add(i);
+        }
+        newList.addAll(set);
+        return newList;
     }
 
 }

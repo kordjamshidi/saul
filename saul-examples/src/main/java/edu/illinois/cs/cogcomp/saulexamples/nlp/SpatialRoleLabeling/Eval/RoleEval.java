@@ -70,4 +70,18 @@ public class RoleEval implements SpRLEval {
         RoleEval obj = (RoleEval) b;
         return contains(obj);
     }
+
+    @Override
+    public int hashCode() {
+        return (getStart() + "-" + getEnd()).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null)
+            return false;
+        if(obj.getClass() != getClass())
+            return false;
+        return hashCode() == obj.hashCode();
+    }
 }

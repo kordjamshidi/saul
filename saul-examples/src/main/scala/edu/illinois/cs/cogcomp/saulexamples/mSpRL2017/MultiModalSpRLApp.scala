@@ -40,11 +40,11 @@ object MultiModalSpRLApp extends App with Logging {
 
   FileUtils.forceMkdir(new File(resultsDir))
 
-  val fold = "fold1"
+  val fold = ""
   val suffix = if (useVectorAverages) "_vecAvg_" + fold else if (fold == "") "" else s"_$fold"
 
-  val trainFileName = s"${fold}/train.xml"
-  val testFileName = s"${fold}/test.xml"
+  val trainFileName = s"${fold}/newSpRL2017_train.xml"
+  val testFileName = s"${fold}/newSpRL2017_gold.xml"
   runClassifiers(true, dataPath + trainFileName, Train)
   runClassifiers(false, dataPath + testFileName, Test)
 
@@ -74,7 +74,7 @@ object MultiModalSpRLApp extends App with Logging {
             pairsPopulated = true
           }
         }
-        classifier.learn(20)
+        classifier.learn(50)
         classifier.save()
       })
     } else {

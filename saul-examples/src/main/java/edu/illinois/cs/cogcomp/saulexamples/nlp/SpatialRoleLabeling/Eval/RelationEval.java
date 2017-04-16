@@ -1,9 +1,10 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ * <p>
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval;
 
 import javax.xml.bind.annotation.*;
@@ -115,5 +116,22 @@ public class RelationEval implements SpRLEval {
             return false;
         RelationEval obj = (RelationEval) b;
         return contains(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return (getHashCode(lm) + "-" + getHashCode(sp) + "-" + getHashCode(tr)).hashCode();
+    }
+    @Override
+    public boolean equals(Object obj){
+        if(obj == null)
+            return false;
+        if(obj.getClass() != getClass())
+            return false;
+        return hashCode() == obj.hashCode();
+    }
+
+    private int getHashCode(RoleEval r) {
+        return r == null ? new RoleEval().hashCode() : r.hashCode();
     }
 }
