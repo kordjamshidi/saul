@@ -98,8 +98,8 @@ public class SpRLEvaluator {
 
         int fp = predictedCount - tp;
         int fn = actualCount - tp;
-        double precision = tp + fp == 0 ? 0 : (double) tp / (tp + fp) * 100;
-        double recall = tp + fn == 0 ? 0 : (double) tp / (tp + fn) * 100;
+        double precision = tp == 0 ? 0 : (double) tp / (tp + fp) * 100;
+        double recall = tp == 0 ? 0 : (double) tp / (tp + fn) * 100;
         double f1 = 2 * precision * recall / (precision + recall);
 
 
