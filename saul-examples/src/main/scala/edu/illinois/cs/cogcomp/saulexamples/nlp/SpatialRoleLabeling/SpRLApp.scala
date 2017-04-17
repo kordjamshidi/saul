@@ -87,8 +87,8 @@ object SpRLApp extends App with Logging {
         val rolesFromRelationsResults = evaluator.evaluateRoles(actualRoles, predictedRolesFromRelations)
 
         relationResults.addAll(rolesFromRelationsResults)
-        evaluator.printEvaluation(relationResults)
-        evaluator.printEvaluation(roleResults)
+        SpRLEvaluator.printEvaluation(relationResults)
+        SpRLEvaluator.printEvaluation(roleResults)
 
       }
   }

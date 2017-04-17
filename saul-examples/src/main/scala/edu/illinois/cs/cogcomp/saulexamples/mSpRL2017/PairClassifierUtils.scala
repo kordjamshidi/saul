@@ -23,12 +23,8 @@ object PairClassifierUtils {
 
     val actual = getActualRelationEvalsPhraseBased(dataPath, isTrajector)
 
-    val comparer = new EvalComparer {
-      override def isEqual(a: SpRLEval, b: SpRLEval) = a.asInstanceOf[RelationEval].overlaps(b.asInstanceOf[RelationEval])
-    }
-
     val name = if (isTrajector) "TrSp" else "LmSp"
-    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + s"_$name", actual, predicted, comparer, 2)
+    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + s"_$name", actual, predicted, new OverlapComparer, 2)
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////

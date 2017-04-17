@@ -1,15 +1,16 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
+/**
+ * This software is released under the University of Illinois/Research and Academic Use License. See
+ * the LICENSE file in the root folder for details. Copyright (c) 2016
+ * <p>
+ * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
+ * http://cogcomp.cs.illinois.edu/
+ */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes;
 
 /**
  * Created by Taher on 2016-12-28.
  */
-public class SpanBasedElement implements ISpanElement{
+public class SpanBasedElement implements ISpanElement {
 
     private int start;
     private int end;
@@ -43,8 +44,8 @@ public class SpanBasedElement implements ISpanElement{
     public boolean contains(ISpanElement e) {
         if (e == null)
             return false;
-        return getStart() <= e.getStart() &&
-                getEnd() >= e.getEnd();
+        return matches(e) ||
+                (getStart() <= e.getStart() && getEnd() >= e.getEnd());
     }
 
     @Override
@@ -58,7 +59,7 @@ public class SpanBasedElement implements ISpanElement{
     public boolean overlaps(ISpanElement e) {
         if (e == null)
             return false;
-        return
+        return matches(e) ||
                 (getStart() <= e.getStart() && e.getStart() < getEnd()) ||
                 (e.getStart() <= getStart() && getStart() < e.getEnd());
     }

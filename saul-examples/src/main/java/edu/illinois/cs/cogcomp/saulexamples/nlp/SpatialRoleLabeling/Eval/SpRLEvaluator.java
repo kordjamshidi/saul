@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class SpRLEvaluator {
 
-    public void printEvaluation(List<SpRLEvaluation> eval) {
+    public static void printEvaluation(List<SpRLEvaluation> eval) {
         printEvaluation(System.out, eval);
     }
 
@@ -79,8 +79,8 @@ public class SpRLEvaluator {
     private <T extends SpRLEval> SpRLEvaluation evaluate(String label, List<T> actualList, List<T> predictedList,
                                                          EvalComparer comparer) {
         int tp = 0;
-        List<T> actual = distinct(actualList, comparer);
-        List<T> predicted = distinct(predictedList, comparer);
+        List<T> actual = distinct(actualList);
+        List<T> predicted = distinct(predictedList);
         int predictedCount = predicted.size();
         int actualCount = actual.size();
 
@@ -113,7 +113,7 @@ public class SpRLEvaluator {
         );
     }
 
-    private <T extends SpRLEval> List<T> distinct(List<T> l, EvalComparer comparer) {
+    private <T extends SpRLEval> List<T> distinct(List<T> l) {
         HashSet<T> set = new HashSet<T>();
         List<T> newList = new ArrayList<T>();
         set.add(l.get(0));

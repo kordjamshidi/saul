@@ -16,6 +16,7 @@ import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClass
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{OverlapComparer, SpRLEvaluator, XmlSpRLEvaluator}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.SpRL2017Document
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRLDataReader
 import org.apache.commons.io.FileUtils
@@ -42,11 +43,11 @@ object MultiModalSpRLApp extends App with Logging {
 
   //create10Folds()
 
-  val fold = ""
+  val fold = "fold1"
   val suffix = if (useVectorAverages) "_vecAvg_" + fold else if (fold == "") "" else s"_$fold"
 
-  val trainFileName = s"${fold}/newSpRL2017_train.xml"
-  val testFileName = s"${fold}/newSpRL2017_gold.xml"
+  val trainFileName = s"${fold}/train.xml"
+  val testFileName = s"${fold}/test.xml"
   runClassifiers(true, dataPath + trainFileName, Train)
   runClassifiers(false, dataPath + testFileName, Test)
 
@@ -118,19 +119,14 @@ object MultiModalSpRLApp extends App with Logging {
         x => LandmarkPairClassifier(x))
       ReportHelper.saveEvalResults(stream, "triplet", results)
 
-      /*Pair level constraints
-      * */
-      val trResults = TRPairConstraintClassifier.test()
-      ReportHelper.saveEvalResults(stream, "TRPair-Constrained", trResults)
-
-      val lmResults = LMPairConstraintClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"LMPair-Constrained", lmResults)
-
-      val constrainedResults = TripletClassifierUtils.test(textDataPath, resultsDir, featureSet.toString, isTrain,
-        x => TRPairConstraintClassifier(x),
+      val triplets = TripletClassifierUtils.predict(
+        x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),
-        x => LMPairConstraintClassifier(x))
-      ReportHelper.saveEvalResults(stream, s"triplet-constrained", constrainedResults)
+        x => LandmarkPairClassifier(x))
+      val trajectors = phrases.getTestingInstances.filter(x => TrajectorRoleClassifier(x) == "Trajector").toList
+      val landmarks = phrases.getTestingInstances.filter(x => LandmarkRoleClassifier(x) == "Landmark").toList
+      val indicators = phrases.getTestingInstances.filter(x => IndicatorRoleClassifier(x) == "Indicator").toList
+      ReportHelper.saveAsXml(triplets, trajectors, indicators, landmarks, s"$resultsDir/${featureSet}${suffix}.xml")
 
       /*Sentence level constraints
      * */

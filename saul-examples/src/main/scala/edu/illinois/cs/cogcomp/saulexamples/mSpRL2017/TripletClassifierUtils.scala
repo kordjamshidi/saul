@@ -26,11 +26,7 @@ object TripletClassifierUtils {
     val predicted: List[Relation] = predict(trClassifier, spClassifier, lmClassifier, isTrain)
     val actual = getActualRelationEvalsPhraseBased(dataPath)
 
-    val comparer = new EvalComparer {
-      override def isEqual(a: SpRLEval, b: SpRLEval) = a.asInstanceOf[RelationEval].overlaps(b.asInstanceOf[RelationEval])
-    }
-
-    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + "_triplet", actual, predicted, comparer, 3)
+    ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + "_triplet", actual, predicted, new OverlapComparer, 3)
   }
 
   def predict(
@@ -87,7 +83,7 @@ object TripletClassifierUtils {
     }).toList
   }
 
-  private def createRelation(tr: Option[NlpBaseElement], sp: Option[NlpBaseElement], lm: Option[NlpBaseElement]): Relation = {
+  private def createRelation(tr: Option[Phrase], sp: Option[Phrase], lm: Option[Phrase]): Relation = {
 
     val r = new Relation()
     r.setArgument(0, if (tr.nonEmpty) tr.get else dummyPhrase)
@@ -96,6 +92,7 @@ object TripletClassifierUtils {
     r.setArgumentId(1, r.getArgument(1).getId)
     r.setArgument(2, if (lm.nonEmpty) lm.get else dummyPhrase)
     r.setArgumentId(2, r.getArgument(2).getId)
+    r.setParent(sp.get.getSentence)
     r
   }
 

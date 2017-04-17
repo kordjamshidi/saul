@@ -64,7 +64,8 @@ public class RoleEval implements SpRLEval {
         if (!b.getClass().equals(getClass()))
             return false;
         RoleEval obj = (RoleEval) b;
-        return (getStart() <= obj.getStart() && obj.getStart() < getEnd()) ||
+        return isEqual(b) ||
+                (getStart() <= obj.getStart() && obj.getStart() < getEnd()) ||
                 (obj.getStart() <= getStart() && getStart() < obj.getEnd());
     }
 
@@ -75,7 +76,8 @@ public class RoleEval implements SpRLEval {
         if (!b.getClass().equals(getClass()))
             return false;
         RoleEval obj = (RoleEval) b;
-        return getStart() <= obj.getStart() && obj.getEnd() <= getEnd();
+        return isEqual(b) ||
+                (getStart() <= obj.getStart() && obj.getEnd() <= getEnd());
     }
 
     @Override
@@ -85,7 +87,8 @@ public class RoleEval implements SpRLEval {
         if (!b.getClass().equals(getClass()))
             return false;
         RoleEval obj = (RoleEval) b;
-        return obj.getStart() <= getStart() && getEnd() <= obj.getEnd();
+        return isEqual(b) ||
+                (obj.getStart() <= getStart() && getEnd() <= obj.getEnd());
     }
 
     @Override
