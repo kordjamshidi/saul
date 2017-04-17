@@ -40,6 +40,8 @@ object MultiModalSpRLApp extends App with Logging {
 
   FileUtils.forceMkdir(new File(resultsDir))
 
+  //create10Folds()
+
   val fold = ""
   val suffix = if (useVectorAverages) "_vecAvg_" + fold else if (fold == "") "" else s"_$fold"
 
@@ -48,7 +50,6 @@ object MultiModalSpRLApp extends App with Logging {
   runClassifiers(true, dataPath + trainFileName, Train)
   runClassifiers(false, dataPath + testFileName, Test)
 
-  //create10Folds()
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 

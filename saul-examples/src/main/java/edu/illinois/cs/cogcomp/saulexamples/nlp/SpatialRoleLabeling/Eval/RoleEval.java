@@ -47,28 +47,45 @@ public class RoleEval implements SpRLEval {
         this.end = end;
     }
 
-    public boolean contains(RoleEval b) {
-        return b != null && start <= b.getStart() && end >= b.getEnd();
-    }
-
-    public boolean contains(int x) {
-        return start <= x && x <= end;
-    }
-
-    public boolean overlaps(RoleEval b) {
-        return b != null &&
-                (contains(b.start) || contains(b.end) || b.contains(start) || b.contains(end));
-
+    @Override
+    public boolean isEqual(SpRLEval b) {
+        if (b == null)
+            return false;
+        if (!b.getClass().equals(getClass()))
+            return false;
+        RoleEval obj = (RoleEval) b;
+        return getStart() == obj.getStart() && getEnd() == obj.getEnd();
     }
 
     @Override
-    public boolean isEqual(SpRLEval b) {
-        if(b == null)
+    public boolean overlaps(SpRLEval b) {
+        if (b == null)
             return false;
-        if(!b.getClass().equals(getClass()))
+        if (!b.getClass().equals(getClass()))
             return false;
         RoleEval obj = (RoleEval) b;
-        return contains(obj);
+        return (getStart() <= obj.getStart() && obj.getStart() < getEnd()) ||
+                (obj.getStart() <= getStart() && getStart() < obj.getEnd());
+    }
+
+    @Override
+    public boolean contains(SpRLEval b) {
+        if (b == null)
+            return false;
+        if (!b.getClass().equals(getClass()))
+            return false;
+        RoleEval obj = (RoleEval) b;
+        return getStart() <= obj.getStart() && obj.getEnd() <= getEnd();
+    }
+
+    @Override
+    public boolean isPartOf(SpRLEval b) {
+        if (b == null)
+            return false;
+        if (!b.getClass().equals(getClass()))
+            return false;
+        RoleEval obj = (RoleEval) b;
+        return obj.getStart() <= getStart() && getEnd() <= obj.getEnd();
     }
 
     @Override
@@ -78,9 +95,9 @@ public class RoleEval implements SpRLEval {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null)
+        if (obj == null)
             return false;
-        if(obj.getClass() != getClass())
+        if (obj.getClass() != getClass())
             return false;
         return hashCode() == obj.hashCode();
     }

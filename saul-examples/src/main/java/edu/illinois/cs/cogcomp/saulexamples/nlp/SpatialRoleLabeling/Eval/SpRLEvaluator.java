@@ -7,14 +7,11 @@
  */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval;
 
-import edu.illinois.cs.cogcomp.lbjava.classify.TestDiscrete;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.FilterOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -52,7 +49,7 @@ public class SpRLEvaluator {
     }
 
     public List<SpRLEvaluation> evaluateRoles(RolesEvalDocument actual, RolesEvalDocument predicted) {
-        return evaluateRoles(actual, predicted, new DefaultComparer());
+        return evaluateRoles(actual, predicted, new ExactComparer());
     }
 
     public List<SpRLEvaluation> evaluateRoles(RolesEvalDocument actual, RolesEvalDocument predicted, EvalComparer comparer) {
@@ -67,7 +64,7 @@ public class SpRLEvaluator {
     }
 
     public List<SpRLEvaluation> evaluateRelations(RelationsEvalDocument actual, RelationsEvalDocument predicted) {
-        return evaluateRelations(actual, predicted, new DefaultComparer());
+        return evaluateRelations(actual, predicted, new ExactComparer());
     }
 
     public List<SpRLEvaluation> evaluateRelations(RelationsEvalDocument actual, RelationsEvalDocument predicted,
