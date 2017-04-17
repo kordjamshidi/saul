@@ -100,8 +100,7 @@ public class SpRLEvaluator {
         int fn = actualCount - tp;
         double precision = tp == 0 ? 0 : (double) tp / (tp + fp) * 100;
         double recall = tp == 0 ? 0 : (double) tp / (tp + fn) * 100;
-        double f1 = 2 * precision * recall / (precision + recall);
-
+        double f1 = precision == 0 || recall == 0 ? 0 : 2 * precision * recall / (precision + recall);
 
         return new SpRLEvaluation(
                 label,
