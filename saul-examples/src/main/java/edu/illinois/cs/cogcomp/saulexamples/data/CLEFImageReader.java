@@ -31,8 +31,8 @@ import java.io.PrintWriter;
  */
 public class CLEFImageReader {
 
-    private final String trainFileName;
-    private final String testFileName;
+    private final String trainFilePath;
+    private final String testFilePath;
     private String path;
     private Boolean readFullData;
     private List<String> trainingData;
@@ -52,10 +52,10 @@ public class CLEFImageReader {
 
     PrintWriter printWriterTest;
 
-    public CLEFImageReader(String directory, String trainFileName, String testFileName, Boolean readFullData) throws IOException {
+    public CLEFImageReader(String directory, String trainFilePath, String testFilePath, Boolean readFullData) throws IOException {
 
-        this.trainFileName = trainFileName;
-        this.testFileName = testFileName;
+        this.trainFilePath = trainFilePath;
+        this.testFilePath = testFilePath;
         File d = new File(directory);
 
         if (!d.exists()) {
@@ -380,11 +380,9 @@ public class CLEFImageReader {
     private void getTrainingImages() throws IOException {
 
         if (readFullData) {
-            String trainImage = path + "/training.mat";
-            getMatData(trainImage, true);
+            getMatData(path + "/training.mat", true);
         } else {
-            String trainImage = path + "/" + trainFileName;
-            getXMLImages(trainImage, true);
+            getXMLImages(trainFilePath, true);
         }
     }
 
@@ -394,11 +392,9 @@ public class CLEFImageReader {
     /*******************************************************/
     private void getTestImages() throws IOException {
         if (readFullData) {
-            String testImage = path + "/testing.mat";
-            getMatData(testImage, false);
+            getMatData(path + "/testing.mat", false);
         } else {
-            String testImage = path + "/" + testFileName;
-            getXMLImages(testImage, false);
+            getXMLImages(testFilePath, false);
         }
     }
     /*******************************************************/
