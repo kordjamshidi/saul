@@ -28,7 +28,21 @@ import scala.util.Random
 
 object MultiModalSpRLApp extends App with Logging {
 
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
+  val settings = {
+    var model = FeatureSets.BaseLine.toString
+    var fold = ""
+    var train = s"$dataPath$fold/newSpRL2017_validation_train.xml"
+    var test = s"$dataPath$fold/newSpRL2017_validation_test.xml"
+    args.sliding(2, 2).toList.collect {
+      case Array("-t", x) => train = x
+      case Array("-g", x) => test = x
+      case Array("-f", x) => fold = x.toLowerCase()
+      case Array("-m", x) => model = x
+    }
+    Map("train" -> train, "test" -> test, "model" -> model, "fold" -> fold)
+  }
+
+  MultiModalSpRLClassifiers.featureSet = FeatureSets.withName(settings("model"))
   MultiModalSpRLDataModel.useVectorAverages = false
 
   val classifiers = List(
@@ -43,19 +57,19 @@ object MultiModalSpRLApp extends App with Logging {
 
   //create10Folds()
 
-  val fold = "fold1"
+  val fold = settings("fold")
   val suffix = if (useVectorAverages) "_vecAvg_" + fold else if (fold == "") "" else s"_$fold"
 
-  val trainFileName = s"${fold}/train.xml"
-  val testFileName = s"${fold}/test.xml"
-  runClassifiers(true, dataPath + trainFileName, Train)
-  runClassifiers(false, dataPath + testFileName, Test)
+  val trainFile = settings("train")
+  val testFile = settings("test")
+  runClassifiers(true, trainFile, Train)
+  runClassifiers(false, testFile, Test)
 
 
   private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
 
     lazy val xmlReader = new SpRLXmlReader(textDataPath)
-    lazy val imageReader = new ImageReaderHelper(dataPath, trainFileName, testFileName, imageDataProportion)
+    lazy val imageReader = new ImageReaderHelper(dataPath, trainFile, testFile, imageDataProportion)
 
     val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage || featureSet == FeatureSets.BaseLineWithImage
     populateRoleDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, populateImages)
@@ -172,6 +186,5 @@ object MultiModalSpRLApp extends App with Logging {
       XmlModel.write(train, dataPath + s"fold${f._1 + 1}/train.xml")
     })
   }
-
 }
 
