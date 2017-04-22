@@ -70,7 +70,7 @@ object MultiModalPopulateData {
     if (populateNullPairs) {
       phrases.populate(List(dummyPhrase), isTrain)
     }
-    val candidateRelations = CandidateGenerator.generatePairCandidates(phrases.getTrainingInstances.toList, populateNullPairs, indicatorClassifier)
+    val candidateRelations = CandidateGenerator.generatePairCandidates(phrases().toList, populateNullPairs, indicatorClassifier)
     pairs.populate(candidateRelations, isTrain)
   }
 }

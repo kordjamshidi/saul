@@ -6,8 +6,8 @@ import edu.illinois.cs.cogcomp.core.utilities.XmlModel
 import edu.illinois.cs.cogcomp.saul.util.Logging
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.FeatureSets
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ Document, NlpBaseElement, Sentence, Token }
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{ LANDMARK, RELATION, SPATIALINDICATOR, TRAJECTOR }
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.{LANDMARK, RELATION, SPATIALINDICATOR, TRAJECTOR}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling._
 
 import scala.collection.JavaConversions._
@@ -64,10 +64,10 @@ object SpRLApp extends App with Logging {
 
     val relationList = TripletClassifierUtils.predict(
       x => TrajectorPairClassifier(x),
-      x => LandmarkPairClassifier(x),
-      x => IndicatorRoleClassifier(x)
+      x => IndicatorRoleClassifier(x),
+      x => LandmarkPairClassifier(x)
     )
-    relationList.foreach(r => r.setParent(r.getArgument(1).asInstanceOf[Token].getSentence))
+    relationList.foreach(r => r.setParent(r.getArgument(1).asInstanceOf[Phrase].getSentence))
 
     val spRL2017Document = new SpRL2017.SpRL2017Document
     spRL2017Document.setScenes(documentList.map(getScene))
