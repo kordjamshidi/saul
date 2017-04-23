@@ -8,22 +8,13 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import java.io.{File, FileOutputStream}
 
-import edu.illinois.cs.cogcomp.core.utilities.XmlModel
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ImageReaderHelper, ReportHelper, SpRLXmlReader}
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ReportHelper}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.{OverlapComparer, SpRLEvaluator, XmlSpRLEvaluator}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.SpRL2017Document
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRLDataReader
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRLConfigurator._
 import org.apache.commons.io.FileUtils
-
-import scala.collection.JavaConversions._
-import mSpRLConfigurator._
-
-import scala.util.Random
 
 object MultiModalSpRLApp extends App with Logging {
 
@@ -48,13 +39,11 @@ object MultiModalSpRLApp extends App with Logging {
     TrajectorPairClassifier,
     LandmarkPairClassifier
   )
-
-  FileUtils.forceMkdir(new File(resultsDir))
-
   classifiers.foreach(x => {
     x.modelDir = s"models/mSpRL/$featureSet/"
     x.modelSuffix = suffix
   })
+  FileUtils.forceMkdir(new File(resultsDir))
 
   populateRoleDataFromAnnotatedCorpus()
 

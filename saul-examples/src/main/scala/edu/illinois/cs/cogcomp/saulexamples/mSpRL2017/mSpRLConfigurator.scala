@@ -7,8 +7,8 @@ object mSpRLConfigurator {
   val imageDataPath = "data/mSprl/saiapr_tc-12/"
   val modelDir = "models/mSpRL/"
   val spatialIndicatorLex = "data/mSprl/spatialIndicator.lex"
-  val trainFile = "data/mSprl/saiapr_tc-12/newSpRL2017_validation_train.xml"
-  val testFile = "data/mSprl/saiapr_tc-12/newSpRL2017_validation_test.xml"
+  val trainFile = "data/mSprl/saiapr_tc-12/newSpRL2017_train.xml"
+  val testFile = "data/mSprl/saiapr_tc-12/newSpRL2017_gold.xml"
   val suffix = ""
   val expName = "BM" //{"BM", "BM+C", "BM+C+E", "BM+C+E+I"}
   val isTrain = true
