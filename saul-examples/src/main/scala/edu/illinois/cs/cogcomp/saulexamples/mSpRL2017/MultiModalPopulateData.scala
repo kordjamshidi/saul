@@ -32,9 +32,11 @@ object MultiModalPopulateData {
 
     xmlReader.setRoles(phraseInstances)
 
-    images.populate(imageReader.getImageList, isTrain)
-    segments.populate(imageReader.getSegmentList, isTrain)
-    segmentRelations.populate(imageReader.getImageRelationList, isTrain)
+    if(populateImages) {
+      images.populate(imageReader.getImageList, isTrain)
+      segments.populate(imageReader.getSegmentList, isTrain)
+      segmentRelations.populate(imageReader.getImageRelationList, isTrain)
+    }
   }
 
   def populatePairDataFromAnnotatedCorpus(indicatorClassifier: Phrase => Boolean,

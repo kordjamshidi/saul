@@ -14,7 +14,8 @@ object mSpRLConfigurator {
   val testFile = "data/mSprl/saiapr_tc-12/newSpRL2017_gold.xml"
   val suffix = ""
   val model = FeatureSets.BaseLine
-  val isTrain = true
+  val isTrain = false
   val iterations = 50
-  val useConstraints = false
+  val useConstraints = true
+  val populateImages = model == FeatureSets.WordEmbeddingPlusImage || model == FeatureSets.BaseLineWithImage
 }
