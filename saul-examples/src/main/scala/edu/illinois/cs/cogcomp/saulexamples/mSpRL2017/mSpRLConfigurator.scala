@@ -1,5 +1,6 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.FeatureSets
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRLConfigurator.useConstraints
 
 /** Created by parisakordjamshidi on 3/23/17.
@@ -12,7 +13,7 @@ object mSpRLConfigurator {
   val trainFile = "data/mSprl/saiapr_tc-12/newSpRL2017_train.xml"
   val testFile = "data/mSprl/saiapr_tc-12/newSpRL2017_gold.xml"
   val suffix = ""
-  val expName = "BM" //{"BM", "BM+C", "BM+C+E", "BM+C+E+I"}
+  val model = FeatureSets.BaseLine
   val isTrain = true
   val iterations = 50
   val useConstraints = false

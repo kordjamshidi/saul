@@ -18,17 +18,16 @@ import org.apache.commons.io.FileUtils
 
 object MultiModalSpRLApp extends App with Logging {
 
- expName match {
-    case "BM" =>
-      MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
-    case "BM+C" =>
-      MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
-    case "BM+C+E" =>
-      MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbedding
-    case "BM+C+E+I" =>
-      MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbeddingPlusImage
+  val expName = (model, useConstraints) match {
+    case (FeatureSets.BaseLine, false) => "BM"
+    case (FeatureSets.BaseLine, true) => "BM+C"
+    case (FeatureSets.WordEmbedding, true) => "BM+C+E"
+    case (FeatureSets.WordEmbeddingPlusImage, true) => "BM+C+E+I"
+    case _ =>
+      logger.error("experiment no supported")
+      System.exit(1)
   }
-  MultiModalSpRLDataModel.useVectorAverages = false
+  MultiModalSpRLClassifiers.featureSet = model
 
   val classifiers = List(
     TrajectorRoleClassifier,
@@ -112,7 +111,7 @@ object MultiModalSpRLApp extends App with Logging {
 
     }
 
-    if(useConstraints) {
+    if (useConstraints) {
 
       val trSentenceResults = SentenceLevelConstraintClassifiers.TRConstraintClassifier.test()
       ReportHelper.saveEvalResults(stream, "TR-SentenceConstrained", trSentenceResults)
