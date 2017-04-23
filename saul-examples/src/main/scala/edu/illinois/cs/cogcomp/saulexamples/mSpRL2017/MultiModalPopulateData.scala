@@ -4,6 +4,7 @@ import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{documentToSentenceGenerating}
+import mSpRLConfigurator._
 
 import scala.collection.JavaConversions._
 
@@ -12,13 +13,10 @@ import scala.collection.JavaConversions._
 
 object MultiModalPopulateData {
 
-  def populateRoleDataFromAnnotatedCorpus(
-                                           xmlReader: SpRLXmlReader,
-                                           imageReader: ImageReaderHelper,
-                                           isTrain: Boolean,
-                                           populateImages: Boolean = false,
-                                           populateNullPairs: Boolean = true
-                                         ): Unit = {
+  lazy val xmlReader = new SpRLXmlReader(if (isTrain) trainFile else testFile)
+  lazy val imageReader = new ImageReaderHelper(imageDataPath, trainFile, testFile, isTrain)
+
+  def populateRoleDataFromAnnotatedCorpus(populateNullPairs: Boolean = true): Unit = {
     if (isTrain) {
       LexiconHelper.createSpatialIndicatorLexicon(xmlReader)
     }
@@ -34,19 +32,13 @@ object MultiModalPopulateData {
 
     xmlReader.setRoles(phraseInstances)
 
-    if (populateImages) {
-      images.populate(imageReader.getImageList, isTrain)
-      segments.populate(imageReader.getSegmentList, isTrain)
-      segmentRelations.populate(imageReader.getImageRelationList, isTrain)
-    }
+    images.populate(imageReader.getImageList, isTrain)
+    segments.populate(imageReader.getSegmentList, isTrain)
+    segmentRelations.populate(imageReader.getImageRelationList, isTrain)
   }
 
-  def populatePairDataFromAnnotatedCorpus(
-                                           xmlReader: SpRLXmlReader,
-                                           isTrain: Boolean,
-                                           indicatorClassifier: Phrase => Boolean,
-                                           populateImages: Boolean = false,
-                                           populateNullPairs: Boolean = true
+  def populatePairDataFromAnnotatedCorpus(indicatorClassifier: Phrase => Boolean,
+                                          populateNullPairs: Boolean = true
                                          ): Unit = {
 
     val phraseInstances = (if (isTrain) phrases.getTrainingInstances.toList else phrases.getTestingInstances.toList)

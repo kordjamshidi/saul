@@ -10,7 +10,6 @@ import java.io.{File, FileOutputStream}
 
 import edu.illinois.cs.cogcomp.core.utilities.XmlModel
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ImageReaderHelper, ReportHelper, SpRLXmlReader}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalConstrainedClassifiers.{LMPairConstraintClassifier, TRPairConstraintClassifier}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
@@ -28,21 +27,18 @@ import scala.util.Random
 
 object MultiModalSpRLApp extends App with Logging {
 
-  val settings = {
-    var model = FeatureSets.BaseLine.toString
-    var fold = ""
-    var train = s"$dataPath$fold/newSpRL2017_validation_train.xml"
-    var test = s"$dataPath$fold/newSpRL2017_validation_test.xml"
-    args.sliding(2, 2).toList.collect {
-      case Array("-t", x) => train = x
-      case Array("-g", x) => test = x
-      case Array("-f", x) => fold = x.toLowerCase()
-      case Array("-m", x) => model = x
-    }
-    Map("train" -> train, "test" -> test, "model" -> model, "fold" -> fold)
+  var useConstraints = true
+  expName match {
+    case "BM" =>
+      MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
+      useConstraints = false
+    case "BM+C" =>
+      MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
+    case "BM+C+E" =>
+      MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbedding
+    case "BM+C+E+I" =>
+      MultiModalSpRLClassifiers.featureSet = FeatureSets.WordEmbeddingPlusImage
   }
-
-  MultiModalSpRLClassifiers.featureSet = FeatureSets.withName(settings("model"))
   MultiModalSpRLDataModel.useVectorAverages = false
 
   val classifiers = List(
@@ -53,81 +49,56 @@ object MultiModalSpRLApp extends App with Logging {
     LandmarkPairClassifier
   )
 
+  //create10Folds()
   FileUtils.forceMkdir(new File(resultsDir))
 
-  //create10Folds()
+  classifiers.foreach(x => {
+    x.modelDir = s"models/mSpRL/$featureSet/"
+    x.modelSuffix = suffix
+  })
 
-  val fold = settings("fold")
-  val suffix = if (useVectorAverages) "_vecAvg_" + fold else if (fold == "") "" else s"_$fold"
+  populateRoleDataFromAnnotatedCorpus()
 
-  val trainFile = settings("train")
-  val testFile = settings("test")
-  runClassifiers(true, trainFile, Train)
-  runClassifiers(false, testFile, Test)
+  if (isTrain) {
 
-
-  private def runClassifiers(isTrain: Boolean, textDataPath: String, imageDataProportion: DataProportion) = {
-
-    lazy val xmlReader = new SpRLXmlReader(textDataPath)
-    lazy val imageReader = new ImageReaderHelper(dataPath, trainFile, testFile, imageDataProportion)
-
-    val populateImages = featureSet == FeatureSets.WordEmbeddingPlusImage || featureSet == FeatureSets.BaseLineWithImage
-    populateRoleDataFromAnnotatedCorpus(xmlReader, imageReader, isTrain, populateImages)
-
-    classifiers.foreach(x => {
-      x.modelDir = s"models/mSpRL/$featureSet/"
-      x.modelSuffix = suffix
+    println("training started ...")
+    var pairsPopulated = false
+    classifiers.foreach(classifier => {
+      if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
+        if (!pairsPopulated) {
+          populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
+          ReportHelper.saveCandidateList(true, pairs.getTrainingInstances.toList)
+          pairsPopulated = true
+        }
+      }
+      classifier.learn(iterations)
+      classifier.save()
     })
+  } else {
 
-    if (isTrain) {
-      println("training started ...")
-      var pairsPopulated = false
-      classifiers.foreach(classifier => {
-        if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
-          if (!pairsPopulated) {
-            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => IndicatorRoleClassifier(x) == "Indicator")
-            ReportHelper.saveCandidateList(true, pairs.getTrainingInstances.toList)
-            pairsPopulated = true
-          }
-        }
-        classifier.learn(50)
-        classifier.save()
-      })
-    } else {
-      println("testing started ...")
-      val stream = new FileOutputStream(s"$resultsDir/$featureSet$suffix.txt")
+    println("testing started ...")
+    val stream = new FileOutputStream(s"$resultsDir/$featureSet$suffix.txt")
 
-      var pairsPopulated = false
-      classifiers.foreach(classifier => {
-        classifier.load()
-        if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
-          if (!pairsPopulated) {
-            populatePairDataFromAnnotatedCorpus(xmlReader, isTrain, x => IndicatorRoleClassifier(x) == "Indicator")
-            ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
-            pairsPopulated = true
-          }
-          val predicted = pairs.getTestingInstances.filter(x => classifier(x) != "None").toList
-          val results = PairClassifierUtils.evaluate(predicted, textDataPath, resultsDir, featureSet.toString, isTrain,
-            classifier == TrajectorPairClassifier)
-          ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}-xml", results)
+    var pairsPopulated = false
+    classifiers.foreach(classifier => {
+      classifier.load()
+      if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
+        if (!pairsPopulated) {
+          populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
+          ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
+          pairsPopulated = true
         }
+      }
+      if(!useConstraints) {
         val results = classifier.test()
         ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}", results)
-      })
+      }
+    })
 
-      val allCandidateResults = TripletClassifierUtils.test(textDataPath, resultsDir, "all-candidates", isTrain,
-        _ => "TR-SP",
-        _ => "Indicator",
-        _ => "LM-SP")
-      ReportHelper.saveEvalResults(stream, "triplet-all-candidates", allCandidateResults)
 
-      val groundTruthResults = TripletClassifierUtils.test(textDataPath, resultsDir, "ground-truth", isTrain,
-        r => isTrajectorRelation(r),
-        t => indicatorRole(t),
-        r => isLandmarkRelation(r))
-      ReportHelper.saveEvalResults(stream, "triplet-ground-truth", groundTruthResults)
+    if(!useConstraints){
 
-      val results = TripletClassifierUtils.test(textDataPath, resultsDir, featureSet.toString, isTrain,
+      val results = TripletClassifierUtils.test(testFile, resultsDir, featureSet.toString, isTrain,
         x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),
         x => LandmarkPairClassifier(x))
@@ -140,8 +111,9 @@ object MultiModalSpRLApp extends App with Logging {
       val trajectors = phrases.getTestingInstances.filter(x => TrajectorRoleClassifier(x) == "Trajector").toList
       val landmarks = phrases.getTestingInstances.filter(x => LandmarkRoleClassifier(x) == "Landmark").toList
       val indicators = phrases.getTestingInstances.filter(x => IndicatorRoleClassifier(x) == "Indicator").toList
-      ReportHelper.saveAsXml(triplets, trajectors, indicators, landmarks, s"$resultsDir/${featureSet}${suffix}.xml")
+      ReportHelper.saveAsXml(triplets, trajectors, indicators, landmarks, s"$resultsDir/${expName}${suffix}.xml")
 
+    }else{
       /*Sentence level constraints
      * */
 
@@ -160,18 +132,26 @@ object MultiModalSpRLApp extends App with Logging {
       val lmPairSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
       ReportHelper.saveEvalResults(stream, "LMPair-SentenceConstrained", lmPairSentenceResults)
 
-      val constrainedPairSentenceResults = TripletClassifierUtils.test(textDataPath, resultsDir, featureSet.toString, isTrain,
+      val constrainedPairSentenceResults = TripletClassifierUtils.test(testFile, resultsDir, featureSet.toString, isTrain,
         x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
       ReportHelper.saveEvalResults(stream, "triplet-SentenceConstrained", constrainedPairSentenceResults)
 
-      stream.close()
+      val triplets = TripletClassifierUtils.predict(
+        x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
+        x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x),
+        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
+      val trajectors = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.TRConstraintClassifier(x) == "Trajector").toList
+      val landmarks = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.LMConstraintClassifier == "Landmark").toList
+      val indicators = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator").toList
+      ReportHelper.saveAsXml(triplets, trajectors, indicators, landmarks, s"$resultsDir/${expName}${suffix}.xml")
     }
+    stream.close()
   }
 
   private def create10Folds(): Unit = {
-    val reader = new SpRLDataReader(dataPath, classOf[SpRL2017Document])
+    val reader = new SpRLDataReader(imageDataPath, classOf[SpRL2017Document])
     reader.readData()
     val doc = reader.documents.find(_.getFilename == "newSprl2017_all.xml").get
     val foldSize = Math.ceil(doc.getScenes.length / 10.0).toInt
@@ -181,9 +161,9 @@ object MultiModalSpRLApp extends App with Logging {
       test.setScenes(f._2.map(_._1))
       val train = new SpRL2017Document
       train.setScenes(folds.filter(_._1 != f._1).flatMap(_._2.map(_._1)).toList)
-      FileUtils.forceMkdir(new File(dataPath + s"fold${f._1 + 1}"))
-      XmlModel.write(test, dataPath + s"fold${f._1 + 1}/test.xml")
-      XmlModel.write(train, dataPath + s"fold${f._1 + 1}/train.xml")
+      FileUtils.forceMkdir(new File(imageDataPath + s"fold${f._1 + 1}"))
+      XmlModel.write(test, imageDataPath + s"fold${f._1 + 1}/test.xml")
+      XmlModel.write(train, imageDataPath + s"fold${f._1 + 1}/train.xml")
     })
   }
 }

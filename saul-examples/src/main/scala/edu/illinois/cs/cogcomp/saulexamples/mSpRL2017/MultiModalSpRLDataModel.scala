@@ -20,7 +20,7 @@ object MultiModalSpRLDataModel extends DataModel {
   dummyPhrase.addPropertyValue("TRAJECTOR_id", dummyPhrase.getId)
   dummyPhrase.addPropertyValue("LANDMARK_id", dummyPhrase.getId)
 
-  var useVectorAverages = true
+  var useVectorAverages = false
 
   /*
   Nodes
