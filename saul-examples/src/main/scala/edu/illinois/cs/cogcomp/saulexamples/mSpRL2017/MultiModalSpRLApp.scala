@@ -91,7 +91,7 @@ object MultiModalSpRLApp extends App with Logging {
       val spResults = IndicatorRoleClassifier.test()
       ReportHelper.saveEvalResults(stream, s"SP", spResults)
 
-      val trPairResults = LandmarkPairClassifier.test()
+      val trPairResults = TrajectorPairClassifier.test()
       ReportHelper.saveEvalResults(stream, s"TRPair", trPairResults)
 
       val lmPairResults = LandmarkPairClassifier.test()
