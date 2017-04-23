@@ -55,7 +55,7 @@ object SpRLApp extends App with Logging {
       println("input directory doesn't exists or is empty.")
       return
     }
-    val documentList = inputDir.listFiles.map(file => {
+    val documentList = inputDir.listFiles.filter(f=> f.getName.endsWith(".txt")).map(file => {
       val text = scala.io.Source.fromFile(file).mkString
       new Document(file.getName, -1, -1, text)
     }).toList

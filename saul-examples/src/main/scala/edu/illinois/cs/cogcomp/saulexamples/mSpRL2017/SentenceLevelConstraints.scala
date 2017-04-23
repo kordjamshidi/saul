@@ -14,7 +14,7 @@ object SentenceLevelConstraints {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToPhrase <~ relationToFirstArgument).foreach {
+      (sentences(s) ~> sentenceToRelations).foreach {
         x =>
           a = a and (((TrajectorPairClassifier on x) is "TR-SP") ==>
             (TrajectorRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Trajector") and
@@ -27,7 +27,7 @@ object SentenceLevelConstraints {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToPhrase <~ relationToFirstArgument).foreach {
+      (sentences(s) ~> sentenceToRelations).foreach {
         x =>
           a = a and ((LandmarkPairClassifier on x) is "LM-SP") ==>
             (LandmarkRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Landmark") and
