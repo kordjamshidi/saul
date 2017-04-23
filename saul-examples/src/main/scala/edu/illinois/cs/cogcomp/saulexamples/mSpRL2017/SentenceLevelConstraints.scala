@@ -60,9 +60,9 @@ object SentenceLevelConstraints {
   val boostPairs = ConstrainedClassifier.constraint[Sentence] {
     //if there is an indicator in the sentence then there should be a relation in the sentence, though the roles can be null.
     s: Sentence =>
-      (((sentences(s) ~> sentenceToPhrase).toList._exists { x: Phrase => IndicatorRoleClassifier on x is "Indicator" }) ==>
-        ((sentences(s) ~> sentenceToRelations).toList._exists { x: Relation => TrajectorPairClassifier on x is "TR-SP" })) and
-        ((sentences(s) ~> sentenceToRelations).toList._exists { x: Relation => LandmarkPairClassifier on x is "LM-SP" })
+      ((sentences(s) ~> sentenceToPhrase).toList._exists { x: Phrase => IndicatorRoleClassifier on x is "Indicator" }) ==>
+        (((sentences(s) ~> sentenceToRelations).toList._exists { x: Relation => TrajectorPairClassifier on x is "TR-SP" }) and
+        ((sentences(s) ~> sentenceToRelations).toList._exists { x: Relation => LandmarkPairClassifier on x is "LM-SP" }))
   }
 
   //  val reasoningConstraints = ConstrainedClassifier.constraint[Sentence] {
