@@ -59,43 +59,54 @@ object MultiModalSpRLApp extends App with Logging {
   populateRoleDataFromAnnotatedCorpus()
 
   if (isTrain) {
-
     println("training started ...")
-    var pairsPopulated = false
-    classifiers.foreach(classifier => {
-      if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
-        if (!pairsPopulated) {
-          populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
-          ReportHelper.saveCandidateList(true, pairs.getTrainingInstances.toList)
-          pairsPopulated = true
-        }
-      }
-      classifier.learn(iterations)
-      classifier.save()
-    })
-  } else {
+    TrajectorRoleClassifier.learn(iterations)
+    TrajectorRoleClassifier.save()
+
+    IndicatorRoleClassifier.learn(iterations)
+    IndicatorRoleClassifier.save()
+
+    LandmarkRoleClassifier.learn(iterations)
+    LandmarkRoleClassifier.save()
+
+    populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
+    ReportHelper.saveCandidateList(true, pairs.getTestingInstances.toList)
+
+    TrajectorPairClassifier.learn(iterations)
+    TrajectorPairClassifier.save()
+
+    LandmarkPairClassifier.learn(iterations)
+    LandmarkRoleClassifier.save()
+  }
+
+  else {
 
     println("testing started ...")
     val stream = new FileOutputStream(s"$resultsDir/$expName$suffix.txt")
 
-    var pairsPopulated = false
-    classifiers.foreach(classifier => {
-      classifier.load()
-      if (classifier == TrajectorPairClassifier || classifier == LandmarkPairClassifier) {
-        if (!pairsPopulated) {
-          populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
-          ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
-          pairsPopulated = true
-        }
-      }
-      if(!useConstraints) {
-        val results = classifier.test()
-        ReportHelper.saveEvalResults(stream, s"${classifier.getClassSimpleNameForClassifier}", results)
-      }
-    })
+    TrajectorRoleClassifier.load()
+    LandmarkRoleClassifier.load()
+    IndicatorRoleClassifier.load()
+    TrajectorPairClassifier.load()
+    LandmarkPairClassifier.load()
+    populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
+    ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
 
+    if (!useConstraints) {
+      val trResults = TrajectorRoleClassifier.test()
+      ReportHelper.saveEvalResults(stream, s"TR", trResults)
 
-    if(!useConstraints){
+      val lmResults = LandmarkRoleClassifier.test()
+      ReportHelper.saveEvalResults(stream, s"LM", lmResults)
+
+      val spResults = IndicatorRoleClassifier.test()
+      ReportHelper.saveEvalResults(stream, s"SP", spResults)
+
+      val trPairResults = LandmarkPairClassifier.test()
+      ReportHelper.saveEvalResults(stream, s"TRPair", trPairResults)
+
+      val lmPairResults = LandmarkPairClassifier.test()
+      ReportHelper.saveEvalResults(stream, s"LMPair", lmPairResults)
 
       val results = TripletClassifierUtils.test(testFile, resultsDir, featureSet.toString, isTrain,
         x => TrajectorPairClassifier(x),
@@ -112,9 +123,9 @@ object MultiModalSpRLApp extends App with Logging {
       val indicators = phrases.getTestingInstances.filter(x => IndicatorRoleClassifier(x) == "Indicator").toList
       ReportHelper.saveAsXml(triplets, trajectors, indicators, landmarks, s"$resultsDir/${expName}${suffix}.xml")
 
-    }else{
-      /*Sentence level constraints
-     * */
+    }
+
+    if(useConstraints) {
 
       val trSentenceResults = SentenceLevelConstraintClassifiers.TRConstraintClassifier.test()
       ReportHelper.saveEvalResults(stream, "TR-SentenceConstrained", trSentenceResults)
@@ -146,6 +157,7 @@ object MultiModalSpRLApp extends App with Logging {
       val indicators = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator").toList
       ReportHelper.saveAsXml(triplets, trajectors, indicators, landmarks, s"$resultsDir/${expName}${suffix}.xml")
     }
+
     stream.close()
   }
 
