@@ -49,7 +49,6 @@ object MultiModalSpRLApp extends App with Logging {
     LandmarkPairClassifier
   )
 
-  //create10Folds()
   FileUtils.forceMkdir(new File(resultsDir))
 
   classifiers.foreach(x => {
@@ -77,7 +76,7 @@ object MultiModalSpRLApp extends App with Logging {
   } else {
 
     println("testing started ...")
-    val stream = new FileOutputStream(s"$resultsDir/$featureSet$suffix.txt")
+    val stream = new FileOutputStream(s"$resultsDir/$expName$suffix.txt")
 
     var pairsPopulated = false
     classifiers.foreach(classifier => {
@@ -150,21 +149,5 @@ object MultiModalSpRLApp extends App with Logging {
     stream.close()
   }
 
-  private def create10Folds(): Unit = {
-    val reader = new SpRLDataReader(imageDataPath, classOf[SpRL2017Document])
-    reader.readData()
-    val doc = reader.documents.find(_.getFilename == "newSprl2017_all.xml").get
-    val foldSize = Math.ceil(doc.getScenes.length / 10.0).toInt
-    val folds = doc.getScenes.sortBy(x => Random.nextGaussian()).zipWithIndex.groupBy(x => x._2 / foldSize)
-    folds.foreach(f => {
-      val test = new SpRL2017Document
-      test.setScenes(f._2.map(_._1))
-      val train = new SpRL2017Document
-      train.setScenes(folds.filter(_._1 != f._1).flatMap(_._2.map(_._1)).toList)
-      FileUtils.forceMkdir(new File(imageDataPath + s"fold${f._1 + 1}"))
-      XmlModel.write(test, imageDataPath + s"fold${f._1 + 1}/test.xml")
-      XmlModel.write(train, imageDataPath + s"fold${f._1 + 1}/train.xml")
-    })
-  }
 }
 
