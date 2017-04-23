@@ -1,6 +1,5 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.dummyPhrase
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader

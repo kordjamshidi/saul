@@ -1,6 +1,5 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.DataProportion._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ ReportHelper, SpRLXmlReader }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{ NlpBaseElement, Phrase, Relation }
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
