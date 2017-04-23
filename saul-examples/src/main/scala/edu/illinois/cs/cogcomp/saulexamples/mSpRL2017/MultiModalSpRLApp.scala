@@ -21,6 +21,7 @@ object MultiModalSpRLApp extends App with Logging {
   val expName = (model, useConstraints) match {
     case (FeatureSets.BaseLine, false) => "BM"
     case (FeatureSets.BaseLine, true) => "BM+C"
+    case (FeatureSets.WordEmbedding, false) => "BM+E"
     case (FeatureSets.WordEmbedding, true) => "BM+C+E"
     case (FeatureSets.WordEmbeddingPlusImage, true) => "BM+C+E+I"
     case _ =>
