@@ -18,11 +18,9 @@ import org.apache.commons.io.FileUtils
 
 object MultiModalSpRLApp extends App with Logging {
 
-  var useConstraints = true
-  expName match {
+ expName match {
     case "BM" =>
       MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
-      useConstraints = false
     case "BM+C" =>
       MultiModalSpRLClassifiers.featureSet = FeatureSets.BaseLine
     case "BM+C+E" =>
@@ -68,7 +66,7 @@ object MultiModalSpRLApp extends App with Logging {
     LandmarkRoleClassifier.save()
   }
 
-  else {
+  if (!isTrain) {
 
     println("testing started ...")
     val stream = new FileOutputStream(s"$resultsDir/$expName$suffix.txt")
