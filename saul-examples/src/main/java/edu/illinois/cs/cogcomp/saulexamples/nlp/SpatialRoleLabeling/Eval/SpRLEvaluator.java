@@ -115,6 +115,8 @@ public class SpRLEvaluator {
     private <T extends SpRLEval> List<T> distinct(List<T> l) {
         HashSet<T> set = new HashSet<T>();
         List<T> newList = new ArrayList<T>();
+        if(l.size() == 0)
+            return  newList;
         set.add(l.get(0));
         for (T i : l) {
             if (!set.contains(i))
