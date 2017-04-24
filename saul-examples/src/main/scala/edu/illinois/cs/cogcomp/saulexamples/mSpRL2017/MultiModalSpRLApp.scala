@@ -23,6 +23,7 @@ object MultiModalSpRLApp extends App with Logging {
     case (FeatureSets.BaseLine, true) => "BM+C"
     case (FeatureSets.WordEmbedding, false) => "BM+E"
     case (FeatureSets.WordEmbedding, true) => "BM+C+E"
+    case (FeatureSets.WordEmbeddingPlusImage, false) => "BM+E+I"
     case (FeatureSets.WordEmbeddingPlusImage, true) => "BM+C+E+I"
     case _ =>
       logger.error("experiment no supported")
@@ -63,7 +64,7 @@ object MultiModalSpRLApp extends App with Logging {
     TrajectorPairClassifier.save()
 
     LandmarkPairClassifier.learn(iterations)
-    LandmarkRoleClassifier.save()
+    LandmarkPairClassifier.save()
   }
 
   if (!isTrain) {
