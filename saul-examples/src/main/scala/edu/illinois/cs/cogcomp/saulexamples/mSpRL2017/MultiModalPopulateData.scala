@@ -54,8 +54,6 @@ object MultiModalPopulateData {
   }
 
   def populateTripletDataFromAnnotatedCorpus(
-                                              xmlReader: SpRLXmlReader,
-                                              isTrain: Boolean,
                                               trClassifier: (Relation) => String,
                                               spClassifier: (Phrase) => String,
                                               lmClassifier: (Relation) => String

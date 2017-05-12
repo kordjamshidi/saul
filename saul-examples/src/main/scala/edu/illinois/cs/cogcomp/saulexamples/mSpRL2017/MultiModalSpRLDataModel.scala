@@ -265,13 +265,13 @@ object MultiModalSpRLDataModel extends DataModel {
     r: Relation => getPairArguments(r)._1.containsProperty("SP-Candidate")
   }
 
-  val relationWordForm = property(pairs, cache = true) {
+  val pairWordForm = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       wordForm(first) + "::" + wordForm(second)
   }
 
-  val relationHeadWordForm = property(pairs, cache = true) {
+  val pairHeadWordForm = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       headWordFrom(first) + "::" + headWordFrom(second)
@@ -289,31 +289,31 @@ object MultiModalSpRLDataModel extends DataModel {
       headWordLemma(first) + "::" + headWordLemma(second)
   }
 
-  val relationPos = property(pairs, cache = true) {
+  val pairPos = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       pos(first) + "::" + pos(second)
   }
 
-  val relationHeadWordPos = property(pairs, cache = true) {
+  val pairHeadWordPos = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       headWordPos(first) + "::" + headWordPos(second)
   }
 
-  val relationPhrasePos = property(pairs, cache = true) {
+  val pairPhrasePos = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       phrasePos(first) + "::" + phrasePos(second)
   }
 
-  val relationSemanticRole = property(pairs, cache = true) {
+  val pairSemanticRole = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       semanticRole(first) + "::" + semanticRole(second)
   }
 
-  val relationDependencyRelation = property(pairs, cache = true) {
+  val pairDependencyRelation = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       dependencyRelation(first) + "::" + dependencyRelation(second)
@@ -325,7 +325,7 @@ object MultiModalSpRLDataModel extends DataModel {
       headDependencyRelation(first) + "::" + headDependencyRelation(second)
   }
 
-  val relationSubCategorization = property(pairs, cache = true) {
+  val pairSubCategorization = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       subCategorization(first) + "::" + subCategorization(second)
@@ -343,31 +343,31 @@ object MultiModalSpRLDataModel extends DataModel {
       spatialContext(first) + "::" + spatialContext(second)
   }
 
-  val relationHeadSpatialContext = property(pairs, cache = true) {
+  val pairHeadSpatialContext = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       headSpatialContext(first) + "::" + headSpatialContext(second)
   }
 
-  val relationTokensVector = property(pairs, cache = true) {
+  val pairTokensVector = property(pairs, cache = true) {
     r: Relation =>
       val (first, second) = getPairArguments(r)
       headVector(first) ++ headVector(second)
   }
 
-  val relationNearestSegmentConceptToHeadVector = property(pairs, cache = true) {
+  val pairNearestSegmentConceptToHeadVector = property(pairs, cache = true) {
     r: Relation =>
       val (first, _) = getPairArguments(r)
       nearestSegmentConceptToHeadVector(first)
   }
 
-  val relationNearestSegmentConceptToPhraseVector = property(pairs, cache = true) {
+  val pairNearestSegmentConceptToPhraseVector = property(pairs, cache = true) {
     r: Relation =>
       val (first, _) = getPairArguments(r)
       nearestSegmentConceptToPhraseVector(first)
   }
 
-  val relationIsImageConcept = property(pairs, cache = true) {
+  val pairIsImageConcept = property(pairs, cache = true) {
     r: Relation =>
       val (first, _) = getPairArguments(r)
       isImageConcept(first)
@@ -390,6 +390,31 @@ object MultiModalSpRLDataModel extends DataModel {
       else
         getTokenDistance(first, second)
   }
+
+  val tripletIsRelation = property(triplets, cache = true) {
+    x: Relation =>
+      x.getProperty("Relation") match {
+        case "true" => "Relation"
+        case _ => "None"
+      }
+  }
+
+  val tripletGeneralType = property(triplets) {
+    r: Relation => if (r.containsProperty("GeneralType")) r.getProperty("GeneralType") else "None"
+  }
+
+  val tripletSpecificType = property(triplets) {
+    r: Relation => if (r.containsProperty("SpecificType")) r.getProperty("SpecificType") else "None"
+  }
+
+  val tripletRCC8 = property(triplets) {
+    r: Relation => if (r.containsProperty("RCC8")) r.getProperty("RCC8") else "None"
+  }
+
+  val tripletFoR = property(triplets) {
+    r: Relation => if (r.containsProperty("FoR")) r.getProperty("FoR") else "None"
+  }
+
   val tripletWordForm = property(triplets, cache = true) {
     r: Relation =>
       val (first, second, third) = getTripletArguments(r)

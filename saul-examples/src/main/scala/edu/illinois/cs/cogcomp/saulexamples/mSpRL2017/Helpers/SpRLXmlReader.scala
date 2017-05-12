@@ -175,6 +175,7 @@ class SpRLXmlReader(dataPath: String) {
     to.setProperty("GeneralType", from.getProperty("general_type"))
     to.setProperty("SpecificType", from.getProperty("specific_type"))
     to.setProperty("RCC8", from.getProperty("RCC8_value"))
+    to.setProperty("FoR", from.getProperty("FoR"))
     to.setProperty("Relation", "true")
   }
 

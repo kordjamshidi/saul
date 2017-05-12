@@ -115,6 +115,7 @@ object CandidateGenerator {
 
     //set relation parent
     r.setParent(sp.get.getSentence)
+    r.setId(r.getArgumentId(0) + "_" + r.getArgumentId(1) + "_" + r.getArgumentId(2))
     r
   }
 
