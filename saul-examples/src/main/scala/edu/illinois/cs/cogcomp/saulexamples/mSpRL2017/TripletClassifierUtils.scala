@@ -39,10 +39,10 @@ object TripletClassifierUtils {
       .sortBy(x => x.getSentence.getStart + x.getStart)
 
     indicators.flatMap(sp => {
-      val pairs = phrases(sp) <~ relationToSecondArgument
-      val trajectorPairs = (pairs.filter(r => trClassifier(r) == "TR-SP") ~> relationToFirstArgument).groupBy(x => x).keys
+      val pairs = phrases(sp) <~ pairToSecondArg
+      val trajectorPairs = (pairs.filter(r => trClassifier(r) == "TR-SP") ~> pairToFirstArg).groupBy(x => x).keys
       if (trajectorPairs.nonEmpty) {
-        val landmarkPairs = (pairs.filter(r => lmClassifier(r) == "LM-SP") ~> relationToFirstArgument).groupBy(x => x).keys
+        val landmarkPairs = (pairs.filter(r => lmClassifier(r) == "LM-SP") ~> pairToFirstArg).groupBy(x => x).keys
         if (landmarkPairs.nonEmpty) {
           trajectorPairs.flatMap(tr => landmarkPairs.map(lm => createRelation(Some(tr), Some(sp), Some(lm))))
             .filter(r => r.getArgumentIds.toList.distinct.size == 3) // distinct arguments

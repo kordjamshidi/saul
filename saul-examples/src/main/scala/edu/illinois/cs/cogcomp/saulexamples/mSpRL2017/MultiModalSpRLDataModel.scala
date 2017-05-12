@@ -41,11 +41,8 @@ object MultiModalSpRLDataModel extends DataModel {
   val documentToSentence = edge(documents, sentences)
   documentToSentence.addSensor(documentToSentenceMatching _)
 
-  val sentenceToRelations = edge(sentences, pairs)
-  sentenceToRelations.addSensor(sentenceToRelationMatching _)
-
-  //val sentenceToToken = edge(sentences, tokens)
-  //sentenceToToken.addSensor(sentenceToTokenGenerating _)
+  val sentenceToPairs = edge(sentences, pairs)
+  sentenceToPairs.addSensor(sentenceToRelationMatching _)
 
   val sentenceToPhrase = edge(sentences, phrases)
   sentenceToPhrase.addSensor(refinedSentenceToPhraseGenerating _)
@@ -53,11 +50,11 @@ object MultiModalSpRLDataModel extends DataModel {
   val phraseToToken = edge(phrases, tokens)
   phraseToToken.addSensor(phraseToTokenGenerating _)
 
-  val relationToFirstArgument = edge(pairs, phrases)
-  relationToFirstArgument.addSensor(relationToFirstArgumentMatching _)
+  val pairToFirstArg = edge(pairs, phrases)
+  pairToFirstArg.addSensor(relationToFirstArgumentMatching _)
 
-  val relationToSecondArgument = edge(pairs, phrases)
-  relationToSecondArgument.addSensor(relationToSecondArgumentMatching _)
+  val pairToSecondArg = edge(pairs, phrases)
+  pairToSecondArg.addSensor(relationToSecondArgumentMatching _)
 
   val documentToImage = edge(documents, images)
   documentToImage.addSensor(documentToImageMatching _)
@@ -424,7 +421,7 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   private def getArguments(r: Relation): (Phrase, Phrase) = {
-    ((pairs(r) ~> relationToFirstArgument).head, (pairs(r) ~> relationToSecondArgument).head)
+    ((pairs(r) ~> pairToFirstArg).head, (pairs(r) ~> pairToSecondArg).head)
   }
 
   private def getSegmentConcepts(p: Phrase) = {
