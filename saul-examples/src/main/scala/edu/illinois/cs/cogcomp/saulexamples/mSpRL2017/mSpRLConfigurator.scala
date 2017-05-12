@@ -16,6 +16,6 @@ object mSpRLConfigurator {
   val model = FeatureSets.BaseLine
   val isTrain = false
   val iterations = 50
-  val useConstraints = true
+  val useConstraints = false
   val populateImages = model == FeatureSets.WordEmbeddingPlusImage || model == FeatureSets.BaseLineWithImage
 }

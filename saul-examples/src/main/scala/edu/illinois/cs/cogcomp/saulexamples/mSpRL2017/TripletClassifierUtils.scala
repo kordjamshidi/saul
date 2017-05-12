@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{CandidateGenerator, ReportHelper, SpRLXmlReader}
-import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{NlpBaseElement, Phrase, Relation}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes.{Phrase, Relation}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval._
 
 import scala.collection.JavaConversions._
@@ -10,17 +10,15 @@ import scala.collection.JavaConversions._
   */
 object TripletClassifierUtils {
 
-  import MultiModalSpRLDataModel._
-
   def test(
-    dataPath: String,
-    resultsDir: String,
-    resultsFilePrefix: String,
-    isTrain: Boolean,
-    trClassifier: (Relation) => String,
-    spClassifier: (Phrase) => String,
-    lmClassifier: (Relation) => String
-  ): Seq[SpRLEvaluation] = {
+            dataPath: String,
+            resultsDir: String,
+            resultsFilePrefix: String,
+            isTrain: Boolean,
+            trClassifier: (Relation) => String,
+            spClassifier: (Phrase) => String,
+            lmClassifier: (Relation) => String
+          ): Seq[SpRLEvaluation] = {
 
     val predicted: List[Relation] = predict(trClassifier, spClassifier, lmClassifier, isTrain)
     val actual = new SpRLXmlReader(dataPath).getTripletsWithArguments()
@@ -29,11 +27,11 @@ object TripletClassifierUtils {
   }
 
   def predict(
-    trClassifier: (Relation) => String,
-    spClassifier: (Phrase) => String,
-    lmClassifier: (Relation) => String,
-    isTrain: Boolean = false
-  ): List[Relation] = {
+               trClassifier: (Relation) => String,
+               spClassifier: (Phrase) => String,
+               lmClassifier: (Relation) => String,
+               isTrain: Boolean = false
+             ): List[Relation] = {
     CandidateGenerator.generateTripletCandidates(trClassifier, spClassifier, lmClassifier, isTrain)
   }
 

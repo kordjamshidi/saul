@@ -50,7 +50,7 @@ object MultiModalPopulateData {
     pairs.populate(candidateRelations, isTrain)
 
     val relations = if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList
-    xmlReader.setRelationTypes(relations, populateNullPairs)
+    xmlReader.setPairTypes(relations, populateNullPairs)
   }
 
   def populateTripletDataFromAnnotatedCorpus(

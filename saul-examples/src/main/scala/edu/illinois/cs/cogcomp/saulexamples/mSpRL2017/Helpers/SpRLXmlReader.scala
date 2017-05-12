@@ -19,20 +19,20 @@ class SpRLXmlReader(dataPath: String) {
 
   lazy val reader = createXmlReader()
 
-  def setRelationTypes(candidateRelations: List[Relation], populateNullPairs: Boolean): Unit = {
+  def setPairTypes(candidateRelations: List[Relation], populateNullPairs: Boolean): Unit = {
 
     val goldTrajectorRelations = getGoldTrajectorPairs(populateNullPairs)
     val goldLandmarkRelations = getGoldLandmarkPairs(populateNullPairs)
 
     candidateRelations.foreach(_.setProperty("RelationType", "None"))
 
-    setLmSpRelationTypes(goldLandmarkRelations, candidateRelations)
-    setTrSpRelationTypes(goldTrajectorRelations, candidateRelations)
+    setLmSpPairTypes(goldLandmarkRelations, candidateRelations)
+    setTrSpPairTypes(goldTrajectorRelations, candidateRelations)
 
     ReportHelper.reportRelationStats(candidateRelations, goldTrajectorRelations, goldLandmarkRelations)
   }
 
-  def setTrSpRelationTypes(goldTrajectorRelations: List[Relation], candidateRelations: List[Relation]): Unit = {
+  def setTrSpPairTypes(goldTrajectorRelations: List[Relation], candidateRelations: List[Relation]): Unit = {
 
     goldTrajectorRelations.foreach(r => {
       val c = candidateRelations
@@ -56,7 +56,7 @@ class SpRLXmlReader(dataPath: String) {
     })
   }
 
-  def setLmSpRelationTypes(goldLandmarkRelations: List[Relation], candidateRelations: List[Relation]): Unit = {
+  def setLmSpPairTypes(goldLandmarkRelations: List[Relation], candidateRelations: List[Relation]): Unit = {
 
     goldLandmarkRelations.foreach(r => {
       val c = candidateRelations
@@ -113,6 +113,44 @@ class SpRLXmlReader(dataPath: String) {
       r.setArgument(2, lm)
       r
     }).toList
+  }
+
+  def getTrSpPairsWithArguments(): List[Relation] = {
+
+    val relations = reader.getRelations(relationTag, "trajector_id", "spatial_indicator_id")
+
+    reader.setPhraseTagName(trTag)
+    val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName(spTag)
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    relations.map(r => {
+      val tr = trajectors(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      r.setArgument(0, tr)
+      r.setArgument(1, sp)
+      r
+    }).groupBy(x => x.getArgumentIds.mkString(",")).map(_._2.head).toList // remove duplicates
+  }
+
+  def getLmSpPairsWithArguments(): List[Relation] = {
+
+    val relations = reader.getRelations(relationTag, "landmark_id", "spatial_indicator_id")
+
+    reader.setPhraseTagName(lmTag)
+    val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName(spTag)
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    relations.map(r => {
+      val lm = landmarks(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      r.setArgument(0, lm)
+      r.setArgument(1, sp)
+      r
+    }).groupBy(x => x.getArgumentIds.mkString(",")).map(_._2.head).toList // remove duplicates
   }
 
   def setRoles(instances: List[NlpBaseElement]): Unit = {
