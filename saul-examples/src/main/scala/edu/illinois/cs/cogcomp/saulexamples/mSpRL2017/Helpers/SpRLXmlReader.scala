@@ -2,6 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.dummyPhrase
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.OverlapComparer
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 
@@ -79,6 +80,70 @@ class SpRLXmlReader(dataPath: String) {
     })
   }
 
+  def setTripletRelationTypes(triplets: List[Relation]): Unit = {
+
+    val actualTriplets = getTripletsWithArguments()
+    triplets.foreach(r => {
+      val actual = actualTriplets.find(x => isEqual(x, r))
+      if (actual.nonEmpty) {
+        copyRelationProperties(actual.get, r)
+      }
+    })
+  }
+
+  def getTripletsWithArguments(): List[Relation] = {
+
+    val relations = reader.getRelations(relationTag, "trajector_id", "spatial_indicator_id", "landmark_id")
+
+    reader.setPhraseTagName(trTag)
+    val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName(lmTag)
+    val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName(spTag)
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    relations.map(r => {
+      val tr = trajectors(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      val lm = landmarks(r.getArgumentId(2))
+      r.setArgument(0, tr)
+      r.setArgument(1, sp)
+      r.setArgument(2, lm)
+      r
+    }).toList
+  }
+
+  def setRoles(instances: List[NlpBaseElement]): Unit = {
+    if (instances.isEmpty)
+      return
+
+    reader.addPropertiesFromTag(trTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
+    reader.addPropertiesFromTag(lmTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
+    reader.addPropertiesFromTag(spTag, instances, XmlMatchings.elementContainsXmlPrepositionMatching)
+  }
+
+  def getSentences: List[Sentence] = {
+    reader.getSentences().toList
+  }
+
+  def getDocuments: List[Document] = {
+    reader.getDocuments().toList
+  }
+
+  private def copyRelationProperties(from: Relation, to: Relation) = {
+    to.setProperty("ActualId", from.getId)
+    to.setProperty("GeneralType", from.getProperty("general_type"))
+    to.setProperty("SpecificType", from.getProperty("specific_type"))
+    to.setProperty("RCC8", from.getProperty("RCC8_value"))
+    to.setProperty("Relation", "true")
+  }
+
+  private def isEqual(r1: Relation, r2: Relation): Boolean = {
+    new OverlapComparer().isEqual(ReportHelper.getRelationEval(r1), ReportHelper.getRelationEval(r2))
+  }
+
   private def getGoldLandmarkPairs(populateNullPairs: Boolean): List[Relation] = {
 
     // create pairs which first argument is landmark and second is indicator, and remove duplicates
@@ -117,23 +182,6 @@ class SpRLXmlReader(dataPath: String) {
 
   private def getTags(tag: String): List[NlpBaseElement] = {
     reader.getTagAsNlpBaseElement(tag).toList
-  }
-
-  def setRoles(instances: List[NlpBaseElement]): Unit = {
-    if (instances.isEmpty)
-      return
-
-    reader.addPropertiesFromTag(trTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
-    reader.addPropertiesFromTag(lmTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
-    reader.addPropertiesFromTag(spTag, instances, XmlMatchings.elementContainsXmlPrepositionMatching)
-  }
-
-  def getSentences: List[Sentence] = {
-    reader.getSentences().toList
-  }
-
-  def getDocuments: List[Document] = {
-    reader.getDocuments().toList
   }
 
   private def createXmlReader(): NlpXmlReader = {

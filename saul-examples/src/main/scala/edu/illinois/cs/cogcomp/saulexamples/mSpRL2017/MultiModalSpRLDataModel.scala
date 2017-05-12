@@ -30,6 +30,7 @@ object MultiModalSpRLDataModel extends DataModel {
   val phrases = node[Phrase]((p: Phrase) => p.getId)
   val tokens = node[Token]((t: Token) => t.getId)
   val pairs = node[Relation]((r: Relation) => r.getId)
+  val triplets = node[Relation]((r: Relation) => r.getId)
 
   val images = node[Image]
   val segments = node[Segment]

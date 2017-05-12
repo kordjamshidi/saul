@@ -250,7 +250,7 @@ object ReportHelper {
   private def convertToEval(r: Results): Seq[SpRLEvaluation] = r.perLabel
     .map(x => new SpRLEvaluation(x.label, x.precision * 100, x.recall * 100, x.f1 * 100, x.labeledSize, x.predictedSize))
 
-  private def getRelationEval(r: Relation): RelationEval = {
+  def getRelationEval(r: Relation): RelationEval = {
     val tr = r.getArgument(0)
     val sp = r.getArgument(1)
     val lm = r.getArgument(2)
