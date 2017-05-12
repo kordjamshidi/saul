@@ -72,6 +72,10 @@ object MultiModalSpRLSensors {
     r.getArgumentId(1) == p.getId
   }
 
+  def relationToThirdArgumentMatching(r: Relation, p: Phrase): Boolean = {
+    r.getArgumentId(2) == p.getId
+  }
+
   def documentToImageMatching(d: Document, i: Image): Boolean = {
     d.getPropertyFirstValue("IMAGE").endsWith("/" + i.getLabel)
   }
