@@ -162,12 +162,10 @@ class Node[T <: AnyRef](val keyFunc: T => Any = (x: T) => x, val tag: ClassTag[T
     populateEdge: Boolean = true,
     populateJoinNodes: Boolean = true
   ): Unit = {
-    ts.foreach(addInstance(_, train, populateEdge, populateJoinNodes))
-  def populate(ts: Iterable[T], train: Boolean = true, populateEdge: Boolean = true) = {
     progressBar.progress()
     progressBar.init()
     progressBar.total = ts.size;
-    ts.foreach(addInstance(_, train, populateEdge))
+    ts.foreach(addInstance(_, train, populateEdge, populateJoinNodes))
     progressBar.finish()
   }
 
