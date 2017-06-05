@@ -6,13 +6,15 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{File, FileOutputStream}
+import java.io.{ File, FileOutputStream }
 
+import edu.illinois.cs.cogcomp.saul.classifier.JointTrainSparseNetwork
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ReportHelper}
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ FeatureSets, ReportHelper }
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.SentenceLevelConstraintClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRLConfigurator._
 import org.apache.commons.io.FileUtils
 
@@ -48,22 +50,34 @@ object MultiModalSpRLApp extends App with Logging {
 
   if (isTrain) {
     println("training started ...")
-    TrajectorRoleClassifier.learn(iterations)
+
+    if (!useConstraints) {
+      TrajectorRoleClassifier.learn(iterations)
+      IndicatorRoleClassifier.learn(iterations)
+      LandmarkRoleClassifier.learn(iterations)
+
+      populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
+      ReportHelper.saveCandidateList(true, pairs.getTestingInstances.toList)
+
+      TrajectorPairClassifier.learn(iterations)
+      LandmarkPairClassifier.learn(iterations)
+    } else //JoinTraining using constraints
+    { //To make the trianing faster use the pre-trained models
+      // then apply 10 joint training iterations
+      TrajectorRoleClassifier.load()
+      LandmarkRoleClassifier.load()
+      IndicatorRoleClassifier.load()
+      TrajectorPairClassifier.load()
+      LandmarkPairClassifier.load()
+
+      JointTrainSparseNetwork(sentences, TRConstraintClassifier :: LMConstraintClassifier ::
+        IndicatorConstraintClassifier :: TRPairConstraintClassifier ::
+        LMPairConstraintClassifier :: Nil, 10, init = false)
+    }
     TrajectorRoleClassifier.save()
-
-    IndicatorRoleClassifier.learn(iterations)
     IndicatorRoleClassifier.save()
-
-    LandmarkRoleClassifier.learn(iterations)
     LandmarkRoleClassifier.save()
-
-    populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
-    ReportHelper.saveCandidateList(true, pairs.getTestingInstances.toList)
-
-    TrajectorPairClassifier.learn(iterations)
     TrajectorPairClassifier.save()
-
-    LandmarkPairClassifier.learn(iterations)
     LandmarkPairClassifier.save()
   }
 
@@ -105,7 +119,8 @@ object MultiModalSpRLApp extends App with Logging {
       val triplets = TripletClassifierUtils.predict(
         x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),
-        x => LandmarkPairClassifier(x))
+        x => LandmarkPairClassifier(x)
+      )
       val trajectors = phrases.getTestingInstances.filter(x => TrajectorRoleClassifier(x) == "Trajector").toList
       val landmarks = phrases.getTestingInstances.filter(x => LandmarkRoleClassifier(x) == "Landmark").toList
       val indicators = phrases.getTestingInstances.filter(x => IndicatorRoleClassifier(x) == "Indicator").toList
@@ -139,7 +154,8 @@ object MultiModalSpRLApp extends App with Logging {
       val triplets = TripletClassifierUtils.predict(
         x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x),
-        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
+        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x)
+      )
       val trajectors = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.TRConstraintClassifier(x) == "Trajector").toList
       val landmarks = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.LMConstraintClassifier == "Landmark").toList
       val indicators = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator").toList
