@@ -6,11 +6,11 @@
   */
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
-import java.io.{ File, FileOutputStream }
+import java.io.{File, FileOutputStream}
 
 import edu.illinois.cs.cogcomp.saul.classifier.JointTrainSparseNetwork
 import edu.illinois.cs.cogcomp.saul.util.Logging
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{ FeatureSets, ReportHelper }
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers.{FeatureSets, ReportHelper}
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalPopulateData._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLClassifiers._
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
@@ -55,29 +55,37 @@ object MultiModalSpRLApp extends App with Logging {
   if (isTrain) {
     println("training started ...")
 
-    if (!useConstraints) {
+    if(skipIndividualClassifiersTraining){
+      TrajectorRoleClassifier.load()
+      IndicatorRoleClassifier.load()
+      LandmarkRoleClassifier.load()
+    }
+    else {
       TrajectorRoleClassifier.learn(iterations)
       IndicatorRoleClassifier.learn(iterations)
       LandmarkRoleClassifier.learn(iterations)
+    }
+    populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
 
-      populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
-      ReportHelper.saveCandidateList(true, pairs.getTestingInstances.toList)
-
-      TrajectorPairClassifier.learn(iterations)
-      LandmarkPairClassifier.learn(iterations)
-    } else //JoinTraining using constraints
-    { //To make the trianing faster use the pre-trained models
-      // then apply 10 joint training iterations
-      TrajectorRoleClassifier.load()
-      LandmarkRoleClassifier.load()
-      IndicatorRoleClassifier.load()
+    if(skipIndividualClassifiersTraining) {
       TrajectorPairClassifier.load()
       LandmarkPairClassifier.load()
+    }
+    else{
+      ReportHelper.saveCandidateList(true, pairs.getTestingInstances.toList)
+      TrajectorPairClassifier.learn(iterations)
+      LandmarkPairClassifier.learn(iterations)
+    }
 
+    if (jointTrain) {
+      //JoinTraining using constraints
+      //To make the trianing faster use the pre-trained models
+      // then apply 10 joint training iterations
       JointTrainSparseNetwork(sentences, TRConstraintClassifier :: LMConstraintClassifier ::
         IndicatorConstraintClassifier :: TRPairConstraintClassifier ::
         LMPairConstraintClassifier :: Nil, 10, init = false)
     }
+
     TrajectorRoleClassifier.save()
     IndicatorRoleClassifier.save()
     LandmarkRoleClassifier.save()

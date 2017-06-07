@@ -10,11 +10,14 @@ object mSpRLConfigurator {
   val imageDataPath = "data/mSprl/saiapr_tc-12/"
   val modelDir = "models/mSpRL/"
   val spatialIndicatorLex = "data/mSprl/spatialIndicator.lex"
-  val trainFile = "data/mSprl/saiapr_tc-12/newSpRL2017_train_4.xml"
-  val testFile = "data/mSprl/saiapr_tc-12/newSpRL2017_gold_4.xml"
+  val trainFile = "data/mSprl/saiapr_tc-12/newSpRL2017_train.xml"
+  val testFile = "data/mSprl/saiapr_tc-12/newSpRL2017_gold.xml"
   val suffix = ""
   val model = FeatureSets.WordEmbedding
   val isTrain = true
+  val jointTrain = true
+  val skipIndividualClassifiersTraining = true  /* When using joint train, it will ignore individual classifiers
+                                                 * training and loads them from the disk*/
   val iterations = 50
   val useConstraints = true
   val populateImages = model == FeatureSets.WordEmbeddingPlusImage || model == FeatureSets.BaseLineWithImage
