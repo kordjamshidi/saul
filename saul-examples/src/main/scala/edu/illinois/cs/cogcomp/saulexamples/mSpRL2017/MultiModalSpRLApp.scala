@@ -66,13 +66,13 @@ object MultiModalSpRLApp extends App with Logging {
       LandmarkRoleClassifier.learn(iterations)
     }
     populatePairDataFromAnnotatedCorpus(x => IndicatorRoleClassifier(x) == "Indicator")
+    ReportHelper.saveCandidateList(true, pairs.getTrainingInstances.toList)
 
     if(skipIndividualClassifiersTraining) {
       TrajectorPairClassifier.load()
       LandmarkPairClassifier.load()
     }
     else{
-      ReportHelper.saveCandidateList(true, pairs.getTestingInstances.toList)
       TrajectorPairClassifier.learn(iterations)
       LandmarkPairClassifier.learn(iterations)
     }
