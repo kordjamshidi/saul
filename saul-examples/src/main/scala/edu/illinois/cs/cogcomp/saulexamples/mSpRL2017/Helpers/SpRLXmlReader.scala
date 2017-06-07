@@ -2,6 +2,7 @@ package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.dummyPhrase
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval.OverlapComparer
 import edu.illinois.cs.cogcomp.saulexamples.nlp.Xml.NlpXmlReader
 import edu.illinois.cs.cogcomp.saulexamples.nlp.XmlMatchings
 
@@ -18,20 +19,20 @@ class SpRLXmlReader(dataPath: String) {
 
   lazy val reader = createXmlReader()
 
-  def setRelationTypes(candidateRelations: List[Relation], populateNullPairs: Boolean): Unit = {
+  def setPairTypes(candidateRelations: List[Relation], populateNullPairs: Boolean): Unit = {
 
     val goldTrajectorRelations = getGoldTrajectorPairs(populateNullPairs)
     val goldLandmarkRelations = getGoldLandmarkPairs(populateNullPairs)
 
     candidateRelations.foreach(_.setProperty("RelationType", "None"))
 
-    setLmSpRelationTypes(goldLandmarkRelations, candidateRelations)
-    setTrSpRelationTypes(goldTrajectorRelations, candidateRelations)
+    setLmSpPairTypes(goldLandmarkRelations, candidateRelations)
+    setTrSpPairTypes(goldTrajectorRelations, candidateRelations)
 
     ReportHelper.reportRelationStats(candidateRelations, goldTrajectorRelations, goldLandmarkRelations)
   }
 
-  def setTrSpRelationTypes(goldTrajectorRelations: List[Relation], candidateRelations: List[Relation]): Unit = {
+  def setTrSpPairTypes(goldTrajectorRelations: List[Relation], candidateRelations: List[Relation]): Unit = {
 
     goldTrajectorRelations.foreach(r => {
       val c = candidateRelations
@@ -55,7 +56,7 @@ class SpRLXmlReader(dataPath: String) {
     })
   }
 
-  def setLmSpRelationTypes(goldLandmarkRelations: List[Relation], candidateRelations: List[Relation]): Unit = {
+  def setLmSpPairTypes(goldLandmarkRelations: List[Relation], candidateRelations: List[Relation]): Unit = {
 
     goldLandmarkRelations.foreach(r => {
       val c = candidateRelations
@@ -77,6 +78,109 @@ class SpRLXmlReader(dataPath: String) {
         println(s"cannot find LM-SP candidate relation for ${r.getId}")
       }
     })
+  }
+
+  def setTripletRelationTypes(triplets: List[Relation]): Unit = {
+
+    val actualTriplets = getTripletsWithArguments()
+    triplets.foreach(r => {
+      val actual = actualTriplets.find(x => isEqual(x, r))
+      if (actual.nonEmpty) {
+        copyRelationProperties(actual.get, r)
+      }
+    })
+  }
+
+  def getTripletsWithArguments(): List[Relation] = {
+
+    val relations = reader.getRelations(relationTag, "trajector_id", "spatial_indicator_id", "landmark_id")
+
+    reader.setPhraseTagName(trTag)
+    val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName(lmTag)
+    val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName(spTag)
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    relations.map(r => {
+      val tr = trajectors(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      val lm = landmarks(r.getArgumentId(2))
+      r.setArgument(0, tr)
+      r.setArgument(1, sp)
+      r.setArgument(2, lm)
+      r
+    }).toList
+  }
+
+  def getTrSpPairsWithArguments(): List[Relation] = {
+
+    val relations = reader.getRelations(relationTag, "trajector_id", "spatial_indicator_id")
+
+    reader.setPhraseTagName(trTag)
+    val trajectors = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName(spTag)
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    relations.map(r => {
+      val tr = trajectors(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      r.setArgument(0, tr)
+      r.setArgument(1, sp)
+      r
+    }).groupBy(x => x.getArgumentIds.mkString(",")).map(_._2.head).toList // remove duplicates
+  }
+
+  def getLmSpPairsWithArguments(): List[Relation] = {
+
+    val relations = reader.getRelations(relationTag, "landmark_id", "spatial_indicator_id")
+
+    reader.setPhraseTagName(lmTag)
+    val landmarks = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    reader.setPhraseTagName(spTag)
+    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
+
+    relations.map(r => {
+      val lm = landmarks(r.getArgumentId(0))
+      val sp = indicators(r.getArgumentId(1))
+      r.setArgument(0, lm)
+      r.setArgument(1, sp)
+      r
+    }).groupBy(x => x.getArgumentIds.mkString(",")).map(_._2.head).toList // remove duplicates
+  }
+
+  def setRoles(instances: List[NlpBaseElement]): Unit = {
+    if (instances.isEmpty)
+      return
+
+    reader.addPropertiesFromTag(trTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
+    reader.addPropertiesFromTag(lmTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
+    reader.addPropertiesFromTag(spTag, instances, XmlMatchings.elementContainsXmlPrepositionMatching)
+  }
+
+  def getSentences: List[Sentence] = {
+    reader.getSentences().toList
+  }
+
+  def getDocuments: List[Document] = {
+    reader.getDocuments().toList
+  }
+
+  private def copyRelationProperties(from: Relation, to: Relation) = {
+    to.setProperty("ActualId", from.getId)
+    to.setProperty("GeneralType", from.getProperty("general_type"))
+    to.setProperty("SpecificType", from.getProperty("specific_type"))
+    to.setProperty("RCC8", from.getProperty("RCC8_value"))
+    to.setProperty("FoR", from.getProperty("FoR"))
+    to.setProperty("Relation", "true")
+  }
+
+  private def isEqual(r1: Relation, r2: Relation): Boolean = {
+    new OverlapComparer().isEqual(ReportHelper.getRelationEval(r1), ReportHelper.getRelationEval(r2))
   }
 
   private def getGoldLandmarkPairs(populateNullPairs: Boolean): List[Relation] = {
@@ -117,23 +221,6 @@ class SpRLXmlReader(dataPath: String) {
 
   private def getTags(tag: String): List[NlpBaseElement] = {
     reader.getTagAsNlpBaseElement(tag).toList
-  }
-
-  def setRoles(instances: List[NlpBaseElement]): Unit = {
-    if (instances.isEmpty)
-      return
-
-    reader.addPropertiesFromTag(trTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
-    reader.addPropertiesFromTag(lmTag, instances, XmlMatchings.elementContainsXmlHeadwordMatching)
-    reader.addPropertiesFromTag(spTag, instances, XmlMatchings.elementContainsXmlPrepositionMatching)
-  }
-
-  def getSentences: List[Sentence] = {
-    reader.getSentences().toList
-  }
-
-  def getDocuments: List[Document] = {
-    reader.getDocuments().toList
   }
 
   private def createXmlReader(): NlpXmlReader = {

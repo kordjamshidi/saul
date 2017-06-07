@@ -1,9 +1,9 @@
 package edu.illinois.cs.cogcomp.saulexamples.mSpRL2017
 
 import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.Helpers._
-import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel._
+import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.MultiModalSpRLDataModel.{triplets, _}
 import edu.illinois.cs.cogcomp.saulexamples.nlp.BaseTypes._
-import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.{documentToSentenceGenerating}
+import edu.illinois.cs.cogcomp.saulexamples.nlp.LanguageBaseTypeSensors.documentToSentenceGenerating
 import mSpRLConfigurator._
 
 import scala.collection.JavaConversions._
@@ -50,7 +50,24 @@ object MultiModalPopulateData {
     pairs.populate(candidateRelations, isTrain)
 
     val relations = if (isTrain) pairs.getTrainingInstances.toList else pairs.getTestingInstances.toList
-    xmlReader.setRelationTypes(relations, populateNullPairs)
+    xmlReader.setPairTypes(relations, populateNullPairs)
+  }
+
+  def populateTripletDataFromAnnotatedCorpus(
+                                              trClassifier: (Relation) => String,
+                                              spClassifier: (Phrase) => String,
+                                              lmClassifier: (Relation) => String
+                                            ): Unit = {
+
+    val candidateRelations = CandidateGenerator.generateTripletCandidates(
+      trClassifier,
+      spClassifier,
+      lmClassifier,
+      isTrain
+    )
+    triplets.populate(candidateRelations, isTrain)
+
+    xmlReader.setTripletRelationTypes(candidateRelations)
   }
 
   def populateDataFromPlainTextDocuments(documentList: List[Document],

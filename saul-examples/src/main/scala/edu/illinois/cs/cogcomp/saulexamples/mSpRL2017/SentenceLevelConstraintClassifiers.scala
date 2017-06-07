@@ -17,14 +17,14 @@ object SentenceLevelConstraintClassifiers {
     def subjectTo = allConstraints
 
     override val solver = erSolver
-    override val pathToHead = Some(-sentenceToRelations)
+    override val pathToHead = Some(-sentenceToPairs)
   }
 
   object LMPairConstraintClassifier extends ConstrainedClassifier[Relation, Sentence](LandmarkPairClassifier) {
     def subjectTo = allConstraints
 
     override val solver = erSolver
-    override val pathToHead = Some(-sentenceToRelations)
+    override val pathToHead = Some(-sentenceToPairs)
   }
 
   object LMConstraintClassifier extends ConstrainedClassifier[Phrase, Sentence](LandmarkRoleClassifier) {

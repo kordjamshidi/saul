@@ -15,7 +15,39 @@ import scala.io.Source
   */
 object CandidateGenerator {
 
-  def generatePairCandidates(phraseInstances: List[Phrase], populateNullPairs: Boolean, indicatorClassifier: Phrase => Boolean): List[Relation] = {
+  def generateTripletCandidates(
+                                 trClassifier: (Relation) => String,
+                                 spClassifier: (Phrase) => String,
+                                 lmClassifier: (Relation) => String,
+                                 isTrain: Boolean
+                               ): List[Relation] = {
+    val instances = if (isTrain) phrases.getTrainingInstances else phrases.getTestingInstances
+    val indicators = instances.filter(t => t.getId != dummyPhrase.getId && spClassifier(t) == "Indicator").toList
+      .sortBy(x => x.getSentence.getStart + x.getStart)
+
+    indicators.flatMap(sp => {
+      val pairs = phrases(sp) <~ pairToSecondArg
+      val trajectorPairs = (pairs.filter(r => trClassifier(r) == "TR-SP") ~> pairToFirstArg).groupBy(x => x).keys
+      if (trajectorPairs.nonEmpty) {
+        val landmarkPairs = (pairs.filter(r => lmClassifier(r) == "LM-SP") ~> pairToFirstArg).groupBy(x => x).keys
+        if (landmarkPairs.nonEmpty) {
+          trajectorPairs.flatMap(tr => landmarkPairs.map(lm => createRelation(Some(tr), Some(sp), Some(lm))))
+            .filter(r => r.getArgumentIds.toList.distinct.size == 3) // distinct arguments
+            .toList
+        } else {
+          List()
+        }
+      } else {
+        List()
+      }
+    })
+  }
+
+  def generatePairCandidates(
+                              phraseInstances: List[Phrase],
+                              populateNullPairs: Boolean,
+                              indicatorClassifier: Phrase => Boolean
+                            ): List[Relation] = {
 
     val trCandidates = getTrajectorCandidates(phraseInstances)
     trCandidates.foreach(_.addPropertyValue("TR-Candidate", "true"))
@@ -69,6 +101,22 @@ object CandidateGenerator {
     val trCandidates = phrases.filter(x => trPosTagLex.exists(p => getPos(x).contains(p)))
     ReportHelper.reportRoleStats(phrases, trCandidates, "TRAJECTOR")
     trCandidates
+  }
+
+  private def createRelation(tr: Option[Phrase], sp: Option[Phrase], lm: Option[Phrase]): Relation = {
+
+    val r = new Relation()
+    r.setArgument(0, if (tr.nonEmpty) tr.get else dummyPhrase)
+    r.setArgumentId(0, r.getArgument(0).getId)
+    r.setArgument(1, sp.get)
+    r.setArgumentId(1, r.getArgument(1).getId)
+    r.setArgument(2, if (lm.nonEmpty) lm.get else dummyPhrase)
+    r.setArgumentId(2, r.getArgument(2).getId)
+
+    //set relation parent
+    r.setParent(sp.get.getSentence)
+    r.setId(r.getArgumentId(0) + "_" + r.getArgumentId(1) + "_" + r.getArgumentId(2))
+    r
   }
 
   private def getRolePosTagLexicon(phrases: List[Phrase], tagName: String, minFreq: Int, generate: Boolean): List[String] = {

@@ -10,8 +10,6 @@ import scala.collection.JavaConversions._
   */
 object PairClassifierUtils {
 
-  import MultiModalSpRLDataModel._
-
   def evaluate(
                 predicted: List[Relation],
                 dataPath: String,
@@ -21,32 +19,11 @@ object PairClassifierUtils {
                 isTrajector: Boolean
               ): Seq[SpRLEvaluation] = {
 
-    val actual = getActualRelationEvalsPhraseBased(dataPath, isTrajector)
+    val reader = new SpRLXmlReader(dataPath)
+    val actual = if(isTrajector) reader.getTrSpPairsWithArguments() else reader.getLmSpPairsWithArguments()
 
     val name = if (isTrajector) "TrSp" else "LmSp"
     ReportHelper.reportRelationResults(resultsDir, resultsFilePrefix + s"_$name", actual, predicted, new OverlapComparer, 2)
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  private def getActualRelationEvalsPhraseBased(dataPath: String, isTrajector: Boolean): List[Relation] = {
-
-    val roleName = if (isTrajector) "TRAJECTOR" else "LANDMARK"
-    val reader = new SpRLXmlReader(dataPath).reader
-    val relations = reader.getRelations("RELATION", s"${roleName.toLowerCase}_id", "spatial_indicator_id")
-
-    reader.setPhraseTagName(roleName)
-    val roles = reader.getPhrases().map(x => x.getId -> x).toMap
-
-    reader.setPhraseTagName("SPATIALINDICATOR")
-    val indicators = reader.getPhrases().map(x => x.getId -> x).toMap
-
-    relations.map(r => {
-      val role = roles(r.getArgumentId(0))
-      val sp = indicators(r.getArgumentId(1))
-      r.setArgument(0, role)
-      r.setArgument(1, sp)
-      r
-    }).groupBy(x => x.getArgumentIds.mkString(",")).map(_._2.head).toList // remove duplicates and nulls
   }
 
 }

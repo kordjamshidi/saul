@@ -14,11 +14,11 @@ object SentenceLevelConstraints {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToRelations).foreach {
+      (sentences(s) ~> sentenceToPairs).foreach {
         x =>
           a = a and (((TrajectorPairClassifier on x) is "TR-SP") ==>
-            ((TrajectorRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Trajector") and
-            (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator")))
+            ((TrajectorRoleClassifier on (pairs(x) ~> pairToFirstArg).head is "Trajector") and
+            (IndicatorRoleClassifier on (pairs(x) ~> pairToSecondArg).head is "Indicator")))
       }
       a
   }
@@ -27,11 +27,11 @@ object SentenceLevelConstraints {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToRelations).foreach {
+      (sentences(s) ~> sentenceToPairs).foreach {
         x =>
           a = a and (((LandmarkPairClassifier on x) is "LM-SP") ==>
-            ((LandmarkRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Landmark") and
-            (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator")))
+            ((LandmarkRoleClassifier on (pairs(x) ~> pairToFirstArg).head is "Landmark") and
+            (IndicatorRoleClassifier on (pairs(x) ~> pairToSecondArg).head is "Indicator")))
       }
       a
   }
@@ -41,7 +41,7 @@ object SentenceLevelConstraints {
     var a: FirstOrderConstraint = null
     s: Sentence =>
       a = new FirstOrderConstant(true)
-      (sentences(s) ~> sentenceToRelations).foreach {
+      (sentences(s) ~> sentenceToPairs).foreach {
         x: Relation =>
           a = a and ((((LandmarkPairClassifier on x) is "LM-SP") ==> ((TrajectorPairClassifier on x) isNot "TR-SP")) and
             (((TrajectorPairClassifier on x) is "TR-SP") ==> ((LandmarkPairClassifier on x) isNot "LM-SP")))
@@ -61,8 +61,8 @@ object SentenceLevelConstraints {
     //if there is an indicator in the sentence then there should be a relation in the sentence, though the roles can be null.
     s: Sentence =>
       ((sentences(s) ~> sentenceToPhrase).toList._exists { x: Phrase => IndicatorRoleClassifier on x is "Indicator" }) ==>
-        (((sentences(s) ~> sentenceToRelations).toList._exists { x: Relation => TrajectorPairClassifier on x is "TR-SP" }) and
-        ((sentences(s) ~> sentenceToRelations).toList._exists { x: Relation => LandmarkPairClassifier on x is "LM-SP" }))
+        (((sentences(s) ~> sentenceToPairs).toList._exists { x: Relation => TrajectorPairClassifier on x is "TR-SP" }) and
+        ((sentences(s) ~> sentenceToPairs).toList._exists { x: Relation => LandmarkPairClassifier on x is "LM-SP" }))
   }
 
   //  val reasoningConstraints = ConstrainedClassifier.constraint[Sentence] {
