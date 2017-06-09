@@ -218,10 +218,10 @@ object MultiModalSpRLApp extends App with Logging {
       val specificTypeResults = TripletSpecificTypeClassifier.test()
       ReportHelper.saveEvalResults(stream, s"Specific Type", specificTypeResults)
 
-      val rcc8Results = LandmarkPairClassifier.test()
+      val rcc8Results = TripletRCC8Classifier.test()
       ReportHelper.saveEvalResults(stream, s"Specific value", rcc8Results)
 
-      val forResults = LandmarkPairClassifier.test()
+      val forResults = TripletFoRClassifier.test()
       ReportHelper.saveEvalResults(stream, s"FoR", forResults)
 
       val trajectors = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.TRConstraintClassifier(x) == "Trajector").toList
