@@ -145,7 +145,7 @@ object MultiModalSpRLApp extends App with Logging {
       val lmPairResults = LandmarkPairClassifier.test()
       ReportHelper.saveEvalResults(stream, s"LMPair", lmPairResults)
 
-      val results = TripletClassifierUtils.test(testFile, resultsDir, featureSet.toString, isTrain,
+      val results = TripletClassifierUtils.test(testFile, resultsDir, s"$expName$suffix", isTrain,
         x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),
         x => LandmarkPairClassifier(x))
@@ -200,7 +200,7 @@ object MultiModalSpRLApp extends App with Logging {
       val lmPairSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
       ReportHelper.saveEvalResults(stream, "LMPair-SentenceConstrained", lmPairSentenceResults)
 
-      val constrainedPairSentenceResults = TripletClassifierUtils.test(testFile, resultsDir, featureSet.toString, isTrain,
+      val constrainedPairSentenceResults = TripletClassifierUtils.test(testFile, resultsDir, s"$expName$suffix", isTrain,
         x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x),
         x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
