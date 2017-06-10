@@ -265,7 +265,13 @@ object ReportHelper {
   }
 
   private def convertToEval(r: Results): Seq[SpRLEvaluation] = r.perLabel
-    .map(x => new SpRLEvaluation(x.label, x.precision * 100, x.recall * 100, x.f1 * 100, x.labeledSize, x.predictedSize))
+    .map(x => {
+      val p = if (x.predictedSize == 0) 1.0 else x.precision
+      val r = if (x.labeledSize == 0) 1.0 else x.f1
+      val f1 = if (x.predictedSize == 0) if (x.labeledSize == 0) 1.0 else 0.0 else x.f1
+      val result = new SpRLEvaluation(x.label, p * 100, r * 100, f1 * 100, x.labeledSize, x.predictedSize)
+      result
+    })
 
   def getRelationEval(r: Relation): RelationEval = {
     val tr = r.getArgument(0)
