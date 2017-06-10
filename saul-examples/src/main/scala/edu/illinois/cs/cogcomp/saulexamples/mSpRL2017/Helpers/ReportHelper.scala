@@ -267,7 +267,7 @@ object ReportHelper {
   private def convertToEval(r: Results): Seq[SpRLEvaluation] = r.perLabel
     .map(x => {
       val p = if (x.predictedSize == 0) 1.0 else x.precision
-      val r = if (x.labeledSize == 0) 1.0 else x.f1
+      val r = if (x.labeledSize == 0) 1.0 else x.recall
       val f1 = if (x.predictedSize == 0) if (x.labeledSize == 0) 1.0 else 0.0 else x.f1
       val result = new SpRLEvaluation(x.label, p * 100, r * 100, f1 * 100, x.labeledSize, x.predictedSize)
       result
