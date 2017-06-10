@@ -222,7 +222,7 @@ object ReportHelper {
     writer.println("===========================================================================")
     writer.println(s" ${caption}")
     writer.println("---------------------------------------------------------------------------")
-    SpRLEvaluator.printEvaluation(stream, results)
+    SpRLEvaluator.printEvaluation(stream, results.filterNot(x=>x.getLabel.equalsIgnoreCase("none")))
     writer.println()
   }
 
