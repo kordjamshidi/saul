@@ -115,7 +115,6 @@ object MultiModalSpRLApp extends App with Logging {
   if (!isTrain) {
 
     println("testing started ...")
-    val stream = new FileOutputStream(s"$resultsDir/$expName$suffix.txt")
 
     TrajectorRoleClassifier.load()
     LandmarkRoleClassifier.load()
@@ -130,50 +129,18 @@ object MultiModalSpRLApp extends App with Logging {
     ReportHelper.saveCandidateList(false, pairs.getTestingInstances.toList)
 
     if (!useConstraints) {
-      val trResults = TrajectorRoleClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"TR", trResults)
-
-      val lmResults = LandmarkRoleClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"LM", lmResults)
-
-      val spResults = IndicatorRoleClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"SP", spResults)
-
-      val trPairResults = TrajectorPairClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"TRPair", trPairResults)
-
-      val lmPairResults = LandmarkPairClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"LMPair", lmPairResults)
-
-      val results = TripletClassifierUtils.test(testFile, resultsDir, s"$expName$suffix", isTrain,
-        x => TrajectorPairClassifier(x),
-        x => IndicatorRoleClassifier(x),
-        x => LandmarkPairClassifier(x))
-      ReportHelper.saveEvalResults(stream, "triplet", results)
 
       populateTripletDataFromAnnotatedCorpus(
         x => TrajectorPairClassifier(x),
         x => IndicatorRoleClassifier(x),
         x => LandmarkPairClassifier(x)
       )
-
-      val generalTypeResults = TripletGeneralTypeClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"General Type", generalTypeResults)
-
-      val specificTypeResults = TripletSpecificTypeClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"Specific Type", specificTypeResults)
-
-      val rcc8Results = TripletRCC8Classifier.test()
-      ReportHelper.saveEvalResults(stream, s"Specific value", rcc8Results)
-
-      val forResults = TripletFoRClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"FoR", forResults)
-
 
       val trajectors = phrases.getTestingInstances.filter(x => TrajectorRoleClassifier(x) == "Trajector").toList
       val landmarks = phrases.getTestingInstances.filter(x => LandmarkRoleClassifier(x) == "Landmark").toList
       val indicators = phrases.getTestingInstances.filter(x => IndicatorRoleClassifier(x) == "Indicator").toList
-      val tripletList = if (isTrain) triplets.getTrainingInstances.toList else triplets.getTestingInstances.toList
+      val tripletList = triplets.getTestingInstances.toList
+
       ReportHelper.saveAsXml(tripletList, trajectors, indicators, landmarks,
         x => TripletGeneralTypeClassifier(x),
         x => TripletSpecificTypeClassifier(x),
@@ -182,52 +149,21 @@ object MultiModalSpRLApp extends App with Logging {
         s"$resultsDir/${expName}${suffix}.xml")
 
     }
-
-    if (useConstraints) {
-
-      val trSentenceResults = SentenceLevelConstraintClassifiers.TRConstraintClassifier.test()
-      ReportHelper.saveEvalResults(stream, "TR-SentenceConstrained", trSentenceResults)
-
-      val lmSentenceResults = SentenceLevelConstraintClassifiers.LMConstraintClassifier.test()
-      ReportHelper.saveEvalResults(stream, "LM-SentenceConstrained", lmSentenceResults)
-
-      val spSentenceResults = SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier.test()
-      ReportHelper.saveEvalResults(stream, "SP-SentenceConstrained", spSentenceResults)
-
-      val trPairSentenceResults = SentenceLevelConstraintClassifiers.TRPairConstraintClassifier.test()
-      ReportHelper.saveEvalResults(stream, "TRPair-SentenceConstrained", trPairSentenceResults)
-
-      val lmPairSentenceResults = SentenceLevelConstraintClassifiers.LMPairConstraintClassifier.test()
-      ReportHelper.saveEvalResults(stream, "LMPair-SentenceConstrained", lmPairSentenceResults)
-
-      val constrainedPairSentenceResults = TripletClassifierUtils.test(testFile, resultsDir, s"$expName$suffix", isTrain,
-        x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
-        x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x),
-        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x))
-      ReportHelper.saveEvalResults(stream, "triplet-SentenceConstrained", constrainedPairSentenceResults)
+    else {
 
       populateTripletDataFromAnnotatedCorpus(
-        x => TrajectorPairClassifier(x),
-        x => IndicatorRoleClassifier(x),
-        x => LandmarkPairClassifier(x)
+        x => SentenceLevelConstraintClassifiers.TRPairConstraintClassifier(x),
+        x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x),
+        x => SentenceLevelConstraintClassifiers.LMPairConstraintClassifier(x)
       )
 
-      val generalTypeResults = TripletGeneralTypeClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"General Type", generalTypeResults)
-
-      val specificTypeResults = TripletSpecificTypeClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"Specific Type", specificTypeResults)
-
-      val rcc8Results = TripletRCC8Classifier.test()
-      ReportHelper.saveEvalResults(stream, s"Specific value", rcc8Results)
-
-      val forResults = TripletFoRClassifier.test()
-      ReportHelper.saveEvalResults(stream, s"FoR", forResults)
-
       val trajectors = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.TRConstraintClassifier(x) == "Trajector").toList
-      val landmarks = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.LMConstraintClassifier == "Landmark").toList
+      val landmarks = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.LMConstraintClassifier(x) == "Landmark").toList
       val indicators = phrases.getTestingInstances.filter(x => SentenceLevelConstraintClassifiers.IndicatorConstraintClassifier(x) == "Indicator").toList
-      val tripletList = if (isTrain) triplets.getTrainingInstances.toList else triplets.getTestingInstances.toList
+      val tripletList = triplets.getTestingInstances.toList
+
+      ReportHelper.reportTripletResults(testFile, resultsDir, s"${expName}${suffix}_triplet", tripletList)
+
       ReportHelper.saveAsXml(tripletList, trajectors, indicators, landmarks,
         x => TripletGeneralTypeClassifier(x),
         x => TripletSpecificTypeClassifier(x),
@@ -236,7 +172,7 @@ object MultiModalSpRLApp extends App with Logging {
         s"$resultsDir/${expName}${suffix}.xml")
     }
 
-    stream.close()
+    ReportHelper.saveEvalResultsFromXmlFile(testFile, s"$resultsDir/${expName}${suffix}.xml", s"$resultsDir/$expName$suffix.txt")
   }
 
 }

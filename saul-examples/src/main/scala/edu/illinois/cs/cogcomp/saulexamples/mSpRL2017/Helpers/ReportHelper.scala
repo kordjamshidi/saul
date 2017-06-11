@@ -21,6 +21,29 @@ import scala.util.control.Breaks.{break, breakable}
   */
 object ReportHelper {
 
+  def saveEvalResultsFromXmlFile(actualFile: String, predictedFile: String, output: String):Unit = {
+
+    val stream = new FileOutputStream(output)
+    val xmlEvaluator = new XmlSpRLEvaluator(actualFile, predictedFile, new OverlapComparer)
+    val evaluator = new SpRLEvaluator
+
+    ReportHelper.saveEvalResults(stream, s"Roles", xmlEvaluator.evaluateRoles())
+
+    val relationsEval = xmlEvaluator.evaluateRelations()
+    val relEval = relationsEval.head
+    ReportHelper.saveEvalResults(stream, s"Relations", relationsEval)
+
+    ReportHelper.saveEvalResults(stream, "General Type", evaluator.evaluateRelationGeneralType(relEval))
+
+    ReportHelper.saveEvalResults(stream, "Specific Type", evaluator.evaluateRelationSpecificType(relEval))
+
+    ReportHelper.saveEvalResults(stream, "Specific Value", evaluator.evaluateRelationRCC8(relEval))
+
+    ReportHelper.saveEvalResults(stream, "FoR", evaluator.evaluateRelationFoR(relEval))
+
+    stream.close()
+  }
+
   def saveAsXml(relations: List[Relation],
                 trajectors: List[Phrase],
                 indicators: List[Phrase],
@@ -120,6 +143,15 @@ object ReportHelper {
     t
   }
 
+  def reportTripletResults(
+                             actualFile: String,
+                             resultsDir: String,
+                             resultFilePrefix: String,
+                             predicted: List[Relation]
+                           )={
+    val actual = new SpRLXmlReader(actualFile).getTripletsWithArguments()
+    reportRelationResults(resultsDir, resultFilePrefix, actual, predicted, new OverlapComparer, 3)
+  }
   def reportRelationResults(
                              resultsDir: String,
                              resultFilePrefix: String,
@@ -222,7 +254,7 @@ object ReportHelper {
     writer.println("===========================================================================")
     writer.println(s" ${caption}")
     writer.println("---------------------------------------------------------------------------")
-    SpRLEvaluator.printEvaluation(stream, results.filterNot(x=>x.getLabel.equalsIgnoreCase("none")))
+    SpRLEvaluator.printEvaluation(stream, results.filterNot(x => x.getLabel.equalsIgnoreCase("none")))
     writer.println()
   }
 

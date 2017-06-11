@@ -6,6 +6,7 @@ import edu.illinois.cs.cogcomp.saulexamples.mSpRL2017.mSpRLConfigurator.useConst
 /** Created by parisakordjamshidi on 3/23/17.
   */
 object mSpRLConfigurator {
+  val onTheFlyLexicon = false // build the sp lex on the fly when training or using pre existed lex
   val resultsDir = "data/mSpRL/results/"
   val imageDataPath = "data/mSprl/saiapr_tc-12/"
   val modelDir = "models/mSpRL/"
@@ -15,9 +16,9 @@ object mSpRLConfigurator {
   val suffix = ""
   val model = FeatureSets.WordEmbedding
   val isTrain = true
-  val jointTrain = true
-  val skipIndividualClassifiersTraining = true  /* When using joint train, it will ignore individual classifiers
-                                                 * training and loads them from the disk*/
+  val jointTrain = false
+  val skipIndividualClassifiersTraining = false  /* When using joint train, it will ignore individual classifiers
+                                                  * training and loads them from the disk*/
   val iterations = 50
   val useConstraints = true
   val populateImages = model == FeatureSets.WordEmbeddingPlusImage || model == FeatureSets.BaseLineWithImage

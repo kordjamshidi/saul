@@ -17,7 +17,7 @@ object MultiModalPopulateData {
   lazy val imageReader = new ImageReaderHelper(imageDataPath, trainFile, testFile, isTrain)
 
   def populateRoleDataFromAnnotatedCorpus(populateNullPairs: Boolean = true): Unit = {
-    if (isTrain) {
+    if (isTrain && onTheFlyLexicon) {
       LexiconHelper.createSpatialIndicatorLexicon(xmlReader)
     }
     documents.populate(xmlReader.getDocuments, isTrain)
