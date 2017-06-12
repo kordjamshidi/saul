@@ -151,13 +151,24 @@ object MultiModalSpRLSensors {
   }
 
   private def mergeUsingIndicatorLex(s: Sentence, phrases: Seq[Phrase]) = {
-    val lex = LexiconHelper.spatialIndicatorLexicon.filter(l => l.contains(" ") && s.getText.toLowerCase.contains(l))
+    val lex = LexiconHelper.spatialIndicatorLexicon
+      .filter(l => l.contains(" ") && s.getText.toLowerCase.contains(l))
+      .sortBy(x => -x.length)
+
     if (lex.nonEmpty) {
       lex.foreach(l => {
-        val span = new SpanBasedElement
-        span.setStart(s.getText.toLowerCase.indexOf(l))
-        span.setEnd(span.getStart + l.length)
-        while (span.getStart >= 0) {
+        val regex = new Regex("(^|[^a-z])(" + l + ")([^a-z]|$)")
+        val matches = regex.findAllMatchIn(s.getText)
+        matches.foreach(m => {
+
+          val span = new SpanBasedElement
+          span.setStart(m.start)
+          span.setEnd(m.end)
+          if (!m.toString().head.isLetter)
+            span.setStart(span.getStart + 1)
+          if (!m.toString().last.isLetter)
+            span.setEnd(span.getEnd - 1)
+
           val toMerge = phrases.filter(p => span.overlaps(p))
           if (toMerge.size > 1) {
             val phrase = toMerge.head
@@ -168,9 +179,7 @@ object MultiModalSpRLSensors {
               x.setEnd(-1)
             })
           }
-          span.setStart(s.getText.toLowerCase.indexOf(l, span.getEnd))
-          span.setEnd(span.getStart + l.length)
-        }
+        })
       })
     }
     phrases.filter(_.getStart != -1)

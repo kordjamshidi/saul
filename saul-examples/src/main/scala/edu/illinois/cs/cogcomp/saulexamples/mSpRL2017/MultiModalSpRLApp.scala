@@ -98,16 +98,17 @@ object MultiModalSpRLApp extends App with Logging {
       x => LandmarkPairClassifier(x)
     )
 
-    TripletGeneralTypeClassifier.learn(iterations)
+    val goldTriplets = triplets.getTrainingInstances.filter(_.containsProperty("ActualId"))
+    TripletGeneralTypeClassifier.learn(iterations, goldTriplets)
     TripletGeneralTypeClassifier.save()
 
-    TripletSpecificTypeClassifier.learn(iterations)
+    TripletSpecificTypeClassifier.learn(iterations, goldTriplets)
     TripletSpecificTypeClassifier.save()
 
-    TripletRCC8Classifier.learn(iterations)
+    TripletRCC8Classifier.learn(iterations, goldTriplets)
     TripletRCC8Classifier.save()
 
-    TripletFoRClassifier.learn(iterations)
+    TripletFoRClassifier.learn(iterations, goldTriplets)
     TripletFoRClassifier.save()
 
   }

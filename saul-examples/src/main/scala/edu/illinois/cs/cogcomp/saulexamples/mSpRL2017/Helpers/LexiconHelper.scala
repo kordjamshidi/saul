@@ -15,13 +15,13 @@ object LexiconHelper {
     val lexFile = new File(mSpRLConfigurator.spatialIndicatorLex)
     xmlReader.reader.setPhraseTagName("SPATIALINDICATOR")
     val indicators = xmlReader.reader.getPhrases()
-    val sps = indicators.groupBy(_.getText.toLowerCase)
+    val sps = indicators.groupBy(_.getText.toLowerCase.trim)
       .map { case (key, list) => (key, list.size, list) }
       .filter(_._2 >= minFreq)
-      .map(_._1)
+      .map(_._1).toList
 
     val writer = new PrintWriter(lexFile)
-    sps.foreach(p => writer.println(p))
+    sps.sorted.foreach(p => writer.println(p))
     writer.close()
   }
 
