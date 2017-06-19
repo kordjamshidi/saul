@@ -13,15 +13,15 @@ object MultiModalSpRLConstraints {
   val integrityTR = ConstrainedClassifier.constraint[Relation] {
     x: Relation =>
       ((TrajectorPairClassifier on x) is "TR-SP") ==>
-        (TrajectorRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Trajector") and
-        (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator")
+        (TrajectorRoleClassifier on (pairs(x) ~> pairToFirstArg).head is "Trajector") and
+        (IndicatorRoleClassifier on (pairs(x) ~> pairToSecondArg).head is "Indicator")
   }
 
   val integrityLM = ConstrainedClassifier.constraint[Relation] {
     x: Relation =>
       ((LandmarkPairClassifier on x) is "LM-SP") ==>
-        (LandmarkRoleClassifier on (pairs(x) ~> relationToFirstArgument).head is "Landmark") and
-        (IndicatorRoleClassifier on (pairs(x) ~> relationToSecondArgument).head is "Indicator")
+        (LandmarkRoleClassifier on (pairs(x) ~> pairToFirstArg).head is "Landmark") and
+        (IndicatorRoleClassifier on (pairs(x) ~> pairToSecondArg).head is "Indicator")
   }
 
   val multiLablePair = ConstrainedClassifier.constraint[Relation] {

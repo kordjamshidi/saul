@@ -1,9 +1,3 @@
-/** This software is released under the University of Illinois/Research and Academic Use License. See
-  * the LICENSE file in the root folder for details. Copyright (c) 2016
-  *
-  * Developed by: The Cognitive Computations Group, University of Illinois at Urbana-Champaign
-  * http://cogcomp.cs.illinois.edu/
-  */
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval;
 
 import javax.xml.bind.annotation.*;
@@ -64,8 +58,7 @@ public class RoleEval implements SpRLEval {
         if (!b.getClass().equals(getClass()))
             return false;
         RoleEval obj = (RoleEval) b;
-        return isEqual(b) ||
-                (getStart() <= obj.getStart() && obj.getStart() < getEnd()) ||
+        return isEqual(b) || (getStart() <= obj.getStart() && obj.getStart() < getEnd()) ||
                 (obj.getStart() <= getStart() && getStart() < obj.getEnd());
     }
 
@@ -76,8 +69,7 @@ public class RoleEval implements SpRLEval {
         if (!b.getClass().equals(getClass()))
             return false;
         RoleEval obj = (RoleEval) b;
-        return isEqual(b) ||
-                (getStart() <= obj.getStart() && obj.getEnd() <= getEnd());
+        return isEqual(b) || (getStart() <= obj.getStart() && obj.getEnd() <= getEnd());
     }
 
     @Override
@@ -87,8 +79,7 @@ public class RoleEval implements SpRLEval {
         if (!b.getClass().equals(getClass()))
             return false;
         RoleEval obj = (RoleEval) b;
-        return isEqual(b) ||
-                (obj.getStart() <= getStart() && getEnd() <= obj.getEnd());
+        return isEqual(b) || (obj.getStart() <= getStart() && getEnd() <= obj.getEnd());
     }
 
     @Override

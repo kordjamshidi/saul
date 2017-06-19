@@ -15,10 +15,11 @@ import scala.collection.JavaConversions._
   */
 object dataSetUtils {
 
-  private def create10Folds(path: String, fileName: String): Unit = {
+  def create10Folds(path: String): Unit = {
+    val parentDir = new File(path).getParent
     val reader = new SpRLDataReader(path, classOf[SpRL2017Document])
     reader.readData()
-    val doc = reader.documents.find(_.getFilename == fileName).get
+    val doc = reader.documents.head
     val foldSize = Math.ceil(doc.getScenes.length / 10.0).toInt
     val folds = doc.getScenes.sortBy(x => Random.nextGaussian()).zipWithIndex.groupBy(x => x._2 / foldSize)
     folds.foreach(f => {
@@ -26,9 +27,9 @@ object dataSetUtils {
       test.setScenes(f._2.map(_._1))
       val train = new SpRL2017Document
       train.setScenes(folds.filter(_._1 != f._1).flatMap(_._2.map(_._1)).toList)
-      FileUtils.forceMkdir(new File(path + s"fold${f._1 + 1}"))
-      XmlModel.write(test, path + s"fold${f._1 + 1}/test.xml")
-      XmlModel.write(train, path + s"fold${f._1 + 1}/train.xml")
+      FileUtils.forceMkdir(new File(parentDir + s"/fold${f._1 + 1}"))
+      XmlModel.write(test, parentDir + s"/fold${f._1 + 1}/test.xml")
+      XmlModel.write(train, parentDir + s"/fold${f._1 + 1}/train.xml")
     })
   }
 

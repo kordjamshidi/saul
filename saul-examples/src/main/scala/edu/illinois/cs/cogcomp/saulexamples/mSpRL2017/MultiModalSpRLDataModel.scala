@@ -30,6 +30,7 @@ object MultiModalSpRLDataModel extends DataModel {
   val phrases = node[Phrase]((p: Phrase) => p.getId)
   val tokens = node[Token]((t: Token) => t.getId)
   val pairs = node[Relation]((r: Relation) => r.getId)
+  val triplets = node[Relation]((r: Relation) => r.getId)
 
   val images = node[Image]
   val segments = node[Segment]
@@ -41,11 +42,8 @@ object MultiModalSpRLDataModel extends DataModel {
   val documentToSentence = edge(documents, sentences)
   documentToSentence.addSensor(documentToSentenceMatching _)
 
-  val sentenceToRelations = edge(sentences, pairs)
-  sentenceToRelations.addSensor(sentenceToRelationMatching _)
-
-  //val sentenceToToken = edge(sentences, tokens)
-  //sentenceToToken.addSensor(sentenceToTokenGenerating _)
+  val sentenceToPairs = edge(sentences, pairs)
+  sentenceToPairs.addSensor(sentenceToRelationMatching _)
 
   val sentenceToPhrase = edge(sentences, phrases)
   sentenceToPhrase.addSensor(refinedSentenceToPhraseGenerating _)
@@ -53,11 +51,20 @@ object MultiModalSpRLDataModel extends DataModel {
   val phraseToToken = edge(phrases, tokens)
   phraseToToken.addSensor(phraseToTokenGenerating _)
 
-  val relationToFirstArgument = edge(pairs, phrases)
-  relationToFirstArgument.addSensor(relationToFirstArgumentMatching _)
+  val pairToFirstArg = edge(pairs, phrases)
+  pairToFirstArg.addSensor(relationToFirstArgumentMatching _)
 
-  val relationToSecondArgument = edge(pairs, phrases)
-  relationToSecondArgument.addSensor(relationToSecondArgumentMatching _)
+  val pairToSecondArg = edge(pairs, phrases)
+  pairToSecondArg.addSensor(relationToSecondArgumentMatching _)
+
+  val tripletToFirstArg = edge(triplets, phrases)
+  tripletToFirstArg.addSensor(relationToFirstArgumentMatching _)
+
+  val tripletToSecondArg = edge(triplets, phrases)
+  tripletToSecondArg.addSensor(relationToSecondArgumentMatching _)
+
+  val tripletToThirdArg = edge(triplets, phrases)
+  tripletToThirdArg.addSensor(relationToThirdArgumentMatching _)
 
   val documentToImage = edge(documents, images)
   documentToImage.addSensor(documentToImageMatching _)
@@ -247,128 +254,128 @@ object MultiModalSpRLDataModel extends DataModel {
   }
 
   val isTrajectorCandidate = property(pairs) {
-    r: Relation => getArguments(r)._1.containsProperty("TR-Candidate")
+    r: Relation => getPairArguments(r)._1.containsProperty("TR-Candidate")
   }
 
   val isLandmarkCandidate = property(pairs) {
-    r: Relation => getArguments(r)._1.containsProperty("LM-Candidate")
+    r: Relation => getPairArguments(r)._1.containsProperty("LM-Candidate")
   }
 
   val isIndicatorCandidate = property(pairs) {
-    r: Relation => getArguments(r)._1.containsProperty("SP-Candidate")
+    r: Relation => getPairArguments(r)._1.containsProperty("SP-Candidate")
   }
 
-  val relationWordForm = property(pairs, cache = true) {
+  val pairWordForm = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       wordForm(first) + "::" + wordForm(second)
   }
 
-  val relationHeadWordForm = property(pairs, cache = true) {
+  val pairHeadWordForm = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       headWordFrom(first) + "::" + headWordFrom(second)
   }
 
   val relationLemma = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       lemma(first) + "::" + lemma(second)
   }
 
   val relationHeadWordLemma = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       headWordLemma(first) + "::" + headWordLemma(second)
   }
 
-  val relationPos = property(pairs, cache = true) {
+  val pairPos = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       pos(first) + "::" + pos(second)
   }
 
-  val relationHeadWordPos = property(pairs, cache = true) {
+  val pairHeadWordPos = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       headWordPos(first) + "::" + headWordPos(second)
   }
 
-  val relationPhrasePos = property(pairs, cache = true) {
+  val pairPhrasePos = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       phrasePos(first) + "::" + phrasePos(second)
   }
 
-  val relationSemanticRole = property(pairs, cache = true) {
+  val pairSemanticRole = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       semanticRole(first) + "::" + semanticRole(second)
   }
 
-  val relationDependencyRelation = property(pairs, cache = true) {
+  val pairDependencyRelation = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       dependencyRelation(first) + "::" + dependencyRelation(second)
   }
 
   val relationHeadDependencyRelation = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       headDependencyRelation(first) + "::" + headDependencyRelation(second)
   }
 
-  val relationSubCategorization = property(pairs, cache = true) {
+  val pairSubCategorization = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       subCategorization(first) + "::" + subCategorization(second)
   }
 
   val relationHeadSubCategorization = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       headSubCategorization(first) + "::" + headSubCategorization(second)
   }
 
   val relationSpatialContext = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       spatialContext(first) + "::" + spatialContext(second)
   }
 
-  val relationHeadSpatialContext = property(pairs, cache = true) {
+  val pairHeadSpatialContext = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       headSpatialContext(first) + "::" + headSpatialContext(second)
   }
 
-  val relationTokensVector = property(pairs, cache = true) {
+  val pairTokensVector = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       headVector(first) ++ headVector(second)
   }
 
-  val relationNearestSegmentConceptToHeadVector = property(pairs, cache = true) {
+  val pairNearestSegmentConceptToHeadVector = property(pairs, cache = true) {
     r: Relation =>
-      val (first, _) = getArguments(r)
+      val (first, _) = getPairArguments(r)
       nearestSegmentConceptToHeadVector(first)
   }
 
-  val relationNearestSegmentConceptToPhraseVector = property(pairs, cache = true) {
+  val pairNearestSegmentConceptToPhraseVector = property(pairs, cache = true) {
     r: Relation =>
-      val (first, _) = getArguments(r)
+      val (first, _) = getPairArguments(r)
       nearestSegmentConceptToPhraseVector(first)
   }
 
-  val relationIsImageConcept = property(pairs, cache = true) {
+  val pairIsImageConcept = property(pairs, cache = true) {
     r: Relation =>
-      val (first, _) = getArguments(r)
+      val (first, _) = getPairArguments(r)
       isImageConcept(first)
   }
 
   val before = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       if (first == dummyPhrase)
         ""
       else
@@ -377,12 +384,127 @@ object MultiModalSpRLDataModel extends DataModel {
 
   val distance = property(pairs, cache = true) {
     r: Relation =>
-      val (first, second) = getArguments(r)
+      val (first, second) = getPairArguments(r)
       if (first == dummyPhrase)
         -1
       else
         getTokenDistance(first, second)
   }
+
+  val tripletIsRelation = property(triplets, cache = true) {
+    x: Relation =>
+      x.getProperty("Relation") match {
+        case "true" => "Relation"
+        case _ => "None"
+      }
+  }
+
+  val tripletGeneralType = property(triplets) {
+    r: Relation => if (r.containsProperty("GeneralType")) r.getProperty("GeneralType") else "None"
+  }
+
+  val tripletSpecificType = property(triplets) {
+    r: Relation => if (r.containsProperty("SpecificType")) r.getProperty("SpecificType") else "None"
+  }
+
+  val tripletRCC8 = property(triplets) {
+    r: Relation => if (r.containsProperty("RCC8")) r.getProperty("RCC8") else "None"
+  }
+
+  val tripletFoR = property(triplets) {
+    r: Relation => if (r.containsProperty("FoR")) r.getProperty("FoR") else "None"
+  }
+
+  val tripletWordForm = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      wordForm(first) + "::" + wordForm(second) + "::" + wordForm(third)
+  }
+
+  val tripletHeadWordForm = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      headWordFrom(first) + "::" + headWordFrom(second) + "::" + headWordFrom(third)
+  }
+
+  val tripletLemma = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      lemma(first) + "::" + lemma(second) + "::" + lemma(third)
+  }
+
+  val tripletHeadWordLemma = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      headWordLemma(first) + "::" + headWordLemma(second) + "::" + headWordLemma(third)
+  }
+
+  val tripletPos = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      pos(first) + "::" + pos(second) + "::" + pos(third)
+  }
+
+  val tripletHeadWordPos = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      headWordPos(first) + "::" + headWordPos(second) + "::" + headWordPos(third)
+  }
+
+  val tripletPhrasePos = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      phrasePos(first) + "::" + phrasePos(second) + "::" + phrasePos(third)
+  }
+
+  val tripletSemanticRole = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      semanticRole(first) + "::" + semanticRole(second) + "::" + semanticRole(third)
+  }
+
+  val tripletDependencyRelation = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      dependencyRelation(first) + "::" + dependencyRelation(second) + "::" + dependencyRelation(third)
+  }
+
+  val tripletHeadDependencyRelation = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      headDependencyRelation(first) + "::" + headDependencyRelation(second) + "::" + headDependencyRelation(third)
+  }
+
+  val tripletSubCategorization = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      subCategorization(first) + "::" + subCategorization(second) + "::" + subCategorization(third)
+  }
+
+  val tripletHeadSubCategorization = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      headSubCategorization(first) + "::" + headSubCategorization(second) + "::" + headSubCategorization(third)
+  }
+
+  val tripletSpatialContext = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      spatialContext(first) + "::" + spatialContext(second) + "::" + spatialContext(third)
+  }
+
+  val tripletHeadSpatialContext = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      headSpatialContext(first) + "::" + headSpatialContext(second)
+  }
+
+  val tripletTokensVector = property(triplets, cache = true) {
+    r: Relation =>
+      val (first, second, third) = getTripletArguments(r)
+      headVector(first) ++ headVector(second) ++ headVector(third)
+  }
+
 
   val imageLabel = property(images, cache = true) {
     x: Image => x.getLabel
@@ -423,8 +545,12 @@ object MultiModalSpRLDataModel extends DataModel {
     }
   }
 
-  private def getArguments(r: Relation): (Phrase, Phrase) = {
-    ((pairs(r) ~> relationToFirstArgument).head, (pairs(r) ~> relationToSecondArgument).head)
+  private def getTripletArguments(r: Relation): (Phrase, Phrase, Phrase) = {
+    ((triplets(r) ~> tripletToFirstArg).head, (triplets(r) ~> tripletToSecondArg).head, (triplets(r) ~> tripletToThirdArg).head)
+  }
+
+  private def getPairArguments(r: Relation): (Phrase, Phrase) = {
+    ((pairs(r) ~> pairToFirstArg).head, (pairs(r) ~> pairToSecondArg).head)
   }
 
   private def getSegmentConcepts(p: Phrase) = {

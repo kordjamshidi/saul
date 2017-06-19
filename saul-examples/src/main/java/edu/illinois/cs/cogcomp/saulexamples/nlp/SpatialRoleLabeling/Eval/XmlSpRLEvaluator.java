@@ -1,8 +1,12 @@
 package edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.Eval;
 
-
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.*;
-import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.*;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.LANDMARK;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.RELATION;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.SPATIALINDICATOR;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2013.TRAJECTOR;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.Scene;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.Sentence;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRL2017.SpRL2017Document;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.SpatialRoleLabeling.SpRLAnnotation;
 
 import javax.xml.bind.JAXBContext;
@@ -82,6 +86,10 @@ public class XmlSpRLEvaluator {
                     int spEnd = sp == null ? -1 : offset + sp.getEnd();
 
                     RelationEval eval = new RelationEval(trStart, trEnd, spStart, spEnd, lmStart, lmEnd);
+                    eval.setFoR(r.getFoR());
+                    eval.setGeneralType(r.getGeneralType());
+                    eval.setRCC8(r.getRCC8Value());
+                    eval.setSpecificType(r.getSpecificType());
                     relations.add(eval);
                 }
         return new RelationsEvalDocument(relations);
