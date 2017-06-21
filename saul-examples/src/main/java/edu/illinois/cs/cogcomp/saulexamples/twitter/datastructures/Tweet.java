@@ -52,6 +52,8 @@ public class Tweet {
         return Arrays.asList(text.split("\\s+"));
     }
 
+    public String getText() { return text; }
+
     public String getSentimentLabel() {
         return (sentimentLabel.equals("0")) ? "negative" : "positive";
     }
